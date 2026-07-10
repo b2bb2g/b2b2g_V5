@@ -1,10 +1,19 @@
 import { getT } from "@/lib/i18n/server";
-import { updatePassword } from "@/app/actions/auth";
+import { signOut, updatePassword } from "@/app/actions/auth";
 
 export default async function ResetUpdatePage(props: {
   searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
   const [{ t }, params] = await Promise.all([getT(), props.searchParams]);
+
+  const errorMessage =
+    params.error === "same"
+      ? t.auth.samePassword
+      : params.error === "weak"
+        ? t.auth.weakPassword
+        : params.error
+          ? t.common.error
+          : null;
 
   return (
     <div className="mx-auto max-w-sm py-8">
@@ -17,9 +26,9 @@ export default async function ResetUpdatePage(props: {
         </p>
       )}
 
-      {params.error && (
+      {errorMessage && (
         <p className="mt-3 rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
-          {t.common.error}
+          {errorMessage}
         </p>
       )}
 
@@ -40,6 +49,16 @@ export default async function ResetUpdatePage(props: {
           className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
         >
           {t.auth.updatePassword}
+        </button>
+      </form>
+
+      {/* Escape hatch: signs out and keeps the existing password valid. */}
+      <form action={signOut} className="mt-3">
+        <button
+          type="submit"
+          className="w-full rounded-xl bg-surface-sub px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-line/60"
+        >
+          {t.auth.keepCurrentPassword}
         </button>
       </form>
     </div>

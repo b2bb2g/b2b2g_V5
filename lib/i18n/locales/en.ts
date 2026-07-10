@@ -76,6 +76,9 @@ const en = {
     linkExpired: "That link has expired or was already used. Please request a new one.",
     linkAlreadyUsed: "That link was already used. Just set your new password below to continue.",
     setNewPasswordHint: "Set a new password to continue using your account.",
+    keepCurrentPassword: "Cancel and keep my current password",
+    samePassword: "Your new password must be different from the current one.",
+    weakPassword: "That password is too easy to guess. Try a longer, less common one.",
   },
   post: {
     inquire: "Send inquiry",

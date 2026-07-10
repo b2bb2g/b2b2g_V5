@@ -80,6 +80,9 @@ const ko: Dict = {
     linkExpired: "링크가 만료되었거나 이미 사용되었어요. 다시 요청해 주세요.",
     linkAlreadyUsed: "이미 사용된 링크예요. 아래에서 새 비밀번호만 설정하면 계속할 수 있어요.",
     setNewPasswordHint: "계속 이용하려면 새 비밀번호를 설정해 주세요.",
+    keepCurrentPassword: "취소하고 기존 비밀번호 유지하기",
+    samePassword: "새 비밀번호는 기존 비밀번호와 달라야 해요.",
+    weakPassword: "추측하기 쉬운 비밀번호예요. 더 길고 흔하지 않은 비밀번호로 정해 주세요.",
   },
   post: {
     inquire: "문의하기",

@@ -68,7 +68,15 @@ export async function updatePassword(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
-  if (error) redirect("/reset/update?error=1");
+  if (error) {
+    const reason =
+      error.code === "same_password"
+        ? "same"
+        : error.code === "weak_password"
+          ? "weak"
+          : "1";
+    redirect(`/reset/update?error=${reason}`);
+  }
   store.delete(PW_RESET_COOKIE);
   redirect("/dashboard");
 }
