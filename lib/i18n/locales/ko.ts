@@ -350,6 +350,9 @@ const ko: Dict = {
     cookies: "쿠키정책",
     copyright: "B2B2G Trade. All rights reserved.",
     tagline: "구매자와 공급자를 잇는 신뢰 기반 글로벌 B2B·B2G 마켓플레이스.",
+    marketplace: "마켓플레이스",
+    members: "회원",
+    legal: "약관 및 정책",
   },
   cookie: {
     message: "서비스 운영과 개선을 위해 쿠키를 사용해요. 전체 또는 필수 쿠키만 허용할 수 있어요.",

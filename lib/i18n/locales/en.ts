@@ -346,6 +346,9 @@ const en = {
     cookies: "Cookie Policy",
     copyright: "B2B2G Trade. All rights reserved.",
     tagline: "A trusted global B2B and B2G marketplace connecting buyers and suppliers.",
+    marketplace: "Marketplace",
+    members: "Members",
+    legal: "Legal",
   },
   cookie: {
     message: "We use cookies to run this service and improve your experience. You can accept all cookies or only the essential ones.",
