@@ -1,17 +1,18 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
-import { updateProfile } from "@/app/actions/profile";
-import { ClearableInput } from "@/components/ui/TextField";
+import { BadgeList } from "@/components/ui/Badge";
 
-export default async function ProfileSettingsPage(props: {
+// Profile VIEW (UX convention: read first, edit behind an explicit button).
+export default async function ProfileViewPage(props: {
   searchParams: Promise<{ saved?: string }>;
 }) {
   const session = await getSession();
   if (!session.userId || !session.profile) redirect("/login");
 
-  const [{ t }, params, supabase] = await Promise.all([
+  const [{ t, locale }, params, supabase] = await Promise.all([
     getT(),
     props.searchParams,
     createClient(),
@@ -22,11 +23,26 @@ export default async function ProfileSettingsPage(props: {
     .eq("profile_id", session.userId)
     .maybeSingle();
 
-  const labelCls = "text-xs font-semibold text-ink-soft";
+  const rows = [
+    { label: t.auth.email, value: contact?.email },
+    { label: t.profile.displayName, value: session.profile.display_name },
+    { label: t.profile.companyName, value: session.profile.company_name },
+    { label: t.profile.bio, value: session.profile.bio },
+    { label: t.profile.phone, value: contact?.phone },
+    { label: t.profile.contactPerson, value: contact?.contact_person },
+  ];
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-xl font-extrabold">{t.profile.title}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-extrabold">{t.profile.title}</h1>
+        <Link
+          href="/dashboard/profile/edit"
+          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-strong"
+        >
+          {t.common.edit}
+        </Link>
+      </div>
 
       {params.saved && (
         <p className="rounded-lg bg-positive-soft px-3 py-2 text-xs font-semibold text-positive">
@@ -34,77 +50,30 @@ export default async function ProfileSettingsPage(props: {
         </p>
       )}
 
-      <form action={updateProfile} className="space-y-3">
-        <label className="block">
-          <span className={labelCls}>{t.auth.email}</span>
-          <input
-            readOnly
-            value={contact?.email ?? ""}
-            className="mt-1 w-full rounded-xl border border-line bg-surface-sub/60 px-3 py-2.5 text-sm text-ink-faint"
-          />
-        </label>
-        <label className="block">
-          <span className={labelCls}>{t.profile.displayName}</span>
-          <div className="mt-1">
-            <ClearableInput
-              name="displayName"
-              defaultValue={session.profile.display_name ?? ""}
-              clearLabel={t.common.clearInput}
-            />
-          </div>
-        </label>
-        <label className="block">
-          <span className={labelCls}>{t.profile.companyName}</span>
-          <div className="mt-1">
-            <ClearableInput
-              name="companyName"
-              defaultValue={session.profile.company_name ?? ""}
-              clearLabel={t.common.clearInput}
-            />
-          </div>
-        </label>
-        <label className="block">
-          <span className={labelCls}>{t.profile.bio}</span>
-          <textarea
-            name="bio"
-            rows={4}
-            defaultValue={session.profile.bio ?? ""}
-            className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
-          />
-        </label>
+      {session.badges.length > 0 && (
+        <div>
+          <BadgeList badges={session.badges} locale={locale} />
+        </div>
+      )}
 
-        <p className="rounded-lg bg-surface-sub/60 px-3 py-2 text-xs leading-relaxed text-ink-faint">
-          {t.profile.contactHint}
-        </p>
-        <label className="block">
-          <span className={labelCls}>{t.profile.phone}</span>
-          <div className="mt-1">
-            <ClearableInput
-              name="phone"
-              type="tel"
-              defaultValue={contact?.phone ?? ""}
-              clearLabel={t.common.clearInput}
-            />
+      <dl className="divide-y divide-line rounded-card border border-line">
+        {rows.map((row) => (
+          <div key={row.label} className="px-4 py-3">
+            <dt className="text-xs font-semibold text-ink-faint">{row.label}</dt>
+            <dd
+              className={`mt-0.5 whitespace-pre-wrap text-sm ${
+                row.value ? "text-ink" : "text-ink-faint"
+              }`}
+            >
+              {row.value || t.common.notProvided}
+            </dd>
           </div>
-        </label>
-        <label className="block">
-          <span className={labelCls}>{t.profile.contactPerson}</span>
-          <div className="mt-1">
-            <ClearableInput
-              name="contactPerson"
-              defaultValue={contact?.contact_person ?? ""}
-              clearLabel={t.common.clearInput}
-            />
-          </div>
-        </label>
+        ))}
+      </dl>
 
-        <button
-          type="submit"
-          className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-        >
-          {t.common.save}
-        </button>
-      </form>
+      <p className="text-xs leading-relaxed text-ink-faint">
+        {t.profile.contactHint}
+      </p>
     </div>
   );
 }

@@ -84,6 +84,22 @@ export default async function DashboardPage() {
         </div>
       </header>
 
+      {/* Primary actions: register or request (UX convention: clear entry points) */}
+      <div className="flex gap-2">
+        <Link
+          href="/write/select"
+          className="flex-1 rounded-xl bg-primary px-4 py-3 text-center text-sm font-bold text-white hover:bg-primary-strong"
+        >
+          {t.dashboard.registerProduct}
+        </Link>
+        <Link
+          href="/write?menu=requests"
+          className="flex-1 rounded-xl bg-primary-soft px-4 py-3 text-center text-sm font-bold text-primary-strong hover:bg-primary-soft/70"
+        >
+          {t.dashboard.postRequest}
+        </Link>
+      </div>
+
       <section className="rounded-card border border-line p-4">
         <h2 className="text-sm font-bold">{t.dashboard.referralLink}</h2>
         <p className="mt-0.5 text-xs text-ink-faint">{t.dashboard.referralHint}</p>

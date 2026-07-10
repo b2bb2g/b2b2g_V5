@@ -4,12 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
-import {
-  BADGE_CODES,
-  POST_STATUS,
-  SETTING_KEYS,
-  TIER_CODES,
-} from "@/lib/constants";
+import { BADGE_CODES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 
 export type SpecInput = {
   fieldDefId: string | null;

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { saveHomepage } from "@/app/actions/homepage";
+import { DiscardModal } from "@/components/ui/EditFormFrame";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { ClearableInput } from "@/components/ui/TextField";
@@ -31,6 +32,9 @@ export function HomepageEditor({ t, userId, initial }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
+  const dirty = useRef(false);
+  const cancelHref = "/dashboard/homepage";
 
   const [slug, setSlug] = useState(initial.slug);
   const [introEn, setIntroEn] = useState(initial.introEn);
@@ -76,7 +80,12 @@ export function HomepageEditor({ t, userId, initial }: Props) {
     "mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary";
 
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      onInput={() => {
+        dirty.current = true;
+      }}
+    >
       {error && (
         <p className="rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
           {error}
@@ -202,18 +211,41 @@ export function HomepageEditor({ t, userId, initial }: Props) {
         {t.homepage.publish}
       </label>
 
-      <button
-        type="button"
-        disabled={pending || uploading || !slug || !introEn}
-        onClick={submit}
-        className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong disabled:opacity-50"
-      >
-        {pending || uploading ? (
-          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent align-middle" />
-        ) : (
-          t.common.save
-        )}
-      </button>
+      <div className="flex gap-2 pt-2">
+        <button
+          type="button"
+          disabled={pending || uploading}
+          onClick={() => {
+            if (dirty.current) setDiscardOpen(true);
+            else router.push(cancelHref);
+          }}
+          className="flex-1 rounded-xl bg-surface-sub px-4 py-3 text-sm font-semibold text-ink-soft disabled:opacity-50"
+        >
+          {t.common.cancel}
+        </button>
+        <button
+          type="button"
+          disabled={pending || uploading || !slug || !introEn}
+          onClick={submit}
+          className="flex-1 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong disabled:opacity-50"
+        >
+          {pending || uploading ? (
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent align-middle" />
+          ) : (
+            t.common.save
+          )}
+        </button>
+      </div>
+
+      <DiscardModal
+        open={discardOpen}
+        discardTitle={t.common.discardTitle}
+        discardBody={t.common.discardBody}
+        discardConfirm={t.common.discardConfirm}
+        keepEditing={t.common.keepEditing}
+        onKeep={() => setDiscardOpen(false)}
+        onDiscard={() => router.push(cancelHref)}
+      />
     </div>
   );
 }

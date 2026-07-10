@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { savePost, type PostInput, type SpecInput } from "@/app/actions/posts";
+import { DiscardModal } from "@/components/ui/EditFormFrame";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS, BOARD_TYPES, type BoardType } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
@@ -49,7 +50,9 @@ export function PostComposer({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
   const dirty = useRef(false);
+  const cancelHref = "/dashboard/posts";
 
   const [titleEn, setTitleEn] = useState(initial?.titleEn ?? "");
   const [titleKo, setTitleKo] = useState(initial?.titleKo ?? "");
@@ -366,6 +369,17 @@ export function PostComposer({
         <button
           type="button"
           disabled={pending || uploading}
+          onClick={() => {
+            if (dirty.current) setDiscardOpen(true);
+            else router.push(cancelHref);
+          }}
+          className="rounded-xl bg-surface-sub px-4 py-3 text-sm font-semibold text-ink-soft disabled:opacity-50"
+        >
+          {t.common.cancel}
+        </button>
+        <button
+          type="button"
+          disabled={pending || uploading}
           onClick={() => submit(true)}
           className="flex-1 rounded-xl bg-surface-sub px-4 py-3 text-sm font-bold text-ink-soft disabled:opacity-50"
         >
@@ -384,6 +398,19 @@ export function PostComposer({
           )}
         </button>
       </div>
+
+      <DiscardModal
+        open={discardOpen}
+        discardTitle={t.common.discardTitle}
+        discardBody={t.common.discardBody}
+        discardConfirm={t.common.discardConfirm}
+        keepEditing={t.common.keepEditing}
+        onKeep={() => setDiscardOpen(false)}
+        onDiscard={() => {
+          dirty.current = false;
+          router.push(cancelHref);
+        }}
+      />
     </div>
   );
 }

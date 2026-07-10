@@ -1,19 +1,21 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
-import { HomepageEditor } from "@/components/homepage/HomepageEditor";
 import { StatusLabel } from "@/components/ui/StatusLabel";
+import { postMediaUrl } from "@/lib/media";
 import { BADGE_CODES } from "@/lib/constants";
 
-export default async function HomepageSettingsPage(props: {
+// Mini homepage VIEW (UX convention: read first, edit behind a button).
+export default async function HomepageViewPage(props: {
   searchParams: Promise<{ saved?: string }>;
 }) {
   const session = await getSession();
   if (!session.userId) redirect("/login");
 
-  const [{ t }, params, supabase] = await Promise.all([
+  const [{ t, locale }, params, supabase] = await Promise.all([
     getT(),
     props.searchParams,
     createClient(),
@@ -46,16 +48,35 @@ export default async function HomepageSettingsPage(props: {
     .eq("profile_id", session.userId)
     .maybeSingle();
 
+  if (!homepage) {
+    return (
+      <div className="mx-auto max-w-lg space-y-4 py-8 text-center">
+        <h1 className="text-xl font-extrabold">{t.homepage.title}</h1>
+        <p className="text-sm leading-relaxed text-ink-soft">{t.homepage.slugHint}</p>
+        <Link
+          href="/dashboard/homepage/edit"
+          className="inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
+        >
+          {t.common.add}
+        </Link>
+      </div>
+    );
+  }
+
+  const docs = (homepage.doc_paths as { path: string; name: string }[]) ?? [];
+  const intro =
+    locale === "ko" && homepage.intro_ko ? homepage.intro_ko : homepage.intro_en;
+
   return (
     <div className="mx-auto max-w-lg space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-extrabold">{t.homepage.title}</h1>
-        {homepage && (
-          <StatusLabel
-            status={homepage.is_published ? "approved" : "draft"}
-            label={homepage.is_published ? t.homepage.published : t.homepage.notPublished}
-          />
-        )}
+        <Link
+          href="/dashboard/homepage/edit"
+          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-strong"
+        >
+          {t.common.edit}
+        </Link>
       </div>
 
       {params.saved && (
@@ -64,28 +85,52 @@ export default async function HomepageSettingsPage(props: {
         </p>
       )}
 
-      {homepage?.is_published && (
+      <div className="space-y-4 rounded-card border border-line p-4">
+        <div className="flex items-center justify-between gap-2">
+          <p className="truncate text-sm font-semibold text-ink-soft">/c/{homepage.slug}</p>
+          <StatusLabel
+            status={homepage.is_published ? "approved" : "draft"}
+            label={homepage.is_published ? t.homepage.published : t.homepage.notPublished}
+          />
+        </div>
+
+        {homepage.cover_image_path && (
+          <div className="relative aspect-video overflow-hidden rounded-xl bg-surface-sub">
+            <Image
+              src={postMediaUrl(homepage.cover_image_path)}
+              alt=""
+              fill
+              sizes="512px"
+              className="object-cover"
+            />
+          </div>
+        )}
+
+        <p className="line-clamp-4 whitespace-pre-wrap text-sm leading-relaxed text-ink">
+          {intro}
+        </p>
+
+        {docs.length > 0 && (
+          <p className="text-xs text-ink-faint">
+            {t.homepage.docs}: {docs.length}
+          </p>
+        )}
+
+        {homepage.custom_domain && (
+          <p className="text-xs text-ink-faint">
+            {t.homepage.customDomain}: {homepage.custom_domain}
+          </p>
+        )}
+      </div>
+
+      {homepage.is_published && (
         <Link
           href={`/c/${homepage.slug}`}
-          className="inline-block text-sm font-semibold text-primary"
+          className="block w-full rounded-xl bg-surface-sub px-4 py-3 text-center text-sm font-semibold text-ink-soft hover:bg-line/60"
         >
           {t.homepage.visit}
         </Link>
       )}
-
-      <HomepageEditor
-        t={t}
-        userId={session.userId}
-        initial={{
-          slug: homepage?.slug ?? "",
-          introEn: homepage?.intro_en ?? "",
-          introKo: homepage?.intro_ko ?? "",
-          coverImagePath: homepage?.cover_image_path ?? null,
-          docPaths: (homepage?.doc_paths as { path: string; name: string }[]) ?? [],
-          customDomain: homepage?.custom_domain ?? "",
-          isPublished: homepage?.is_published ?? false,
-        }}
-      />
     </div>
   );
 }

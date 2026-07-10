@@ -29,7 +29,15 @@ export default async function MyPostsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-extrabold">{t.dashboard.myPostsSummary}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-extrabold">{t.dashboard.myPostsSummary}</h1>
+        <Link
+          href="/write/select"
+          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-strong"
+        >
+          {t.post.writePost}
+        </Link>
+      </div>
 
       {rows.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />

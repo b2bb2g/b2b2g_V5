@@ -1,5 +1,10 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect --
+   Banner visibility depends on localStorage/matchMedia, which only exist in
+   the browser; a one-shot state sync after mount is the standard pattern to
+   avoid SSR hydration mismatches. */
+
 import { useEffect, useState } from "react";
 import type { Dictionary } from "@/lib/i18n";
 

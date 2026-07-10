@@ -7,11 +7,16 @@ import {
   SUBSCRIPTION_STATUS,
 } from "@/lib/constants";
 
+// Request-time window bounds (kept outside the component for lint purity).
+function isoDaysFromNow(days: number): string {
+  return new Date(Date.now() + days * 86400_000).toISOString();
+}
+
 export default async function AdminOverviewPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
 
-  const weekAgo = new Date(Date.now() - 7 * 86400_000).toISOString();
-  const soon = new Date(Date.now() + 14 * 86400_000).toISOString();
+  const weekAgo = isoDaysFromNow(-7);
+  const soon = isoDaysFromNow(14);
 
   const [pendingPosts, pendingMessages, pendingBadges, newMembers, expiring] =
     await Promise.all([
