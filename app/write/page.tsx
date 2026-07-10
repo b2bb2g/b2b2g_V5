@@ -65,7 +65,7 @@ export default async function WritePage(props: {
       <h1 className="text-xl font-extrabold">
         {initial ? t.post.editPost : t.post.writePost}
         <span className="ml-2 text-sm font-semibold text-ink-faint">
-          {locale === "ko" ? menu.title_ko : menu.title_en}
+          {menu.title_en}
         </span>
       </h1>
       <PostComposer

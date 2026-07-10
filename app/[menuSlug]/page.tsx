@@ -38,7 +38,8 @@ export default async function BoardPage(props: {
     listPostsForMenu(menu.id),
   ]);
 
-  const title = locale === "ko" ? menu.title_ko : menu.title_en;
+  // Menu names always display in English (user policy).
+  const title = menu.title_en;
   const isRequestBoard = menu.board_type === BOARD_TYPES.REQUEST;
   const isGallery =
     menu.board_type === BOARD_TYPES.PRODUCT ||

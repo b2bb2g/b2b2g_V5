@@ -68,6 +68,47 @@ function thumbnailOf(post: PostTeaser): string | null {
   return null;
 }
 
+// Development-only wireframe cards: empty sections stay visible so the
+// layout can be previewed before real content exists. Hidden in production.
+const SHOW_WIREFRAMES = process.env.NODE_ENV === "development";
+
+function WireframeMedia() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-ink-faint/40" aria-hidden="true">
+      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+    </svg>
+  );
+}
+
+function WireframeCard({ aspect = "aspect-square" }: { aspect?: string }) {
+  return (
+    <div className="card overflow-hidden border-dashed">
+      <div className={`${aspect} flex items-center justify-center bg-surface-sub/70`}>
+        <WireframeMedia />
+      </div>
+      <div className="space-y-2 p-3">
+        <div className="h-3.5 w-4/5 rounded bg-surface-sub" />
+        <div className="h-3 w-3/5 rounded bg-surface-sub" />
+      </div>
+    </div>
+  );
+}
+
+function WireframeRow() {
+  return (
+    <div className="card space-y-2.5 border-dashed p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="h-3.5 w-1/2 rounded bg-surface-sub" />
+        <div className="h-5 w-16 rounded-md bg-surface-sub" />
+      </div>
+      <div className="h-3 w-4/5 rounded bg-surface-sub" />
+      <div className="h-3 w-2/3 rounded bg-surface-sub" />
+    </div>
+  );
+}
+
 function ProductCard({
   post,
   href,
@@ -239,7 +280,7 @@ export default async function Home() {
       </section>
 
       {/* ============ New arrivals (storefront) ============ */}
-      {products.length > 0 && (
+      {(products.length > 0 || SHOW_WIREFRAMES) && (
         <section className={`${container} py-14 sm:py-20`}>
           <Reveal>
             <SectionHeader
@@ -249,15 +290,19 @@ export default async function Home() {
             />
           </Reveal>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            {products.map((post, i) => (
-              <Reveal key={post.id} delay={(i % 4) * 60}>
-                <ProductCard
-                  post={post}
-                  href={`/${menuSlugById.get(post.menu_id) ?? firstProductBoard}/${post.id}`}
-                  locale={locale}
-                />
-              </Reveal>
-            ))}
+            {products.length > 0
+              ? products.map((post, i) => (
+                  <Reveal key={post.id} delay={(i % 4) * 60}>
+                    <ProductCard
+                      post={post}
+                      href={`/${menuSlugById.get(post.menu_id) ?? firstProductBoard}/${post.id}`}
+                      locale={locale}
+                    />
+                  </Reveal>
+                ))
+              : Array.from({ length: 8 }).map((_, i) => (
+                  <WireframeCard key={i} />
+                ))}
           </div>
         </section>
       )}
@@ -274,9 +319,7 @@ export default async function Home() {
             {menus.map((menu, i) => (
               <Reveal key={menu.id} delay={(i % 4) * 60}>
                 <Link href={`/${menu.slug}`} className="card-hover group block p-5">
-                  <p className="text-base font-bold text-ink">
-                    {locale === "ko" ? menu.title_ko : menu.title_en}
-                  </p>
+                  <p className="text-base font-bold text-ink">{menu.title_en}</p>
                   <p className="mt-1 flex items-center gap-1 text-xs text-ink-faint">
                     {boardTypeLabels[menu.board_type] ?? menu.board_type}
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
@@ -301,7 +344,13 @@ export default async function Home() {
             />
           </Reveal>
           <div className="mt-6">
-            {events.length === 0 ? (
+            {events.length === 0 && SHOW_WIREFRAMES ? (
+              <div className="grid gap-4 sm:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <WireframeCard key={i} aspect="aspect-video" />
+                ))}
+              </div>
+            ) : events.length === 0 ? (
               <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />
             ) : (
               <div className="grid gap-4 sm:grid-cols-3">
@@ -345,7 +394,7 @@ export default async function Home() {
       )}
 
       {/* ============ Latest sourcing requests ============ */}
-      {requestsMenu && requests.length > 0 && (
+      {requestsMenu && (requests.length > 0 || SHOW_WIREFRAMES) && (
         <section className="border-y border-line bg-surface-sub/50">
           <div className={`${container} py-14 sm:py-20`}>
             <Reveal>
@@ -356,6 +405,8 @@ export default async function Home() {
               />
             </Reveal>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {requests.length === 0 &&
+                Array.from({ length: 4 }).map((_, i) => <WireframeRow key={i} />)}
               {requests.map((post, i) => (
                 <Reveal key={post.id} delay={(i % 2) * 70}>
                   <Link
@@ -391,7 +442,7 @@ export default async function Home() {
       )}
 
       {/* ============ Featured companies ============ */}
-      {featured.length > 0 && (
+      {(featured.length > 0 || SHOW_WIREFRAMES) && (
         <section className={`${container} py-14 sm:py-20`}>
           <Reveal>
             <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">
@@ -400,6 +451,12 @@ export default async function Home() {
           </Reveal>
           <div className="mt-8">
             <Carousel prevLabel={t.home.prev} nextLabel={t.home.next}>
+              {featured.length === 0 &&
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="w-64 shrink-0 snap-start sm:w-72">
+                    <WireframeCard aspect="aspect-video" />
+                  </div>
+                ))}
               {featured.map((company) => {
                 const name =
                   company.profiles?.company_name ??

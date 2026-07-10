@@ -10,7 +10,7 @@ export default async function WriteSelectPage() {
   const session = await getSession();
   if (!session.userId) redirect("/login?next=/write/select");
 
-  const [{ t, locale }, menus] = await Promise.all([getT(), getVisibleMenus()]);
+  const [{ t }, menus] = await Promise.all([getT(), getVisibleMenus()]);
   const writable = menus.filter(
     (menu) => menu.member_write || session.profile?.is_admin
   );
@@ -25,9 +25,7 @@ export default async function WriteSelectPage() {
             href={`/write?menu=${menu.slug}`}
             className="rounded-card border border-line p-4 hover:border-primary hover:bg-primary-soft/40"
           >
-            <p className="text-sm font-bold">
-              {locale === "ko" ? menu.title_ko : menu.title_en}
-            </p>
+            <p className="text-sm font-bold">{menu.title_en}</p>
             <p className="mt-0.5 text-xs text-ink-faint">
               {(t.admin.boardTypes as Record<string, string>)[menu.board_type] ??
                 menu.board_type}

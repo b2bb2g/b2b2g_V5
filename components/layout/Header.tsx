@@ -9,7 +9,7 @@ import { postMediaUrl } from "@/lib/media";
 import { BADGE_CODES, NOTIFICATION_STATE } from "@/lib/constants";
 
 export async function Header() {
-  const [{ t, locale }, menus, session] = await Promise.all([
+  const [{ t }, menus, session] = await Promise.all([
     getT(),
     getVisibleMenus(),
     getSession(),
@@ -26,10 +26,11 @@ export async function Header() {
     unread = count ?? 0;
   }
 
+  // Menu names always display in English (user policy), regardless of locale.
   const menuItems = menus.map((menu) => ({
     id: menu.id,
     slug: menu.slug,
-    label: locale === "ko" ? menu.title_ko : menu.title_en,
+    label: menu.title_en,
   }));
 
   // Role-aware dropdown entries (member / certified / coordinator / admin).

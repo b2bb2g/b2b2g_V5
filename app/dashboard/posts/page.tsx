@@ -51,11 +51,7 @@ export default async function MyPostsPage() {
                     {locale === "ko" && post.title_ko ? post.title_ko : post.title_en}
                   </p>
                   <p className="mt-0.5 text-xs text-ink-faint">
-                    {post.menus
-                      ? locale === "ko"
-                        ? post.menus.title_ko
-                        : post.menus.title_en
-                      : ""}
+                    {post.menus?.title_en ?? ""}
                     {" · "}
                     {new Date(post.updated_at).toISOString().slice(0, 10)}
                   </p>
