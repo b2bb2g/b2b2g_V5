@@ -71,6 +71,13 @@ const en = {
     finalCtaTitle: "Start trading with confidence",
     finalCtaBody: "Join with just an email. Post products, meet buyers, and let us handle the introductions.",
     startNow: "Get started",
+    stat1: "Every post reviewed",
+    stat2: "Zero exposed contacts",
+    stat3: "Document-verified badges",
+    mockProduct: "Industrial pump PX-2100",
+    mockCompany: "Verified manufacturer in Korea",
+    prev: "Previous",
+    next: "Next",
   },
   auth: {
     email: "Email",

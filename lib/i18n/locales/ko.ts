@@ -75,6 +75,13 @@ const ko: Dict = {
     finalCtaTitle: "신뢰 위에서 거래를 시작하세요",
     finalCtaBody: "이메일 하나로 가입하고, 제품을 올리고, 바이어를 만나세요. 연결은 저희가 책임져요.",
     startNow: "시작하기",
+    stat1: "모든 글 검수 후 게시",
+    stat2: "연락처 노출 0건",
+    stat3: "서류 검증 배지",
+    mockProduct: "산업용 펌프 PX-2100",
+    mockCompany: "검증된 한국 제조사",
+    prev: "이전",
+    next: "다음",
   },
   auth: {
     email: "이메일",

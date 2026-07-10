@@ -28,7 +28,7 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="wide space-y-4">
       <h1 className="text-xl font-extrabold">{t.admin.title}</h1>
       <nav className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4">
         {nav.map((item) => (

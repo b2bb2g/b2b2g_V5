@@ -4,12 +4,19 @@
 
 ## 디자인 시스템
 
-- 공용 클래스: `.btn-primary/.btn-secondary/.btn-soft/.btn-danger` (+`btn-sm/md/lg`),
-  `.card/.card-hover`, `.field`, `.section-title` — globals.css @layer components
-- 토큰: 토스 참조 블루(#3182f6) + 중립 잉크 스케일, 카드 radius 1rem, 섀도 2단
-- 헤더: 로고 마크 + 활성 메뉴 하이라이트(MenuNav), 푸터: 브랜드/태그라인/법적 링크/언어
-- 랜딩: 히어로(아이브로우+듀얼 CTA) → 가치제안 3카드 → 게시판 그리드 → 추천 기업
-  캐러셀(featured_slots 설정 연동) → 진행 타임라인 → 최종 CTA 밴드
+- 폰트: 한글 = Noto Sans KR(next/font 변수 폰트), 영문 = Pretendard(unicode-range로
+  라틴 전용 @font-face — 한글은 절대 Pretendard로 렌더링되지 않음)
+- 컨테이너 시스템: `main > *` 자동 컨테이너(48rem). `.wide`(80rem: 목록/관리자),
+  `.full-bleed`(랜딩) 클래스로 페이지 루트에서 폭 제어
+- 공용 클래스: `.btn-*`(4종 x 3사이즈), `.card/.card-hover`, `.field`, `.section-title`
+- 모션: `.animate-fade-up`(로드), `.reveal`(IntersectionObserver 스크롤 리빌,
+  `Reveal` 컴포넌트), `.animate-float`, prefers-reduced-motion 대응
+- 헤더: 데스크톱 인라인 동적 메뉴(활성 상태) + 모바일 스크롤 행, 알림 종,
+  **아바타 호버 드롭다운**(역할별 항목: 대시보드/내 글/문의/프로필/미니홈피(인증)/
+  코디네이터/직접메시지/관리자, 호버 이탈·클릭·이동 시 자동 닫힘) — `AvatarMenu`
+- 랜딩(full-bleed, max-w-6xl 섹션): 히어로 스플릿(좌 카피+CTA+체크 스탯, 우 실제 UI
+  어휘로 만든 제품카드 목업+플로팅 상태 칩) → 가치제안 3카드 → 게시판 그리드(4열)
+  → 추천 기업 캐러셀(화살표, `Carousel`) → 진행 3단계(수평 커넥터) → 다크 CTA 밴드
 
 ## UX 컨벤션 (모든 화면 공통, 필수)
 

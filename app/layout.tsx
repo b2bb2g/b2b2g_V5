@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -13,9 +13,12 @@ import {
 } from "@/lib/data/settings";
 import { SETTING_KEYS } from "@/lib/constants";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Hangul renders in Noto Sans KR; Latin renders in Pretendard via the
+// unicode-ranged @font-face in globals.css.
+const notoSansKr = Noto_Sans_KR({
+  variable: "--font-noto-sans-kr",
   subsets: ["latin"],
+  weight: "variable",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,12 +47,10 @@ export default async function RootLayout({
     getPublicSettings(),
   ]);
   return (
-    <html lang={locale} className={`${geistSans.variable} h-full antialiased`}>
+    <html lang={locale} className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
         <Header />
-        <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
-          {children}
-        </main>
+        <main className="w-full flex-1">{children}</main>
         <Footer />
         <GlobalBanners
           cookie={t.cookie}

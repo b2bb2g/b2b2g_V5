@@ -49,7 +49,7 @@ export default async function BoardPage(props: {
     menu.board_type === BOARD_TYPES.FLEXIBLE;
 
   return (
-    <div className="space-y-4">
+    <div className="wide space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-extrabold">{title}</h1>
         {canWrite && (
@@ -65,7 +65,7 @@ export default async function BoardPage(props: {
       {posts.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />
       ) : isGallery ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {posts.map((post) => {
             const thumb = thumbnail(post);
             return (

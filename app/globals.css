@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* Typography policy (user spec): Latin glyphs render in Pretendard, Hangul
+   falls through to Noto Sans KR (loaded via next/font). The unicode-range
+   below restricts Pretendard to Latin/punctuation so Korean never uses it. */
+@font-face {
+  font-family: "PretendardLatin";
+  src: url("https://fastly.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2")
+    format("woff2-variations");
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0020-024F, U+2000-206F, U+2070-209F, U+20A0-20CF;
+}
+
 /* Design tokens: bright, clean neutral base (DESIGN.md 2.0).
    Single light theme; mid-tone blue accent, no heavy industrial mood. */
 @theme {
@@ -19,8 +32,8 @@
   --color-negative: #ef4444;
   --color-negative-soft: #fdecec;
 
-  --font-sans: var(--font-geist-sans), "Apple SD Gothic Neo", "Pretendard",
-    "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  --font-sans: "PretendardLatin", var(--font-noto-sans-kr), "Apple SD Gothic Neo",
+    "Malgun Gothic", system-ui, sans-serif;
 
   --radius-card: 1rem;
 
@@ -32,9 +45,73 @@ body {
   background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-feature-settings: "ss01";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Page container system: every page root is auto-contained; opt out with
+   .full-bleed (landing) or widen with .wide (lists, admin console). */
+main > :where(*) {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 48rem;
+  padding: 1.5rem 1rem 2.5rem;
+}
+main > :where(.wide) {
+  max-width: 80rem;
+}
+main > :where(.full-bleed) {
+  max-width: none;
+  padding: 0;
+}
+
+/* Motion vocabulary: load-in, scroll reveal, gentle float. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.animate-float {
+  animation: float-y 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-float {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* Composable component classes: one visual vocabulary across every screen.

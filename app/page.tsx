@@ -6,6 +6,10 @@ import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
 import { postMediaUrl } from "@/lib/media";
+import { Reveal } from "@/components/ui/Reveal";
+import { Carousel } from "@/components/ui/Carousel";
+import { BadgePill } from "@/components/ui/Badge";
+import { StatusLabel } from "@/components/ui/StatusLabel";
 import { SETTING_KEYS } from "@/lib/constants";
 
 // Featured exposure for paid members (PRD 5.3): published mini homepages,
@@ -57,6 +61,51 @@ function ValueIcon({ kind }: { kind: "review" | "relay" | "badge" }) {
   );
 }
 
+// Hero visual: a composition of the platform's real UI vocabulary
+// (product card, review status, badges) instead of stock imagery.
+function HeroVisual({ t }: { t: Awaited<ReturnType<typeof getT>>["t"] }) {
+  return (
+    <div className="relative mx-auto w-full max-w-md">
+      <div className="card overflow-hidden shadow-(--shadow-float)">
+        <div className="flex aspect-[4/3] items-center justify-center bg-primary-soft">
+          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="text-primary/50" aria-hidden="true">
+            <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+            <path d="M17 18h1" />
+            <path d="M12 18h1" />
+            <path d="M7 18h1" />
+          </svg>
+        </div>
+        <div className="space-y-2 p-4">
+          <p className="text-sm font-bold">{t.home.mockProduct}</p>
+          <p className="text-xs text-ink-faint">{t.home.mockCompany}</p>
+          <div className="flex gap-1.5 pt-1">
+            <BadgePill code="manufacturer" label={t.badges.manufacturer} />
+            <BadgePill code="certified" label={t.badges.certified} />
+          </div>
+          <div className="btn-primary btn-md pointer-events-none mt-2 w-full">
+            {t.post.inquire}
+          </div>
+        </div>
+      </div>
+
+      {/* Floating status chips: the mediation cycle at a glance */}
+      <div className="animate-float absolute -left-4 top-10 hidden sm:block" style={{ animationDelay: "0.6s" }}>
+        <div className="card flex items-center gap-2 px-3 py-2 shadow-(--shadow-float)">
+          <StatusLabel status="admin_review" label={t.inquiry.steps.admin_review} />
+        </div>
+      </div>
+      <div className="animate-float absolute -right-5 bottom-24 hidden sm:block">
+        <div className="card flex items-center gap-2 px-3 py-2 shadow-(--shadow-float)">
+          <StatusLabel
+            status="answer_delivered"
+            label={t.inquiry.steps.answer_delivered}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function Home() {
   const [{ t, locale }, menus, session, settings] = await Promise.all([
     getT(),
@@ -78,163 +127,209 @@ export default async function Home() {
     { title: t.home.step2Title, body: t.home.step2Body },
     { title: t.home.step3Title, body: t.home.step3Body },
   ];
+  const stats = [t.home.stat1, t.home.stat2, t.home.stat3];
   const boardTypeLabels: Record<string, string> = t.admin.boardTypes;
   const firstBoard = menus[0]?.slug ?? "industrial";
+  const container = "mx-auto w-full max-w-6xl px-4 sm:px-6";
 
   return (
-    <div className="space-y-12 pb-4">
-      {/* Hero: one key message, two clear actions (DESIGN 2.0) */}
-      <section className="pt-6 text-center sm:pt-10">
-        <p className="text-xs font-bold uppercase tracking-widest text-primary">
-          {t.home.eyebrow}
-        </p>
-        <h1 className="mx-auto mt-3 max-w-xl text-[1.75rem] font-extrabold leading-[1.25] tracking-tight sm:text-4xl sm:leading-[1.2]">
-          {t.home.heroTitle}
-        </h1>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-ink-soft sm:text-base">
-          {t.home.heroSubtitle}
-        </p>
-        <div className="mt-7 flex flex-col justify-center gap-2 sm:flex-row">
-          {session.userId ? (
-            <>
-              <Link href="/write/select" className="btn-primary btn-lg">
-                {t.dashboard.registerProduct}
-              </Link>
-              <Link href={`/${firstBoard}`} className="btn-secondary btn-lg">
-                {t.home.browseBoards}
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link href="/signup" className="btn-primary btn-lg">
-                {t.home.startNow}
-              </Link>
-              <Link href={`/${firstBoard}`} className="btn-secondary btn-lg">
-                {t.home.browseBoards}
-              </Link>
-            </>
-          )}
-        </div>
-      </section>
-
-      {/* Value propositions */}
-      <section>
-        <h2 className="section-title">{t.home.valueTitle}</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          {values.map((value) => (
-            <div key={value.kind} className="card p-5">
-              <ValueIcon kind={value.kind} />
-              <p className="mt-3 text-sm font-bold">{value.title}</p>
-              <p className="mt-1 text-xs leading-relaxed text-ink-soft">
-                {value.body}
-              </p>
+    <div className="full-bleed">
+      {/* ============ Hero: full-viewport split layout ============ */}
+      <section className="relative overflow-hidden border-b border-line bg-gradient-to-b from-primary-soft/60 via-surface to-surface">
+        <div className={`${container} grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-2 lg:gap-14 lg:py-24`}>
+          <div className="animate-fade-up text-center lg:text-left">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+              {t.home.eyebrow}
+            </p>
+            <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.2] tracking-tight sm:text-5xl sm:leading-[1.15]">
+              {t.home.heroTitle}
+            </h1>
+            <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-ink-soft sm:text-base lg:mx-0">
+              {t.home.heroSubtitle}
+            </p>
+            <div className="mt-8 flex flex-col justify-center gap-2.5 sm:flex-row lg:justify-start">
+              {session.userId ? (
+                <>
+                  <Link href="/write/select" className="btn-primary btn-lg">
+                    {t.dashboard.registerProduct}
+                  </Link>
+                  <Link href={`/${firstBoard}`} className="btn-secondary btn-lg">
+                    {t.home.browseBoards}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/signup" className="btn-primary btn-lg">
+                    {t.home.startNow}
+                  </Link>
+                  <Link href={`/${firstBoard}`} className="btn-secondary btn-lg">
+                    {t.home.browseBoards}
+                  </Link>
+                </>
+              )}
             </div>
+            <ul className="mt-9 flex flex-wrap justify-center gap-x-6 gap-y-2 lg:justify-start">
+              {stats.map((stat) => (
+                <li key={stat} className="flex items-center gap-1.5 text-xs font-semibold text-ink-soft">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-positive" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                  {stat}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="animate-fade-up" style={{ animationDelay: "0.15s" }}>
+            <HeroVisual t={t} />
+          </div>
+        </div>
+      </section>
+
+      {/* ============ Value propositions ============ */}
+      <section className={`${container} py-16 sm:py-24`}>
+        <Reveal>
+          <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">
+            {t.home.valueTitle}
+          </h2>
+        </Reveal>
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          {values.map((value, i) => (
+            <Reveal key={value.kind} delay={i * 90}>
+              <div className="card-hover h-full p-6">
+                <ValueIcon kind={value.kind} />
+                <p className="mt-4 text-base font-bold">{value.title}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+                  {value.body}
+                </p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      {/* Boards */}
-      <section>
-        <h2 className="section-title">{t.home.boardsTitle}</h2>
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {menus.map((menu) => (
-            <Link key={menu.id} href={`/${menu.slug}`} className="card-hover group p-4">
-              <p className="font-bold text-ink">
-                {locale === "ko" ? menu.title_ko : menu.title_en}
-              </p>
-              <p className="mt-0.5 flex items-center gap-1 text-xs text-ink-faint">
-                {boardTypeLabels[menu.board_type] ?? menu.board_type}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
-                  <path d="m9 18 6-6-6-6" />
-                </svg>
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured companies (paid benefit, PRD 5.3) */}
-      {featured.length > 0 && (
-        <section>
-          <h2 className="section-title">{t.home.featured}</h2>
-          <div className="scrollbar-none -mx-4 mt-4 flex snap-x gap-3 overflow-x-auto px-4">
-            {featured.map((company) => {
-              const name =
-                company.profiles?.company_name ??
-                company.profiles?.display_name ??
-                company.slug;
-              const intro =
-                locale === "ko" && company.intro_ko
-                  ? company.intro_ko
-                  : company.intro_en;
-              return (
-                <Link
-                  key={company.slug}
-                  href={`/c/${company.slug}`}
-                  className="card-hover w-56 shrink-0 snap-start overflow-hidden"
-                >
-                  <div className="relative aspect-video bg-surface-sub">
-                    {company.cover_image_path && (
-                      <Image
-                        src={postMediaUrl(company.cover_image_path)}
-                        alt={name}
-                        fill
-                        sizes="224px"
-                        className="object-cover"
-                      />
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <p className="truncate text-sm font-bold">{name}</p>
-                    <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                      {intro}
-                    </p>
-                  </div>
+      {/* ============ Boards ============ */}
+      <section className="border-y border-line bg-surface-sub/50">
+        <div className={`${container} py-16 sm:py-24`}>
+          <Reveal>
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+              {t.home.boardsTitle}
+            </h2>
+          </Reveal>
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {menus.map((menu, i) => (
+              <Reveal key={menu.id} delay={(i % 4) * 70}>
+                <Link href={`/${menu.slug}`} className="card-hover group block p-5">
+                  <p className="text-base font-bold text-ink">
+                    {locale === "ko" ? menu.title_ko : menu.title_en}
+                  </p>
+                  <p className="mt-1 flex items-center gap-1 text-xs text-ink-faint">
+                    {boardTypeLabels[menu.board_type] ?? menu.board_type}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </p>
                 </Link>
-              );
-            })}
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ Featured companies carousel ============ */}
+      {featured.length > 0 && (
+        <section className={`${container} py-16 sm:py-24`}>
+          <Reveal>
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+              {t.home.featured}
+            </h2>
+          </Reveal>
+          <div className="mt-8">
+            <Carousel prevLabel={t.home.prev} nextLabel={t.home.next}>
+              {featured.map((company) => {
+                const name =
+                  company.profiles?.company_name ??
+                  company.profiles?.display_name ??
+                  company.slug;
+                const intro =
+                  locale === "ko" && company.intro_ko
+                    ? company.intro_ko
+                    : company.intro_en;
+                return (
+                  <Link
+                    key={company.slug}
+                    href={`/c/${company.slug}`}
+                    className="card-hover w-64 shrink-0 snap-start overflow-hidden sm:w-72"
+                  >
+                    <div className="relative aspect-video bg-surface-sub">
+                      {company.cover_image_path && (
+                        <Image
+                          src={postMediaUrl(company.cover_image_path)}
+                          alt={name}
+                          fill
+                          sizes="288px"
+                          className="object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <p className="truncate text-sm font-bold">{name}</p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-soft">
+                        {intro}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </Carousel>
           </div>
         </section>
       )}
 
-      {/* How it works */}
-      <section>
-        <h2 className="section-title">{t.home.howItWorksTitle}</h2>
-        <ol className="mt-4 space-y-0">
+      {/* ============ How it works ============ */}
+      <section className={`${container} py-16 sm:py-24`}>
+        <Reveal>
+          <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">
+            {t.home.howItWorksTitle}
+          </h2>
+        </Reveal>
+        <div className="relative mt-10 grid gap-8 sm:grid-cols-3 sm:gap-6">
+          <span className="absolute left-1/2 top-5 hidden h-px w-2/3 -translate-x-1/2 bg-line sm:block" aria-hidden="true" />
           {steps.map((step, i) => (
-            <li key={step.title} className="relative flex gap-4 pb-6 last:pb-0">
-              {i < steps.length - 1 && (
-                <span className="absolute left-4 top-9 h-[calc(100%-2.25rem)] w-px bg-line" aria-hidden="true" />
-              )}
-              <span className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-soft text-sm font-extrabold text-primary-strong">
-                {i + 1}
-              </span>
-              <div className="pt-1">
-                <p className="text-sm font-bold">{step.title}</p>
-                <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">
+            <Reveal key={step.title} delay={i * 110}>
+              <div className="relative text-center">
+                <span className="relative z-10 mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-extrabold text-white shadow-(--shadow-card)">
+                  {i + 1}
+                </span>
+                <p className="mt-4 text-base font-bold">{step.title}</p>
+                <p className="mx-auto mt-1.5 max-w-60 text-sm leading-relaxed text-ink-soft">
                   {step.body}
                 </p>
               </div>
-            </li>
+            </Reveal>
           ))}
-        </ol>
+        </div>
       </section>
 
-      {/* Final CTA */}
+      {/* ============ Final CTA ============ */}
       {!session.userId && (
-        <section className="rounded-card bg-ink px-6 py-10 text-center">
-          <h2 className="text-xl font-extrabold text-white">
-            {t.home.finalCtaTitle}
-          </h2>
-          <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-white/70">
-            {t.home.finalCtaBody}
-          </p>
-          <Link
-            href="/signup"
-            className="btn btn-lg mt-6 bg-white text-ink hover:bg-white/90"
-          >
-            {t.common.signUp}
-          </Link>
+        <section className="border-t border-line bg-ink">
+          <div className={`${container} py-16 text-center sm:py-20`}>
+            <Reveal>
+              <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                {t.home.finalCtaTitle}
+              </h2>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/70">
+                {t.home.finalCtaBody}
+              </p>
+              <Link
+                href="/signup"
+                className="btn btn-lg mt-8 bg-white text-ink hover:bg-white/90"
+              >
+                {t.common.signUp}
+              </Link>
+            </Reveal>
+          </div>
         </section>
       )}
     </div>
