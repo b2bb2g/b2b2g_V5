@@ -71,7 +71,7 @@ export default async function WritePage(props: {
   }
 
   return (
-    <div className="wide space-y-4">
+    <div className="space-y-4">
       <PageHeader title={initial ? t.post.editPost : t.post.writePost} subtitle={menu.title_en} />
       <PostComposer
         t={t}
