@@ -5,11 +5,12 @@ import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { MenuNav } from "@/components/layout/MenuNav";
 import { AvatarMenu, type AvatarMenuItem } from "@/components/layout/AvatarMenu";
+import { LocaleMenu } from "@/components/layout/LocaleMenu";
 import { postMediaUrl } from "@/lib/media";
 import { BADGE_CODES, NOTIFICATION_STATE } from "@/lib/constants";
 
 export async function Header() {
-  const [{ t }, menus, session] = await Promise.all([
+  const [{ t, locale }, menus, session] = await Promise.all([
     getT(),
     getVisibleMenus(),
     getSession(),
@@ -78,6 +79,7 @@ export async function Header() {
           <div className="min-w-0 flex-1 md:hidden" />
 
           <nav className="flex shrink-0 items-center gap-2">
+            <LocaleMenu locale={locale} label={t.common.language} />
             {session.userId && session.profile ? (
               <>
                 <Link

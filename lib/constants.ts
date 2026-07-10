@@ -114,6 +114,11 @@ export const LOCALES = ["en", "ko"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_COOKIE = "locale";
+// Language autonyms (each language's own name -- data, not translatable copy).
+export const LOCALE_LABELS: Record<Locale, string> = {
+  en: "English",
+  ko: "한국어",
+};
 
 // Set when a recovery link signs the user in; cleared once a new password is
 // saved. While present, proxy.ts locks navigation to the reset screen.
