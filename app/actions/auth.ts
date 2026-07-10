@@ -1,0 +1,65 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+
+function siteUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+}
+
+export async function signUp(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const referredByUid = String(formData.get("ref") ?? "").trim();
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${siteUrl()}/auth/confirm`,
+      data: referredByUid ? { referred_by_uid: referredByUid } : undefined,
+    },
+  });
+
+  if (error) redirect(`/signup?error=1${referredByUid ? `&ref=${referredByUid}` : ""}`);
+  redirect("/verify");
+}
+
+export async function signIn(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const next = String(formData.get("next") ?? "/dashboard");
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
+  revalidatePath("/", "layout");
+  redirect(next.startsWith("/") ? next : "/dashboard");
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/");
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const supabase = await createClient();
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl()}/auth/confirm?next=/reset/update`,
+  });
+  redirect("/reset?sent=1");
+}
+
+export async function updatePassword(formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) redirect("/reset/update?error=1");
+  redirect("/dashboard");
+}

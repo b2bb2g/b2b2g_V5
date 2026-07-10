@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# b2bb2g-v5
 
-## Getting Started
+B2B/B2G trade community platform connecting Korean manufacturers and suppliers
+with global buyers. Built with Next.js 16 (App Router) and Supabase.
+Product spec: `PRD.md` · Design spec: `DESIGN.md`.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16 (Turbopack, React 19, Tailwind CSS 4)
+- Supabase: Auth (email verification), Postgres + RLS, Storage
+- i18n: English default + Korean, cookie-based, language packs in `lib/i18n/locales`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and
+   publishable (anon) key.
+2. Apply the database schema to a fresh Supabase project:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   psql "$DATABASE_URL" -f supabase/migrations/00001_init.sql
+   ```
 
-## Learn More
+3. `npm install && npm run dev`
 
-To learn more about Next.js, take a look at the following resources:
+The first user who signs up with the email stored in the `bootstrap_admin_email`
+site setting automatically becomes an admin.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architecture notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Policy lives in the database, not code**: admin switches are rows in
+  `site_settings`; menus/boards, tiers, badge types and the permission matrix
+  are all admin-editable data (PRD section 0).
+- **Sensitive data double defense** (PRD 9): contact data sits in
+  `profile_contacts` behind RLS (self, admin, direct-referrer coordinator only).
+- **Non-member teaser** (PRD 12): anonymous visitors can only read the
+  `public_posts` view (approved posts, truncated body). The gradient lock in
+  the UI is presentation; the locked data is never delivered.
+- **Mediated inquiries** (PRD 8): every message is admin-reviewed before the
+  counterpart can read it, enforced by RLS on `inquiry_messages`.
+- **UI text**: no hardcoded strings; everything goes through the language packs.
+  No emoji anywhere (PRD rule 2).
 
-## Deploy on Vercel
+## Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/` routes: dynamic boards (`[menuSlug]`), auth, dashboard, inquiries,
+  notifications, admin console (`/admin`)
+- `lib/` constants, i18n, Supabase clients, data helpers
+- `components/` layout, UI primitives, post composer
+- `supabase/migrations/` canonical schema for the Supabase project
+- `proxy.ts` session refresh + route guard (Next 16 proxy convention)

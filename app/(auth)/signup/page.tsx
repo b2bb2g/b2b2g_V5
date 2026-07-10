@@ -1,0 +1,65 @@
+import { getT } from "@/lib/i18n/server";
+import { signUp } from "@/app/actions/auth";
+import Link from "next/link";
+
+export default async function SignUpPage(props: {
+  searchParams: Promise<{ ref?: string; error?: string }>;
+}) {
+  const [{ t }, params] = await Promise.all([getT(), props.searchParams]);
+
+  return (
+    <div className="mx-auto max-w-sm py-8">
+      <h1 className="text-xl font-extrabold">{t.auth.signUpTitle}</h1>
+      <p className="mt-1 text-sm text-ink-soft">{t.auth.signUpSubtitle}</p>
+
+      {params.ref && (
+        <p className="mt-3 rounded-lg bg-primary-soft px-3 py-2 text-xs font-semibold text-primary-strong">
+          {t.auth.referredBy}: {params.ref}
+        </p>
+      )}
+      {params.error && (
+        <p className="mt-3 rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
+          {t.common.error}
+        </p>
+      )}
+
+      <form action={signUp} className="mt-6 space-y-3">
+        {params.ref && <input type="hidden" name="ref" value={params.ref} />}
+        <label className="block">
+          <span className="text-xs font-semibold text-ink-soft">{t.auth.email}</span>
+          <input
+            type="email"
+            name="email"
+            required
+            autoComplete="email"
+            className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs font-semibold text-ink-soft">{t.auth.password}</span>
+          <input
+            type="password"
+            name="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+            className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+          />
+        </label>
+        <button
+          type="submit"
+          className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
+        >
+          {t.common.signUp}
+        </button>
+      </form>
+
+      <p className="mt-4 text-center text-sm text-ink-soft">
+        {t.auth.alreadyHaveAccount}{" "}
+        <Link href="/login" className="font-semibold text-primary">
+          {t.common.signIn}
+        </Link>
+      </p>
+    </div>
+  );
+}

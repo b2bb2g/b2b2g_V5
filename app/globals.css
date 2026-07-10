@@ -1,26 +1,56 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Design tokens: bright, clean neutral base (DESIGN.md 2.0).
+   Single light theme; mid-tone accent, no heavy industrial mood. */
+@theme {
+  --color-primary: #3182f6;
+  --color-primary-strong: #1b64da;
+  --color-primary-soft: #e8f3ff;
+  --color-ink: #191f28;
+  --color-ink-soft: #4e5968;
+  --color-ink-faint: #8b95a1;
+  --color-line: #e5e8eb;
+  --color-surface: #ffffff;
+  --color-surface-sub: #f2f4f6;
+  --color-positive: #12b76a;
+  --color-positive-soft: #e6f6ee;
+  --color-caution: #d97706;
+  --color-caution-soft: #fdf1e0;
+  --color-negative: #ef4444;
+  --color-negative-soft: #fdecec;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: var(--font-geist-sans), "Apple SD Gothic Neo", "Pretendard",
+    "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --radius-card: 1rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Defensive CSS for in-app browsers (PRD 13): dvh-based full height. */
+.min-h-screen-safe {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Gradient lock: functional fade-out over locked detail content (PRD 12.1). */
+.teaser-fade {
+  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 95%);
+  mask-image: linear-gradient(to bottom, black 40%, transparent 95%);
+}
+
+::selection {
+  background: var(--color-primary-soft);
+}
+
+/* Horizontal-scroll rows (dynamic menus, media strips) without a scrollbar. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
