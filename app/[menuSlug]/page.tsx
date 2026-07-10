@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getMenuBySlug } from "@/lib/data/menus";
 import { listPostsForMenu } from "@/lib/data/posts";
-import { getSession } from "@/lib/data/session";
 import { postMediaUrl, videoThumbnail } from "@/lib/media";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusLabel } from "@/components/ui/StatusLabel";
@@ -34,15 +33,12 @@ export default async function BoardPage(props: {
   const menu = await getMenuBySlug(menuSlug);
   if (!menu || !menu.is_visible) notFound();
 
-  const [{ t, locale }, posts, session] = await Promise.all([
+  const [{ t, locale }, posts] = await Promise.all([
     getT(),
     listPostsForMenu(menu.id),
-    getSession(),
   ]);
 
   const title = locale === "ko" ? menu.title_ko : menu.title_en;
-  const canWrite =
-    !!session.userId && (menu.member_write || session.profile?.is_admin);
   const isRequestBoard = menu.board_type === BOARD_TYPES.REQUEST;
   const isGallery =
     menu.board_type === BOARD_TYPES.PRODUCT ||
@@ -50,17 +46,8 @@ export default async function BoardPage(props: {
 
   return (
     <div className="wide space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-extrabold">{title}</h1>
-        {canWrite && (
-          <Link
-            href={`/write?menu=${menu.slug}`}
-            className="rounded-xl bg-primary px-3.5 py-2 text-sm font-semibold text-white hover:bg-primary-strong"
-          >
-            {t.post.writePost}
-          </Link>
-        )}
-      </div>
+      {/* Creation lives on the dashboard and avatar menu only (UX policy). */}
+      <h1 className="text-xl font-extrabold">{title}</h1>
 
       {posts.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />

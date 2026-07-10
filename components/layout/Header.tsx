@@ -5,6 +5,7 @@ import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { MenuNav } from "@/components/layout/MenuNav";
 import { AvatarMenu, type AvatarMenuItem } from "@/components/layout/AvatarMenu";
+import { postMediaUrl } from "@/lib/media";
 import { BADGE_CODES, NOTIFICATION_STATE } from "@/lib/constants";
 
 export async function Header() {
@@ -15,23 +16,14 @@ export async function Header() {
   ]);
 
   let unread = 0;
-  let email = "";
   if (session.userId) {
     const supabase = await createClient();
-    const [{ count }, { data: contact }] = await Promise.all([
-      supabase
-        .from("notifications")
-        .select("id", { count: "exact", head: true })
-        .eq("profile_id", session.userId)
-        .eq("state", NOTIFICATION_STATE.UNREAD),
-      supabase
-        .from("profile_contacts")
-        .select("email")
-        .eq("profile_id", session.userId)
-        .maybeSingle(),
-    ]);
+    const { count } = await supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", session.userId)
+      .eq("state", NOTIFICATION_STATE.UNREAD);
     unread = count ?? 0;
-    email = contact?.email ?? "";
   }
 
   const menuItems = menus.map((menu) => ({
@@ -41,13 +33,16 @@ export async function Header() {
   }));
 
   // Role-aware dropdown entries (member / certified / coordinator / admin).
+  // Product/request creation lives here and on the dashboard only.
   const dropdown: AvatarMenuItem[] = [];
   if (session.profile) {
     dropdown.push(
       { href: "/dashboard", label: t.common.dashboard },
+      { href: "/dashboard/profile", label: t.nav.profile },
+      { href: "/write/select", label: t.dashboard.registerProduct },
+      { href: "/write?menu=requests", label: t.dashboard.postRequest },
       { href: "/dashboard/posts", label: t.nav.myPosts },
-      { href: "/inquiries", label: t.inquiry.title },
-      { href: "/dashboard/profile", label: t.nav.profile }
+      { href: "/inquiries", label: t.inquiry.title }
     );
     if (session.badges.some((b) => b.badge_types?.code === BADGE_CODES.CERTIFIED)) {
       dropdown.push({ href: "/dashboard/homepage", label: t.homepage.title });
@@ -105,9 +100,16 @@ export async function Header() {
                     session.profile.company_name ??
                     `UID ${session.profile.uid}`
                   }
-                  subtitle={email || `UID ${session.profile.uid}`}
+                  uid={session.profile.uid}
+                  avatarUrl={
+                    session.profile.avatar_url
+                      ? postMediaUrl(session.profile.avatar_url)
+                      : null
+                  }
                   items={dropdown}
                   signOutLabel={t.common.signOut}
+                  copyLabel={t.common.copy}
+                  copiedLabel={t.common.copied}
                 />
               </>
             ) : (

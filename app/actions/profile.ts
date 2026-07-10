@@ -16,6 +16,7 @@ export async function updateProfile(formData: FormData) {
   const bio = String(formData.get("bio") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const contactPerson = String(formData.get("contactPerson") ?? "").trim();
+  const avatarPath = String(formData.get("avatarPath") ?? "").trim();
 
   // Public-safe fields; privileged columns are protected by the DB guard trigger.
   await supabase
@@ -24,6 +25,7 @@ export async function updateProfile(formData: FormData) {
       display_name: displayName || null,
       company_name: companyName || null,
       bio: bio || null,
+      avatar_url: avatarPath || null,
     })
     .eq("id", user.id);
 

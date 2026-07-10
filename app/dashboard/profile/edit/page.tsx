@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { updateProfile } from "@/app/actions/profile";
 import { ClearableInput } from "@/components/ui/TextField";
 import { EditFormFrame } from "@/components/ui/EditFormFrame";
+import { AvatarUploader } from "@/components/profile/AvatarUploader";
 
 export default async function ProfileEditPage() {
   const session = await getSession();
@@ -38,6 +39,22 @@ export default async function ProfileEditPage() {
         discardConfirm={t.common.discardConfirm}
         keepEditing={t.common.keepEditing}
       >
+        <div>
+          <span className={labelCls}>{t.profile.avatar}</span>
+          <div className="mt-2">
+            <AvatarUploader
+              userId={session.userId}
+              name={
+                session.profile.display_name ??
+                session.profile.company_name ??
+                `UID ${session.profile.uid}`
+              }
+              initialPath={session.profile.avatar_url}
+              changeLabel={t.profile.changePhoto}
+              removeLabel={t.profile.removePhoto}
+            />
+          </div>
+        </div>
         <label className="block">
           <span className={labelCls}>{t.auth.email}</span>
           <input
