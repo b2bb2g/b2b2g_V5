@@ -32,6 +32,7 @@ const en = {
     error: "Something went wrong. Please try again.",
     required: "Required",
     optional: "Optional",
+    clearInput: "Clear input",
   },
   nav: {
     menu: "Menu",
@@ -77,6 +78,8 @@ const en = {
     linkAlreadyUsed: "That link was already used. Just set your new password below to continue.",
     setNewPasswordHint: "Set a new password to continue using your account.",
     keepCurrentPassword: "Cancel and keep my current password",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
     samePassword: "Your new password must be different from the current one.",
     weakPassword: "That password is too easy to guess. Try a longer, less common one.",
   },

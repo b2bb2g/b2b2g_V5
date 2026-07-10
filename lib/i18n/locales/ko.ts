@@ -36,6 +36,7 @@ const ko: Dict = {
     error: "문제가 발생했어요. 다시 시도해 주세요.",
     required: "필수",
     optional: "선택",
+    clearInput: "입력 지우기",
   },
   nav: {
     menu: "메뉴",
@@ -81,6 +82,8 @@ const ko: Dict = {
     linkAlreadyUsed: "이미 사용된 링크예요. 아래에서 새 비밀번호만 설정하면 계속할 수 있어요.",
     setNewPasswordHint: "계속 이용하려면 새 비밀번호를 설정해 주세요.",
     keepCurrentPassword: "취소하고 기존 비밀번호 유지하기",
+    showPassword: "비밀번호 보기",
+    hidePassword: "비밀번호 숨기기",
     samePassword: "새 비밀번호는 기존 비밀번호와 달라야 해요.",
     weakPassword: "추측하기 쉬운 비밀번호예요. 더 길고 흔하지 않은 비밀번호로 정해 주세요.",
   },

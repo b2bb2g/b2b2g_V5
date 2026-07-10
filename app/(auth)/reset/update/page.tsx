@@ -1,5 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { signOut, updatePassword } from "@/app/actions/auth";
+import { PasswordInput } from "@/components/ui/TextField";
 
 export default async function ResetUpdatePage(props: {
   searchParams: Promise<{ error?: string; notice?: string }>;
@@ -35,14 +36,17 @@ export default async function ResetUpdatePage(props: {
       <form action={updatePassword} className="mt-6 space-y-3">
         <label className="block">
           <span className="text-xs font-semibold text-ink-soft">{t.auth.newPassword}</span>
-          <input
-            type="password"
-            name="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
-          />
+          <div className="mt-1">
+            <PasswordInput
+              name="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              clearLabel={t.common.clearInput}
+              showLabel={t.auth.showPassword}
+              hideLabel={t.auth.hidePassword}
+            />
+          </div>
         </label>
         <button
           type="submit"

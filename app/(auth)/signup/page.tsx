@@ -1,5 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { signUp } from "@/app/actions/auth";
+import { ClearableInput, PasswordInput } from "@/components/ui/TextField";
 import Link from "next/link";
 
 export default async function SignUpPage(props: {
@@ -27,24 +28,29 @@ export default async function SignUpPage(props: {
         {params.ref && <input type="hidden" name="ref" value={params.ref} />}
         <label className="block">
           <span className="text-xs font-semibold text-ink-soft">{t.auth.email}</span>
-          <input
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-            className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
-          />
+          <div className="mt-1">
+            <ClearableInput
+              type="email"
+              name="email"
+              required
+              autoComplete="email"
+              clearLabel={t.common.clearInput}
+            />
+          </div>
         </label>
         <label className="block">
           <span className="text-xs font-semibold text-ink-soft">{t.auth.password}</span>
-          <input
-            type="password"
-            name="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
-          />
+          <div className="mt-1">
+            <PasswordInput
+              name="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              clearLabel={t.common.clearInput}
+              showLabel={t.auth.showPassword}
+              hideLabel={t.auth.hidePassword}
+            />
+          </div>
         </label>
         <button
           type="submit"

@@ -1,5 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { requestPasswordReset } from "@/app/actions/auth";
+import { ClearableInput } from "@/components/ui/TextField";
 
 export default async function ResetPage(props: {
   searchParams: Promise<{ sent?: string }>;
@@ -19,13 +20,15 @@ export default async function ResetPage(props: {
         <form action={requestPasswordReset} className="mt-6 space-y-3">
           <label className="block">
             <span className="text-xs font-semibold text-ink-soft">{t.auth.email}</span>
-            <input
-              type="email"
-              name="email"
-              required
-              autoComplete="email"
-              className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
-            />
+            <div className="mt-1">
+              <ClearableInput
+                type="email"
+                name="email"
+                required
+                autoComplete="email"
+                clearLabel={t.common.clearInput}
+              />
+            </div>
           </label>
           <button
             type="submit"
