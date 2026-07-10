@@ -48,6 +48,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // The password update screen exists only for recovery-link sessions;
+  // signed-in visitors without a pending reset are sent home.
+  if (path.startsWith("/reset/update") && user && !pwResetPending) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
   const isProtected =
     path.startsWith("/dashboard") ||
     path.startsWith("/admin") ||
