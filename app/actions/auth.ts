@@ -61,11 +61,14 @@ export async function requestPasswordReset(formData: FormData) {
 }
 
 export async function updatePassword(formData: FormData) {
+  const store = await cookies();
+  // Password changes are allowed only inside a recovery-link session.
+  if (store.get(PW_RESET_COOKIE)?.value !== "1") redirect("/dashboard");
+
   const password = String(formData.get("password") ?? "");
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) redirect("/reset/update?error=1");
-  const store = await cookies();
   store.delete(PW_RESET_COOKIE);
   redirect("/dashboard");
 }
