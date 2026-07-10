@@ -116,10 +116,13 @@ export default async function PostDetailPage(props: {
         <h1 className="text-xl font-extrabold leading-snug">{title}</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
           <span>{t.post.postedBy}</span>
-          <span className="font-semibold text-ink">
+          <Link
+            href={`/u/${full?.author?.uid ?? teaser?.author_uid}`}
+            className="font-semibold text-ink hover:text-primary-strong"
+          >
             {(full?.author?.company_name ?? full?.author?.display_name) ??
               (teaser?.author_company ?? teaser?.author_name)}
-          </span>
+          </Link>
           {full?.author?.badges.map((b) => (
             <BadgePill
               key={b.code}

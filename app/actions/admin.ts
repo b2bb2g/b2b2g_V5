@@ -161,6 +161,41 @@ export async function reviewBadgeApplication(formData: FormData) {
   revalidatePath("/admin/badges");
 }
 
+// ---- Member management (D3) ----------------------------------------------
+export async function saveMemberMemo(formData: FormData) {
+  const { supabase, userId } = await requireAdmin();
+  const profileId = String(formData.get("profileId") ?? "");
+  const memo = String(formData.get("memo") ?? "").trim();
+
+  await supabase.from("member_admin_memos").upsert({
+    profile_id: profileId,
+    memo,
+    updated_by: userId,
+    updated_at: new Date().toISOString(),
+  });
+  await audit(supabase, "member_memo_update", "profile", profileId);
+  revalidatePath(`/admin/members/${profileId}`);
+}
+
+export async function setMemberStatus(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const profileId = String(formData.get("profileId") ?? "");
+  const status = String(formData.get("status") ?? "");
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!["active", "suspended"].includes(status)) return;
+
+  await supabase
+    .from("profiles")
+    .update({
+      status,
+      suspend_reason: status === "suspended" ? reason || null : null,
+    })
+    .eq("id", profileId);
+  await audit(supabase, `member_${status}`, "profile", profileId, { reason });
+  revalidatePath(`/admin/members/${profileId}`);
+  revalidatePath("/admin/members");
+}
+
 // ---- Menus ---------------------------------------------------------------
 export async function toggleMenuFlag(formData: FormData) {
   const { supabase } = await requireAdmin();

@@ -74,10 +74,15 @@ export default async function MembersPage(props: {
           </thead>
           <tbody className="divide-y divide-line">
             {members.map((member) => (
-              <tr key={member.id}>
+              <tr key={member.id} className="hover:bg-surface-sub/40">
                 <td className="px-3 py-2.5 font-semibold">{member.uid}</td>
                 <td className="px-3 py-2.5">
-                  {member.display_name}
+                  <a
+                    href={`/admin/members/${member.id}`}
+                    className="font-semibold text-primary-strong hover:underline"
+                  >
+                    {member.display_name}
+                  </a>
                   {member.company_name && (
                     <span className="text-ink-faint"> · {member.company_name}</span>
                   )}

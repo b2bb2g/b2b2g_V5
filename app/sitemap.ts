@@ -1,0 +1,60 @@
+import type { MetadataRoute } from "next";
+import { createClient } from "@supabase/supabase-js";
+
+// Sitemap from approved public content (PRD 12.2): menus, published posts,
+// published mini homepages. Uses a bare client (no request context).
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const entries: MetadataRoute.Sitemap = [
+    { url: site, changeFrequency: "daily", priority: 1 },
+    { url: `${site}/membership`, changeFrequency: "monthly", priority: 0.5 },
+  ];
+
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    );
+    const [{ data: menus }, { data: posts }, { data: homepages }] =
+      await Promise.all([
+        supabase.from("menus").select("id, slug").eq("is_visible", true),
+        supabase
+          .from("public_posts")
+          .select("id, menu_id, published_at")
+          .order("published_at", { ascending: false })
+          .limit(2000),
+        supabase.from("mini_homepages").select("slug, updated_at").eq("is_published", true),
+      ]);
+
+    const menuSlugById = new Map((menus ?? []).map((m) => [m.id, m.slug]));
+    for (const menu of menus ?? []) {
+      entries.push({
+        url: `${site}/${menu.slug}`,
+        changeFrequency: "daily",
+        priority: 0.8,
+      });
+    }
+    for (const post of posts ?? []) {
+      const slug = menuSlugById.get(post.menu_id);
+      if (!slug) continue;
+      entries.push({
+        url: `${site}/${slug}/${post.id}`,
+        lastModified: post.published_at ?? undefined,
+        changeFrequency: "weekly",
+        priority: 0.7,
+      });
+    }
+    for (const homepage of homepages ?? []) {
+      entries.push({
+        url: `${site}/c/${homepage.slug}`,
+        lastModified: homepage.updated_at ?? undefined,
+        changeFrequency: "weekly",
+        priority: 0.6,
+      });
+    }
+  } catch {
+    // Sitemap degrades to static entries when the DB is unreachable.
+  }
+
+  return entries;
+}

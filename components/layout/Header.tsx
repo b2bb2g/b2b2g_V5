@@ -3,6 +3,7 @@ import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
+import { MenuNav } from "@/components/layout/MenuNav";
 import { NOTIFICATION_STATE } from "@/lib/constants";
 
 export async function Header() {
@@ -24,18 +25,23 @@ export async function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur-md">
       <div className="mx-auto max-w-3xl px-4">
         <div className="flex h-14 items-center justify-between gap-3">
-          <Link href="/" className="text-lg font-extrabold tracking-tight text-primary">
-            {t.common.siteName}
+          <Link href="/" className="flex items-center gap-2" aria-label={t.common.siteName}>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-sm font-extrabold text-white">
+              B
+            </span>
+            <span className="text-base font-extrabold tracking-tight text-ink">
+              {t.common.siteName}
+            </span>
           </Link>
           <nav className="flex items-center gap-1">
             {session.userId ? (
               <>
                 <Link
                   href="/notifications"
-                  className="relative rounded-lg p-2 text-ink-soft hover:bg-surface-sub"
+                  className="relative rounded-lg p-2 text-ink-soft transition-colors hover:bg-surface-sub"
                   aria-label={t.common.notifications}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -49,17 +55,11 @@ export async function Header() {
                   )}
                 </Link>
                 {session.profile?.is_admin && (
-                  <Link
-                    href="/admin"
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface-sub"
-                  >
+                  <Link href="/admin" className="btn-secondary btn-sm">
                     {t.common.admin}
                   </Link>
                 )}
-                <Link
-                  href="/dashboard"
-                  className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface-sub"
-                >
+                <Link href="/dashboard" className="btn-soft btn-sm">
                   {t.common.dashboard}
                 </Link>
               </>
@@ -67,32 +67,24 @@ export async function Header() {
               <>
                 <Link
                   href="/login"
-                  className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface-sub"
+                  className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub"
                 >
                   {t.common.signIn}
                 </Link>
-                <Link
-                  href="/signup"
-                  className="rounded-xl bg-primary px-3.5 py-2 text-sm font-semibold text-white hover:bg-primary-strong"
-                >
+                <Link href="/signup" className="btn-primary btn-sm px-3.5 py-2">
                   {t.common.signUp}
                 </Link>
               </>
             )}
           </nav>
         </div>
-        {/* Dynamic menu row: admin-managed, variable count, horizontal scroll on overflow */}
-        <nav className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 pb-2">
-          {menus.map((menu) => (
-            <Link
-              key={menu.id}
-              href={`/${menu.slug}`}
-              className="whitespace-nowrap rounded-full bg-surface-sub px-3.5 py-1.5 text-sm font-semibold text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
-            >
-              {locale === "ko" ? menu.title_ko : menu.title_en}
-            </Link>
-          ))}
-        </nav>
+        <MenuNav
+          items={menus.map((menu) => ({
+            id: menu.id,
+            slug: menu.slug,
+            label: locale === "ko" ? menu.title_ko : menu.title_en,
+          }))}
+        />
       </div>
     </header>
   );

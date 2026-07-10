@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* Design tokens: bright, clean neutral base (DESIGN.md 2.0).
-   Single light theme; mid-tone accent, no heavy industrial mood. */
+   Single light theme; mid-tone blue accent, no heavy industrial mood. */
 @theme {
   --color-primary: #3182f6;
   --color-primary-strong: #1b64da;
@@ -23,12 +23,67 @@
     "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
 
   --radius-card: 1rem;
+
+  --shadow-card: 0 1px 2px rgb(25 31 40 / 0.04), 0 4px 12px rgb(25 31 40 / 0.04);
+  --shadow-float: 0 4px 10px rgb(25 31 40 / 0.06), 0 12px 32px rgb(25 31 40 / 0.1);
 }
 
 body {
   background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-feature-settings: "ss01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Composable component classes: one visual vocabulary across every screen.
+   Tailwind 4 cannot @apply custom classes, so each variant repeats the base. */
+@layer components {
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-soft,
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-strong;
+  }
+  .btn-secondary {
+    @apply bg-surface-sub text-ink-soft hover:bg-line/70;
+  }
+  .btn-soft {
+    @apply bg-primary-soft text-primary-strong hover:bg-primary-soft/70;
+  }
+  .btn-danger {
+    @apply bg-negative-soft text-negative hover:bg-negative-soft/70;
+  }
+  .btn-lg {
+    @apply px-5 py-3;
+  }
+  .btn-md {
+    @apply px-4 py-2.5;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .card,
+  .card-hover {
+    @apply rounded-card border border-line bg-surface;
+  }
+  .card-hover {
+    @apply transition-all duration-150 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-(--shadow-card);
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15;
+  }
+
+  .section-title {
+    @apply text-lg font-bold tracking-tight;
+  }
 }
 
 /* Defensive CSS for in-app browsers (PRD 13): dvh-based full height. */
@@ -45,6 +100,11 @@ body {
 
 ::selection {
   background: var(--color-primary-soft);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* Horizontal-scroll rows (dynamic menus, media strips) without a scrollbar. */
