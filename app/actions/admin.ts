@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendNotificationEmail } from "@/lib/notify-email";
 import {
   BADGE_CODES,
   MESSAGE_REVIEW_STATUS,
@@ -47,26 +48,26 @@ export async function reviewPost(formData: FormData) {
   const decision = String(formData.get("decision") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
 
-  if (decision === "approve") {
-    await supabase
-      .from("posts")
-      .update({
-        status: POST_STATUS.APPROVED,
-        reviewed_by: userId,
-        reviewed_at: new Date().toISOString(),
-        reject_reason: null,
-      })
-      .eq("id", postId);
-  } else {
-    await supabase
-      .from("posts")
-      .update({
-        status: POST_STATUS.REJECTED,
-        reviewed_by: userId,
-        reviewed_at: new Date().toISOString(),
-        reject_reason: reason || null,
-      })
-      .eq("id", postId);
+  const approve = decision === "approve";
+  const { data: post } = await supabase
+    .from("posts")
+    .update({
+      status: approve ? POST_STATUS.APPROVED : POST_STATUS.REJECTED,
+      reviewed_by: userId,
+      reviewed_at: new Date().toISOString(),
+      reject_reason: approve ? null : reason || null,
+    })
+    .eq("id", postId)
+    .select("author_id, title_en")
+    .single();
+
+  if (post) {
+    await sendNotificationEmail(
+      supabase,
+      post.author_id,
+      approve ? "post_approved" : "post_rejected",
+      { title: post.title_en, reason }
+    );
   }
   await audit(supabase, `post_${decision}`, "post", postId, { reason });
   revalidatePath("/admin/moderation");
@@ -80,19 +81,45 @@ export async function reviewMessage(formData: FormData) {
   const reason = String(formData.get("reason") ?? "").trim();
   const feedback = String(formData.get("feedback") ?? "").trim();
 
-  await supabase
+  const forward = decision === "forward";
+  const { data: message } = await supabase
     .from("inquiry_messages")
     .update({
-      review_status:
-        decision === "forward"
-          ? MESSAGE_REVIEW_STATUS.FORWARDED
-          : MESSAGE_REVIEW_STATUS.REJECTED,
-      reject_reason: decision === "forward" ? null : reason || null,
+      review_status: forward
+        ? MESSAGE_REVIEW_STATUS.FORWARDED
+        : MESSAGE_REVIEW_STATUS.REJECTED,
+      reject_reason: forward ? null : reason || null,
       admin_feedback: feedback || null,
       reviewed_by: userId,
       reviewed_at: new Date().toISOString(),
     })
-    .eq("id", messageId);
+    .eq("id", messageId)
+    .select("sender_id, inquiry_id")
+    .single();
+
+  if (message) {
+    const { data: inquiry } = await supabase
+      .from("inquiries")
+      .select("subject, sender_id, recipient_id")
+      .eq("id", message.inquiry_id)
+      .single();
+    if (inquiry) {
+      if (forward) {
+        const other =
+          message.sender_id === inquiry.sender_id
+            ? inquiry.recipient_id
+            : inquiry.sender_id;
+        await sendNotificationEmail(supabase, other, "message_delivered", {
+          title: inquiry.subject,
+        });
+      } else {
+        await sendNotificationEmail(supabase, message.sender_id, "message_rejected", {
+          title: inquiry.subject,
+          reason,
+        });
+      }
+    }
+  }
 
   await audit(supabase, `message_${decision}`, "inquiry_message", messageId, {
     reason,
@@ -107,16 +134,27 @@ export async function reviewBadgeApplication(formData: FormData) {
   const decision = String(formData.get("decision") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
 
-  await supabase
+  const approve = decision === "approve";
+  const { data: application } = await supabase
     .from("badge_applications")
     .update({
-      status: decision === "approve" ? "approved" : "rejected",
-      reject_reason: decision === "approve" ? null : reason || null,
+      status: approve ? "approved" : "rejected",
+      reject_reason: approve ? null : reason || null,
       reviewed_by: userId,
       reviewed_at: new Date().toISOString(),
     })
-    .eq("id", applicationId);
+    .eq("id", applicationId)
+    .select("profile_id")
+    .single();
 
+  if (application) {
+    await sendNotificationEmail(
+      supabase,
+      application.profile_id,
+      approve ? "badge_approved" : "badge_rejected",
+      { reason }
+    );
+  }
   await audit(supabase, `badge_${decision}`, "badge_application", applicationId, {
     reason,
   });

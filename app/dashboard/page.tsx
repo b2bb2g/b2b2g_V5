@@ -65,14 +65,22 @@ export default async function DashboardPage() {
             {session.profile.display_name} · {t.admin.uid} {session.profile.uid}
           </p>
         </div>
-        <form action={signOut}>
-          <button
-            type="submit"
-            className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-faint hover:bg-surface-sub"
+        <div className="flex items-center gap-1">
+          <Link
+            href="/dashboard/profile"
+            className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface-sub"
           >
-            {t.common.signOut}
-          </button>
-        </form>
+            {t.nav.profile}
+          </Link>
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-faint hover:bg-surface-sub"
+            >
+              {t.common.signOut}
+            </button>
+          </form>
+        </div>
       </header>
 
       <section className="rounded-card border border-line p-4">

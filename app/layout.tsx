@@ -3,8 +3,14 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { getLocale } from "@/lib/i18n/server";
-import { getPublicSettings, settingString } from "@/lib/data/settings";
+import { GlobalBanners } from "@/components/layout/GlobalBanners";
+import { getT } from "@/lib/i18n/server";
+import {
+  getPublicSettings,
+  settingBool,
+  settingNumber,
+  settingString,
+} from "@/lib/data/settings";
 import { SETTING_KEYS } from "@/lib/constants";
 
 const geistSans = Geist({
@@ -33,7 +39,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
+  const [{ t, locale }, settings] = await Promise.all([
+    getT(),
+    getPublicSettings(),
+  ]);
   return (
     <html lang={locale} className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
@@ -42,6 +51,16 @@ export default async function RootLayout({
           {children}
         </main>
         <Footer />
+        <GlobalBanners
+          cookie={t.cookie}
+          pwa={t.pwa}
+          pwaEnabled={settingBool(settings, SETTING_KEYS.PWA_BANNER_ENABLED, true)}
+          redisplayDays={settingNumber(
+            settings,
+            SETTING_KEYS.PWA_BANNER_REDISPLAY_DAYS,
+            14
+          )}
+        />
       </body>
     </html>
   );
