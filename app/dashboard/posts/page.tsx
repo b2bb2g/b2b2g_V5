@@ -5,6 +5,7 @@ import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { closeOwnPost, deleteOwnPost } from "@/app/actions/posts";
 import { BOARD_TYPES, POST_STATUS } from "@/lib/constants";
@@ -29,15 +30,14 @@ export default async function MyPostsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-extrabold">{t.dashboard.myPostsSummary}</h1>
-        <Link
-          href="/write/select"
-          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-strong"
-        >
-          {t.post.writePost}
-        </Link>
-      </div>
+      <PageHeader
+        title={t.dashboard.myPostsSummary}
+        action={
+          <Link href="/write/select" className="btn-primary btn-md">
+            {t.post.writePost}
+          </Link>
+        }
+      />
 
       {rows.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />

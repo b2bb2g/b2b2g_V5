@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { postMediaUrl, videoThumbnail } from "@/lib/media";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import type { PostTeaser } from "@/lib/types";
@@ -72,7 +73,13 @@ export default async function BoardPage(props: {
   return (
     <div className="wide space-y-4">
       {/* Creation lives on the dashboard and avatar menu only (UX policy). */}
-      <h1 className="text-xl font-extrabold">{title}</h1>
+      <PageHeader
+        title={title}
+        subtitle={
+          (t.admin.boardTypes as Record<string, string>)[menu.board_type] ??
+          menu.board_type
+        }
+      />
 
       {categoryNavVisible && (categories ?? []).length > 0 && (
         <nav className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4">

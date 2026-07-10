@@ -1,9 +1,12 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
+import { AdminNav, type AdminNavGroup } from "@/components/layout/AdminNav";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 // Admin console: desktop-first exception to mobile-first (DESIGN section D).
+// Grouped sidebar covers every management area (PRD 17: operations complete
+// themselves in this console, never in code).
 export default async function AdminLayout({
   children,
 }: {
@@ -15,36 +18,48 @@ export default async function AdminLayout({
 
   const { t } = await getT();
 
-  const nav = [
-    { href: "/admin", label: t.admin.overview },
-    { href: "/admin/moderation", label: t.admin.moderation },
-    { href: "/admin/inquiries", label: t.admin.inquiryModeration },
-    { href: "/admin/badges", label: t.admin.badgeAdmin },
-    { href: "/admin/members", label: t.admin.members },
-    { href: "/admin/subscriptions", label: t.admin.subscriptions },
-    { href: "/admin/menus", label: t.admin.menus },
-    { href: "/admin/catalog", label: t.admin.catalog },
-    { href: "/admin/tiers", label: t.admin.tiers },
-    { href: "/admin/referrals", label: t.admin.referrals },
-    { href: "/admin/settings", label: t.admin.settings },
-    { href: "/admin/audit", label: t.admin.auditLog },
+  const groups: AdminNavGroup[] = [
+    {
+      label: t.admin.groupReview,
+      items: [
+        { href: "/admin", label: t.admin.overview },
+        { href: "/admin/moderation", label: t.admin.moderation },
+        { href: "/admin/inquiries", label: t.admin.inquiryModeration },
+        { href: "/admin/badges", label: t.admin.badgeAdmin },
+      ],
+    },
+    {
+      label: t.admin.groupMembers,
+      items: [
+        { href: "/admin/members", label: t.admin.members },
+        { href: "/admin/referrals", label: t.admin.referrals },
+        { href: "/admin/subscriptions", label: t.admin.subscriptions },
+      ],
+    },
+    {
+      label: t.admin.groupCatalog,
+      items: [
+        { href: "/admin/menus", label: t.admin.menus },
+        { href: "/admin/catalog", label: t.admin.catalog },
+        { href: "/admin/tiers", label: t.admin.tiers },
+      ],
+    },
+    {
+      label: t.admin.groupSystem,
+      items: [
+        { href: "/admin/settings", label: t.admin.settings },
+        { href: "/admin/audit", label: t.admin.auditLog },
+      ],
+    },
   ];
 
   return (
-    <div className="wide space-y-4">
-      <h1 className="text-xl font-extrabold">{t.admin.title}</h1>
-      <nav className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4">
-        {nav.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="whitespace-nowrap rounded-full bg-surface-sub px-3.5 py-1.5 text-xs font-semibold text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
-      <div>{children}</div>
+    <div className="wide space-y-5">
+      <PageHeader title={t.admin.title} />
+      <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
+        <AdminNav groups={groups} />
+        <div className="min-w-0">{children}</div>
+      </div>
     </div>
   );
 }

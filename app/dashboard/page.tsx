@@ -4,8 +4,11 @@ import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
+import Image from "next/image";
 import { BadgeList } from "@/components/ui/Badge";
 import { CopyField } from "@/components/ui/CopyField";
+import { CopyChip } from "@/components/ui/CopyChip";
+import { postMediaUrl } from "@/lib/media";
 import { signOut } from "@/app/actions/auth";
 import {
   BADGE_CODES,
@@ -59,24 +62,45 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-5">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-extrabold">{t.dashboard.title}</h1>
-          <p className="mt-0.5 text-sm text-ink-soft">
-            {session.profile.display_name} · {t.admin.uid} {session.profile.uid}
+      {/* Identity header: same card grammar as the profile screen */}
+      <header className="card flex flex-wrap items-center gap-4 p-5">
+        {session.profile.avatar_url ? (
+          <Image
+            src={postMediaUrl(session.profile.avatar_url)}
+            alt={session.profile.display_name ?? ""}
+            width={56}
+            height={56}
+            className="h-14 w-14 shrink-0 rounded-full object-cover"
+          />
+        ) : (
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xl font-extrabold text-primary-strong">
+            {(session.profile.display_name ?? "U").slice(0, 1).toUpperCase()}
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-lg font-extrabold">
+            {session.profile.display_name ?? session.profile.company_name}
           </p>
+          <CopyChip
+            value={String(session.profile.uid)}
+            display={`${t.profile.memberId} ${session.profile.uid}`}
+            copyLabel={t.common.copy}
+            copiedLabel={t.common.copied}
+          />
+          {session.badges.length > 0 && (
+            <div className="mt-1">
+              <BadgeList badges={session.badges} locale={locale} />
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-1">
-          <Link
-            href="/dashboard/profile"
-            className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface-sub"
-          >
+        <div className="flex shrink-0 items-center gap-1.5">
+          <Link href="/dashboard/profile" className="btn-secondary btn-sm">
             {t.nav.profile}
           </Link>
           <form action={signOut}>
             <button
               type="submit"
-              className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-faint hover:bg-surface-sub"
+              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-ink-faint transition-colors hover:bg-surface-sub"
             >
               {t.common.signOut}
             </button>
