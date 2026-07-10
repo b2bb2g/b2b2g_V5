@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 // Web app manifest for PWA install (PRD 18.1). Title/description come from
 // admin-managed site settings.
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  let title = "B2B2G Trade";
+  let title = "B2BB2G";
   let description = "";
   try {
     const supabase = createClient(

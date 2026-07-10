@@ -71,7 +71,7 @@ export async function sendNotificationEmail(
       reason: escapeHtml(vars.reason ?? "-"),
     };
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-    const siteName = process.env.RESEND_FROM_NAME ?? "B2B2G Trade";
+    const siteName = process.env.RESEND_FROM_NAME ?? "B2BB2G";
     const template = templates[type];
 
     const result = await sendEmail({

@@ -1,6 +1,6 @@
 const en = {
   common: {
-    siteName: "B2B2G Trade",
+    siteName: "B2BB2G",
     loading: "Loading",
     confirm: "Confirm",
     cancel: "Cancel",
@@ -344,7 +344,7 @@ const en = {
     terms: "Terms of Service",
     privacy: "Privacy Policy",
     cookies: "Cookie Policy",
-    copyright: "B2B2G Trade. All rights reserved.",
+    copyright: "B2BB2G. All rights reserved.",
     tagline: "A trusted global B2B and B2G marketplace connecting buyers and suppliers.",
     marketplace: "Marketplace",
     members: "Members",
@@ -357,7 +357,7 @@ const en = {
   },
   pwa: {
     installTitle: "Use it like an app",
-    installBody: "Add B2B2G Trade to your home screen for quick access.",
+    installBody: "Add B2BB2G to your home screen for quick access.",
     install: "Install",
     iosHint: "In Safari, tap the Share button and choose Add to Home Screen.",
     dismiss: "Not now",

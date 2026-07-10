@@ -225,7 +225,7 @@ from public.member_tiers t
 cross join (values ('create_post'), ('send_inquiry')) as a(action);
 
 insert into public.site_settings (key, value, is_public) values
-  ('site_title', '"B2B2G Trade"', true),
+  ('site_title', '"B2BB2G"', true),
   ('site_description', '"A trusted B2B and B2G trade community connecting Korean manufacturers and suppliers with global buyers."', true),
   ('site_og_image', '""', true),
   ('free_post_limit', '3', true),

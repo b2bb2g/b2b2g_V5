@@ -4,7 +4,7 @@ type Dict = typeof en;
 
 const ko: Dict = {
   common: {
-    siteName: "B2B2G Trade",
+    siteName: "B2BB2G",
     loading: "불러오는 중이에요",
     confirm: "확인",
     cancel: "취소",
@@ -348,7 +348,7 @@ const ko: Dict = {
     terms: "이용약관",
     privacy: "개인정보처리방침",
     cookies: "쿠키정책",
-    copyright: "B2B2G Trade. All rights reserved.",
+    copyright: "B2BB2G. All rights reserved.",
     tagline: "구매자와 공급자를 잇는 신뢰 기반 글로벌 B2B·B2G 마켓플레이스.",
     marketplace: "마켓플레이스",
     members: "회원",
@@ -361,7 +361,7 @@ const ko: Dict = {
   },
   pwa: {
     installTitle: "앱처럼 사용해 보세요",
-    installBody: "B2B2G Trade를 홈 화면에 추가하면 더 빠르게 이용할 수 있어요.",
+    installBody: "B2BB2G를 홈 화면에 추가하면 더 빠르게 이용할 수 있어요.",
     install: "설치",
     iosHint: "Safari에서 공유 버튼을 누른 뒤 '홈 화면에 추가'를 선택해 주세요.",
     dismiss: "다음에",

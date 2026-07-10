@@ -23,7 +23,7 @@ const notoSansKr = Noto_Sans_KR({
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSettings();
-  const title = settingString(settings, SETTING_KEYS.SITE_TITLE, "B2B2G Trade");
+  const title = settingString(settings, SETTING_KEYS.SITE_TITLE, "B2BB2G");
   const description = settingString(settings, SETTING_KEYS.SITE_DESCRIPTION);
   const ogImage = settingString(settings, SETTING_KEYS.SITE_OG_IMAGE);
   return {
