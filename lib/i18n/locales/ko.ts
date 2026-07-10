@@ -77,6 +77,8 @@ const ko: Dict = {
     resetSent: "재설정 링크를 보냈어요. 메일함을 확인해 주세요.",
     newPassword: "새 비밀번호",
     updatePassword: "비밀번호 변경",
+    linkExpired: "링크가 만료되었거나 이미 사용되었어요. 다시 요청해 주세요.",
+    setNewPasswordHint: "계속 이용하려면 새 비밀번호를 설정해 주세요.",
   },
   post: {
     inquire: "문의하기",

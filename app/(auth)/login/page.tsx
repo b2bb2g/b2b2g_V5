@@ -13,7 +13,7 @@ export default async function LoginPage(props: {
 
       {params.error && (
         <p className="mt-3 rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
-          {t.auth.invalidCredentials}
+          {params.error === "link" ? t.auth.linkExpired : t.auth.invalidCredentials}
         </p>
       )}
 

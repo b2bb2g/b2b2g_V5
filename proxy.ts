@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { PW_RESET_COOKIE } from "@/lib/constants";
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -31,6 +32,22 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
+  // Recovery session gate: a fresh password must be saved before anything else.
+  const pwResetPending = request.cookies.get(PW_RESET_COOKIE)?.value === "1";
+  if (
+    user &&
+    pwResetPending &&
+    path !== "/reset/update" &&
+    !path.startsWith("/auth") &&
+    !path.startsWith("/api")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/reset/update";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
   const isProtected = path.startsWith("/dashboard") || path.startsWith("/admin");
   if (isProtected && !user) {
     const url = request.nextUrl.clone();

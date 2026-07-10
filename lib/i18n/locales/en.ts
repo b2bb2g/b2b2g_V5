@@ -73,6 +73,8 @@ const en = {
     resetSent: "Reset link sent. Check your inbox.",
     newPassword: "New password",
     updatePassword: "Update password",
+    linkExpired: "That link has expired or was already used. Please request a new one.",
+    setNewPasswordHint: "Set a new password to continue using your account.",
   },
   post: {
     inquire: "Send inquiry",

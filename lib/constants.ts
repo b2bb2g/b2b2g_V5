@@ -115,6 +115,10 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_COOKIE = "locale";
 
+// Set when a recovery link signs the user in; cleared once a new password is
+// saved. While present, proxy.ts locks navigation to the reset screen.
+export const PW_RESET_COOKIE = "pw-reset-required";
+
 export const STORAGE_BUCKETS = {
   POST_MEDIA: "post-media",
   ATTACHMENTS: "attachments",

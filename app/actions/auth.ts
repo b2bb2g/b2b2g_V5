@@ -1,8 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { PW_RESET_COOKIE } from "@/lib/constants";
 
 function siteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -43,6 +45,8 @@ export async function signIn(formData: FormData) {
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  const store = await cookies();
+  store.delete(PW_RESET_COOKIE);
   revalidatePath("/", "layout");
   redirect("/");
 }
@@ -61,5 +65,7 @@ export async function updatePassword(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) redirect("/reset/update?error=1");
+  const store = await cookies();
+  store.delete(PW_RESET_COOKIE);
   redirect("/dashboard");
 }
