@@ -16,15 +16,6 @@ export async function Footer() {
       })),
     },
     {
-      title: t.footer.members,
-      links: [
-        { href: "/signup", label: t.common.signUp },
-        { href: "/login", label: t.common.signIn },
-        { href: "/membership", label: t.membership.title },
-        { href: "/dashboard", label: t.common.dashboard },
-      ],
-    },
-    {
       title: t.footer.legal,
       links: [
         { href: "/legal/terms", label: t.footer.terms },
@@ -37,7 +28,7 @@ export async function Footer() {
   return (
     <footer className="mt-auto border-t border-line bg-surface-sub/60">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-10 py-12 sm:grid-cols-[1.4fr_1fr_1fr_1fr] sm:gap-8">
+        <div className="grid gap-10 py-12 sm:grid-cols-[1.6fr_1fr_1fr] sm:gap-8">
           <div>
             <Link href="/" className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-extrabold text-white">
