@@ -16,10 +16,11 @@ import type { Dictionary } from "@/lib/i18n";
 import type { Menu, PostTeaser } from "@/lib/types";
 
 // Storefront data: new products, latest requests, event posts, featured
-// companies (paid exposure, PRD 5.3 -- slot count is an admin setting).
+// companies (paid exposure, PRD 5.3 -- slot count is an admin setting),
+// and recently joined companies.
 async function getStorefront(eventsMenuId: string | null, featuredSlots: number) {
   const supabase = await createClient();
-  const [products, requests, events, featured] = await Promise.all([
+  const [products, requests, events, featured, companies] = await Promise.all([
     supabase
       .from("public_posts")
       .select("*")
@@ -46,6 +47,12 @@ async function getStorefront(eventsMenuId: string | null, featuredSlots: number)
       .eq("is_published", true)
       .order("updated_at", { ascending: false })
       .limit(featuredSlots),
+    supabase
+      .from("profiles")
+      .select("uid, display_name, company_name, avatar_url, created_at, member_badges(badge_types(code, name_en, name_ko))")
+      .not("company_name", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(8),
   ]);
 
   return {
@@ -58,6 +65,16 @@ async function getStorefront(eventsMenuId: string | null, featuredSlots: number)
       intro_en: string;
       intro_ko: string | null;
       profiles: { display_name: string | null; company_name: string | null } | null;
+    }[]),
+    companies: ((companies.data ?? []) as unknown as {
+      uid: number;
+      display_name: string | null;
+      company_name: string | null;
+      avatar_url: string | null;
+      created_at: string;
+      member_badges: {
+        badge_types: { code: string; name_en: string; name_ko: string } | null;
+      }[];
     }[]),
   };
 }
@@ -215,7 +232,7 @@ export default async function Home() {
 
   const eventsMenu = menus.find((menu) => menu.board_type === BOARD_TYPES.FLEXIBLE) ?? null;
   const requestsMenu = menus.find((menu) => menu.board_type === BOARD_TYPES.REQUEST) ?? null;
-  const { products, requests, events, featured } = await getStorefront(
+  const { products, requests, events, featured, companies } = await getStorefront(
     eventsMenu?.id ?? null,
     settingNumber(settings, SETTING_KEYS.FEATURED_SLOTS, 6)
   );
@@ -223,7 +240,6 @@ export default async function Home() {
   const menuSlugById = new Map<string, string>(menus.map((menu: Menu) => [menu.id, menu.slug]));
   const firstProductBoard =
     menus.find((menu) => menu.board_type === BOARD_TYPES.PRODUCT)?.slug ?? "industrial";
-  const boardTypeLabels: Record<string, string> = t.admin.boardTypes;
   const stats = [t.home.stat1, t.home.stat2, t.home.stat3];
   const steps = [
     { title: t.home.step1Title, body: t.home.step1Body },
@@ -307,31 +323,77 @@ export default async function Home() {
         </section>
       )}
 
-      {/* ============ Categories ============ */}
-      <section className="border-y border-line bg-surface-sub/50">
-        <div className={`${container} py-14 sm:py-20`}>
-          <Reveal>
-            <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">
-              {t.home.boardsTitle}
-            </h2>
-          </Reveal>
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            {menus.map((menu, i) => (
-              <Reveal key={menu.id} delay={(i % 4) * 60}>
-                <Link href={`/${menu.slug}`} className="card-hover group block p-5">
-                  <p className="text-base font-bold text-ink">{menu.title_en}</p>
-                  <p className="mt-1 flex items-center gap-1 text-xs text-ink-faint">
-                    {boardTypeLabels[menu.board_type] ?? menu.board_type}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </p>
-                </Link>
-              </Reveal>
-            ))}
+      {/* ============ New companies ============ */}
+      {(companies.length > 0 || SHOW_WIREFRAMES) && (
+        <section className="border-y border-line bg-surface-sub/50">
+          <div className={`${container} py-14 sm:py-20`}>
+            <Reveal>
+              <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">
+                {t.home.newCompanies}
+              </h2>
+            </Reveal>
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {companies.length === 0 &&
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="card flex items-center gap-3 border-dashed p-4">
+                    <span className="h-11 w-11 shrink-0 rounded-full bg-surface-sub" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="h-3.5 w-3/4 rounded bg-surface-sub" />
+                      <div className="h-3 w-1/2 rounded bg-surface-sub" />
+                    </div>
+                  </div>
+                ))}
+              {companies.map((company, i) => {
+                const name =
+                  company.company_name ?? company.display_name ?? `UID ${company.uid}`;
+                const badges = company.member_badges
+                  .map((b) => b.badge_types)
+                  .filter((x): x is { code: string; name_en: string; name_ko: string } => !!x);
+                return (
+                  <Reveal key={company.uid} delay={(i % 4) * 60}>
+                    <Link
+                      href={`/u/${company.uid}`}
+                      className="card-hover flex items-center gap-3 p-4"
+                    >
+                      {company.avatar_url ? (
+                        <Image
+                          src={postMediaUrl(company.avatar_url)}
+                          alt={name}
+                          width={44}
+                          height={44}
+                          className="h-11 w-11 shrink-0 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-base font-extrabold text-primary-strong">
+                          {name.slice(0, 1).toUpperCase()}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold">{name}</p>
+                        <div className="mt-0.5 flex flex-wrap gap-1">
+                          {badges.length > 0 ? (
+                            badges.slice(0, 2).map((b) => (
+                              <BadgePill
+                                key={b.code}
+                                code={b.code}
+                                label={locale === "ko" ? b.name_ko : b.name_en}
+                              />
+                            ))
+                          ) : (
+                            <span className="text-xs text-ink-faint">
+                              {new Date(company.created_at).toISOString().slice(0, 10)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ============ Events ============ */}
       {eventsMenu && (
@@ -531,6 +593,28 @@ export default async function Home() {
             </Reveal>
           ))}
         </div>
+      </section>
+
+      {/* ============ Membership promo ============ */}
+      <section className={`${container} pb-14 sm:pb-20`}>
+        <Reveal>
+          <div className="overflow-hidden rounded-card bg-primary px-6 py-10 text-center sm:px-12 sm:py-12 lg:flex lg:items-center lg:justify-between lg:text-left">
+            <div>
+              <h2 className="text-xl font-extrabold tracking-tight text-white sm:text-2xl">
+                {t.home.promoTitle}
+              </h2>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-white/80 lg:mx-0">
+                {t.home.promoBody}
+              </p>
+            </div>
+            <Link
+              href="/membership"
+              className="btn btn-lg mt-6 shrink-0 bg-white text-primary-strong hover:bg-white/90 lg:mt-0"
+            >
+              {t.home.promoCta}
+            </Link>
+          </div>
+        </Reveal>
       </section>
 
       {/* ============ Final CTA ============ */}
