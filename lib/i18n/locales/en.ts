@@ -74,6 +74,7 @@ const en = {
     newPassword: "New password",
     updatePassword: "Update password",
     linkExpired: "That link has expired or was already used. Please request a new one.",
+    linkAlreadyUsed: "That link was already used. Just set your new password below to continue.",
     setNewPasswordHint: "Set a new password to continue using your account.",
   },
   post: {

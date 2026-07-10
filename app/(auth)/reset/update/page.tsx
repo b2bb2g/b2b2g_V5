@@ -2,7 +2,7 @@ import { getT } from "@/lib/i18n/server";
 import { updatePassword } from "@/app/actions/auth";
 
 export default async function ResetUpdatePage(props: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
   const [{ t }, params] = await Promise.all([getT(), props.searchParams]);
 
@@ -10,6 +10,12 @@ export default async function ResetUpdatePage(props: {
     <div className="mx-auto max-w-sm py-8">
       <h1 className="text-xl font-extrabold">{t.auth.updatePassword}</h1>
       <p className="mt-1 text-sm text-ink-soft">{t.auth.setNewPasswordHint}</p>
+
+      {params.notice === "used" && (
+        <p className="mt-3 rounded-lg bg-primary-soft px-3 py-2 text-xs font-semibold text-primary-strong">
+          {t.auth.linkAlreadyUsed}
+        </p>
+      )}
 
       {params.error && (
         <p className="mt-3 rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">

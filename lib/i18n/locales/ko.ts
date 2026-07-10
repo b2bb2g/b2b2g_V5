@@ -78,6 +78,7 @@ const ko: Dict = {
     newPassword: "새 비밀번호",
     updatePassword: "비밀번호 변경",
     linkExpired: "링크가 만료되었거나 이미 사용되었어요. 다시 요청해 주세요.",
+    linkAlreadyUsed: "이미 사용된 링크예요. 아래에서 새 비밀번호만 설정하면 계속할 수 있어요.",
     setNewPasswordHint: "계속 이용하려면 새 비밀번호를 설정해 주세요.",
   },
   post: {

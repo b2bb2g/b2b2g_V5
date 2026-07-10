@@ -31,7 +31,20 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Token already consumed or expired: show a dedicated message, not a
-  // credentials error.
+  // Token already consumed or expired. Route by current state so the user
+  // always sees a message that matches their situation.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const store = await cookies();
+    if (store.get(PW_RESET_COOKIE)?.value === "1") {
+      // Mid-reset re-click: back to the reset screen with a notice.
+      redirect("/reset/update?notice=used");
+    }
+    // Already signed in and nothing pending: the link has done its job.
+    redirect("/dashboard");
+  }
   redirect("/login?error=link");
 }
