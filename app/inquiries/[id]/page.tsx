@@ -50,7 +50,7 @@ export default async function InquiryDetailPage(props: {
     inquiry.sender_id === session.userId || inquiry.recipient_id === session.userId;
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="space-y-5">
       <PageHeader
         title={inquiry.subject}
         action={

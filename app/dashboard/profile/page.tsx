@@ -31,15 +31,15 @@ export default async function ProfileViewPage(props: {
   const name = profile.display_name ?? profile.company_name ?? `UID ${profile.uid}`;
 
   const rows = [
-    { label: t.profile.companyName, value: profile.company_name },
-    { label: t.profile.bio, value: profile.bio },
-    { label: t.auth.email, value: contact?.email },
-    { label: t.profile.phone, value: contact?.phone },
-    { label: t.profile.contactPerson, value: contact?.contact_person },
+    { label: t.profile.companyName, value: profile.company_name, span: false },
+    { label: t.auth.email, value: contact?.email, span: false },
+    { label: t.profile.phone, value: contact?.phone, span: false },
+    { label: t.profile.contactPerson, value: contact?.contact_person, span: false },
+    { label: t.profile.bio, value: profile.bio, span: true },
   ];
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="space-y-4">
       {params.saved && (
         <p className="rounded-lg bg-positive-soft px-3 py-2 text-xs font-semibold text-positive">
           {t.profile.saved}
@@ -83,9 +83,12 @@ export default async function ProfileViewPage(props: {
         </Link>
       </div>
 
-      <dl className="card divide-y divide-line">
+      <dl className="grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (
-          <div key={row.label} className="px-4 py-3">
+          <div
+            key={row.label}
+            className={`card px-4 py-3 ${row.span ? "sm:col-span-2" : ""}`}
+          >
             <dt className="text-xs font-semibold text-ink-faint">{row.label}</dt>
             <dd
               className={`mt-0.5 whitespace-pre-wrap text-sm ${

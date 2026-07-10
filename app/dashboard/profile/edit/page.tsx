@@ -22,7 +22,7 @@ export default async function ProfileEditPage() {
   const labelCls = "text-xs font-semibold text-ink-soft";
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="space-y-4">
       <PageHeader title={t.profile.title} subtitle={t.common.edit} />
 
       <EditFormFrame
@@ -59,26 +59,28 @@ export default async function ProfileEditPage() {
             className="mt-1 w-full rounded-xl border border-line bg-surface-sub/60 px-3 py-2.5 text-sm text-ink-faint"
           />
         </label>
-        <label className="block">
-          <span className={labelCls}>{t.profile.displayName}</span>
-          <div className="mt-1">
-            <ClearableInput
-              name="displayName"
-              defaultValue={session.profile.display_name ?? ""}
-              clearLabel={t.common.clearInput}
-            />
-          </div>
-        </label>
-        <label className="block">
-          <span className={labelCls}>{t.profile.companyName}</span>
-          <div className="mt-1">
-            <ClearableInput
-              name="companyName"
-              defaultValue={session.profile.company_name ?? ""}
-              clearLabel={t.common.clearInput}
-            />
-          </div>
-        </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className={labelCls}>{t.profile.displayName}</span>
+            <div className="mt-1">
+              <ClearableInput
+                name="displayName"
+                defaultValue={session.profile.display_name ?? ""}
+                clearLabel={t.common.clearInput}
+              />
+            </div>
+          </label>
+          <label className="block">
+            <span className={labelCls}>{t.profile.companyName}</span>
+            <div className="mt-1">
+              <ClearableInput
+                name="companyName"
+                defaultValue={session.profile.company_name ?? ""}
+                clearLabel={t.common.clearInput}
+              />
+            </div>
+          </label>
+        </div>
         <label className="block">
           <span className={labelCls}>{t.profile.bio}</span>
           <textarea
@@ -92,27 +94,29 @@ export default async function ProfileEditPage() {
         <p className="rounded-lg bg-surface-sub/60 px-3 py-2 text-xs leading-relaxed text-ink-faint">
           {t.profile.contactHint}
         </p>
-        <label className="block">
-          <span className={labelCls}>{t.profile.phone}</span>
-          <div className="mt-1">
-            <ClearableInput
-              name="phone"
-              type="tel"
-              defaultValue={contact?.phone ?? ""}
-              clearLabel={t.common.clearInput}
-            />
-          </div>
-        </label>
-        <label className="block">
-          <span className={labelCls}>{t.profile.contactPerson}</span>
-          <div className="mt-1">
-            <ClearableInput
-              name="contactPerson"
-              defaultValue={contact?.contact_person ?? ""}
-              clearLabel={t.common.clearInput}
-            />
-          </div>
-        </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className={labelCls}>{t.profile.phone}</span>
+            <div className="mt-1">
+              <ClearableInput
+                name="phone"
+                type="tel"
+                defaultValue={contact?.phone ?? ""}
+                clearLabel={t.common.clearInput}
+              />
+            </div>
+          </label>
+          <label className="block">
+            <span className={labelCls}>{t.profile.contactPerson}</span>
+            <div className="mt-1">
+              <ClearableInput
+                name="contactPerson"
+                defaultValue={contact?.contact_person ?? ""}
+                clearLabel={t.common.clearInput}
+              />
+            </div>
+          </label>
+        </div>
       </EditFormFrame>
     </div>
   );

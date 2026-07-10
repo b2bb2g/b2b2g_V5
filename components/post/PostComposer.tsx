@@ -156,59 +156,63 @@ export function PostComposer({
         </p>
       )}
 
-      <label className="block">
-        <span className="text-xs font-semibold text-ink-soft">
-          {t.post.titleEn} ({t.common.required})
-        </span>
-        <input
-          value={titleEn}
-          onChange={(e) => {
-            setTitleEn(e.target.value);
-            markDirty();
-          }}
-          required
-          className={inputCls}
-        />
-      </label>
-      <label className="block">
-        <span className="text-xs font-semibold text-ink-soft">{t.post.titleKo}</span>
-        <input
-          value={titleKo}
-          onChange={(e) => {
-            setTitleKo(e.target.value);
-            markDirty();
-          }}
-          className={inputCls}
-        />
-      </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block">
+          <span className="text-xs font-semibold text-ink-soft">
+            {t.post.titleEn} ({t.common.required})
+          </span>
+          <input
+            value={titleEn}
+            onChange={(e) => {
+              setTitleEn(e.target.value);
+              markDirty();
+            }}
+            required
+            className={inputCls}
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs font-semibold text-ink-soft">{t.post.titleKo}</span>
+          <input
+            value={titleKo}
+            onChange={(e) => {
+              setTitleKo(e.target.value);
+              markDirty();
+            }}
+            className={inputCls}
+          />
+        </label>
+      </div>
 
-      <label className="block">
-        <span className="text-xs font-semibold text-ink-soft">
-          {t.post.bodyEn} ({t.common.required})
-        </span>
-        <textarea
-          value={bodyEn}
-          onChange={(e) => {
-            setBodyEn(e.target.value);
-            markDirty();
-          }}
-          rows={8}
-          required
-          className={inputCls}
-        />
-      </label>
-      <label className="block">
-        <span className="text-xs font-semibold text-ink-soft">{t.post.bodyKo}</span>
-        <textarea
-          value={bodyKo}
-          onChange={(e) => {
-            setBodyKo(e.target.value);
-            markDirty();
-          }}
-          rows={5}
-          className={inputCls}
-        />
-      </label>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <label className="block">
+          <span className="text-xs font-semibold text-ink-soft">
+            {t.post.bodyEn} ({t.common.required})
+          </span>
+          <textarea
+            value={bodyEn}
+            onChange={(e) => {
+              setBodyEn(e.target.value);
+              markDirty();
+            }}
+            rows={8}
+            required
+            className={inputCls}
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs font-semibold text-ink-soft">{t.post.bodyKo}</span>
+          <textarea
+            value={bodyKo}
+            onChange={(e) => {
+              setBodyKo(e.target.value);
+              markDirty();
+            }}
+            rows={8}
+            className={inputCls}
+          />
+        </label>
+      </div>
 
       {/* Category selection: data accumulates from day one (PRD 6.6) */}
       {categories.length > 0 && boardType !== BOARD_TYPES.NOTICE && (
