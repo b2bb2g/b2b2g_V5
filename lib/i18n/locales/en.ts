@@ -202,9 +202,10 @@ const en = {
     registerProduct: "Add a product",
     postRequest: "Post a sourcing request",
   },
+  // Badge labels are brand marks: identical in every locale.
   badges: {
     manufacturer: "Manufacturer",
-    certified: "Certified",
+    certified: "Verified",
     coordinator: "Coordinator",
   },
   membership: {

@@ -324,10 +324,10 @@ create policy "subs admin write" on public.subscriptions
   for all using (public.is_admin()) with check (public.is_admin());
 
 insert into public.badge_types (code, name_en, name_ko, description_en, description_ko, sort_order) values
-  ('manufacturer', 'Manufacturer', '제조사',
+  ('manufacturer', 'Manufacturer', 'Manufacturer',
    'Verified manufacturer or supplier. Granted after document review.',
    '서류 검토 후 부여되는 제조사/공급사 역할 신호예요.', 0),
-  ('certified', 'Certified', '인증',
+  ('certified', 'Verified', 'Verified',
    'Identity-verified paid member. A global trust signal.',
    '신원 확인을 거친 유료 회원에게 부여되는 전역 신뢰 신호예요.', 1);
 

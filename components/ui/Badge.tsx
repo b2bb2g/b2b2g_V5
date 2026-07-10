@@ -3,8 +3,9 @@ import type { MemberBadge } from "@/lib/types";
 
 // Extensible badge component (DESIGN 2.4): admin can add badge types at any
 // time, so styling falls back to a neutral scheme for unknown codes.
+// Brand rules: Manufacturer = navy (calm authority), Verified = green.
 const BADGE_STYLES: Record<string, string> = {
-  manufacturer: "bg-primary-soft text-primary-strong",
+  manufacturer: "bg-navy-soft text-navy",
   certified: "bg-positive-soft text-positive",
   coordinator: "bg-caution-soft text-caution",
 };

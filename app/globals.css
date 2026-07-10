@@ -31,6 +31,9 @@
   --color-caution-soft: #fdf1e0;
   --color-negative: #ef4444;
   --color-negative-soft: #fdecec;
+  /* Badge palette: navy carries calm authority (Manufacturer badge). */
+  --color-navy: #2c4a6b;
+  --color-navy-soft: #e8eef6;
 
   --font-sans: "PretendardLatin", var(--font-noto-sans-kr), "Apple SD Gothic Neo",
     "Malgun Gothic", system-ui, sans-serif;

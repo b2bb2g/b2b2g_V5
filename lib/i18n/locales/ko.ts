@@ -206,10 +206,11 @@ const ko: Dict = {
     registerProduct: "상품 등록",
     postRequest: "구매 요청",
   },
+  // 배지 라벨은 브랜드 마크: 모든 언어에서 동일 표기.
   badges: {
-    manufacturer: "제조사",
-    certified: "인증",
-    coordinator: "코디네이터",
+    manufacturer: "Manufacturer",
+    certified: "Verified",
+    coordinator: "Coordinator",
   },
   membership: {
     title: "인증 회원",
