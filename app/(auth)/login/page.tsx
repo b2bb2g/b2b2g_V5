@@ -49,7 +49,6 @@ export default async function LoginPage(props: {
           <input
             type="checkbox"
             name="remember"
-            defaultChecked
             className="h-4 w-4 rounded accent-primary"
           />
           {t.auth.rememberMe}
