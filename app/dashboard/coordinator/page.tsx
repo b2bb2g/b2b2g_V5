@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
@@ -30,10 +31,7 @@ export default async function CoordinatorPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-extrabold">{t.coordinator.title}</h1>
-      <h2 className="text-sm font-bold text-ink-soft">
-        {t.coordinator.referralsTitle}
-      </h2>
+      <PageHeader title={t.coordinator.title} subtitle={t.coordinator.referralsTitle} />
 
       {referrals.length === 0 ? (
         <EmptyState title={t.coordinator.empty} />

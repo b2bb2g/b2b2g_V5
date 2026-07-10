@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { getMenuBySlug } from "@/lib/data/menus";
@@ -71,12 +72,7 @@ export default async function WritePage(props: {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-extrabold">
-        {initial ? t.post.editPost : t.post.writePost}
-        <span className="ml-2 text-sm font-semibold text-ink-faint">
-          {menu.title_en}
-        </span>
-      </h1>
+      <PageHeader title={initial ? t.post.editPost : t.post.writePost} subtitle={menu.title_en} />
       <PostComposer
         t={t}
         locale={locale}

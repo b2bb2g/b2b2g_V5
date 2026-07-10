@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -28,7 +29,7 @@ export default async function MemberMessagesPage() {
   if (!coordinator?.is_coordinator) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-extrabold">{t.coordinator.directMessages}</h1>
+        <PageHeader title={t.coordinator.directMessages} />
         <EmptyState title={t.coordinator.noMessages} />
       </div>
     );
@@ -43,10 +44,10 @@ export default async function MemberMessagesPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-extrabold">{t.coordinator.directMessages}</h1>
-      <p className="text-xs text-ink-faint">
-        {coordinator.display_name} · {t.coordinator.messageHint}
-      </p>
+      <PageHeader
+        title={t.coordinator.directMessages}
+        subtitle={`${coordinator.display_name} · ${t.coordinator.messageHint}`}
+      />
 
       {(messages ?? []).length === 0 ? (
         <p className="rounded-card border border-line px-4 py-6 text-center text-xs text-ink-faint">

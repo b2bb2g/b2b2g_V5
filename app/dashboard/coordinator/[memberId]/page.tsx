@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { notFound, redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
@@ -54,19 +55,12 @@ export default async function CoordinatorMemberPage(props: {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-extrabold">
-          {memberRow.display_name}
-          {memberRow.company_name && (
-            <span className="ml-2 text-sm font-semibold text-ink-soft">
-              {memberRow.company_name}
-            </span>
-          )}
-        </h1>
-        <p className="mt-0.5 text-xs text-ink-faint">
-          UID {memberRow.uid} · {memberRow.profile_contacts?.email}
-        </p>
-      </header>
+      <PageHeader
+        title={memberRow.display_name ?? `UID ${memberRow.uid}`}
+        subtitle={`UID ${memberRow.uid} · ${memberRow.profile_contacts?.email ?? ""}${
+          memberRow.company_name ? ` · ${memberRow.company_name}` : ""
+        }`}
+      />
 
       <section className="space-y-2">
         <h2 className="text-sm font-bold">{t.coordinator.directMessages}</h2>

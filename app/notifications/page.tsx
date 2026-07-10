@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -67,19 +68,21 @@ export default async function NotificationsPage(props: {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-extrabold">{t.notifications.title}</h1>
-        {view === "inbox" && notifications.length > 0 && (
-          <form action={markAllRead}>
-            <button
-              type="submit"
-              className="rounded-lg px-3 py-2 text-xs font-semibold text-primary hover:bg-primary-soft/60"
-            >
-              {t.notifications.markAllRead}
-            </button>
-          </form>
-        )}
-      </div>
+      <PageHeader
+        title={t.notifications.title}
+        action={
+          view === "inbox" && notifications.length > 0 ? (
+            <form action={markAllRead}>
+              <button
+                type="submit"
+                className="rounded-lg px-3 py-2 text-xs font-semibold text-primary hover:bg-primary-soft/60"
+              >
+                {t.notifications.markAllRead}
+              </button>
+            </form>
+          ) : undefined
+        }
+      />
 
       <nav className="flex gap-1">
         {tabs.map((tab) => (

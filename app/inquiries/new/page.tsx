@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -42,13 +43,11 @@ export default async function NewInquiryPage(props: {
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-xl font-extrabold">{t.inquiry.newInquiry}</h1>
+      <PageHeader title={t.inquiry.newInquiry} subtitle={t.inquiry.stepHint} />
       <p className="rounded-lg bg-surface-sub/60 px-3 py-2 text-sm font-semibold text-ink-soft">
         {heading}
       </p>
-      <p className="text-xs text-ink-faint">{t.inquiry.stepHint}</p>
-
-      {params.error && (
+            {params.error && (
         <p className="rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
           {t.common.error}
         </p>

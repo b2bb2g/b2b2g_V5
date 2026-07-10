@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -50,15 +51,15 @@ export default async function InquiryDetailPage(props: {
 
   return (
     <div className="space-y-5">
-      <header>
-        <h1 className="text-lg font-extrabold leading-snug">{inquiry.subject}</h1>
-        <div className="mt-2">
+      <PageHeader
+        title={inquiry.subject}
+        action={
           <StatusLabel
             status={inquiry.status}
             label={stepLabels[inquiry.status] ?? inquiry.status}
           />
-        </div>
-      </header>
+        }
+      />
 
       {/* Progress timeline (6-step cycle, PRD 8.2) */}
       <ol className="flex items-center gap-1">

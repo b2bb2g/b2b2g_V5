@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -34,7 +35,7 @@ export default async function BadgeApplicationPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-extrabold">{t.dashboard.applyBadge}</h1>
+      <PageHeader title={t.dashboard.applyBadge} />
 
       <div className="space-y-3">
         {((types as BadgeType[]) ?? []).map((type) => {

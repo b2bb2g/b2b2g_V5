@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -23,12 +24,7 @@ export default async function HomepageEditPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-xl font-extrabold">
-        {t.homepage.title}
-        <span className="ml-2 text-sm font-semibold text-ink-faint">
-          {homepage ? t.common.edit : t.common.add}
-        </span>
-      </h1>
+      <PageHeader title={t.homepage.title} subtitle={homepage ? t.common.edit : t.common.add} />
 
       <HomepageEditor
         t={t}

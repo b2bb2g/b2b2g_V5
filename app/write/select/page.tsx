@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
@@ -17,7 +18,7 @@ export default async function WriteSelectPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-xl font-extrabold">{t.post.chooseBoard}</h1>
+      <PageHeader title={t.post.chooseBoard} />
       <div className="grid grid-cols-2 gap-3">
         {writable.map((menu) => (
           <Link

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -22,12 +23,7 @@ export default async function ProfileEditPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-xl font-extrabold">
-        {t.profile.title}
-        <span className="ml-2 text-sm font-semibold text-ink-faint">
-          {t.common.edit}
-        </span>
-      </h1>
+      <PageHeader title={t.profile.title} subtitle={t.common.edit} />
 
       <EditFormFrame
         action={updateProfile}
