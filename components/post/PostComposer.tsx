@@ -12,6 +12,8 @@ import type { Dictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/constants";
 import type { SpecFieldDef } from "@/lib/types";
 
+type CategoryOption = { id: string; name_en: string; name_ko: string };
+
 type Props = {
   t: Dictionary;
   locale: Locale;
@@ -19,6 +21,7 @@ type Props = {
   menuSlug: string;
   boardType: BoardType;
   fieldPool: SpecFieldDef[];
+  categories: CategoryOption[];
   maxFileMb: number;
   maxFiles: number;
   initial?: {
@@ -27,6 +30,7 @@ type Props = {
     titleKo: string;
     bodyEn: string;
     bodyKo: string;
+    categoryId: string | null;
     deadline: string;
     repVideoUrl: string;
     repImagePath: string | null;
@@ -42,6 +46,7 @@ export function PostComposer({
   menuSlug,
   boardType,
   fieldPool,
+  categories,
   maxFileMb,
   maxFiles,
   initial,
@@ -58,6 +63,9 @@ export function PostComposer({
   const [titleKo, setTitleKo] = useState(initial?.titleKo ?? "");
   const [bodyEn, setBodyEn] = useState(initial?.bodyEn ?? "");
   const [bodyKo, setBodyKo] = useState(initial?.bodyKo ?? "");
+  const [categoryId, setCategoryId] = useState<string | null>(
+    initial?.categoryId ?? null
+  );
   const [deadline, setDeadline] = useState(initial?.deadline ?? "");
   const [videoUrl, setVideoUrl] = useState(initial?.repVideoUrl ?? "");
   const [images, setImages] = useState<string[]>(initial?.imagePaths ?? []);
@@ -113,7 +121,7 @@ export function PostComposer({
       titleKo,
       bodyEn,
       bodyKo,
-      categoryId: null,
+      categoryId,
       deadline: boardType === BOARD_TYPES.REQUEST ? deadline || null : null,
       repVideoUrl: videoUrl,
       imagePaths: images,
@@ -201,6 +209,30 @@ export function PostComposer({
           className={inputCls}
         />
       </label>
+
+      {/* Category selection: data accumulates from day one (PRD 6.6) */}
+      {categories.length > 0 && boardType !== BOARD_TYPES.NOTICE && (
+        <label className="block">
+          <span className="text-xs font-semibold text-ink-soft">
+            {t.post.category} ({t.common.optional})
+          </span>
+          <select
+            value={categoryId ?? ""}
+            onChange={(e) => {
+              setCategoryId(e.target.value || null);
+              markDirty();
+            }}
+            className={inputCls}
+          >
+            <option value="" />
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {locale === "ko" ? category.name_ko : category.name_en}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       {boardType === BOARD_TYPES.REQUEST && (
         <label className="block">

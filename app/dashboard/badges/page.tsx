@@ -4,11 +4,13 @@ import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { applyForBadge } from "@/app/actions/badges";
+import { BadgeDocsUploader } from "@/components/badges/BadgeDocsUploader";
 import type { BadgeType } from "@/lib/types";
 
 export default async function BadgeApplicationPage() {
   const session = await getSession();
   if (!session.userId) redirect("/login");
+  const userId = session.userId;
 
   const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
   const [{ data: types }, { data: applications }] = await Promise.all([
@@ -61,18 +63,20 @@ export default async function BadgeApplicationPage() {
                 </p>
               )}
               {!owned && !pending && (
-                <form action={applyForBadge} className="mt-3 space-y-2">
+                <form action={applyForBadge} className="mt-3 space-y-3">
                   <input type="hidden" name="badgeTypeId" value={type.id} />
                   <textarea
                     name="companyInfo"
                     rows={3}
                     placeholder={t.post.bodyEn}
-                    className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-primary"
+                    className="field"
                   />
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-strong"
-                  >
+                  <BadgeDocsUploader
+                    userId={userId}
+                    label={t.badges.attachDocuments}
+                    removeLabel={t.common.delete}
+                  />
+                  <button type="submit" className="btn-primary btn-md">
                     {t.common.submit}
                   </button>
                 </form>

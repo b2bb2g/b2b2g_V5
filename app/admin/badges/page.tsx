@@ -2,6 +2,7 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { reviewBadgeApplication } from "@/app/actions/admin";
+import { STORAGE_BUCKETS } from "@/lib/constants";
 
 export default async function BadgeAdminPage() {
   const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
@@ -11,13 +12,32 @@ export default async function BadgeAdminPage() {
     .eq("status", "pending")
     .order("created_at");
 
-  const applications = (data ?? []) as unknown as {
+  const rows = (data ?? []) as unknown as {
     id: string;
     company_info: { note?: string };
+    document_paths: string[] | null;
     created_at: string;
     badge_types: { name_en: string; name_ko: string } | null;
     profiles: { uid: number; display_name: string | null; company_name: string | null } | null;
   }[];
+
+  // Submitted documents open via short-lived signed URLs (admin-only bucket RLS).
+  const applications = await Promise.all(
+    rows.map(async (app) => ({
+      ...app,
+      docs: await Promise.all(
+        (app.document_paths ?? []).map(async (path) => {
+          const { data: signed } = await supabase.storage
+            .from(STORAGE_BUCKETS.BADGE_DOCS)
+            .createSignedUrl(path, 600);
+          return {
+            name: path.split("/").pop()?.replace(/^[0-9a-f-]{36}-/, "") ?? path,
+            url: signed?.signedUrl ?? null,
+          };
+        })
+      ),
+    }))
+  );
 
   return (
     <div className="space-y-3">
@@ -45,6 +65,30 @@ export default async function BadgeAdminPage() {
               <p className="mt-2 whitespace-pre-wrap rounded-lg bg-surface-sub/60 px-3 py-2 text-xs text-ink-soft">
                 {app.company_info.note}
               </p>
+            )}
+            {app.docs.length > 0 && (
+              <div className="mt-2">
+                <p className="text-xs font-semibold text-ink-faint">
+                  {t.badges.documents}
+                </p>
+                <ul className="mt-1 space-y-1">
+                  {app.docs.map(
+                    (doc) =>
+                      doc.url && (
+                        <li key={doc.url}>
+                          <a
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-semibold text-primary-strong hover:underline"
+                          >
+                            {doc.name}
+                          </a>
+                        </li>
+                      )
+                  )}
+                </ul>
+              </div>
             )}
             <form action={reviewBadgeApplication} className="mt-3 space-y-2">
               <input type="hidden" name="applicationId" value={app.id} />

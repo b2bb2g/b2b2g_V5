@@ -3,14 +3,19 @@ import type { Post, PostSpec, PostTeaser } from "@/lib/types";
 
 // Lists always read the anon-safe view: it only contains approved/closed
 // posts with teaser columns, which is exactly what a list needs.
-export async function listPostsForMenu(menuId: string): Promise<PostTeaser[]> {
+export async function listPostsForMenu(
+  menuId: string,
+  categoryId?: string
+): Promise<PostTeaser[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  let query = supabase
     .from("public_posts")
     .select("*")
     .eq("menu_id", menuId)
     .order("published_at", { ascending: false })
     .limit(60);
+  if (categoryId) query = query.eq("category_id", categoryId);
+  const { data } = await query;
   return (data as PostTeaser[]) ?? [];
 }
 

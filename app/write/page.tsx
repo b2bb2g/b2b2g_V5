@@ -25,11 +25,19 @@ export default async function WritePage(props: {
     createClient(),
   ]);
 
-  const { data: fieldPool } = await supabase
-    .from("spec_field_defs")
-    .select("*")
-    .eq("is_active", true)
-    .order("sort_order");
+  const [{ data: fieldPool }, { data: categories }] = await Promise.all([
+    supabase
+      .from("spec_field_defs")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order"),
+    supabase
+      .from("categories")
+      .select("id, name_en, name_ko")
+      .eq("is_active", true)
+      .or(`menu_id.is.null,menu_id.eq.${menu.id}`)
+      .order("sort_order"),
+  ]);
 
   // Edit mode: load own post (RLS restricts to author/admin anyway).
   let initial;
@@ -47,6 +55,7 @@ export default async function WritePage(props: {
       titleKo: p.title_ko ?? "",
       bodyEn: p.body_en,
       bodyKo: p.body_ko ?? "",
+      categoryId: p.category_id,
       deadline: p.deadline ?? "",
       repVideoUrl: p.rep_video_url ?? "",
       repImagePath: p.rep_image_path,
@@ -75,6 +84,7 @@ export default async function WritePage(props: {
         menuSlug={menu.slug}
         boardType={menu.board_type}
         fieldPool={(fieldPool as SpecFieldDef[]) ?? []}
+        categories={categories ?? []}
         maxFileMb={settingNumber(settings, SETTING_KEYS.UPLOAD_MAX_FILE_MB, 10)}
         maxFiles={settingNumber(settings, SETTING_KEYS.UPLOAD_MAX_FILES_PER_POST, 10)}
         initial={initial}

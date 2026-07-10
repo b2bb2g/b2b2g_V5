@@ -23,6 +23,9 @@ export default async function AdminLayout({
     { href: "/admin/members", label: t.admin.members },
     { href: "/admin/subscriptions", label: t.admin.subscriptions },
     { href: "/admin/menus", label: t.admin.menus },
+    { href: "/admin/catalog", label: t.admin.catalog },
+    { href: "/admin/tiers", label: t.admin.tiers },
+    { href: "/admin/referrals", label: t.admin.referrals },
     { href: "/admin/settings", label: t.admin.settings },
     { href: "/admin/audit", label: t.admin.auditLog },
   ];

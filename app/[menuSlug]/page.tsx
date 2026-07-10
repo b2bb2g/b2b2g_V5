@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getMenuBySlug } from "@/lib/data/menus";
 import { listPostsForMenu } from "@/lib/data/posts";
+import { createClient } from "@/lib/supabase/server";
+import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { postMediaUrl, videoThumbnail } from "@/lib/media";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusLabel } from "@/components/ui/StatusLabel";
-import { BOARD_TYPES, POST_STATUS } from "@/lib/constants";
+import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import type { PostTeaser } from "@/lib/types";
 import type { Metadata } from "next";
 
@@ -28,14 +30,36 @@ function thumbnail(post: PostTeaser): string | null {
 
 export default async function BoardPage(props: {
   params: Promise<{ menuSlug: string }>;
+  searchParams: Promise<{ category?: string }>;
 }) {
-  const { menuSlug } = await props.params;
+  const [{ menuSlug }, query] = await Promise.all([
+    props.params,
+    props.searchParams,
+  ]);
   const menu = await getMenuBySlug(menuSlug);
   if (!menu || !menu.is_visible) notFound();
 
-  const [{ t, locale }, posts] = await Promise.all([
+  // Category navigation is admin-switched (PRD 6.6): hidden until enabled.
+  const settings = await getPublicSettings();
+  const categoryNavVisible = settingBool(
+    settings,
+    SETTING_KEYS.CATEGORY_NAV_VISIBLE,
+    false
+  );
+  const activeCategory = categoryNavVisible ? (query.category ?? "") : "";
+
+  const supabase = await createClient();
+  const [{ t, locale }, posts, { data: categories }] = await Promise.all([
     getT(),
-    listPostsForMenu(menu.id),
+    listPostsForMenu(menu.id, activeCategory || undefined),
+    categoryNavVisible
+      ? supabase
+          .from("categories")
+          .select("id, name_en, name_ko")
+          .eq("is_active", true)
+          .or(`menu_id.is.null,menu_id.eq.${menu.id}`)
+          .order("sort_order")
+      : Promise.resolve({ data: [] }),
   ]);
 
   // Menu names always display in English (user policy).
@@ -49,6 +73,34 @@ export default async function BoardPage(props: {
     <div className="wide space-y-4">
       {/* Creation lives on the dashboard and avatar menu only (UX policy). */}
       <h1 className="text-xl font-extrabold">{title}</h1>
+
+      {categoryNavVisible && (categories ?? []).length > 0 && (
+        <nav className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4">
+          <Link
+            href={`/${menu.slug}`}
+            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              !activeCategory
+                ? "bg-ink text-white"
+                : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
+            }`}
+          >
+            {t.common.all}
+          </Link>
+          {(categories ?? []).map((category) => (
+            <Link
+              key={category.id}
+              href={`/${menu.slug}?category=${category.id}`}
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                activeCategory === category.id
+                  ? "bg-ink text-white"
+                  : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
+              }`}
+            >
+              {locale === "ko" ? category.name_ko : category.name_en}
+            </Link>
+          ))}
+        </nav>
+      )}
 
       {posts.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />
