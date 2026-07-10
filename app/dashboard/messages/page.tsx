@@ -43,7 +43,7 @@ export default async function MemberMessagesPage() {
     .order("created_at");
 
   return (
-    <div className="space-y-4">
+    <div className="max-w-2xl space-y-4">
       <PageHeader
         title={t.coordinator.directMessages}
         subtitle={`${coordinator.display_name} · ${t.coordinator.messageHint}`}

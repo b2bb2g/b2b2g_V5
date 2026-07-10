@@ -39,7 +39,7 @@ export default async function ProfileViewPage(props: {
   ];
 
   return (
-    <div className="mx-auto max-w-lg space-y-4">
+    <div className="max-w-2xl space-y-4">
       {params.saved && (
         <p className="rounded-lg bg-positive-soft px-3 py-2 text-xs font-semibold text-positive">
           {t.profile.saved}

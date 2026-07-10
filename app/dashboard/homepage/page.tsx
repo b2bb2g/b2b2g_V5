@@ -69,7 +69,7 @@ export default async function HomepageViewPage(props: {
     locale === "ko" && homepage.intro_ko ? homepage.intro_ko : homepage.intro_en;
 
   return (
-    <div className="mx-auto max-w-lg space-y-4">
+    <div className="max-w-2xl space-y-4">
       <PageHeader
         title={t.homepage.title}
         action={

@@ -23,7 +23,7 @@ export default async function HomepageEditPage() {
     .maybeSingle();
 
   return (
-    <div className="mx-auto max-w-lg space-y-4">
+    <div className="max-w-2xl space-y-4">
       <PageHeader title={t.homepage.title} subtitle={homepage ? t.common.edit : t.common.add} />
 
       <HomepageEditor

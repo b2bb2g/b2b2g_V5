@@ -22,7 +22,7 @@ export default async function ProfileEditPage() {
   const labelCls = "text-xs font-semibold text-ink-soft";
 
   return (
-    <div className="mx-auto max-w-lg space-y-4">
+    <div className="max-w-2xl space-y-4">
       <PageHeader title={t.profile.title} subtitle={t.common.edit} />
 
       <EditFormFrame

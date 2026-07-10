@@ -17,9 +17,9 @@ export default async function WriteSelectPage() {
   );
 
   return (
-    <div className="mx-auto max-w-lg space-y-4">
+    <div className="wide space-y-4">
       <PageHeader title={t.post.chooseBoard} />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {writable.map((menu) => (
           <Link
             key={menu.id}

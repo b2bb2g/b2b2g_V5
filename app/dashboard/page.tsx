@@ -109,71 +109,74 @@ export default async function DashboardPage() {
       </header>
 
       {/* Primary actions: register or request (UX convention: clear entry points) */}
-      <div className="flex gap-2">
-        <Link
-          href="/write/select"
-          className="flex-1 rounded-xl bg-primary px-4 py-3 text-center text-sm font-bold text-white hover:bg-primary-strong"
-        >
+      <div className="flex flex-wrap gap-2">
+        <Link href="/write/select" className="btn-primary btn-lg">
           {t.dashboard.registerProduct}
         </Link>
-        <Link
-          href="/write?menu=requests"
-          className="flex-1 rounded-xl bg-primary-soft px-4 py-3 text-center text-sm font-bold text-primary-strong hover:bg-primary-soft/70"
-        >
+        <Link href="/write?menu=requests" className="btn-soft btn-lg">
           {t.dashboard.postRequest}
         </Link>
       </div>
 
-      <section className="rounded-card border border-line p-4">
-        <h2 className="text-sm font-bold">{t.dashboard.referralLink}</h2>
-        <p className="mt-0.5 text-xs text-ink-faint">{t.dashboard.referralHint}</p>
-        <div className="mt-3">
-          <CopyField
-            value={referralLink}
-            copyLabel={t.common.copy}
-            copiedLabel={t.common.copied}
-          />
-        </div>
-        {showReferralStats && (
-          <p className="mt-3 text-sm text-ink-soft">
-            {t.dashboard.referralCount}:{" "}
-            <span className="font-bold text-ink">{referralCount.count ?? 0}</span>
-          </p>
-        )}
-      </section>
-
-      <section className="rounded-card border border-line p-4">
-        <h2 className="text-sm font-bold">{t.dashboard.myBadges}</h2>
-        <div className="mt-2">
-          {session.badges.length ? (
-            <BadgeList badges={session.badges} locale={locale} />
-          ) : (
-            <p className="text-sm text-ink-faint">{t.dashboard.noBadges}</p>
+      {/* Status cards: three across on the wide frame */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <section className="card h-full p-4">
+          <h2 className="text-sm font-bold">{t.dashboard.referralLink}</h2>
+          <p className="mt-0.5 text-xs text-ink-faint">{t.dashboard.referralHint}</p>
+          <div className="mt-3">
+            <CopyField
+              value={referralLink}
+              copyLabel={t.common.copy}
+              copiedLabel={t.common.copied}
+            />
+          </div>
+          {showReferralStats && (
+            <p className="mt-3 text-sm text-ink-soft">
+              {t.dashboard.referralCount}:{" "}
+              <span className="font-bold text-ink">{referralCount.count ?? 0}</span>
+            </p>
           )}
-        </div>
-        <Link
-          href="/dashboard/badges"
-          className="mt-3 inline-block text-sm font-semibold text-primary"
-        >
-          {t.dashboard.applyBadge}
-        </Link>
-      </section>
+        </section>
 
-      <section className="rounded-card border border-line p-4">
-        <h2 className="text-sm font-bold">{t.dashboard.subscription}</h2>
-        {subscription.data ? (
-          <p className="mt-2 text-sm text-ink-soft">
-            <span className="font-semibold text-positive">{t.dashboard.subActive}</span>
-            {" · "}
-            {t.dashboard.subExpiresOn}{" "}
-            {new Date(subscription.data.expires_at).toISOString().slice(0, 10)}
-          </p>
-        ) : (
-          <p className="mt-2 text-sm text-ink-faint">{t.dashboard.subNone}</p>
-        )}
-      </section>
+        <section className="card h-full p-4">
+          <h2 className="text-sm font-bold">{t.dashboard.myBadges}</h2>
+          <div className="mt-2">
+            {session.badges.length ? (
+              <BadgeList badges={session.badges} locale={locale} />
+            ) : (
+              <p className="text-sm text-ink-faint">{t.dashboard.noBadges}</p>
+            )}
+          </div>
+          <Link
+            href="/dashboard/badges"
+            className="mt-3 inline-block text-sm font-semibold text-primary"
+          >
+            {t.dashboard.applyBadge}
+          </Link>
+        </section>
 
-      <div className="grid grid-cols-2 gap-3">
+        <section className="card h-full p-4">
+          <h2 className="text-sm font-bold">{t.dashboard.subscription}</h2>
+          {subscription.data ? (
+            <p className="mt-2 text-sm text-ink-soft">
+              <span className="font-semibold text-positive">{t.dashboard.subActive}</span>
+              {" · "}
+              {t.dashboard.subExpiresOn}{" "}
+              {new Date(subscription.data.expires_at).toISOString().slice(0, 10)}
+            </p>
+          ) : (
+            <p className="mt-2 text-sm text-ink-faint">{t.dashboard.subNone}</p>
+          )}
+          <Link
+            href="/membership"
+            className="mt-3 inline-block text-sm font-semibold text-primary"
+          >
+            {t.dashboard.subCta}
+          </Link>
+        </section>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Link
           href="/dashboard/posts"
           className="rounded-card border border-line p-4 hover:border-primary"

@@ -42,7 +42,7 @@ export default async function NewInquiryPage(props: {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-4">
+    <div className="max-w-2xl space-y-4">
       <PageHeader title={t.inquiry.newInquiry} subtitle={t.inquiry.stepHint} />
       <p className="rounded-lg bg-surface-sub/60 px-3 py-2 text-sm font-semibold text-ink-soft">
         {heading}

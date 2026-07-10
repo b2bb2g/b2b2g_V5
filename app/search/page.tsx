@@ -48,7 +48,7 @@ export default async function SearchPage(props: {
   const menuSlugById = new Map(menus.map((menu) => [menu.id, menu.slug]));
 
   return (
-    <div className="space-y-5">
+    <div className="wide space-y-5">
       <PageHeader title={t.search.title} subtitle={t.search.hint} />
 
       <form action="/search" method="get" className="flex gap-2">
@@ -70,7 +70,7 @@ export default async function SearchPage(props: {
         (results.length === 0 ? (
           <EmptyState title={t.search.noResults} hint={t.search.noResultsHint} />
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             {results.map((post) => {
               const thumb = post.rep_image_path
                 ? postMediaUrl(post.rep_image_path)

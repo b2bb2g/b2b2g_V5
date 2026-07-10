@@ -29,7 +29,7 @@ export async function MemberArea({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="wide space-y-5">
       <MemberTabs items={items} />
       {children}
     </div>

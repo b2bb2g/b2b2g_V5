@@ -71,9 +71,10 @@ export default async function WritePage(props: {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="wide space-y-4">
       <PageHeader title={initial ? t.post.editPost : t.post.writePost} subtitle={menu.title_en} />
-      <PostComposer
+      <div className="max-w-2xl">
+        <PostComposer
         t={t}
         locale={locale}
         userId={session.userId}
@@ -84,7 +85,8 @@ export default async function WritePage(props: {
         maxFileMb={settingNumber(settings, SETTING_KEYS.UPLOAD_MAX_FILE_MB, 10)}
         maxFiles={settingNumber(settings, SETTING_KEYS.UPLOAD_MAX_FILES_PER_POST, 10)}
         initial={initial}
-      />
+        />
+      </div>
     </div>
   );
 }
