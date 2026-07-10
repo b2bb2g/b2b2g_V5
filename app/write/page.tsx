@@ -6,7 +6,7 @@ import { getMenuBySlug } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
 import { PostComposer } from "@/components/post/PostComposer";
-import { SETTING_KEYS } from "@/lib/constants";
+import { POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import type { SpecFieldDef, Post, PostSpec } from "@/lib/types";
 
 export default async function WritePage(props: {
@@ -42,14 +42,21 @@ export default async function WritePage(props: {
 
   // Edit mode: load own post (RLS restricts to author/admin anyway).
   let initial;
+  let initialIsDraft = true;
   if (params.post) {
-    const [{ data: post }, { data: specs }, { data: media }] = await Promise.all([
-      supabase.from("posts").select("*").eq("id", params.post).maybeSingle(),
-      supabase.from("post_specs").select("*").eq("post_id", params.post).order("sort_order"),
-      supabase.from("post_media").select("path").eq("post_id", params.post).order("sort_order"),
-    ]);
+    const [{ data: post }, { data: specs }, { data: media }, { data: files }] =
+      await Promise.all([
+        supabase.from("posts").select("*").eq("id", params.post).maybeSingle(),
+        supabase.from("post_specs").select("*").eq("post_id", params.post).order("sort_order"),
+        supabase.from("post_media").select("path").eq("post_id", params.post).order("sort_order"),
+        supabase
+          .from("post_attachments")
+          .select("path, filename, size_bytes")
+          .eq("post_id", params.post),
+      ]);
     const p = post as Post | null;
     if (!p || (p.author_id !== session.userId && !session.profile?.is_admin)) notFound();
+    initialIsDraft = p.status === POST_STATUS.DRAFT;
     initial = {
       postId: p.id,
       titleEn: p.title_en,
@@ -61,6 +68,11 @@ export default async function WritePage(props: {
       repVideoUrl: p.rep_video_url ?? "",
       repImagePath: p.rep_image_path,
       imagePaths: (media ?? []).map((m) => m.path),
+      attachments: (files ?? []).map((f) => ({
+        path: f.path,
+        name: f.filename,
+        size: Number(f.size_bytes ?? 0),
+      })),
       specs: ((specs ?? []) as PostSpec[]).map((s) => ({
         fieldDefId: s.field_def_id,
         nameEn: s.name_en,
@@ -81,6 +93,7 @@ export default async function WritePage(props: {
         boardType={menu.board_type}
         fieldPool={(fieldPool as SpecFieldDef[]) ?? []}
         categories={categories ?? []}
+        autosave={initialIsDraft}
         maxFileMb={settingNumber(settings, SETTING_KEYS.UPLOAD_MAX_FILE_MB, 10)}
         maxFiles={settingNumber(settings, SETTING_KEYS.UPLOAD_MAX_FILES_PER_POST, 10)}
         initial={initial}

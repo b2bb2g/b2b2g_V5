@@ -12,6 +12,7 @@ import { BadgePill } from "@/components/ui/Badge";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
+import { stripRichText } from "@/lib/richtext";
 import type { Dictionary } from "@/lib/i18n";
 import type { Menu, PostTeaser } from "@/lib/types";
 
@@ -440,9 +441,11 @@ export default async function Home() {
                             {locale === "ko" && post.title_ko ? post.title_ko : post.title_en}
                           </p>
                           <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                            {locale === "ko" && post.body_teaser_ko
-                              ? post.body_teaser_ko
-                              : post.body_teaser_en}
+                            {stripRichText(
+                              locale === "ko" && post.body_teaser_ko
+                                ? post.body_teaser_ko
+                                : post.body_teaser_en
+                            )}
                           </p>
                         </div>
                       </Link>
@@ -491,9 +494,11 @@ export default async function Home() {
                       />
                     </div>
                     <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                      {locale === "ko" && post.body_teaser_ko
-                        ? post.body_teaser_ko
-                        : post.body_teaser_en}
+                      {stripRichText(
+                        locale === "ko" && post.body_teaser_ko
+                          ? post.body_teaser_ko
+                          : post.body_teaser_en
+                      )}
                     </p>
                   </Link>
                 </Reveal>

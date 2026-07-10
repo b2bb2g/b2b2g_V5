@@ -1,8 +1,34 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { createMenu, toggleMenuFlag } from "@/app/actions/admin";
+import { createMenu, moveMenu, toggleMenuFlag } from "@/app/actions/admin";
 import { BOARD_TYPES } from "@/lib/constants";
 import type { Menu } from "@/lib/types";
+
+function MoveButton({
+  menuId,
+  direction,
+  label,
+}: {
+  menuId: string;
+  direction: -1 | 1;
+  label: string;
+}) {
+  return (
+    <form action={moveMenu} className="inline">
+      <input type="hidden" name="menuId" value={menuId} />
+      <input type="hidden" name="direction" value={direction} />
+      <button
+        type="submit"
+        aria-label={label}
+        className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-sub text-ink-soft hover:bg-line/70"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          {direction === -1 ? <path d="m18 15-6-6-6 6" /> : <path d="m6 9 6 6 6-6" />}
+        </svg>
+      </button>
+    </form>
+  );
+}
 
 function FlagToggle({
   menuId,
@@ -52,7 +78,11 @@ export default async function MenusAdminPage() {
             key={menu.id}
             className="flex flex-wrap items-center justify-between gap-2 rounded-card border border-line px-4 py-3"
           >
-            <div>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                <MoveButton menuId={menu.id} direction={-1} label={t.admin.moveUp} />
+                <MoveButton menuId={menu.id} direction={1} label={t.admin.moveDown} />
+              </div>
               <p className="text-sm font-bold">
                 {locale === "ko" ? menu.title_ko : menu.title_en}
                 <span className="ml-2 text-xs font-normal text-ink-faint">

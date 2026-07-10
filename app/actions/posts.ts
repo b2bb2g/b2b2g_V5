@@ -13,6 +13,8 @@ export type SpecInput = {
   value: string;
 };
 
+export type AttachmentInput = { path: string; name: string; size: number };
+
 export type PostInput = {
   menuSlug: string;
   titleEn: string;
@@ -24,6 +26,7 @@ export type PostInput = {
   repVideoUrl: string;
   imagePaths: string[];
   repImagePath: string | null;
+  attachments: AttachmentInput[];
   specs: SpecInput[];
   asDraft: boolean;
   postId?: string;
@@ -93,8 +96,11 @@ export async function savePost(input: PostInput): Promise<{ error?: string; post
   if (postId) {
     const { error } = await supabase.from("posts").update(row).eq("id", postId);
     if (error) return { error: "save" };
-    await supabase.from("post_specs").delete().eq("post_id", postId);
-    await supabase.from("post_media").delete().eq("post_id", postId);
+    await Promise.all([
+      supabase.from("post_specs").delete().eq("post_id", postId),
+      supabase.from("post_media").delete().eq("post_id", postId),
+      supabase.from("post_attachments").delete().eq("post_id", postId),
+    ]);
   } else {
     const { data, error } = await supabase
       .from("posts")
@@ -124,6 +130,19 @@ export async function savePost(input: PostInput): Promise<{ error?: string; post
         path,
         sort_order: i,
       }))
+    );
+  }
+  if (input.attachments.length) {
+    // Attachments must live under the author's own folder (bucket RLS).
+    await supabase.from("post_attachments").insert(
+      input.attachments
+        .filter((a) => a.path.startsWith(`${user.id}/`))
+        .map((a) => ({
+          post_id: postId,
+          path: a.path,
+          filename: a.name,
+          size_bytes: a.size,
+        }))
     );
   }
 

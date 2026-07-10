@@ -4,8 +4,14 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { savePost, type PostInput, type SpecInput } from "@/app/actions/posts";
+import {
+  savePost,
+  type AttachmentInput,
+  type PostInput,
+  type SpecInput,
+} from "@/app/actions/posts";
 import { DiscardModal } from "@/components/ui/EditFormFrame";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS, BOARD_TYPES, type BoardType } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
@@ -24,6 +30,7 @@ type Props = {
   categories: CategoryOption[];
   maxFileMb: number;
   maxFiles: number;
+  autosave: boolean;
   initial?: {
     postId: string;
     titleEn: string;
@@ -35,6 +42,7 @@ type Props = {
     repVideoUrl: string;
     repImagePath: string | null;
     imagePaths: string[];
+    attachments: AttachmentInput[];
     specs: SpecInput[];
   };
 };
@@ -49,6 +57,7 @@ export function PostComposer({
   categories,
   maxFileMb,
   maxFiles,
+  autosave,
   initial,
 }: Props) {
   const router = useRouter();
@@ -73,6 +82,11 @@ export function PostComposer({
     initial?.repImagePath ?? null
   );
   const [specs, setSpecs] = useState<SpecInput[]>(initial?.specs ?? []);
+  const [attachments, setAttachments] = useState<AttachmentInput[]>(
+    initial?.attachments ?? []
+  );
+  const savedPostId = useRef<string | undefined>(initial?.postId);
+  const [autoSavedAt, setAutoSavedAt] = useState<string | null>(null);
 
   // Leave-warning while composing (PRD 7.3 / 14).
   useEffect(() => {
@@ -113,9 +127,8 @@ export function PostComposer({
     markDirty();
   }
 
-  function submit(asDraft: boolean) {
-    setError(null);
-    const input: PostInput = {
+  function buildInput(asDraft: boolean): PostInput {
+    return {
       menuSlug,
       titleEn,
       titleKo,
@@ -126,10 +139,33 @@ export function PostComposer({
       repVideoUrl: videoUrl,
       imagePaths: images,
       repImagePath: repImage,
+      attachments,
       specs: specs.filter((s) => s.nameEn && s.value),
       asDraft,
-      postId: initial?.postId,
+      postId: savedPostId.current,
     };
+  }
+
+  // Auto-save drafts while composing (PRD 7.3). Only for new posts and
+  // existing drafts -- never silently unpublishes a live post.
+  useEffect(() => {
+    if (!autosave) return;
+    const timer = setInterval(async () => {
+      if (!dirty.current || pending || uploading || !titleEn) return;
+      const result = await savePost(buildInput(true));
+      if (result.postId) {
+        savedPostId.current = result.postId;
+        dirty.current = false;
+        setAutoSavedAt(new Date().toTimeString().slice(0, 5));
+      }
+    }, 30_000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- interval reads latest state via closure re-created on each render cycle of deps below
+  }, [autosave, pending, uploading, titleEn, titleKo, bodyEn, bodyKo, categoryId, deadline, videoUrl, images, repImage, attachments, specs]);
+
+  function submit(asDraft: boolean) {
+    setError(null);
+    const input = buildInput(asDraft);
     startTransition(async () => {
       const result = await savePost(input);
       if (result.error === "limit") {
@@ -185,33 +221,38 @@ export function PostComposer({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <label className="block">
+        <div>
           <span className="text-xs font-semibold text-ink-soft">
             {t.post.bodyEn} ({t.common.required})
           </span>
-          <textarea
-            value={bodyEn}
-            onChange={(e) => {
-              setBodyEn(e.target.value);
-              markDirty();
-            }}
-            rows={8}
-            required
-            className={inputCls}
-          />
-        </label>
-        <label className="block">
+          <div className="mt-1">
+            <RichTextEditor
+              value={bodyEn}
+              onChange={(html) => {
+                setBodyEn(html);
+                markDirty();
+              }}
+              userId={userId}
+              labels={t.editor}
+              maxFileMb={maxFileMb}
+            />
+          </div>
+        </div>
+        <div>
           <span className="text-xs font-semibold text-ink-soft">{t.post.bodyKo}</span>
-          <textarea
-            value={bodyKo}
-            onChange={(e) => {
-              setBodyKo(e.target.value);
-              markDirty();
-            }}
-            rows={8}
-            className={inputCls}
-          />
-        </label>
+          <div className="mt-1">
+            <RichTextEditor
+              value={bodyKo}
+              onChange={(html) => {
+                setBodyKo(html);
+                markDirty();
+              }}
+              userId={userId}
+              labels={t.editor}
+              maxFileMb={maxFileMb}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Category selection: data accumulates from day one (PRD 6.6) */}
@@ -293,6 +334,57 @@ export function PostComposer({
             ))}
           </div>
         )}
+      </div>
+
+      <div>
+        <span className="text-xs font-semibold text-ink-soft">{t.post.attachFiles}</span>
+        {attachments.length > 0 && (
+          <ul className="mt-2 space-y-1.5">
+            {attachments.map((file) => (
+              <li
+                key={file.path}
+                className="flex items-center justify-between rounded-xl border border-line px-3 py-2 text-xs"
+              >
+                <span className="truncate">{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAttachments(attachments.filter((f) => f.path !== file.path));
+                    markDirty();
+                  }}
+                  className="ml-2 shrink-0 font-bold text-ink-faint"
+                  aria-label={t.common.delete}
+                >
+                  X
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <input
+          type="file"
+          accept="application/pdf,image/*,.doc,.docx,.xls,.xlsx,.zip"
+          multiple
+          onChange={async (e) => {
+            const files = e.target.files;
+            if (!files) return;
+            setUploading(true);
+            const supabase = createClient();
+            const added: AttachmentInput[] = [];
+            for (const file of Array.from(files)) {
+              if (file.size > maxFileMb * 1024 * 1024) continue;
+              const path = `${userId}/${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+              const { error: upErr } = await supabase.storage
+                .from(STORAGE_BUCKETS.ATTACHMENTS)
+                .upload(path, file);
+              if (!upErr) added.push({ path, name: file.name, size: file.size });
+            }
+            setUploading(false);
+            setAttachments((prev) => [...prev, ...added]);
+            markDirty();
+          }}
+          className="mt-1 block w-full text-xs text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-surface-sub file:px-3 file:py-2 file:text-xs file:font-semibold file:text-ink-soft"
+        />
       </div>
 
       <label className="block">
@@ -399,6 +491,12 @@ export function PostComposer({
             </div>
           </div>
         </div>
+      )}
+
+      {autoSavedAt && (
+        <p className="text-xs text-ink-faint">
+          {t.post.autoSaved} · {autoSavedAt}
+        </p>
       )}
 
       <div className="flex gap-2 pt-2">

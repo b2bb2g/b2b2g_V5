@@ -211,6 +211,31 @@ export async function toggleMenuFlag(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+// Reorder menus by swapping sort_order with the neighbour (PRD 17.6).
+export async function moveMenu(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const menuId = String(formData.get("menuId") ?? "");
+  const direction = Number(formData.get("direction") ?? 0);
+  if (!menuId || ![-1, 1].includes(direction)) return;
+
+  const { data: menus } = await supabase
+    .from("menus")
+    .select("id, sort_order")
+    .order("sort_order");
+  const list = menus ?? [];
+  const index = list.findIndex((m) => m.id === menuId);
+  const neighbour = list[index + direction];
+  if (index < 0 || !neighbour) return;
+
+  await Promise.all([
+    supabase.from("menus").update({ sort_order: neighbour.sort_order }).eq("id", menuId),
+    supabase.from("menus").update({ sort_order: list[index].sort_order }).eq("id", neighbour.id),
+  ]);
+  await audit(supabase, "menu_reorder", "menu", menuId, { direction });
+  revalidatePath("/admin/menus");
+  revalidatePath("/", "layout");
+}
+
 export async function createMenu(formData: FormData) {
   const { supabase } = await requireAdmin();
   const slug = String(formData.get("slug") ?? "")

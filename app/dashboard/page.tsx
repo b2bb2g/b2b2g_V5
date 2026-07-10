@@ -8,6 +8,7 @@ import Image from "next/image";
 import { BadgeList } from "@/components/ui/Badge";
 import { CopyField } from "@/components/ui/CopyField";
 import { CopyChip } from "@/components/ui/CopyChip";
+import { ReferralQr } from "@/components/ui/ReferralQr";
 import { postMediaUrl } from "@/lib/media";
 import { signOut } from "@/app/actions/auth";
 import {
@@ -130,6 +131,7 @@ export default async function DashboardPage() {
               copiedLabel={t.common.copied}
             />
           </div>
+          <ReferralQr value={referralLink} label={t.dashboard.qr} />
           {showReferralStats && (
             <p className="mt-3 text-sm text-ink-soft">
               {t.dashboard.referralCount}:{" "}

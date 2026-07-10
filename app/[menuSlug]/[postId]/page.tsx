@@ -10,6 +10,7 @@ import { postMediaUrl, videoEmbedUrl, videoThumbnail } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
+import { isRichText, sanitizeRichText, stripRichText } from "@/lib/richtext";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
@@ -18,7 +19,7 @@ export async function generateMetadata(props: {
   const { postId } = await props.params;
   const teaser = await getPostTeaser(postId);
   if (!teaser) return {};
-  const description = teaser.body_teaser_en.slice(0, 160);
+  const description = stripRichText(teaser.body_teaser_en).slice(0, 160);
   const image = teaser.rep_image_path
     ? postMediaUrl(teaser.rep_image_path)
     : teaser.rep_video_url
@@ -147,9 +148,22 @@ export default async function PostDetailPage(props: {
 
       {full ? (
         <>
-          <div className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
-            {locale === "ko" && full.post.body_ko ? full.post.body_ko : full.post.body_en}
-          </div>
+          {(() => {
+            const body =
+              locale === "ko" && full.post.body_ko
+                ? full.post.body_ko
+                : full.post.body_en;
+            return isRichText(body) ? (
+              <div
+                className="rich-content"
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(body) }}
+              />
+            ) : (
+              <div className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
+                {body}
+              </div>
+            );
+          })()}
 
           {full.media.length > 0 && (
             <div className="scrollbar-none -mx-4 flex snap-x gap-2 overflow-x-auto px-4">
@@ -229,9 +243,11 @@ export default async function PostDetailPage(props: {
           <>
             {/* Gradient lock: only teaser data was ever sent to the client */}
             <div className="teaser-fade whitespace-pre-wrap text-sm leading-relaxed text-ink">
-              {locale === "ko" && teaser.body_teaser_ko
-                ? teaser.body_teaser_ko
-                : teaser.body_teaser_en}
+              {stripRichText(
+                locale === "ko" && teaser.body_teaser_ko
+                  ? teaser.body_teaser_ko
+                  : teaser.body_teaser_en
+              )}
             </div>
             <div className="rounded-card border border-line bg-surface-sub/60 p-6 text-center">
               <p className="text-base font-bold">{t.post.membersOnlyTitle}</p>

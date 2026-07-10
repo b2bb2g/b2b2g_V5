@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
+import { stripRichText } from "@/lib/richtext";
 import type { PostTeaser } from "@/lib/types";
 import type { Metadata } from "next";
 
@@ -174,9 +175,11 @@ export default async function BoardPage(props: {
                   )}
                 </div>
                 <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                  {locale === "ko" && post.body_teaser_ko
-                    ? post.body_teaser_ko
-                    : post.body_teaser_en}
+                  {stripRichText(
+                    locale === "ko" && post.body_teaser_ko
+                      ? post.body_teaser_ko
+                      : post.body_teaser_en
+                  )}
                 </p>
                 <p className="mt-2 text-xs text-ink-faint">
                   {post.author_company ?? post.author_name}
