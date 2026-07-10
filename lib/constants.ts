@@ -119,6 +119,10 @@ export const LOCALE_COOKIE = "locale";
 // saved. While present, proxy.ts locks navigation to the reset screen.
 export const PW_RESET_COOKIE = "pw-reset-required";
 
+// Present when the member unchecked "keep me signed in": auth cookies are
+// then written without persistence so the login ends with the browser session.
+export const SESSION_ONLY_COOKIE = "session-only";
+
 export const STORAGE_BUCKETS = {
   POST_MEDIA: "post-media",
   ATTACHMENTS: "attachments",

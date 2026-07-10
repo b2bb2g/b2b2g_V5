@@ -1,9 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { PW_RESET_COOKIE } from "@/lib/constants";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { PW_RESET_COOKIE, SESSION_ONLY_COOKIE } from "@/lib/constants";
+
+// "Keep me signed in" unchecked: token refreshes must not re-persist cookies.
+function asSessionCookie(options: CookieOptions | undefined): CookieOptions {
+  const finalOptions = { ...(options ?? {}) };
+  delete finalOptions.maxAge;
+  delete finalOptions.expires;
+  return finalOptions;
+}
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
+  const sessionOnly =
+    request.cookies.get(SESSION_ONLY_COOKIE)?.value === "1";
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,7 +29,11 @@ export async function proxy(request: NextRequest) {
           );
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+            response.cookies.set(
+              name,
+              value,
+              sessionOnly ? asSessionCookie(options) : options
+            )
           );
         },
       },

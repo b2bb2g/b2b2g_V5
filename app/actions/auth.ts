@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { PW_RESET_COOKIE } from "@/lib/constants";
+import { PW_RESET_COOKIE, SESSION_ONLY_COOKIE } from "@/lib/constants";
 
 function siteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -33,8 +33,21 @@ export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/dashboard");
+  const remember = formData.get("remember") === "on";
 
-  const supabase = await createClient();
+  const store = await cookies();
+  if (remember) {
+    store.delete(SESSION_ONLY_COOKIE);
+  } else {
+    // Marker itself is a session cookie: everything ends with the browser.
+    store.set(SESSION_ONLY_COOKIE, "1", {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+    });
+  }
+
+  const supabase = await createClient({ sessionOnly: !remember });
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
@@ -47,6 +60,7 @@ export async function signOut() {
   await supabase.auth.signOut();
   const store = await cookies();
   store.delete(PW_RESET_COOKIE);
+  store.delete(SESSION_ONLY_COOKIE);
   revalidatePath("/", "layout");
   redirect("/");
 }

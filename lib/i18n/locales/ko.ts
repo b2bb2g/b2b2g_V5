@@ -72,6 +72,7 @@ const ko: Dict = {
     referredBy: "추천인",
     signUpDone: "계정을 만들었어요. 이메일 인증을 완료해 주세요.",
     invalidCredentials: "이메일 또는 비밀번호가 올바르지 않아요.",
+    rememberMe: "로그인 상태 유지",
     forgotPassword: "비밀번호를 잊으셨나요?",
     resetTitle: "비밀번호 재설정",
     resetBody: "가입한 이메일을 입력하면 재설정 링크를 보내드려요.",

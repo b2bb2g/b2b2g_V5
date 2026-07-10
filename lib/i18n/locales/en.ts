@@ -68,6 +68,7 @@ const en = {
     referredBy: "Invited by member",
     signUpDone: "Account created. Please verify your email.",
     invalidCredentials: "Email or password is incorrect.",
+    rememberMe: "Keep me signed in",
     forgotPassword: "Forgot password?",
     resetTitle: "Reset password",
     resetBody: "Enter your email and we will send a reset link.",

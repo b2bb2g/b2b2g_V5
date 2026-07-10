@@ -45,6 +45,15 @@ export default async function LoginPage(props: {
             />
           </div>
         </label>
+        <label className="flex items-center gap-2 py-1 text-sm text-ink-soft">
+          <input
+            type="checkbox"
+            name="remember"
+            defaultChecked
+            className="h-4 w-4 rounded accent-primary"
+          />
+          {t.auth.rememberMe}
+        </label>
         <button
           type="submit"
           className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
