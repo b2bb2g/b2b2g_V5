@@ -8,6 +8,7 @@ import { BadgeList } from "@/components/ui/Badge";
 import { CopyField } from "@/components/ui/CopyField";
 import { signOut } from "@/app/actions/auth";
 import {
+  BADGE_CODES,
   POST_STATUS,
   SETTING_KEYS,
   SUBSCRIPTION_STATUS,
@@ -151,6 +152,30 @@ export default async function DashboardPage() {
             {t.dashboard.myInquiriesSummary}
           </p>
         </Link>
+        {session.badges.some((b) => b.badge_types?.code === BADGE_CODES.CERTIFIED) && (
+          <Link
+            href="/dashboard/homepage"
+            className="rounded-card border border-line p-4 hover:border-primary"
+          >
+            <p className="text-sm font-bold">{t.homepage.title}</p>
+          </Link>
+        )}
+        {session.profile.is_coordinator && (
+          <Link
+            href="/dashboard/coordinator"
+            className="rounded-card border border-line p-4 hover:border-primary"
+          >
+            <p className="text-sm font-bold">{t.coordinator.title}</p>
+          </Link>
+        )}
+        {session.profile.referred_by && !session.profile.is_coordinator && (
+          <Link
+            href="/dashboard/messages"
+            className="rounded-card border border-line p-4 hover:border-primary"
+          >
+            <p className="text-sm font-bold">{t.coordinator.directMessages}</p>
+          </Link>
+        )}
       </div>
     </div>
   );
