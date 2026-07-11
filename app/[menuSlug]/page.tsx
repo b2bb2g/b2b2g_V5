@@ -94,21 +94,23 @@ export default async function BoardPage(props: {
   return (
     <div className="wide space-y-4">
       {/* Creation lives on the dashboard and avatar menu only (UX policy). */}
-      <BoardHero
-        eyebrow={t.board.eyebrow}
-        type={typeLabel}
-        title={title}
-        count={posts.length}
-        countLabel={t.board.availableNow}
-        description={
-          isNoticeBoard
-            ? t.board.noticeHint
-            : isRequestBoard
-              ? t.board.requestHint
-              : t.board.browseHint
-        }
-        image={boardImage}
-      />
+      {!isNoticeBoard && (
+        <BoardHero
+          eyebrow={t.board.eyebrow}
+          type={typeLabel}
+          title={title}
+          count={posts.length}
+          countLabel={t.board.availableNow}
+          description={
+            isNoticeBoard
+              ? t.board.noticeHint
+              : isRequestBoard
+                ? t.board.requestHint
+                : t.board.browseHint
+          }
+          image={boardImage}
+        />
+      )}
 
       {categoryNavVisible && (categories ?? []).length > 0 && (
         <nav className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4">
@@ -141,77 +143,79 @@ export default async function BoardPage(props: {
       {posts.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />
       ) : isNoticeBoard ? (
-        <section className="space-y-8 pt-3">
-          <div className="grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
-            <Link
-              href={`/${menu.slug}/${posts[0].id}`}
-              className="group relative min-h-80 overflow-hidden rounded-[2rem] bg-primary p-7 text-white shadow-[0_22px_65px_rgba(27,100,218,.22)] sm:p-10"
-            >
-              <span className="absolute -right-16 -top-20 h-72 w-72 rounded-full border-[48px] border-white/8 transition-transform duration-700 group-hover:scale-110" />
-              <span className="relative flex h-full flex-col justify-between">
-                <span>
-                  <span className="inline-flex rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold uppercase tracking-[.14em]">
-                    {t.board.latestNotice}
-                  </span>
-                  <strong className="mt-8 block max-w-2xl text-2xl font-extrabold leading-tight tracking-[-.035em] sm:text-4xl">
-                    {locale === "ko" && posts[0].title_ko
-                      ? posts[0].title_ko
-                      : posts[0].title_en}
-                  </strong>
-                  <span className="mt-4 block max-w-2xl text-sm leading-7 text-white/70">
-                    {stripRichText(
-                      locale === "ko" && posts[0].body_teaser_ko
-                        ? posts[0].body_teaser_ko
-                        : posts[0].body_teaser_en,
-                    )}
-                  </span>
+        <section className="space-y-5">
+          <header className="relative overflow-hidden rounded-[2rem] bg-white px-6 py-8 shadow-(--shadow-card) ring-1 ring-line/70 sm:px-9 sm:py-10">
+            <span
+              className="absolute -right-14 -top-20 h-60 w-60 rounded-full bg-primary/10 blur-2xl"
+              aria-hidden="true"
+            />
+            <div className="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                  {t.board.noticeCenter}
+                </p>
+                <h1 className="mt-3 text-3xl font-extrabold tracking-[-.045em] sm:text-5xl">
+                  {title}
+                </h1>
+                <p className="mt-4 text-sm leading-7 text-ink-soft">
+                  {t.board.noticeHint}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-xl font-extrabold text-white">
+                  {posts.length}
                 </span>
-                <span className="mt-8 flex items-center justify-between border-t border-white/15 pt-5 text-xs text-white/65">
-                  <span>{posts[0].published_at?.slice(0, 10)}</span>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-primary transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
+                <span className="text-xs font-bold leading-5 text-ink-faint">
+                  {t.board.availableNow}
+                  <br />
+                  {t.board.adminPublished}
                 </span>
-              </span>
-            </Link>
-            <div className="rounded-[2rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-8">
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
-                {t.board.noticeCenter}
-              </p>
-              <h2 className="mt-4 text-2xl font-extrabold tracking-[-.035em]">
-                {t.board.allNotices}
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-ink-soft">
-                {t.board.noticeHint}
-              </p>
-              <div className="mt-8 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-surface-sub p-4">
-                  <p className="text-3xl font-extrabold">{posts.length}</p>
-                  <p className="mt-1 text-xs font-semibold text-ink-faint">
-                    {t.board.availableNow}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-primary-soft p-4">
-                  <p className="text-sm font-extrabold text-primary-strong">
-                    B2BB2G
-                  </p>
-                  <p className="mt-2 text-xs font-semibold text-ink-soft">
-                    {t.home.stat1}
-                  </p>
-                </div>
               </div>
             </div>
-          </div>
-          <div className="overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-(--shadow-card)">
-            <div className="border-b border-line px-6 py-5">
+          </header>
+          <Link
+            href={`/${menu.slug}/${posts[0].id}`}
+            className="group grid overflow-hidden rounded-[1.75rem] bg-[#101923] text-white shadow-[0_20px_60px_rgba(16,25,35,.16)] lg:grid-cols-[11rem_1fr_auto] lg:items-center"
+          >
+            <span className="flex min-h-32 flex-col justify-center bg-primary p-6">
+              <span className="text-xs font-bold uppercase tracking-[.14em] text-white/70">
+                {t.board.latestNotice}
+              </span>
+              <strong className="mt-3 text-2xl font-extrabold">
+                {posts[0].published_at?.slice(5, 10).replace("-", ".")}
+              </strong>
+            </span>
+            <span className="min-w-0 p-6 sm:p-8">
+              <strong className="block text-xl font-extrabold leading-snug sm:text-2xl">
+                {locale === "ko" && posts[0].title_ko
+                  ? posts[0].title_ko
+                  : posts[0].title_en}
+              </strong>
+              <span className="mt-2 block line-clamp-2 text-sm leading-6 text-white/60">
+                {stripRichText(
+                  locale === "ko" && posts[0].body_teaser_ko
+                    ? posts[0].body_teaser_ko
+                    : posts[0].body_teaser_en,
+                )}
+              </span>
+            </span>
+            <span className="m-6 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
+              →
+            </span>
+          </Link>
+          <div className="rounded-[1.75rem] border border-line/80 bg-white p-3 shadow-(--shadow-card) sm:p-4">
+            <div className="flex items-center justify-between px-3 py-3">
               <h2 className="text-lg font-extrabold">{t.board.allNotices}</h2>
+              <span className="rounded-full bg-surface-sub px-3 py-1.5 text-xs font-bold text-ink-faint">
+                {posts.length - 1}
+              </span>
             </div>
-            <div className="divide-y divide-line">
+            <div className="space-y-1">
               {posts.slice(1).map((post, index) => (
                 <Link
                   key={post.id}
                   href={`/${menu.slug}/${post.id}`}
-                  className="group grid gap-3 px-6 py-5 transition hover:bg-surface-sub/70 sm:grid-cols-[3rem_1fr_auto] sm:items-center"
+                  className="group grid gap-3 rounded-2xl px-4 py-5 transition hover:bg-surface-sub sm:grid-cols-[3rem_1fr_auto] sm:items-center"
                 >
                   <span className="text-xs font-extrabold text-primary">
                     {String(index + 2).padStart(2, "0")}
