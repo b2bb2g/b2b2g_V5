@@ -536,7 +536,7 @@ export function PostComposer({
         </p>
       )}
 
-      <div className="flex gap-2 pt-2">
+      <div className="grid gap-2 pt-2 sm:grid-cols-[auto_1fr_1fr]">
         <button
           type="button"
           disabled={pending || uploading}

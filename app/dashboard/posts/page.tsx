@@ -158,7 +158,7 @@ export default async function MyPostsPage(props: {
                     <form action={closeOwnPost}>
                       <input type="hidden" name="postId" value={post.id} />
                       <ConfirmSubmit
-                        label={t.post.closed}
+                        label={t.post.closeRequest}
                         confirmTitle={t.common.confirmTitle}
                         confirmBody={t.common.doubleConfirm}
                         confirmLabel={t.common.confirm}

@@ -51,6 +51,7 @@ export async function reviewPost(formData: FormData) {
   const reason = String(formData.get("reason") ?? "").trim();
 
   const approve = decision === "approve";
+  if (!approve && !reason) redirect("/admin/moderation?toast=reasonRequired");
   const { data: post } = await supabase
     .from("posts")
     .update({
@@ -73,6 +74,7 @@ export async function reviewPost(formData: FormData) {
   }
   await audit(supabase, `post_${decision}`, "post", postId, { reason });
   revalidatePath("/admin/moderation");
+  redirect(`/admin/moderation?toast=${approve ? "approved" : "rejected"}`);
 }
 
 // ---- Inquiry message review queue --------------------------------------
@@ -84,6 +86,7 @@ export async function reviewMessage(formData: FormData) {
   const feedback = String(formData.get("feedback") ?? "").trim();
 
   const forward = decision === "forward";
+  if (!forward && !reason) redirect("/admin/inquiries?toast=reasonRequired");
   const { data: message } = await supabase
     .from("inquiry_messages")
     .update({
@@ -127,6 +130,7 @@ export async function reviewMessage(formData: FormData) {
     reason,
   });
   revalidatePath("/admin/inquiries");
+  redirect(`/admin/inquiries?toast=${forward ? "forwarded" : "rejected"}`);
 }
 
 // ---- Badge applications -------------------------------------------------
@@ -137,6 +141,7 @@ export async function reviewBadgeApplication(formData: FormData) {
   const reason = String(formData.get("reason") ?? "").trim();
 
   const approve = decision === "approve";
+  if (!approve && !reason) redirect("/admin/badges?toast=reasonRequired");
   const { data: application } = await supabase
     .from("badge_applications")
     .update({
@@ -161,6 +166,7 @@ export async function reviewBadgeApplication(formData: FormData) {
     reason,
   });
   revalidatePath("/admin/badges");
+  redirect(`/admin/badges?toast=${approve ? "approved" : "rejected"}`);
 }
 
 // ---- Member management (D3) ----------------------------------------------
@@ -224,6 +230,7 @@ export async function bulkMemberAction(formData: FormData) {
     });
   }
   revalidatePath("/admin/members");
+  redirect("/admin/members?toast=saved");
 }
 
 export async function adminSendPasswordReset(formData: FormData) {
@@ -642,6 +649,7 @@ export async function grantSubscription(formData: FormData) {
   }
   await audit(supabase, "subscription_grant", "profile", member.id, { days, note });
   revalidatePath("/admin/subscriptions");
+  redirect("/admin/subscriptions?toast=saved");
 }
 
 export async function revokeSubscription(formData: FormData) {

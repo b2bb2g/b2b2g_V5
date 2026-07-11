@@ -36,6 +36,7 @@ export function GlobalBanners({
   const [pwaDismissed, setPwaDismissed] = useState(true);
   const [isStandalone, setIsStandalone] = useState(true);
   const [isIos, setIsIos] = useState(false);
+  const [isInApp, setIsInApp] = useState(false);
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
 
@@ -56,6 +57,7 @@ export function GlobalBanners({
           (navigator as { standalone?: boolean }).standalone === true)
     );
     setIsIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
+    setIsInApp(/KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent));
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -85,6 +87,8 @@ export function GlobalBanners({
     setInstallPrompt(null);
     dismissPwa();
   }
+
+  if (isInApp) return null;
 
   if (!consentDone) {
     return (

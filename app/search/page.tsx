@@ -10,6 +10,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { ClearableInput } from "@/components/ui/TextField";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
+import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
@@ -86,7 +87,7 @@ export default async function SearchPage(props: {
                   className="card-hover group block overflow-hidden"
                 >
                   <div className="relative aspect-square bg-surface-sub">
-                    {thumb && (
+                    {thumb ? (
                       <Image
                         src={thumb}
                         alt={post.title_en}
@@ -94,7 +95,7 @@ export default async function SearchPage(props: {
                         sizes="(max-width: 640px) 50vw, 33vw"
                         className="object-cover transition-transform group-hover:scale-[1.03]"
                       />
-                    )}
+                    ) : <MediaPlaceholder />}
                   </div>
                   <div className="space-y-1 p-3">
                     <p className="line-clamp-2 text-sm font-bold leading-snug">

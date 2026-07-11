@@ -38,7 +38,7 @@ export default async function AdminMemberHomepagePage(props: {
       </h2>
       <HomepageEditor
         t={t}
-        userId={session.userId}
+        userId={member.id}
         initial={{
           slug: homepage?.slug ?? "",
           introEn: homepage?.intro_en ?? "",

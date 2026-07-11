@@ -7,6 +7,7 @@ import { StatusLabel } from "@/components/ui/StatusLabel";
 import { replyInquiry } from "@/app/actions/inquiries";
 import { INQUIRY_STATUS, MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { Inquiry, InquiryMessage } from "@/lib/types";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 const TIMELINE: string[] = [
   INQUIRY_STATUS.SENT,
@@ -162,12 +163,11 @@ export default async function InquiryDetailPage(props: {
               defaultValue={rejectedToRevise.body}
               className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
             />
-            <button
-              type="submit"
+            <PendingButton
               className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
             >
               {t.inquiry.resend}
-            </button>
+            </PendingButton>
           </form>
         </section>
       )}
@@ -191,12 +191,11 @@ export default async function InquiryDetailPage(props: {
               required
               className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
             />
-            <button
-              type="submit"
+            <PendingButton
               className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
             >
               {t.inquiry.send}
-            </button>
+            </PendingButton>
           </form>
         </details>
       )}

@@ -5,6 +5,7 @@ import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { sendCoordinatorMessage } from "@/app/actions/coordinator";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 // Member side of the coordinator direct channel (PRD 16.5). Only exists when
 // the member joined through a coordinator's referral link.
@@ -83,12 +84,11 @@ export default async function MemberMessagesPage() {
           required
           className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
         />
-        <button
-          type="submit"
+        <PendingButton
           className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary-strong"
         >
           {t.coordinator.send}
-        </button>
+        </PendingButton>
       </form>
     </div>
   );

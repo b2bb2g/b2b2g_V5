@@ -2,6 +2,7 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { addTier, toggleTierPermission } from "@/app/actions/admin";
 import { PERMISSION_ACTIONS } from "@/lib/constants";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 // D11: dynamic tiers and the tier x action permission matrix (PRD 2.3, 17.3).
 // The free-member post limit lives in system settings (free_post_limit).
@@ -56,8 +57,7 @@ export default async function TiersAdminPage() {
                           <input type="hidden" name="tierId" value={tier.id} />
                           <input type="hidden" name="action" value={action} />
                           <input type="hidden" name="allowed" value={(!allowed).toString()} />
-                          <button
-                            type="submit"
+                          <PendingButton
                             className={`btn-sm rounded-lg font-semibold ${
                               allowed
                                 ? "bg-positive-soft text-positive"
@@ -65,7 +65,7 @@ export default async function TiersAdminPage() {
                             }`}
                           >
                             {allowed ? t.common.on : t.common.off}
-                          </button>
+                          </PendingButton>
                         </form>
                       </td>
                     );
@@ -88,9 +88,9 @@ export default async function TiersAdminPage() {
           <input type="checkbox" name="isPaid" className="h-4 w-4 rounded accent-primary" />
           {t.admin.paidTier}
         </label>
-        <button type="submit" className="btn-primary btn-sm">
+        <PendingButton className="btn-primary btn-sm">
           {t.common.add}
-        </button>
+        </PendingButton>
       </form>
     </div>
   );

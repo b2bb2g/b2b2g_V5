@@ -4,6 +4,7 @@ import { createMenu, deleteMenu, moveMenu, toggleMenuFlag, updateMenu } from "@/
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { BOARD_TYPES } from "@/lib/constants";
 import type { Menu } from "@/lib/types";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 function MoveButton({
   menuId,
@@ -18,15 +19,14 @@ function MoveButton({
     <form action={moveMenu} className="inline">
       <input type="hidden" name="menuId" value={menuId} />
       <input type="hidden" name="direction" value={direction} />
-      <button
-        type="submit"
+      <PendingButton
         aria-label={label}
         className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-sub text-ink-soft hover:bg-line/70"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           {direction === -1 ? <path d="m18 15-6-6-6 6" /> : <path d="m6 9 6 6 6-6" />}
         </svg>
-      </button>
+      </PendingButton>
     </form>
   );
 }
@@ -49,8 +49,7 @@ function FlagToggle({
       <input type="hidden" name="menuId" value={menuId} />
       <input type="hidden" name="flag" value={flag} />
       <input type="hidden" name="value" value={(!value).toString()} />
-      <button
-        type="submit"
+      <PendingButton
         className={`rounded-lg px-2.5 py-1.5 text-[11px] font-semibold ${
           value
             ? "bg-positive-soft text-positive"
@@ -58,7 +57,7 @@ function FlagToggle({
         }`}
       >
         {value ? onLabel : offLabel}
-      </button>
+      </PendingButton>
     </form>
   );
 }
@@ -154,12 +153,11 @@ export default async function MenusAdminPage(props: {
                   placeholder={t.post.titleKo}
                   className="min-w-40 flex-1 rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
                 />
-                <button
-                  type="submit"
+                <PendingButton
                   className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-strong"
                 >
                   {t.common.save}
-                </button>
+                </PendingButton>
               </form>
             </details>
           </div>
@@ -200,12 +198,11 @@ export default async function MenusAdminPage(props: {
             ))}
           </select>
         </div>
-        <button
-          type="submit"
+        <PendingButton
           className="rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white hover:bg-primary-strong"
         >
           {t.common.save}
-        </button>
+        </PendingButton>
       </form>
     </div>
   );

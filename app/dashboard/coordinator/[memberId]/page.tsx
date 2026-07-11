@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sendCoordinatorMessage } from "@/app/actions/coordinator";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import type { Inquiry } from "@/lib/types";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 // One referred member: direct message thread (unreviewed channel, PRD 16.5)
 // plus their inquiry list when the admin switch allows full-text access.
@@ -98,12 +99,11 @@ export default async function CoordinatorMemberPage(props: {
             required
             className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
           />
-          <button
-            type="submit"
+          <PendingButton
             className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary-strong"
           >
             {t.coordinator.send}
-          </button>
+          </PendingButton>
         </form>
       </section>
 

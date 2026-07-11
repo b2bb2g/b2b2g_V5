@@ -15,6 +15,7 @@ import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { stripRichText } from "@/lib/richtext";
 import type { PostTeaser } from "@/lib/types";
 import type { Metadata } from "next";
+import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 
 export async function generateMetadata(props: {
   params: Promise<{ menuSlug: string }>;
@@ -121,10 +122,10 @@ export default async function BoardPage(props: {
               <Link
                 key={post.id}
                 href={`/${menu.slug}/${post.id}`}
-                className="group overflow-hidden rounded-card border border-line bg-surface"
+                className="card-hover group overflow-hidden"
               >
                 <div className="relative aspect-square bg-surface-sub">
-                  {thumb && (
+                  {thumb ? (
                     <Image
                       src={thumb}
                       alt={post.title_en}
@@ -132,7 +133,7 @@ export default async function BoardPage(props: {
                       sizes="(max-width: 640px) 50vw, 33vw"
                       className="object-cover transition-transform group-hover:scale-[1.03]"
                     />
-                  )}
+                  ) : <MediaPlaceholder />}
                 </div>
                 <div className="space-y-1 p-3">
                   <p className="line-clamp-2 text-sm font-bold leading-snug">
@@ -156,7 +157,7 @@ export default async function BoardPage(props: {
               <Link
                 key={post.id}
                 href={`/${menu.slug}/${post.id}`}
-                className="block rounded-card border border-line bg-surface p-4 hover:border-primary"
+                className="card-hover block p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-sm font-bold leading-snug">

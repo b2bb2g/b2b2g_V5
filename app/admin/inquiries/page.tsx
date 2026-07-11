@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { reviewMessage } from "@/app/actions/admin";
 import { MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { InquiryMessage } from "@/lib/types";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 export default async function InquiryModerationPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
@@ -45,26 +46,28 @@ export default async function InquiryModerationPage() {
               />
               <input
                 name="reason"
+                required
                 placeholder={t.admin.rejectReason}
                 className="w-full rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
               />
               <div className="flex gap-2">
-                <button
+                <PendingButton
                   type="submit"
+                  formNoValidate
                   name="decision"
                   value="forward"
                   className="flex-1 rounded-xl bg-positive px-3 py-2.5 text-xs font-bold text-white"
                 >
                   {t.admin.forward}
-                </button>
-                <button
+                </PendingButton>
+                <PendingButton
                   type="submit"
                   name="decision"
                   value="reject"
                   className="flex-1 rounded-xl bg-negative px-3 py-2.5 text-xs font-bold text-white"
                 >
                   {t.admin.reject}
-                </button>
+                </PendingButton>
               </div>
             </form>
           </div>

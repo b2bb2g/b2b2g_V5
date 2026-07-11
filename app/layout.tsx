@@ -8,6 +8,7 @@ import { GlobalBanners } from "@/components/layout/GlobalBanners";
 import { InAppGuard } from "@/components/layout/InAppGuard";
 import { PullToRefresh } from "@/components/layout/PullToRefresh";
 import { Toaster } from "@/components/ui/Toaster";
+import { NavigationFeedback } from "@/components/layout/NavigationFeedback";
 import { getT } from "@/lib/i18n/server";
 import {
   getPublicSettings,
@@ -67,6 +68,9 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
+        <Suspense>
+          <NavigationFeedback />
+        </Suspense>
         <PullToRefresh />
         <Header />
         <main className="w-full flex-1">{children}</main>

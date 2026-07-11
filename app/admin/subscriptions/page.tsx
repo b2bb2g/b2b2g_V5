@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { grantSubscription, revokeSubscription, saveBenefit, toggleBenefitActive } from "@/app/actions/admin";
 import { SUBSCRIPTION_STATUS } from "@/lib/constants";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 export default async function SubscriptionsAdminPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
@@ -65,12 +66,11 @@ export default async function SubscriptionsAdminPage() {
             className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
           />
         </div>
-        <button
-          type="submit"
+        <PendingButton
           className="rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white hover:bg-primary-strong"
         >
           {t.admin.grantSubscription}
-        </button>
+        </PendingButton>
       </form>
 
       {subscriptions.length === 0 ? (

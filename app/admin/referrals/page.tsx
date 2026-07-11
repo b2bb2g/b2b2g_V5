@@ -5,6 +5,7 @@ import { setCoordinatorRole } from "@/app/actions/admin";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BadgePill } from "@/components/ui/Badge";
 import type { Dictionary } from "@/lib/i18n";
+import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 
 type Node = {
   id: string;
@@ -42,12 +43,14 @@ function TreeNode({ node, depth, t }: { node: Node; depth: number; t: Dictionary
         <form action={setCoordinatorRole}>
           <input type="hidden" name="profileId" value={node.id} />
           <input type="hidden" name="enable" value={(!node.is_coordinator).toString()} />
-          <button
-            type="submit"
+          <ConfirmSubmit
+            label={node.is_coordinator ? t.admin.revokeCoordinator : t.admin.grantCoordinator}
+            confirmTitle={t.common.confirmTitle}
+            confirmBody={t.common.doubleConfirm}
+            confirmLabel={t.common.confirm}
+            cancelLabel={t.common.cancel}
             className={node.is_coordinator ? "btn-danger btn-sm" : "btn-secondary btn-sm"}
-          >
-            {node.is_coordinator ? t.admin.revokeCoordinator : t.admin.grantCoordinator}
-          </button>
+          />
         </form>
       </div>
       {node.children.map((child) => (

@@ -278,10 +278,10 @@ export default async function PostDetailPage(props: {
               <p className="text-base font-bold">{t.post.membersOnlyTitle}</p>
               <p className="mt-1 text-sm text-ink-soft">{t.post.membersOnlyBody}</p>
               <Link
-                href={`/login?next=/${menu.slug}/${postId}`}
+                href="/signup"
                 className="mt-4 inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
               >
-                {t.post.signInToContinue}
+                {t.common.signUp}
               </Link>
             </div>
           </>

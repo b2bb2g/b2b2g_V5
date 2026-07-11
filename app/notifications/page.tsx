@@ -8,6 +8,8 @@ import { markAllRead, setNotificationState } from "@/app/actions/notifications";
 import { NOTIFICATION_STATE } from "@/lib/constants";
 import type { AppNotification } from "@/lib/types";
 import type { Dictionary } from "@/lib/i18n";
+import Link from "next/link";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 // Notification text is derived from type + payload through the language pack
 // (no hardcoded strings in stored data).
@@ -23,13 +25,22 @@ function renderNotification(t: Dictionary, n: AppNotification): string {
     post_rejected: t.post.status.rejected,
     message_delivered: t.inquiry.steps.forwarded,
     message_rejected: t.inquiry.steps.rejected,
-    badge_approved: t.dashboard.myBadges,
-    badge_rejected: t.dashboard.myBadges,
+    badge_approved: t.notifications.badgeApproved,
+    badge_rejected: t.notifications.badgeRejected,
     subscription_expiring: t.dashboard.subscription,
   };
   const label = base[n.type] ?? n.type;
   const subject = p.title ?? p.subject ?? "";
   return subject ? `${label} · ${subject}` : label;
+}
+
+function notificationHref(n: AppNotification): string | null {
+  const payload = n.payload as { inquiry_id?: string; post_id?: string; application_id?: string };
+  if (payload.inquiry_id) return `/inquiries/${payload.inquiry_id}`;
+  if (payload.post_id) return "/dashboard/posts";
+  if (payload.application_id || n.type.startsWith("badge_")) return "/dashboard/badges";
+  if (n.type === "subscription_expiring") return "/membership";
+  return null;
 }
 
 export default async function NotificationsPage(props: {
@@ -78,12 +89,11 @@ export default async function NotificationsPage(props: {
         action={
           view === "inbox" && notifications.length > 0 ? (
             <form action={markAllRead}>
-              <button
-                type="submit"
+              <PendingButton
                 className="rounded-lg px-3 py-2 text-xs font-semibold text-primary hover:bg-primary-soft/60"
               >
                 {t.notifications.markAllRead}
-              </button>
+              </PendingButton>
             </form>
           ) : undefined
         }
@@ -91,7 +101,7 @@ export default async function NotificationsPage(props: {
 
       <nav className="flex gap-1">
         {tabs.map((tab) => (
-          <a
+          <Link
             key={tab.key}
             href={tab.key ? `/notifications?view=${tab.key}` : "/notifications"}
             className={`rounded-full px-3.5 py-1.5 text-xs font-semibold ${
@@ -103,7 +113,7 @@ export default async function NotificationsPage(props: {
             }`}
           >
             {tab.label}
-          </a>
+          </Link>
         ))}
       </nav>
 
@@ -118,7 +128,17 @@ export default async function NotificationsPage(props: {
                 n.state === NOTIFICATION_STATE.UNREAD ? "bg-primary-soft/30" : ""
               }`}
             >
-              <div className="min-w-0">
+              {notificationHref(n) ? (
+                <Link href={notificationHref(n)!} className="min-w-0 flex-1 rounded-lg focus-visible:outline-offset-4">
+                  <p className="truncate text-sm font-semibold">
+                    {renderNotification(t, n)}
+                  </p>
+                  <p className="mt-0.5 text-xs text-ink-faint">
+                    {new Date(n.created_at).toISOString().slice(0, 16).replace("T", " ")}
+                  </p>
+                </Link>
+              ) : (
+              <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">
                   {renderNotification(t, n)}
                 </p>
@@ -126,57 +146,58 @@ export default async function NotificationsPage(props: {
                   {new Date(n.created_at).toISOString().slice(0, 16).replace("T", " ")}
                 </p>
               </div>
-              <form action={setNotificationState} className="flex shrink-0 gap-1">
+              )}
+              <form action={setNotificationState} className="flex shrink-0 flex-wrap justify-end gap-1 sm:flex-nowrap">
                 <input type="hidden" name="id" value={n.id} />
                 {view === "inbox" && (
                   <>
                     {n.state === NOTIFICATION_STATE.UNREAD && (
-                      <button
+                      <PendingButton
                         type="submit"
                         name="state"
                         value={NOTIFICATION_STATE.READ}
                         className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft"
                       >
-                        {t.common.confirm}
-                      </button>
+                        {t.notifications.markRead}
+                      </PendingButton>
                     )}
-                    <button
+                    <PendingButton
                       type="submit"
                       name="state"
                       value={NOTIFICATION_STATE.ARCHIVED}
                       className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft"
                     >
                       {t.notifications.archive}
-                    </button>
-                    <button
+                    </PendingButton>
+                    <PendingButton
                       type="submit"
                       name="state"
                       value={NOTIFICATION_STATE.TRASHED}
                       className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft"
                     >
                       {t.notifications.trash}
-                    </button>
+                    </PendingButton>
                   </>
                 )}
                 {view === NOTIFICATION_STATE.ARCHIVED && (
-                  <button
+                  <PendingButton
                     type="submit"
                     name="state"
                     value={NOTIFICATION_STATE.READ}
                     className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft"
                   >
-                    {t.notifications.title}
-                  </button>
+                    {t.notifications.restore}
+                  </PendingButton>
                 )}
                 {view === NOTIFICATION_STATE.TRASHED && (
-                  <button
+                  <PendingButton
                     type="submit"
                     name="state"
                     value="delete"
                     className="rounded-lg bg-negative-soft px-2.5 py-1.5 text-[11px] font-semibold text-negative"
                   >
                     {t.notifications.deleteForever}
-                  </button>
+                  </PendingButton>
                 )}
               </form>
             </div>

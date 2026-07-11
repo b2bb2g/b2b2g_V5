@@ -15,6 +15,8 @@ export async function MemberArea({ children }: { children: ReactNode }) {
   const items = [
     { href: "/dashboard", label: t.common.dashboard },
     { href: "/dashboard/posts", label: t.nav.myPosts },
+    { href: "/write", label: t.dashboard.registerProduct },
+    { href: "/dashboard/badges", label: t.dashboard.applyBadge },
     { href: "/inquiries", label: t.inquiry.title },
     { href: "/notifications", label: t.common.notifications },
     { href: "/dashboard/profile", label: t.nav.profile },

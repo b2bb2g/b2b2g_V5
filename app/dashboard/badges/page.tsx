@@ -9,6 +9,7 @@ import { applyForBadge } from "@/app/actions/badges";
 import { BadgeDocsUploader } from "@/components/badges/BadgeDocsUploader";
 import { BADGE_CODES, SUBSCRIPTION_STATUS } from "@/lib/constants";
 import type { BadgeType } from "@/lib/types";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 export default async function BadgeApplicationPage() {
   const session = await getSession();
@@ -123,9 +124,9 @@ export default async function BadgeApplicationPage() {
                     }
                     removeLabel={t.common.delete}
                   />
-                  <button type="submit" className="btn-primary btn-md">
+                  <PendingButton className="btn-primary btn-md">
                     {t.common.submit}
-                  </button>
+                  </PendingButton>
                 </form>
               )}
             </div>

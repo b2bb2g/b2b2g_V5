@@ -259,6 +259,14 @@ input[type="search"]::-webkit-search-decoration {
   }
 }
 
+@keyframes navigation-progress {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(310%); }
+}
+.animate-navigation-progress {
+  animation: navigation-progress 1s ease-in-out infinite;
+}
+
 /* Video embeds inside rich text: fluid 16:9, list pages never render these
    (thumbnails only; players are detail-page only, PRD 6.8). */
 .rich-content iframe,

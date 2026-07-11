@@ -28,7 +28,7 @@ export default async function DashboardPage() {
     createClient(),
   ]);
 
-  const [postsCount, inquiriesCount, subscription, referralCount] =
+  const [postsCount, inquiriesCount, pendingPosts, unreadReplies, subscription, referralCount] =
     await Promise.all([
       supabase
         .from("posts")
@@ -39,6 +39,17 @@ export default async function DashboardPage() {
         .from("inquiries")
         .select("id", { count: "exact", head: true })
         .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`),
+      supabase
+        .from("posts")
+        .select("id", { count: "exact", head: true })
+        .eq("author_id", session.userId)
+        .eq("status", POST_STATUS.PENDING),
+      supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", session.userId)
+        .eq("state", "unread")
+        .eq("type", "message_delivered"),
       supabase
         .from("subscriptions")
         .select("expires_at")
@@ -116,6 +127,17 @@ export default async function DashboardPage() {
         </Link>
         <Link href="/write?menu=requests" className="btn-soft btn-lg">
           {t.dashboard.postRequest}
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Link href="/dashboard/posts" className="card-hover p-4">
+          <p className="text-2xl font-extrabold text-primary-strong">{pendingPosts.count ?? 0}</p>
+          <p className="mt-1 text-sm font-semibold text-ink-soft">{t.dashboard.pendingPosts}</p>
+        </Link>
+        <Link href="/inquiries" className="card-hover p-4">
+          <p className="text-2xl font-extrabold text-primary-strong">{unreadReplies.count ?? 0}</p>
+          <p className="mt-1 text-sm font-semibold text-ink-soft">{t.dashboard.unreadReplies}</p>
         </Link>
       </div>
 

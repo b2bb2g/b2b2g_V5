@@ -7,6 +7,7 @@ import {
   toggleSpecFieldActive,
 } from "@/app/actions/admin";
 import type { SpecFieldDef } from "@/lib/types";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 // D10: category tree and the recommended spec field pool (PRD 6.6, 17.6).
 export default async function CatalogAdminPage() {
@@ -48,15 +49,14 @@ export default async function CatalogAdminPage() {
                     ? menuTitleById.get(category.menu_id)
                     : t.admin.allMenus}
                 </span>
-                <button type="submit" className="btn-secondary btn-sm">
+                <PendingButton className="btn-secondary btn-sm">
                   {t.common.save}
-                </button>
+                </PendingButton>
               </form>
               <form action={toggleCategoryActive}>
                 <input type="hidden" name="id" value={category.id} />
                 <input type="hidden" name="active" value={(!category.is_active).toString()} />
-                <button
-                  type="submit"
+                <PendingButton
                   className={`btn-sm rounded-lg font-semibold ${
                     category.is_active
                       ? "bg-positive-soft text-positive"
@@ -64,7 +64,7 @@ export default async function CatalogAdminPage() {
                   }`}
                 >
                   {category.is_active ? t.common.on : t.common.off}
-                </button>
+                </PendingButton>
               </form>
             </div>
           ))}
@@ -84,9 +84,9 @@ export default async function CatalogAdminPage() {
               </option>
             ))}
           </select>
-          <button type="submit" className="btn-primary btn-sm">
+          <PendingButton className="btn-primary btn-sm">
             {t.common.add}
-          </button>
+          </PendingButton>
         </form>
       </section>
 
@@ -108,15 +108,14 @@ export default async function CatalogAdminPage() {
                   defaultValue={field.name_ko}
                   className="field w-0 min-w-0 flex-1 px-2 py-1.5 text-xs"
                 />
-                <button type="submit" className="btn-secondary btn-sm">
+                <PendingButton className="btn-secondary btn-sm">
                   {t.common.save}
-                </button>
+                </PendingButton>
               </form>
               <form action={toggleSpecFieldActive}>
                 <input type="hidden" name="id" value={field.id} />
                 <input type="hidden" name="active" value={(!field.is_active).toString()} />
-                <button
-                  type="submit"
+                <PendingButton
                   className={`btn-sm rounded-lg font-semibold ${
                     field.is_active
                       ? "bg-positive-soft text-positive"
@@ -124,7 +123,7 @@ export default async function CatalogAdminPage() {
                   }`}
                 >
                   {field.is_active ? t.common.on : t.common.off}
-                </button>
+                </PendingButton>
               </form>
             </div>
           ))}
@@ -136,9 +135,9 @@ export default async function CatalogAdminPage() {
             <input name="nameEn" required placeholder={t.admin.nameEn} className="field px-2 py-1.5 text-xs" />
             <input name="nameKo" placeholder={t.admin.nameKo} className="field px-2 py-1.5 text-xs" />
           </div>
-          <button type="submit" className="btn-primary btn-sm">
+          <PendingButton className="btn-primary btn-sm">
             {t.common.add}
-          </button>
+          </PendingButton>
         </form>
       </section>
     </div>

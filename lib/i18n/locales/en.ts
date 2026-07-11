@@ -143,6 +143,7 @@ const en = {
     deadline: "Deadline",
     openEnded: "Open until filled",
     closed: "Closed",
+    closeRequest: "Close request",
     membersOnlyTitle: "Members can see everything",
     membersOnlyBody: "Full specifications, attachments and inquiries are available after you sign in.",
     signInToContinue: "Sign in to continue",
@@ -225,6 +226,8 @@ const en = {
     qr: "QR code",
     registerProduct: "Add a product",
     postRequest: "Post a sourcing request",
+    pendingPosts: "Posts waiting for review",
+    unreadReplies: "Unread inquiry updates",
   },
   // Badge labels are brand marks: identical in every locale.
   badges: {
@@ -316,6 +319,13 @@ const en = {
     withdrawAction: "Delete my account",
   },
   admin: {
+    settingGroups: {
+      discovery: "Brand and search discovery",
+      notifications: "Notification email",
+      experience: "App experience and uploads",
+      access: "Access and bootstrap",
+      policy: "Membership and operating policy",
+    },
     settingLabels: {
       site_title: "Site title",
       site_description: "Site description",
@@ -391,6 +401,8 @@ const en = {
     email: "Email",
     joined: "Joined",
     statusLabel: "Status",
+    role: "Role",
+    memberRole: "Member",
     memberStatus: {
       active: "Active",
       suspended: "Suspended",
@@ -469,6 +481,10 @@ const en = {
     empty: "No notifications",
     teamNotice: "Team notice",
     archived: "Archived",
+    badgeApproved: "Badge approved",
+    badgeRejected: "Badge application rejected",
+    markRead: "Mark as read",
+    restore: "Restore",
   },
   footer: {
     terms: "Terms of Service",
@@ -487,6 +503,10 @@ const en = {
     sent: "Sent. Our team will review and forward it.",
     deleted: "Deleted.",
     closed: "Closed.",
+    approved: "Approved.",
+    rejected: "Rejected with the reason provided.",
+    forwarded: "Forwarded.",
+    reasonRequired: "Enter a reason before rejecting.",
   },
   cookie: {
     message: "We use cookies to run this service and improve your experience. You can accept all cookies or only the essential ones.",

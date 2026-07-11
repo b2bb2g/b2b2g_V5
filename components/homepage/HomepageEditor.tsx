@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -41,6 +41,15 @@ export function HomepageEditor({ t, userId, initial, save, doneHref }: Props) {
   const [discardOpen, setDiscardOpen] = useState(false);
   const dirty = useRef(false);
   const cancelHref = doneHref ?? "/dashboard/homepage";
+
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      if (!dirty.current) return;
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, []);
 
   const [slug, setSlug] = useState(initial.slug);
   const [introEn, setIntroEn] = useState(initial.introEn);
@@ -170,7 +179,7 @@ export function HomepageEditor({ t, userId, initial, save, doneHref }: Props) {
                   aria-label={t.common.delete}
                   className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs font-bold text-white"
                 >
-                  X
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
               </div>
             ))}
@@ -212,7 +221,7 @@ export function HomepageEditor({ t, userId, initial, save, doneHref }: Props) {
                   className="ml-2 shrink-0 font-bold text-ink-faint"
                   aria-label={t.common.delete}
                 >
-                  X
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
               </li>
             ))}
@@ -254,7 +263,7 @@ export function HomepageEditor({ t, userId, initial, save, doneHref }: Props) {
                   className="ml-2 shrink-0 font-bold text-ink-faint"
                   aria-label={t.common.delete}
                 >
-                  X
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
               </li>
             ))}

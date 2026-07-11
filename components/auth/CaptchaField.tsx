@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { flushSync, useFormStatus } from "react-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 // Invisible-captcha submit button: pressing it runs hCaptcha in the
@@ -13,6 +13,7 @@ export function CaptchaSubmit({ label }: { label: string }) {
   const captchaRef = useRef<HCaptcha>(null);
   const [token, setToken] = useState("");
   const [verifying, setVerifying] = useState(false);
+  const { pending } = useFormStatus();
 
   return (
     <>
@@ -30,7 +31,8 @@ export function CaptchaSubmit({ label }: { label: string }) {
       )}
       <button
         type="submit"
-        disabled={verifying}
+        disabled={verifying || pending}
+        aria-busy={verifying || pending}
         onClick={async (event) => {
           if (!siteKey || token) return;
           const form = event.currentTarget.form;
@@ -51,7 +53,7 @@ export function CaptchaSubmit({ label }: { label: string }) {
         }}
         className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong disabled:opacity-60"
       >
-        {verifying ? (
+        {verifying || pending ? (
           <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent align-middle" />
         ) : (
           label

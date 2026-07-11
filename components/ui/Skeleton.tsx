@@ -40,3 +40,20 @@ export function DetailSkeleton() {
     </div>
   );
 }
+
+export function EditSkeleton() {
+  return (
+    <div className="space-y-5">
+      <Skeleton className="h-8 w-52" />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+      </div>
+      <Skeleton className="h-40 w-full" />
+      <div className="flex justify-end gap-2">
+        <Skeleton className="h-10 w-24" />
+        <Skeleton className="h-10 w-28" />
+      </div>
+    </div>
+  );
+}

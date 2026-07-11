@@ -147,6 +147,7 @@ const ko: Dict = {
     deadline: "마감일",
     openEnded: "상시 모집",
     closed: "마감",
+    closeRequest: "요청 마감",
     membersOnlyTitle: "회원은 전체 내용을 볼 수 있어요",
     membersOnlyBody: "로그인하면 전체 사양, 첨부파일, 문의 기능을 이용할 수 있어요.",
     signInToContinue: "로그인하고 계속하기",
@@ -229,6 +230,8 @@ const ko: Dict = {
     qr: "QR 코드",
     registerProduct: "상품 등록",
     postRequest: "구매 요청",
+    pendingPosts: "검수 대기 글",
+    unreadReplies: "읽지 않은 문의 소식",
   },
   // 배지 라벨은 브랜드 마크: 모든 언어에서 동일 표기.
   badges: {
@@ -320,6 +323,13 @@ const ko: Dict = {
     withdrawAction: "탈퇴하기",
   },
   admin: {
+    settingGroups: {
+      discovery: "브랜드 및 검색 노출",
+      notifications: "알림 이메일",
+      experience: "앱 경험 및 업로드",
+      access: "접근 및 초기 관리자",
+      policy: "회원 및 운영 정책",
+    },
     settingLabels: {
       site_title: "사이트 제목",
       site_description: "사이트 설명",
@@ -395,6 +405,8 @@ const ko: Dict = {
     email: "이메일",
     joined: "가입일",
     statusLabel: "상태",
+    role: "역할",
+    memberRole: "회원",
     memberStatus: {
       active: "활성",
       suspended: "중지",
@@ -473,6 +485,10 @@ const ko: Dict = {
     empty: "알림이 없어요",
     teamNotice: "운영팀 알림",
     archived: "보관함",
+    badgeApproved: "배지가 승인됐어요",
+    badgeRejected: "배지 신청이 반려됐어요",
+    markRead: "읽음 처리",
+    restore: "복원",
   },
   footer: {
     terms: "이용약관",
@@ -491,6 +507,10 @@ const ko: Dict = {
     sent: "발송했어요. 운영팀 검토 후 전달돼요.",
     deleted: "삭제했어요.",
     closed: "마감했어요.",
+    approved: "승인했어요.",
+    rejected: "사유와 함께 반려했어요.",
+    forwarded: "전달했어요.",
+    reasonRequired: "반려 사유를 입력해 주세요.",
   },
   cookie: {
     message: "서비스 운영과 개선을 위해 쿠키를 사용해요. 전체 또는 필수 쿠키만 허용할 수 있어요.",

@@ -4,6 +4,7 @@ import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { createInquiry } from "@/app/actions/inquiries";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 // Compose an inquiry about a post (?post=) or a company (?to=, from mini
 // homepages). Both go through the same mediated review flow.
@@ -67,12 +68,11 @@ export default async function NewInquiryPage(props: {
             className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
           />
         </label>
-        <button
-          type="submit"
+        <PendingButton
           className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
         >
           {t.inquiry.send}
-        </button>
+        </PendingButton>
       </form>
     </div>
   );

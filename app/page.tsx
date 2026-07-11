@@ -15,6 +15,7 @@ import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
 import { stripRichText } from "@/lib/richtext";
 import type { Dictionary } from "@/lib/i18n";
 import type { Menu, PostTeaser } from "@/lib/types";
+import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 
 // Storefront data: new products, latest requests, event posts, featured
 // companies (paid exposure, PRD 5.3 -- slot count is an admin setting),
@@ -138,7 +139,7 @@ function ProductCard({
   return (
     <Link href={href} className="card-hover group block overflow-hidden">
       <div className="relative aspect-square bg-surface-sub">
-        {thumb && (
+        {thumb ? (
           <Image
             src={thumb}
             alt={post.title_en}
@@ -146,7 +147,7 @@ function ProductCard({
             sizes="(max-width: 640px) 50vw, 25vw"
             className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
           />
-        )}
+        ) : <MediaPlaceholder />}
       </div>
       <div className="space-y-1 p-3">
         <p className="line-clamp-2 text-sm font-bold leading-snug">

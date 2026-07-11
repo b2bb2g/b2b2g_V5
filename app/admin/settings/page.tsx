@@ -1,6 +1,7 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { updateSetting } from "@/app/actions/admin";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 // Global switchboard (PRD 17.11): every policy value is editable here.
 export default async function SettingsAdminPage() {
@@ -13,12 +14,25 @@ export default async function SettingsAdminPage() {
   const settings = (data ?? []) as { key: string; value: unknown }[];
   // Human-readable names; the raw key stays visible as a small reference.
   const labels: Record<string, string> = t.admin.settingLabels;
+  const groupOf = (key: string) => {
+    if (/^(site_|seo_|robots_|google_|naver_)/.test(key)) return "discovery";
+    if (/^email_notify_/.test(key)) return "notifications";
+    if (/^(pwa_|inapp_|upload_)/.test(key)) return "experience";
+    if (/^(bootstrap_)/.test(key)) return "access";
+    return "policy";
+  };
+  const groups = Object.groupBy(settings, (setting) => groupOf(setting.key));
 
   return (
     <div className="space-y-3">
       <h2 className="text-base font-bold">{t.admin.settings}</h2>
-      <div className="space-y-2">
-        {settings.map((setting) => {
+      <div className="space-y-6">
+        {Object.entries(groups).map(([group, groupSettings]) => (
+          <section key={group} className="space-y-2">
+            <h3 className="border-b border-line pb-2 text-sm font-bold text-ink-soft">
+              {t.admin.settingGroups[group as keyof typeof t.admin.settingGroups]}
+            </h3>
+        {(groupSettings ?? []).map((setting) => {
           const isBool = typeof setting.value === "boolean";
           const isNumber = typeof setting.value === "number";
           return (
@@ -42,8 +56,7 @@ export default async function SettingsAdminPage() {
                     name="value"
                     value={(!(setting.value as boolean)).toString()}
                   />
-                  <button
-                    type="submit"
+                  <PendingButton
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
                       setting.value
                         ? "bg-positive-soft text-positive"
@@ -51,7 +64,7 @@ export default async function SettingsAdminPage() {
                     }`}
                   >
                     {setting.value ? t.common.on : t.common.off}
-                  </button>
+                  </PendingButton>
                 </>
               ) : (
                 <span className="flex items-center gap-2">
@@ -65,17 +78,18 @@ export default async function SettingsAdminPage() {
                     }
                     className="w-56 rounded-xl border border-line px-3 py-1.5 text-xs outline-none focus:border-primary"
                   />
-                  <button
-                    type="submit"
+                  <PendingButton
                     className="rounded-lg bg-surface-sub px-3 py-1.5 text-xs font-semibold text-ink-soft"
                   >
                     {t.common.save}
-                  </button>
+                  </PendingButton>
                 </span>
               )}
             </form>
           );
         })}
+          </section>
+        ))}
       </div>
     </div>
   );

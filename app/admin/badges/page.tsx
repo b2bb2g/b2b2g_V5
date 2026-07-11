@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { reviewBadgeApplication } from "@/app/actions/admin";
 import { STORAGE_BUCKETS } from "@/lib/constants";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 export default async function BadgeAdminPage() {
   const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
@@ -94,26 +95,28 @@ export default async function BadgeAdminPage() {
               <input type="hidden" name="applicationId" value={app.id} />
               <input
                 name="reason"
+                required
                 placeholder={t.admin.rejectReason}
                 className="w-full rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
               />
               <div className="flex gap-2">
-                <button
+                <PendingButton
                   type="submit"
+                  formNoValidate
                   name="decision"
                   value="approve"
                   className="flex-1 rounded-xl bg-positive px-3 py-2.5 text-xs font-bold text-white"
                 >
                   {t.admin.approve}
-                </button>
-                <button
+                </PendingButton>
+                <PendingButton
                   type="submit"
                   name="decision"
                   value="reject"
                   className="flex-1 rounded-xl bg-negative px-3 py-2.5 text-xs font-bold text-white"
                 >
                   {t.admin.reject}
-                </button>
+                </PendingButton>
               </div>
             </form>
           </div>
