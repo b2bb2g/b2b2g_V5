@@ -2,19 +2,14 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 
-// Members-only attachment download. RLS on post_attachments hides rows of
-// unreadable posts, and the attachments bucket itself requires auth.
+// RLS decides download scope: members can read attachments on readable posts,
+// while anonymous visitors can read only approved notice attachments.
 export async function GET(
   _request: Request,
-  ctx: { params: Promise<{ id: string }> }
+  ctx: { params: Promise<{ id: string }> },
 ) {
   const { id } = await ctx.params;
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
 
   const { data: attachment } = await supabase
     .from("post_attachments")

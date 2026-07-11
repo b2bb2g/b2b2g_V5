@@ -84,6 +84,9 @@ const en = {
     backToNotices: "Back to all notices",
     noticeReadingHint:
       "This notice is published by an administrator and is available to every visitor.",
+    previousNotice: "Previous notice",
+    nextNotice: "Next notice",
+    relatedNotices: "More notices",
   },
   home: {
     eyebrow: "Global B2B · B2G marketplace",

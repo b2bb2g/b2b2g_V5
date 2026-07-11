@@ -88,6 +88,9 @@ const ko: Dict = {
     backToNotices: "공지사항 전체 보기",
     noticeReadingHint:
       "관리자가 게시한 공지로, 로그인 없이 모든 방문자가 전체 내용을 확인할 수 있습니다.",
+    previousNotice: "이전 공지",
+    nextNotice: "다음 공지",
+    relatedNotices: "다른 공지사항",
   },
   home: {
     eyebrow: "글로벌 B2B · B2G 마켓플레이스",

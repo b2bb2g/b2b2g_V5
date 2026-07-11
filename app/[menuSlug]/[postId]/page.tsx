@@ -5,6 +5,7 @@ import { getT } from "@/lib/i18n/server";
 import { getMenuBySlug } from "@/lib/data/menus";
 import { getFullPost, getPostTeaser } from "@/lib/data/posts";
 import { getSession } from "@/lib/data/session";
+import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { postMediaUrl, repThumbnail, videoEmbedUrl } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
@@ -113,6 +114,22 @@ export default async function PostDetailPage(props: {
     const noticeImage = full.post.rep_image_path
       ? postMediaUrl(full.post.rep_image_path)
       : null;
+    const supabase = await createClient();
+    const { data: noticeRows } = await supabase
+      .from("public_posts")
+      .select(
+        "id, title_en, title_ko, rep_image_path, rep_video_url, published_at",
+      )
+      .eq("menu_id", menu.id)
+      .order("published_at", { ascending: false })
+      .limit(20);
+    const notices = noticeRows ?? [];
+    const currentIndex = notices.findIndex((item) => item.id === postId);
+    const previousNotice = currentIndex >= 0 ? notices[currentIndex + 1] : null;
+    const nextNotice = currentIndex > 0 ? notices[currentIndex - 1] : null;
+    const relatedNotices = notices
+      .filter((item) => item.id !== postId)
+      .slice(0, 3);
     return (
       <article className="wide space-y-5">
         <nav aria-label={t.board.backToNotices}>
@@ -124,7 +141,7 @@ export default async function PostDetailPage(props: {
             {t.board.backToNotices}
           </Link>
         </nav>
-        <header className="relative min-h-[25rem] overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_24px_75px_rgba(16,25,35,.2)] sm:min-h-[32rem]">
+        <header className="relative min-h-[19rem] overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_24px_75px_rgba(16,25,35,.2)] sm:min-h-[22rem]">
           {noticeImage ? (
             <Image
               src={noticeImage}
@@ -141,7 +158,7 @@ export default async function PostDetailPage(props: {
             />
           )}
           <span
-            className={`absolute inset-0 ${noticeImage ? "bg-gradient-to-t from-black/90 via-black/25 to-black/10" : "bg-transparent"}`}
+            className={`absolute inset-0 ${noticeImage ? "bg-gradient-to-t from-black/95 via-black/35 to-black/10" : "bg-transparent"}`}
             aria-hidden="true"
           />
           <div className="absolute inset-x-0 bottom-0 p-7 sm:p-10 lg:p-14">
@@ -159,7 +176,7 @@ export default async function PostDetailPage(props: {
             </time>
           </div>
         </header>
-        <section className="mx-auto w-full max-w-5xl rounded-[2rem] border border-line/80 bg-white px-6 py-9 shadow-(--shadow-card) sm:px-10 sm:py-12 lg:px-16 lg:py-16">
+        <section className="mx-auto w-full max-w-4xl rounded-[2rem] border border-line/80 bg-white px-6 py-8 shadow-(--shadow-card) sm:px-10 sm:py-10 lg:px-14 lg:py-12">
           {isRichText(body) ? (
             <div
               className="rich-content notice-content"
@@ -170,16 +187,124 @@ export default async function PostDetailPage(props: {
               {body}
             </div>
           )}
+          {full.attachments.length > 0 && (
+            <section className="mt-10 border-t border-line pt-8">
+              <h2 className="text-base font-extrabold">{t.post.attachments}</h2>
+              <ul className="mt-4 space-y-2">
+                {full.attachments.map((attachment) => (
+                  <li key={attachment.id}>
+                    <Link
+                      href={`/api/attachments/${attachment.id}`}
+                      className="group flex items-center justify-between rounded-2xl bg-surface-sub px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft hover:text-primary-strong"
+                    >
+                      <span className="min-w-0 truncate">
+                        {attachment.filename}
+                      </span>
+                      <span
+                        className="ml-4 text-primary transition-transform group-hover:translate-y-0.5"
+                        aria-hidden="true"
+                      >
+                        ↓
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </section>
-        <div className="mx-auto flex w-full max-w-5xl justify-center pt-2">
-          <Link
-            href="/notices"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-extrabold text-white shadow-[0_12px_35px_rgba(27,100,218,.2)]"
+        {(previousNotice || nextNotice) && (
+          <nav
+            className="mx-auto grid w-full max-w-4xl gap-3 sm:grid-cols-2"
+            aria-label={t.board.relatedNotices}
           >
-            {t.board.backToNotices}
-            <span aria-hidden="true">→</span>
-          </Link>
-        </div>
+            {previousNotice ? (
+              <Link
+                href={`/notices/${previousNotice.id}`}
+                className="group rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-(--shadow-card)"
+              >
+                <span className="text-xs font-bold text-ink-faint">
+                  ← {t.board.previousNotice}
+                </span>
+                <strong className="mt-2 block line-clamp-2 text-sm font-extrabold group-hover:text-primary">
+                  {locale === "ko" && previousNotice.title_ko
+                    ? previousNotice.title_ko
+                    : previousNotice.title_en}
+                </strong>
+              </Link>
+            ) : (
+              <span />
+            )}
+            {nextNotice && (
+              <Link
+                href={`/notices/${nextNotice.id}`}
+                className="group rounded-[1.5rem] border border-line/80 bg-white p-5 text-right shadow-(--shadow-card)"
+              >
+                <span className="text-xs font-bold text-ink-faint">
+                  {t.board.nextNotice} →
+                </span>
+                <strong className="mt-2 block line-clamp-2 text-sm font-extrabold group-hover:text-primary">
+                  {locale === "ko" && nextNotice.title_ko
+                    ? nextNotice.title_ko
+                    : nextNotice.title_en}
+                </strong>
+              </Link>
+            )}
+          </nav>
+        )}
+        {relatedNotices.length > 0 && (
+          <section className="mx-auto w-full max-w-4xl pb-3 pt-5">
+            <h2 className="text-xl font-extrabold">{t.board.relatedNotices}</h2>
+            <div className="mt-5 grid items-start gap-3 sm:grid-cols-3">
+              {relatedNotices.map((item) => {
+                const thumbnail = repThumbnail(item);
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/notices/${item.id}`}
+                    className="group self-start overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)"
+                  >
+                    {thumbnail ? (
+                      <span className="relative block aspect-video overflow-hidden bg-surface-sub">
+                        <Image
+                          src={thumbnail}
+                          alt=""
+                          fill
+                          sizes="(max-width:640px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </span>
+                    ) : (
+                      <span className="flex aspect-[2/1] items-center justify-center bg-primary-soft text-primary">
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="h-7 w-7"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          aria-hidden="true"
+                        >
+                          <path d="M6 3h9l3 3v15H6z" />
+                          <path d="M14 3v4h4M9 12h6M9 16h6" />
+                        </svg>
+                      </span>
+                    )}
+                    <span className="block p-4">
+                      <strong className="line-clamp-2 text-sm font-extrabold leading-snug group-hover:text-primary">
+                        {locale === "ko" && item.title_ko
+                          ? item.title_ko
+                          : item.title_en}
+                      </strong>
+                      <span className="mt-2 block text-xs text-ink-faint">
+                        {item.published_at?.slice(0, 10)}
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </article>
     );
   }

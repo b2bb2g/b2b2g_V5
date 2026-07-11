@@ -239,6 +239,12 @@ main > :where(*) {
   .notice-content li {
     @apply text-ink-soft;
   }
+  .notice-content img {
+    @apply my-8 w-full rounded-[1.5rem] shadow-(--shadow-card);
+  }
+  .notice-content iframe {
+    @apply my-8 aspect-video w-full rounded-[1.5rem] border-0 bg-ink shadow-(--shadow-card);
+  }
   .rich-content table {
     @apply my-3 w-full border-collapse text-sm;
   }
