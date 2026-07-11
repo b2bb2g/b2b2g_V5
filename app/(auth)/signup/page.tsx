@@ -21,7 +21,13 @@ export default async function SignUpPage(props: {
       )}
       {params.error && (
         <p className="mt-3 rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
-          {params.error === "captcha" ? t.auth.captchaRequired : t.common.error}
+          {params.error === "captcha"
+            ? t.auth.captchaRequired
+            : params.error === "weak"
+              ? t.auth.weakPassword
+              : params.error === "rate"
+                ? t.auth.emailRateLimited
+                : t.common.error}
         </p>
       )}
 

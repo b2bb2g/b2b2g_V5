@@ -28,7 +28,15 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
-    const kind = error.message.toLowerCase().includes("captcha") ? "captcha" : "1";
+    // Server log keeps the exact cause; the user sees a mapped message.
+    console.error("signUp failed:", error.code, error.message);
+    const kind = error.message.toLowerCase().includes("captcha")
+      ? "captcha"
+      : error.code === "weak_password"
+        ? "weak"
+        : error.code === "over_email_send_rate_limit"
+          ? "rate"
+          : "1";
     redirect(`/signup?error=${kind}${referredByUid ? `&ref=${referredByUid}` : ""}`);
   }
   redirect("/verify");

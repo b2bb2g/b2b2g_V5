@@ -134,6 +134,7 @@ const ko: Dict = {
     showPassword: "비밀번호 보기",
     hidePassword: "비밀번호 숨기기",
     samePassword: "새 비밀번호는 기존 비밀번호와 달라야 해요.",
+    emailRateLimited: "짧은 시간에 이메일 요청이 많았어요. 1분 뒤에 다시 시도해 주세요.",
     weakPassword: "추측하기 쉬운 비밀번호예요. 더 길고 흔하지 않은 비밀번호로 정해 주세요.",
   },
   post: {

@@ -130,6 +130,7 @@ const en = {
     showPassword: "Show password",
     hidePassword: "Hide password",
     samePassword: "Your new password must be different from the current one.",
+    emailRateLimited: "Too many emails were requested in a short time. Please wait a minute and try again.",
     weakPassword: "That password is too easy to guess. Try a longer, less common one.",
   },
   post: {
