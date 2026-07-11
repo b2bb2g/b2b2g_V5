@@ -34,10 +34,18 @@ export async function generateMetadata(): Promise<Metadata> {
   const ogImage = settingString(settings, SETTING_KEYS.SITE_OG_IMAGE);
   // Search-engine ownership proofs are admin settings (PRD 12.2: Google +
   // Naver Search Advisor).
-  const googleVerify = settingString(settings, SETTING_KEYS.GOOGLE_SITE_VERIFICATION);
-  const naverVerify = settingString(settings, SETTING_KEYS.NAVER_SITE_VERIFICATION);
+  const googleVerify = settingString(
+    settings,
+    SETTING_KEYS.GOOGLE_SITE_VERIFICATION,
+  );
+  const naverVerify = settingString(
+    settings,
+    SETTING_KEYS.NAVER_SITE_VERIFICATION,
+  );
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    ),
     title: { default: title, template: `%s | ${title}` },
     description,
     applicationName: title,
@@ -80,19 +88,31 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
-        <a href="#main-content" className="skip-link">{t.common.skipToContent}</a>
+        <a href="#main-content" className="skip-link">
+          {t.common.skipToContent}
+        </a>
         <Suspense>
           <NavigationFeedback />
         </Suspense>
         <PullToRefresh />
-        <RouteChrome hideOnAdmin><Header /></RouteChrome>
-        <main id="main-content" tabIndex={-1} className="w-full flex-1">{children}</main>
-        <RouteChrome hideOnAdmin><Footer /></RouteChrome>
+        <RouteChrome hideOnAdmin hideOnHome>
+          <Header />
+        </RouteChrome>
+        <main id="main-content" tabIndex={-1} className="w-full flex-1">
+          {children}
+        </main>
+        <RouteChrome hideOnAdmin hideOnHome>
+          <Footer />
+        </RouteChrome>
         <Suspense>
           <Toaster messages={t.toast} />
         </Suspense>
         <InAppGuard
-          enabled={settingBool(settings, SETTING_KEYS.INAPP_REDIRECT_ENABLED, true)}
+          enabled={settingBool(
+            settings,
+            SETTING_KEYS.INAPP_REDIRECT_ENABLED,
+            true,
+          )}
           paths={settingString(settings, SETTING_KEYS.INAPP_REDIRECT_PATHS)
             .split(",")
             .map((path) => path.trim())
@@ -105,11 +125,15 @@ export default async function RootLayout({
           <GlobalBanners
             cookie={t.cookie}
             pwa={t.pwa}
-            pwaEnabled={settingBool(settings, SETTING_KEYS.PWA_BANNER_ENABLED, true)}
+            pwaEnabled={settingBool(
+              settings,
+              SETTING_KEYS.PWA_BANNER_ENABLED,
+              true,
+            )}
             redisplayDays={settingNumber(
               settings,
               SETTING_KEYS.PWA_BANNER_REDISPLAY_DAYS,
-              14
+              14,
             )}
           />
         </RouteChrome>

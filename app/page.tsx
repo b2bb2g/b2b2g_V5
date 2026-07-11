@@ -2,9 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { BadgePill } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
-import { StatusLabel } from "@/components/ui/StatusLabel";
+import { Carousel } from "@/components/ui/Carousel";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ProductCard } from "@/components/marketplace/ProductCard";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
@@ -13,7 +14,6 @@ import { getPublicSettings, settingNumber } from "@/lib/data/settings";
 import { postMediaUrl, repThumbnail } from "@/lib/media";
 import { stripRichText } from "@/lib/richtext";
 import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
-import type { Dictionary } from "@/lib/i18n";
 import type { Menu, PostTeaser } from "@/lib/types";
 
 async function getStorefront(
@@ -100,45 +100,6 @@ function Arrow() {
   );
 }
 
-function HeroVisual({ t }: { t: Dictionary }) {
-  return (
-    <div className="relative mx-auto w-full max-w-2xl lg:mx-0">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-[0_36px_100px_rgba(0,0,0,.38)]">
-        <Image
-          src="/brand/trade-network-hero.png"
-          alt=""
-          fill
-          priority
-          sizes="(max-width:1024px) 100vw, 50vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#101923]/80 via-transparent to-white/5" />
-        <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/15 bg-[#172331]/80 p-4 text-white backdrop-blur-xl sm:inset-x-6 sm:bottom-6 sm:flex sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[.15em] text-primary">
-              {t.home.proofLabel}
-            </p>
-            <p className="mt-2 text-base font-extrabold">
-              {t.home.mockProduct}
-            </p>
-            <p className="mt-1 text-xs text-white/55">{t.home.mockCompany}</p>
-          </div>
-          <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-positive/20 px-3 py-1.5 text-xs font-bold text-[#7ee2b8] sm:mt-0">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7ee2b8]" />
-            {t.home.stat1}
-          </span>
-        </div>
-      </div>
-      <div className="absolute -right-2 top-8 hidden rounded-2xl border border-white/10 bg-white/10 p-3 text-white shadow-2xl backdrop-blur-xl sm:block">
-        <StatusLabel
-          status="answer_delivered"
-          label={t.inquiry.steps.answer_delivered}
-        />
-      </div>
-    </div>
-  );
-}
-
 export default async function Home() {
   const [{ t, locale }, menus, session, settings] = await Promise.all([
     getT(),
@@ -193,24 +154,97 @@ export default async function Home() {
         ]}
       />
 
-      <section className="relative bg-[#111a24] text-white">
-        <div className="absolute inset-0 opacity-80 [background:radial-gradient(circle_at_15%_15%,rgba(49,130,246,.34),transparent_32%),radial-gradient(circle_at_85%_75%,rgba(49,130,246,.13),transparent_28%)]" />
+      <section className="relative min-h-[760px] overflow-hidden bg-[#0d151e] text-white">
+        <Image
+          src="/landing-v2/hero-global-collaboration.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(9,15,22,.98)_0%,rgba(9,15,22,.84)_35%,rgba(9,15,22,.2)_76%,rgba(9,15,22,.25)_100%)]" />
+        <div className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-[#0d151e]/45 backdrop-blur-xl">
+          <div className={`${container} flex h-20 items-center gap-8`}>
+            <Link href="/" className="flex items-center gap-2.5">
+              <BrandMark className="h-9 w-9 ring-1 ring-white/15" />
+              <span className="text-base font-extrabold">
+                {t.common.siteName}
+              </span>
+            </Link>
+            <nav
+              className="hidden flex-1 items-center justify-center gap-1 lg:flex"
+              aria-label={t.home.boardsTitle}
+            >
+              {menus.slice(0, 5).map((menu) => (
+                <Link
+                  key={menu.id}
+                  href={`/${menu.slug}`}
+                  className="rounded-full px-4 py-2 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
+                >
+                  {menuTitle(menu, locale)}
+                </Link>
+              ))}
+            </nav>
+            <div className="ml-auto flex items-center gap-2">
+              <Link
+                href="/search"
+                aria-label={t.common.search}
+                className="rounded-full p-2.5 text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+              </Link>
+              {session.userId ? (
+                <Link
+                  href="/dashboard"
+                  className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-ink"
+                >
+                  {t.common.dashboard}
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="hidden px-3 py-2 text-sm font-semibold text-white/70 sm:block"
+                  >
+                    {t.common.signIn}
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-ink"
+                  >
+                    {t.common.signUp}
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
         <div
-          className={`${container} relative grid min-h-[720px] items-center gap-14 py-20 lg:grid-cols-[.92fr_1.08fr] lg:gap-20 lg:py-28`}
+          className={`${container} relative flex min-h-[760px] items-center pb-20 pt-32`}
         >
-          <div className="animate-fade-up text-center lg:text-left">
+          <div className="animate-fade-up max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[.22em] text-[#6ea8ff]">
               {t.home.eyebrow}
             </p>
-            <h1 className="mx-auto mt-5 max-w-3xl text-[2.7rem] font-extrabold leading-[1.08] tracking-[-.045em] sm:text-6xl lg:mx-0 lg:text-[4.4rem]">
+            <h1 className="mt-5 text-[2.9rem] font-extrabold leading-[1.04] tracking-[-.05em] sm:text-6xl lg:text-[4.8rem]">
               {t.home.heroTitle}
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-white/64 lg:mx-0">
+            <p className="mt-6 max-w-xl text-base leading-7 text-white/68 sm:text-lg">
               {t.home.heroSubtitle}
             </p>
             <form
               action="/search"
-              className="mx-auto mt-9 flex max-w-xl items-center rounded-2xl border border-white/12 bg-white p-2 shadow-2xl lg:mx-0"
+              className="mt-9 flex max-w-xl items-center rounded-2xl border border-white/12 bg-white p-2 shadow-2xl"
             >
               <svg
                 className="ml-3 h-5 w-5 shrink-0 text-ink-faint"
@@ -233,7 +267,7 @@ export default async function Home() {
                 {t.home.searchAction}
               </button>
             </form>
-            <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-3 lg:justify-start">
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
               {[t.home.stat1, t.home.stat2, t.home.stat3].map((item) => (
                 <span
                   key={item}
@@ -245,9 +279,10 @@ export default async function Home() {
               ))}
             </div>
           </div>
-          <div className="animate-fade-up" style={{ animationDelay: ".12s" }}>
-            <HeroVisual t={t} />
-          </div>
+        </div>
+        <div className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-white/40 sm:flex">
+          <span className="h-8 w-px animate-pulse bg-white/30" />
+          Scroll to explore
         </div>
       </section>
 
@@ -303,6 +338,80 @@ export default async function Home() {
               <Arrow />
             </span>
           </Link>
+        </div>
+      </section>
+
+      <section className={`${container} py-24`}>
+        <Reveal>
+          <div className="max-w-2xl">
+            <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+              Curated for global growth
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
+              {t.home.valueTitle}
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-ink-soft">
+              {t.home.heroSubtitle}
+            </p>
+          </div>
+        </Reveal>
+        <div className="mt-10">
+          <Carousel prevLabel={t.home.prev} nextLabel={t.home.next}>
+            <Link
+              href={`/${firstProductBoard}`}
+              className="group relative h-[28rem] w-[86vw] max-w-3xl shrink-0 snap-start overflow-hidden rounded-[2rem] bg-ink sm:h-[32rem] sm:w-[68vw]"
+            >
+              <Image
+                src="/landing-v2/precision-manufacturing.jpg"
+                alt=""
+                fill
+                sizes="(max-width:640px) 86vw, 68vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/5 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-10">
+                <span className="text-xs font-bold uppercase tracking-[.18em] text-[#82b5ff]">
+                  Precision & industrial
+                </span>
+                <h3 className="mt-3 text-2xl font-extrabold sm:text-4xl">
+                  {t.home.buyerPath}
+                </h3>
+                <p className="mt-2 max-w-lg text-sm leading-6 text-white/65">
+                  {t.home.buyerPathBody}
+                </p>
+                <span className="mt-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
+                  <Arrow />
+                </span>
+              </div>
+            </Link>
+            <Link
+              href={session.userId ? "/write/select" : "/signup"}
+              className="group relative h-[28rem] w-[86vw] max-w-3xl shrink-0 snap-start overflow-hidden rounded-[2rem] bg-ink sm:h-[32rem] sm:w-[68vw]"
+            >
+              <Image
+                src="/landing-v2/consumer-export-brand.jpg"
+                alt=""
+                fill
+                sizes="(max-width:640px) 86vw, 68vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-10">
+                <span className="text-xs font-bold uppercase tracking-[.18em] text-[#82b5ff]">
+                  Consumer & lifestyle
+                </span>
+                <h3 className="mt-3 text-2xl font-extrabold sm:text-4xl">
+                  {t.home.supplierPath}
+                </h3>
+                <p className="mt-2 max-w-lg text-sm leading-6 text-white/65">
+                  {t.home.supplierPathBody}
+                </p>
+                <span className="mt-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
+                  <Arrow />
+                </span>
+              </div>
+            </Link>
+          </Carousel>
         </div>
       </section>
 
@@ -371,17 +480,22 @@ export default async function Home() {
                 </Link>
               </div>
             </Reveal>
-            <div className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {products.map((post, index) => (
-                <Reveal key={post.id} delay={(index % 4) * 55}>
-                  <ProductCard
-                    post={post}
-                    href={`/${menuSlugById.get(post.menu_id) ?? firstProductBoard}/${post.id}`}
-                    locale={locale}
-                    priority={index < 4}
-                  />
-                </Reveal>
-              ))}
+            <div className="mt-10">
+              <Carousel prevLabel={t.home.prev} nextLabel={t.home.next}>
+                {products.map((post, index) => (
+                  <div
+                    key={post.id}
+                    className="w-[72vw] max-w-72 shrink-0 snap-start sm:w-64 lg:w-72"
+                  >
+                    <ProductCard
+                      post={post}
+                      href={`/${menuSlugById.get(post.menu_id) ?? firstProductBoard}/${post.id}`}
+                      locale={locale}
+                      priority={index < 3}
+                    />
+                  </div>
+                ))}
+              </Carousel>
             </div>
           </div>
         </section>
@@ -663,6 +777,91 @@ export default async function Home() {
           </div>
         </Reveal>
       </section>
+
+      <footer className="bg-[#0d151e] text-white">
+        <div className={`${container} py-14 sm:py-20`}>
+          <div className="grid gap-12 border-b border-white/10 pb-14 lg:grid-cols-[1.5fr_1fr_1fr]">
+            <div>
+              <Link href="/" className="flex items-center gap-3">
+                <BrandMark className="h-10 w-10 ring-1 ring-white/15" />
+                <span className="text-lg font-extrabold">
+                  {t.common.siteName}
+                </span>
+              </Link>
+              <p className="mt-5 max-w-sm text-sm leading-7 text-white/60">
+                {t.footer.tagline}
+              </p>
+              <Link
+                href={session.userId ? "/dashboard" : "/signup"}
+                className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#76abff]"
+              >
+                {session.userId ? t.common.dashboard : t.home.startNow}
+                <Arrow />
+              </Link>
+            </div>
+            <nav aria-label={t.footer.marketplace}>
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-white/60">
+                {t.footer.marketplace}
+              </p>
+              <ul className="mt-5 space-y-3">
+                {menus.slice(0, 5).map((menu) => (
+                  <li key={menu.id}>
+                    <Link
+                      href={`/${menu.slug}`}
+                      className="text-sm text-white/62 transition hover:text-white"
+                    >
+                      {menuTitle(menu, locale)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <nav aria-label={t.footer.legal}>
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-white/60">
+                {t.footer.legal}
+              </p>
+              <ul className="mt-5 space-y-3">
+                <li>
+                  <Link
+                    href="/membership"
+                    className="text-sm text-white/62 hover:text-white"
+                  >
+                    {t.home.promoCta}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/legal/terms"
+                    className="text-sm text-white/62 hover:text-white"
+                  >
+                    {t.footer.terms}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/legal/privacy"
+                    className="text-sm text-white/62 hover:text-white"
+                  >
+                    {t.footer.privacy}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/legal/cookies"
+                    className="text-sm text-white/62 hover:text-white"
+                  >
+                    {t.footer.cookies}
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div className="flex flex-col gap-3 pt-7 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
+            <p>{t.footer.copyright}</p>
+            <p>Built for trusted global business</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
