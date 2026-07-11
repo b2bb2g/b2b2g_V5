@@ -197,6 +197,34 @@ export async function setMemberStatus(formData: FormData) {
   revalidatePath("/admin/members");
 }
 
+// Bulk member actions (PRD 17.2): notify or retier the selected members.
+export async function bulkMemberAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const ids = formData.getAll("ids").map(String).filter(Boolean);
+  const action = String(formData.get("bulkAction") ?? "");
+  if (!ids.length) return;
+
+  if (action === "notify") {
+    const message = String(formData.get("message") ?? "").trim();
+    if (!message) return;
+    await supabase
+      .from("notifications")
+      .insert(ids.map((id) => ({ profile_id: id, type: "admin_notice", payload: { message } })));
+    await audit(supabase, "member_bulk_notify", "profile", "bulk", {
+      count: ids.length,
+    });
+  } else if (action === "tier") {
+    const tierId = String(formData.get("tierId") ?? "");
+    if (!tierId) return;
+    await supabase.from("profiles").update({ tier_id: tierId }).in("id", ids);
+    await audit(supabase, "member_bulk_tier", "profile", "bulk", {
+      count: ids.length,
+      tierId,
+    });
+  }
+  revalidatePath("/admin/members");
+}
+
 export async function adminSendPasswordReset(formData: FormData) {
   const { supabase } = await requireAdmin();
   const profileId = String(formData.get("profileId") ?? "");

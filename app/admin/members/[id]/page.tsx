@@ -38,12 +38,13 @@ export default async function AdminMemberDetailPage(props: {
     suspend_reason: string | null;
     is_coordinator: boolean;
     referred_by: string | null;
+    last_seen_at: string | null;
     created_at: string;
     profile_contacts: { email: string | null; phone: string | null; contact_person: string | null } | null;
     member_admin_memos: { memo: string } | null;
   };
 
-  const [{ data: badges }, { data: subscriptions }, { data: posts }, referrer] =
+  const [{ data: badges }, { data: subscriptions }, { data: posts }, { data: logins }, referrer] =
     await Promise.all([
       supabase
         .from("member_badges")
@@ -61,6 +62,12 @@ export default async function AdminMemberDetailPage(props: {
         .eq("author_id", id)
         .order("updated_at", { ascending: false })
         .limit(8),
+      supabase
+        .from("login_events")
+        .select("id, user_agent, created_at")
+        .eq("profile_id", id)
+        .order("created_at", { ascending: false })
+        .limit(5),
       member.referred_by
         ? supabase
             .from("profiles")
@@ -125,6 +132,14 @@ export default async function AdminMemberDetailPage(props: {
             {member.profile_contacts?.phone ?? t.common.notProvided}
             {member.profile_contacts?.contact_person &&
               ` · ${member.profile_contacts.contact_person}`}
+          </dd>
+        </div>
+        <div className="px-4 py-3">
+          <dt className="text-xs font-semibold text-ink-faint">{t.admin.lastSeen}</dt>
+          <dd className="mt-0.5 text-sm">
+            {member.last_seen_at
+              ? new Date(member.last_seen_at).toISOString().slice(0, 16).replace("T", " ")
+              : "-"}
           </dd>
         </div>
         <div className="px-4 py-3">
@@ -252,6 +267,26 @@ export default async function AdminMemberDetailPage(props: {
                 {sub.deposit_note && ` · ${sub.deposit_note}`}
               </span>
               <StatusLabel status={sub.status} label={sub.status} />
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Login history (PRD 17.2) */}
+      {(logins ?? []).length > 0 && (
+        <section className="space-y-2">
+          <h3 className="text-sm font-bold">{t.admin.loginHistory}</h3>
+          {(logins ?? []).map((event) => (
+            <div
+              key={event.id}
+              className="card flex items-center justify-between gap-3 px-4 py-2.5 text-xs"
+            >
+              <span className="text-ink-soft">
+                {new Date(event.created_at).toISOString().slice(0, 16).replace("T", " ")}
+              </span>
+              <span className="max-w-[60%] truncate text-ink-faint">
+                {event.user_agent ?? "-"}
+              </span>
             </div>
           ))}
         </section>

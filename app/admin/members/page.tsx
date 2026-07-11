@@ -2,6 +2,7 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { Pagination } from "@/components/ui/Pagination";
+import { bulkMemberAction } from "@/app/actions/admin";
 
 // Member list with contact data: readable here only because RLS grants the
 // admin role access to profile_contacts (PRD 9 double defense).
@@ -34,7 +35,10 @@ export default async function MembersPage(props: {
       : query.ilike("display_name", `%${q}%`);
   }
 
-  const { data, count } = await query;
+  const [{ data, count }, { data: tiers }] = await Promise.all([
+    query,
+    supabase.from("member_tiers").select("id, name_en").order("sort_order"),
+  ]);
   const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   const members = (data ?? []) as unknown as {
     id: string;
@@ -74,10 +78,37 @@ export default async function MembersPage(props: {
         </div>
       </div>
 
+      {/* Bulk actions (PRD 17.2): select rows, pick an action, confirm */}
+      <form action={bulkMemberAction} className="space-y-3">
+        <div className="card flex flex-wrap items-center gap-2 px-4 py-3">
+          <p className="text-xs font-bold text-ink-soft">{t.admin.bulkAction}</p>
+          <select name="bulkAction" className="field w-auto px-2 py-1.5 text-xs">
+            <option value="notify">{t.admin.bulkNotify}</option>
+            <option value="tier">{t.admin.bulkTier}</option>
+          </select>
+          <input
+            name="message"
+            placeholder={t.admin.bulkMessage}
+            className="field w-56 px-2 py-1.5 text-xs"
+          />
+          <select name="tierId" className="field w-auto px-2 py-1.5 text-xs">
+            <option value="">{t.admin.tiers}</option>
+            {(tiers ?? []).map((tier) => (
+              <option key={tier.id} value={tier.id}>
+                {tier.name_en}
+              </option>
+            ))}
+          </select>
+          <button type="submit" className="btn-primary btn-sm">
+            {t.admin.bulkSelected}
+          </button>
+        </div>
+
       <div className="overflow-x-auto rounded-card border border-line">
         <table className="w-full min-w-[640px] text-left text-xs">
           <thead className="bg-surface-sub/60 text-ink-faint">
             <tr>
+              <th className="px-3 py-2.5 font-semibold" aria-hidden="true" />
               <th className="px-3 py-2.5 font-semibold">{t.admin.uid}</th>
               <th className="px-3 py-2.5 font-semibold">{t.nav.profile}</th>
               <th className="px-3 py-2.5 font-semibold">{t.admin.email}</th>
@@ -88,6 +119,15 @@ export default async function MembersPage(props: {
           <tbody className="divide-y divide-line">
             {members.map((member) => (
               <tr key={member.id} className="hover:bg-surface-sub/40">
+                <td className="px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    name="ids"
+                    value={member.id}
+                    aria-label={String(member.uid)}
+                    className="h-4 w-4 rounded accent-primary"
+                  />
+                </td>
                 <td className="px-3 py-2.5 font-semibold">{member.uid}</td>
                 <td className="px-3 py-2.5">
                   <a
@@ -117,6 +157,7 @@ export default async function MembersPage(props: {
           </tbody>
         </table>
       </div>
+      </form>
 
       <Pagination
         page={page}

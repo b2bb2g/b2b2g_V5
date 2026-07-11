@@ -6,6 +6,8 @@ export default defineConfig({
   timeout: 30_000,
   retries: 0,
   reporter: [["list"]],
+  globalSetup: "./tests/e2e/global-setup.ts",
+  globalTeardown: "./tests/e2e/global-teardown.ts",
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",

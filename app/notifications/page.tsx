@@ -12,7 +12,12 @@ import type { Dictionary } from "@/lib/i18n";
 // Notification text is derived from type + payload through the language pack
 // (no hardcoded strings in stored data).
 function renderNotification(t: Dictionary, n: AppNotification): string {
-  const p = n.payload as { title?: string; subject?: string; reason?: string };
+  const p = n.payload as { title?: string; subject?: string; reason?: string; message?: string };
+  if (n.type === "admin_notice") {
+    return p.message
+      ? `${t.notifications.teamNotice} · ${p.message}`
+      : t.notifications.teamNotice;
+  }
   const base: Record<string, string> = {
     post_approved: t.post.status.approved,
     post_rejected: t.post.status.rejected,

@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { PW_RESET_COOKIE, SESSION_ONLY_COOKIE } from "@/lib/constants";
@@ -63,6 +63,18 @@ export async function signIn(formData: FormData) {
       await supabase.auth.signOut();
       redirect(`/login?error=restricted&next=${encodeURIComponent(next)}`);
     }
+
+    // Activity history (PRD 17.2): record the login and refresh last-seen.
+    const userAgent = (await headers()).get("user-agent")?.slice(0, 200) ?? null;
+    await Promise.all([
+      supabase
+        .from("login_events")
+        .insert({ profile_id: data.user.id, user_agent: userAgent }),
+      supabase
+        .from("profiles")
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq("id", data.user.id),
+    ]);
   }
 
   revalidatePath("/", "layout");

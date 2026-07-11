@@ -25,9 +25,23 @@ export const getSession = cache(async (): Promise<SessionInfo> => {
       .eq("profile_id", user.id),
   ]);
 
+  const typedProfile = (profile as Profile) ?? null;
+
+  // Last-seen heartbeat (PRD 17.2), refreshed at most hourly.
+  if (
+    typedProfile &&
+    (!typedProfile.last_seen_at ||
+      Date.parse(typedProfile.last_seen_at) < Date.now() - 3600_000)
+  ) {
+    await supabase
+      .from("profiles")
+      .update({ last_seen_at: new Date().toISOString() })
+      .eq("id", user.id);
+  }
+
   return {
     userId: user.id,
-    profile: (profile as Profile) ?? null,
+    profile: typedProfile,
     badges: (badges as unknown as MemberBadge[]) ?? [],
   };
 });
