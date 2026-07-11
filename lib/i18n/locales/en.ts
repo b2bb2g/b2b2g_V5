@@ -78,6 +78,12 @@ const en = {
     allNotices: "All updates",
     noticeHint:
       "Important platform guidance, trust policies, and service updates in one place.",
+    officialNotice: "Official notice",
+    adminPublished: "Published by B2BB2G Operations",
+    publicNotice: "Public information",
+    backToNotices: "Back to all notices",
+    noticeReadingHint:
+      "This notice is published by an administrator and is available to every visitor.",
   },
   home: {
     eyebrow: "Global B2B · B2G marketplace",

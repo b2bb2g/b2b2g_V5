@@ -82,6 +82,12 @@ const ko: Dict = {
     allNotices: "전체 업데이트",
     noticeHint:
       "플랫폼 이용 안내와 신뢰 정책, 서비스 업데이트를 한곳에서 확인하세요.",
+    officialNotice: "공식 공지",
+    adminPublished: "B2BB2G 운영팀 게시",
+    publicNotice: "전체 공개 안내",
+    backToNotices: "공지사항 전체 보기",
+    noticeReadingHint:
+      "관리자가 게시한 공지로, 로그인 없이 모든 방문자가 전체 내용을 확인할 수 있습니다.",
   },
   home: {
     eyebrow: "글로벌 B2B · B2G 마켓플레이스",

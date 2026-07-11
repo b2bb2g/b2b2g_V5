@@ -8,7 +8,7 @@ export const BOARD_PAGE_SIZE = 24;
 export async function listPostsForMenu(
   menuId: string,
   categoryId?: string,
-  page = 1
+  page = 1,
 ): Promise<{ posts: PostTeaser[]; totalPages: number }> {
   const supabase = await createClient();
   const from = (page - 1) * BOARD_PAGE_SIZE;
@@ -26,7 +26,9 @@ export async function listPostsForMenu(
   };
 }
 
-export async function getPostTeaser(postId: string): Promise<PostTeaser | null> {
+export async function getPostTeaser(
+  postId: string,
+): Promise<PostTeaser | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("public_posts")
@@ -46,6 +48,7 @@ export type FullPost = {
     uid: number;
     display_name: string | null;
     company_name: string | null;
+    is_admin: boolean;
     badges: { code: string; name_en: string; name_ko: string }[];
   } | null;
 };
@@ -61,21 +64,37 @@ export async function getFullPost(postId: string): Promise<FullPost | null> {
     .maybeSingle();
   if (!post) return null;
 
-  const [{ data: specs }, { data: media }, { data: attachments }, { data: author }, { data: badges }] =
-    await Promise.all([
-      supabase.from("post_specs").select("*").eq("post_id", postId).order("sort_order"),
-      supabase.from("post_media").select("id, path").eq("post_id", postId).order("sort_order"),
-      supabase.from("post_attachments").select("id, path, filename").eq("post_id", postId),
-      supabase
-        .from("profiles")
-        .select("id, uid, display_name, company_name")
-        .eq("id", post.author_id)
-        .maybeSingle(),
-      supabase
-        .from("member_badges")
-        .select("badge_types(code, name_en, name_ko)")
-        .eq("profile_id", post.author_id),
-    ]);
+  const [
+    { data: specs },
+    { data: media },
+    { data: attachments },
+    { data: author },
+    { data: badges },
+  ] = await Promise.all([
+    supabase
+      .from("post_specs")
+      .select("*")
+      .eq("post_id", postId)
+      .order("sort_order"),
+    supabase
+      .from("post_media")
+      .select("id, path")
+      .eq("post_id", postId)
+      .order("sort_order"),
+    supabase
+      .from("post_attachments")
+      .select("id, path, filename")
+      .eq("post_id", postId),
+    supabase
+      .from("profiles")
+      .select("id, uid, display_name, company_name, is_admin")
+      .eq("id", post.author_id)
+      .maybeSingle(),
+    supabase
+      .from("member_badges")
+      .select("badge_types(code, name_en, name_ko)")
+      .eq("profile_id", post.author_id),
+  ]);
 
   return {
     post: post as Post,
@@ -85,11 +104,20 @@ export async function getFullPost(postId: string): Promise<FullPost | null> {
     author: author
       ? {
           ...author,
-          badges: ((badges ?? []) as unknown as {
-            badge_types: { code: string; name_en: string; name_ko: string } | null;
-          }[])
+          badges: (
+            (badges ?? []) as unknown as {
+              badge_types: {
+                code: string;
+                name_en: string;
+                name_ko: string;
+              } | null;
+            }[]
+          )
             .map((b) => b.badge_types)
-            .filter((x): x is { code: string; name_en: string; name_ko: string } => !!x),
+            .filter(
+              (x): x is { code: string; name_en: string; name_ko: string } =>
+                !!x,
+            ),
         }
       : null,
   };
