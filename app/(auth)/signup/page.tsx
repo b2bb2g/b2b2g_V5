@@ -10,8 +10,9 @@ export default async function SignUpPage(props: {
   const [{ t }, params] = await Promise.all([getT(), props.searchParams]);
 
   return (
-    <div className="mx-auto max-w-sm py-8">
-      <h1 className="text-xl font-extrabold">{t.auth.signUpTitle}</h1>
+    <div className="w-full">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{t.auth.joinNetwork}</p>
+      <h1 className="mt-3 text-3xl font-extrabold tracking-tight">{t.auth.signUpTitle}</h1>
       <p className="mt-1 text-sm text-ink-soft">{t.auth.signUpSubtitle}</p>
 
       {params.ref && (
@@ -31,10 +32,10 @@ export default async function SignUpPage(props: {
         </p>
       )}
 
-      <form action={signUp} className="mt-6 space-y-3">
+      <form action={signUp} className="mt-8 space-y-4">
         {params.ref && <input type="hidden" name="ref" value={params.ref} />}
         <label className="block">
-          <span className="text-xs font-semibold text-ink-soft">{t.auth.email}</span>
+          <span className="text-sm font-semibold text-ink-soft">{t.auth.email}</span>
           <div className="mt-1">
             <ClearableInput
               type="email"
@@ -46,7 +47,7 @@ export default async function SignUpPage(props: {
           </div>
         </label>
         <label className="block">
-          <span className="text-xs font-semibold text-ink-soft">{t.auth.password}</span>
+          <span className="text-sm font-semibold text-ink-soft">{t.auth.password}</span>
           <div className="mt-1">
             <PasswordInput
               name="password"
@@ -60,9 +61,10 @@ export default async function SignUpPage(props: {
           </div>
         </label>
         <CaptchaSubmit label={t.common.signUp} />
+        <p className="text-center text-xs leading-relaxed text-ink-faint">{t.auth.termsHint}</p>
       </form>
 
-      <p className="mt-4 text-center text-sm text-ink-soft">
+      <p className="mt-6 border-t border-line pt-6 text-center text-sm text-ink-soft">
         {t.auth.alreadyHaveAccount}{" "}
         <Link href="/login" className="font-semibold text-primary">
           {t.common.signIn}

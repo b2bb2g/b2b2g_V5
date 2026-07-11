@@ -52,6 +52,10 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+body:has(.auth-shell) > main {
+  display: flex;
+}
+
 /* Page container system: every page root is auto-contained; opt out with
    .full-bleed (landing) or widen with .wide (lists, admin console). */
 main > :where(*) {

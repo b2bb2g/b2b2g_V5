@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
+import { BrandMark } from "@/components/brand/BrandMark";
 
 // Multi-column footer aligned to the content container width (max-w-6xl,
 // same as the landing sections).
@@ -26,14 +27,12 @@ export async function Footer() {
   ];
 
   return (
-    <footer className="mt-auto border-t border-line bg-surface-sub/60">
+    <footer className="site-footer mt-auto border-t border-line bg-surface-sub/60">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-10 py-12 sm:grid-cols-[1.6fr_1fr_1fr] sm:gap-8">
+        <div className="grid gap-6 py-8 sm:grid-cols-[1.6fr_1fr_1fr] sm:gap-8 sm:py-12">
           <div>
             <Link href="/" className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-extrabold text-white">
-                B
-              </span>
+              <BrandMark className="h-7 w-7 rounded-lg" />
               <span className="text-sm font-extrabold text-ink">
                 {t.common.siteName}
               </span>
@@ -44,7 +43,7 @@ export async function Footer() {
           </div>
 
           {columns.map((column) => (
-            <nav key={column.title} aria-label={column.title}>
+            <nav key={column.title} aria-label={column.title} className="hidden sm:block">
               <p className="text-xs font-bold uppercase tracking-wider text-ink-faint">
                 {column.title}
               </p>
@@ -62,9 +61,16 @@ export async function Footer() {
               </ul>
             </nav>
           ))}
+          <nav aria-label={t.footer.legal} className="sm:hidden">
+            <ul className="flex flex-wrap gap-x-4 gap-y-2">
+              {columns[1].links.map((link) => (
+                <li key={link.href}><Link href={link.href} className="text-xs font-semibold text-ink-soft">{link.label}</Link></li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
-        <div className="border-t border-line py-5">
+        <div className="border-t border-line py-4 sm:py-5">
           <p className="text-xs text-ink-faint">{t.footer.copyright}</p>
         </div>
       </div>

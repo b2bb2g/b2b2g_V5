@@ -188,29 +188,21 @@ function SectionHeader({
 
 function HeroVisual({ t }: { t: Dictionary }) {
   return (
-    <div className="relative mx-auto w-full max-w-md">
-      <div className="card overflow-hidden shadow-(--shadow-float)">
-        <div className="flex aspect-[4/3] items-center justify-center bg-primary-soft">
-          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="text-primary/50" aria-hidden="true">
-            <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
-            <path d="M17 18h1" />
-            <path d="M12 18h1" />
-            <path d="M7 18h1" />
-          </svg>
-        </div>
-        <div className="space-y-2 p-4">
-          <p className="text-sm font-bold">{t.home.mockProduct}</p>
-          <p className="text-xs text-ink-faint">{t.home.mockCompany}</p>
-          <div className="flex gap-1.5 pt-1">
-            <BadgePill code="manufacturer" label={t.badges.manufacturer} />
-            <BadgePill code="certified" label={t.badges.certified} />
+    <div className="relative mx-auto w-full max-w-2xl">
+      <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] border border-white/80 bg-[#f5f2ee] shadow-[0_30px_80px_rgba(25,31,40,0.16)]">
+        <Image src="/brand/trade-network-hero.png" alt="" fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/25 to-transparent" />
+        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl border border-white/35 bg-white/88 p-3.5 shadow-lg backdrop-blur-xl sm:bottom-6 sm:left-6 sm:right-auto sm:min-w-72">
+          <div>
+            <p className="text-sm font-extrabold">{t.home.mockProduct}</p>
+            <p className="mt-0.5 text-xs text-ink-faint">{t.home.mockCompany}</p>
           </div>
-          <div className="btn-primary btn-md pointer-events-none mt-2 w-full">
-            {t.post.inquire}
-          </div>
+          <span className="ml-4 flex h-9 w-9 items-center justify-center rounded-full bg-positive-soft text-positive">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m5 12 4 4L19 6" /></svg>
+          </span>
         </div>
       </div>
-      <div className="animate-float absolute -right-5 bottom-24 hidden sm:block">
+      <div className="animate-float absolute -right-3 top-8 hidden sm:block">
         <div className="card flex items-center gap-2 px-3 py-2 shadow-(--shadow-float)">
           <StatusLabel
             status="answer_delivered"
@@ -256,28 +248,23 @@ export default async function Home() {
   return (
     <div className="full-bleed">
       {/* ============ Hero ============ */}
-      <section className="relative overflow-hidden border-b border-line bg-gradient-to-b from-primary-soft/60 via-surface to-surface">
-        <div className={`${container} grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-2 lg:gap-14 lg:py-20`}>
+      <section className="relative overflow-hidden border-b border-line bg-[radial-gradient(circle_at_15%_10%,rgba(49,130,246,0.14),transparent_35%),linear-gradient(to_bottom,#f8fbff,#fff)]">
+        <div className={`${container} grid items-center gap-10 py-12 sm:py-16 lg:max-w-7xl lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:py-24`}>
           <div className="animate-fade-up text-center lg:text-left">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
               {t.home.eyebrow}
             </p>
-            <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.2] tracking-tight sm:text-5xl sm:leading-[1.15]">
+            <h1 className="mt-4 text-[2.35rem] font-extrabold leading-[1.12] tracking-[-0.04em] sm:text-6xl sm:leading-[1.08]">
               {t.home.heroTitle}
             </h1>
             <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-ink-soft sm:text-base lg:mx-0">
               {t.home.heroSubtitle}
             </p>
-            <div className="mt-8 flex flex-col justify-center gap-2.5 sm:flex-row lg:justify-start">
-              <Link href={`/${firstProductBoard}`} className="btn-primary btn-lg">
-                {t.home.browseBoards}
-              </Link>
-              {requestsMenu && (
-                <Link href={`/${requestsMenu.slug}`} className="btn-secondary btn-lg">
-                  {t.home.browseRequests}
-                </Link>
-              )}
-            </div>
+            <form action="/search" className="mx-auto mt-8 flex max-w-xl items-center gap-2 rounded-2xl border border-line bg-white p-2 shadow-[0_16px_45px_rgba(49,130,246,0.12)] lg:mx-0">
+              <svg className="ml-2 shrink-0 text-ink-faint" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+              <input name="q" type="search" className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-sm outline-none placeholder:text-ink-faint" placeholder={t.home.searchPlaceholder} aria-label={t.home.searchPlaceholder} />
+              <button type="submit" className="btn-primary btn-md shrink-0"><span className="hidden sm:inline">{t.home.searchAction}</span><span className="sm:hidden">{t.common.search}</span></button>
+            </form>
             <ul className="mt-9 flex flex-wrap justify-center gap-x-6 gap-y-2 lg:justify-start">
               {stats.map((stat) => (
                 <li key={stat} className="flex items-center gap-1.5 text-xs font-semibold text-ink-soft">
@@ -292,6 +279,18 @@ export default async function Home() {
           <div className="animate-fade-up" style={{ animationDelay: "0.15s" }}>
             <HeroVisual t={t} />
           </div>
+        </div>
+        <div className={`${container} -mt-2 grid gap-3 pb-12 sm:grid-cols-2 lg:max-w-5xl lg:pb-16`}>
+          <Link href={`/${firstProductBoard}`} className="group flex items-center gap-4 rounded-2xl border border-line bg-white p-5 shadow-(--shadow-card) transition hover:-translate-y-0.5 hover:border-primary/40">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7h18M5 7l1 13h12l1-13M9 11v5M15 11v5M8 7l1-3h6l1 3" /></svg></span>
+            <span className="min-w-0"><strong className="block text-sm">{t.home.buyerPath}</strong><span className="mt-1 block text-xs text-ink-soft">{t.home.buyerPathBody}</span></span>
+            <span className="ml-auto text-primary transition-transform group-hover:translate-x-1">→</span>
+          </Link>
+          <Link href={session.userId ? "/write/select" : "/signup"} className="group flex items-center gap-4 rounded-2xl border border-line bg-white p-5 shadow-(--shadow-card) transition hover:-translate-y-0.5 hover:border-primary/40">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy-soft text-navy"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 20V10l8-6 8 6v10M9 20v-6h6v6" /></svg></span>
+            <span className="min-w-0"><strong className="block text-sm">{t.home.supplierPath}</strong><span className="mt-1 block text-xs text-ink-soft">{t.home.supplierPathBody}</span></span>
+            <span className="ml-auto text-primary transition-transform group-hover:translate-x-1">→</span>
+          </Link>
         </div>
       </section>
 

@@ -10,8 +10,10 @@ export default async function LoginPage(props: {
   const [{ t }, params] = await Promise.all([getT(), props.searchParams]);
 
   return (
-    <div className="mx-auto max-w-sm py-8">
-      <h1 className="text-xl font-extrabold">{t.auth.signInTitle}</h1>
+    <div className="w-full">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{t.auth.welcomeBack}</p>
+      <h1 className="mt-3 text-3xl font-extrabold tracking-tight">{t.auth.signInTitle}</h1>
+      <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t.auth.signInSubtitle}</p>
 
       {params.error && (
         <p className="mt-3 rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
@@ -25,10 +27,10 @@ export default async function LoginPage(props: {
         </p>
       )}
 
-      <form action={signIn} className="mt-6 space-y-3">
+      <form action={signIn} className="mt-8 space-y-4">
         {params.next && <input type="hidden" name="next" value={params.next} />}
         <label className="block">
-          <span className="text-xs font-semibold text-ink-soft">{t.auth.email}</span>
+          <span className="text-sm font-semibold text-ink-soft">{t.auth.email}</span>
           <div className="mt-1">
             <ClearableInput
               type="email"
@@ -40,7 +42,7 @@ export default async function LoginPage(props: {
           </div>
         </label>
         <label className="block">
-          <span className="text-xs font-semibold text-ink-soft">{t.auth.password}</span>
+          <span className="text-sm font-semibold text-ink-soft">{t.auth.password}</span>
           <div className="mt-1">
             <PasswordInput
               name="password"
@@ -63,7 +65,7 @@ export default async function LoginPage(props: {
         <CaptchaSubmit label={t.common.signIn} />
       </form>
 
-      <div className="mt-4 flex flex-col items-center gap-2 text-sm">
+      <div className="mt-6 flex flex-col items-center gap-3 border-t border-line pt-6 text-sm">
         <Link href="/reset" className="text-ink-faint hover:text-ink-soft">
           {t.auth.forgotPassword}
         </Link>

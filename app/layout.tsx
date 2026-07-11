@@ -9,6 +9,7 @@ import { InAppGuard } from "@/components/layout/InAppGuard";
 import { PullToRefresh } from "@/components/layout/PullToRefresh";
 import { Toaster } from "@/components/ui/Toaster";
 import { NavigationFeedback } from "@/components/layout/NavigationFeedback";
+import { RouteChrome } from "@/components/layout/RouteChrome";
 import { getT } from "@/lib/i18n/server";
 import {
   getPublicSettings,
@@ -72,9 +73,9 @@ export default async function RootLayout({
           <NavigationFeedback />
         </Suspense>
         <PullToRefresh />
-        <Header />
+        <RouteChrome><Header /></RouteChrome>
         <main className="w-full flex-1">{children}</main>
-        <Footer />
+        <RouteChrome><Footer /></RouteChrome>
         <Suspense>
           <Toaster messages={t.toast} />
         </Suspense>
@@ -88,16 +89,18 @@ export default async function RootLayout({
           body={t.inapp.body}
           openLabel={t.inapp.open}
         />
-        <GlobalBanners
-          cookie={t.cookie}
-          pwa={t.pwa}
-          pwaEnabled={settingBool(settings, SETTING_KEYS.PWA_BANNER_ENABLED, true)}
-          redisplayDays={settingNumber(
-            settings,
-            SETTING_KEYS.PWA_BANNER_REDISPLAY_DAYS,
-            14
-          )}
-        />
+        <RouteChrome>
+          <GlobalBanners
+            cookie={t.cookie}
+            pwa={t.pwa}
+            pwaEnabled={settingBool(settings, SETTING_KEYS.PWA_BANNER_ENABLED, true)}
+            redisplayDays={settingNumber(
+              settings,
+              SETTING_KEYS.PWA_BANNER_REDISPLAY_DAYS,
+              14
+            )}
+          />
+        </RouteChrome>
       </body>
     </html>
   );

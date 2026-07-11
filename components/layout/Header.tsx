@@ -9,6 +9,8 @@ import { LocaleMenu } from "@/components/layout/LocaleMenu";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { postMediaUrl } from "@/lib/media";
 import { BADGE_CODES, NOTIFICATION_STATE } from "@/lib/constants";
+import { BrandMark } from "@/components/brand/BrandMark";
+import { MobileMenu } from "@/components/layout/MobileMenu";
 
 export async function Header() {
   const [{ t, locale }, menus, session] = await Promise.all([
@@ -61,13 +63,11 @@ export async function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur-xl">
+    <header className="site-header sticky top-0 z-40 border-b border-line bg-surface/88 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex h-16 items-center gap-6">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label={t.common.siteName}>
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-sm font-extrabold text-white">
-              B
-            </span>
+            <BrandMark className="h-8 w-8" />
             <span className="hidden text-base font-extrabold tracking-tight text-ink sm:block">
               {t.common.siteName}
             </span>
@@ -82,7 +82,7 @@ export async function Header() {
           <nav className="flex shrink-0 items-center gap-2">
             <Link
               href="/search"
-              className="rounded-full p-2 text-ink-soft transition-colors hover:bg-surface-sub"
+              className="hidden rounded-full p-2 text-ink-soft transition-colors hover:bg-surface-sub md:block"
               aria-label={t.common.search}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -90,7 +90,7 @@ export async function Header() {
                 <path d="m21 21-4.3-4.3" />
               </svg>
             </Link>
-            <LocaleMenu locale={locale} label={t.common.language} />
+            <div className="hidden md:block"><LocaleMenu locale={locale} label={t.common.language} /></div>
             {session.userId && session.profile ? (
               <>
                 <NotificationBell
@@ -120,22 +120,21 @@ export async function Header() {
               <>
                 <Link
                   href="/login"
-                  className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub"
+                  className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub md:block"
                 >
                   {t.common.signIn}
                 </Link>
-                <Link href="/signup" className="btn-primary btn-md">
+                <Link href="/signup" className="btn-primary btn-md hidden md:inline-flex">
                   {t.common.signUp}
                 </Link>
               </>
             )}
+            {!session.userId && (
+              <MobileMenu items={menuItems} searchLabel={t.common.search} signInLabel={t.common.signIn} signUpLabel={t.common.signUp} />
+            )}
           </nav>
         </div>
 
-        {/* Mobile: scrollable menu row */}
-        <div className="md:hidden">
-          <MenuNav items={menuItems} />
-        </div>
       </div>
     </header>
   );
