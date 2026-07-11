@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
-import { BrandMark } from "@/components/brand/BrandMark";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -18,7 +17,6 @@ export default async function AuthLayout({
       <aside className="relative hidden overflow-hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="absolute inset-0 opacity-70 [background:radial-gradient(circle_at_20%_15%,rgba(49,130,246,.55),transparent_32%),radial-gradient(circle_at_80%_80%,rgba(49,130,246,.2),transparent_34%)]" />
         <Link href="/" className="relative flex items-center gap-3">
-          <BrandMark className="h-10 w-10 ring-1 ring-white/15" />
           <span className="text-lg font-extrabold tracking-tight">{t.common.siteName}</span>
         </Link>
         <div className="relative max-w-xl">
@@ -38,7 +36,6 @@ export default async function AuthLayout({
       <section className="flex min-h-screen-safe flex-col px-5 py-5 sm:px-10 lg:px-16 lg:py-10">
         <div className="flex items-center justify-between lg:justify-end">
           <Link href="/" className="flex items-center gap-2 lg:hidden">
-            <BrandMark className="h-9 w-9" />
             <span className="font-extrabold">{t.common.siteName}</span>
           </Link>
           <Link href="/" className="text-sm font-semibold text-ink-soft hover:text-ink">{t.auth.backHome}</Link>

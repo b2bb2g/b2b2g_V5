@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { AdminNav, type AdminNavGroup } from "@/components/layout/AdminNav";
-import { BrandMark } from "@/components/brand/BrandMark";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -62,7 +61,6 @@ export default async function AdminLayout({
     <div className="wide space-y-5 bg-surface-sub/35 pt-4">
       <header className="sticky top-3 z-30 flex items-center justify-between rounded-2xl border border-line bg-surface/90 px-4 py-3 shadow-(--shadow-card) backdrop-blur-xl">
         <Link href="/admin" className="flex items-center gap-2.5">
-          <BrandMark className="h-9 w-9" />
           <div><p className="text-sm font-extrabold">{t.common.siteName}</p><p className="text-[11px] font-semibold text-ink-faint">{t.admin.title}</p></div>
         </Link>
         <Link href="/" className="btn-secondary btn-sm">{t.admin.viewSite}</Link>

@@ -5,7 +5,6 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Carousel } from "@/components/ui/Carousel";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ProductCard } from "@/components/marketplace/ProductCard";
-import { BrandMark } from "@/components/brand/BrandMark";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
@@ -167,7 +166,6 @@ export default async function Home() {
         <div className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-[#0d151e]/45 backdrop-blur-xl">
           <div className={`${container} flex h-20 items-center gap-8`}>
             <Link href="/" className="flex items-center gap-2.5">
-              <BrandMark className="h-9 w-9 ring-1 ring-white/15" />
               <span className="text-base font-extrabold">
                 {t.common.siteName}
               </span>
@@ -861,7 +859,6 @@ export default async function Home() {
           <div className="grid gap-12 border-b border-white/10 pb-14 lg:grid-cols-[1.5fr_1fr_1fr]">
             <div>
               <Link href="/" className="flex items-center gap-3">
-                <BrandMark className="h-10 w-10 ring-1 ring-white/15" />
                 <span className="text-lg font-extrabold">
                   {t.common.siteName}
                 </span>

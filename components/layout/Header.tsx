@@ -9,7 +9,6 @@ import { LocaleMenu } from "@/components/layout/LocaleMenu";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { postMediaUrl } from "@/lib/media";
 import { BADGE_CODES, NOTIFICATION_STATE } from "@/lib/constants";
-import { BrandMark } from "@/components/brand/BrandMark";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 
 export async function Header() {
@@ -67,8 +66,7 @@ export async function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex h-16 items-center gap-6">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label={t.common.siteName}>
-            <BrandMark className="h-8 w-8" />
-            <span className="hidden text-base font-extrabold tracking-tight text-ink sm:block">
+            <span className="text-base font-extrabold tracking-tight text-ink">
               {t.common.siteName}
             </span>
           </Link>

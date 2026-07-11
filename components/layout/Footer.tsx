@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
-import { BrandMark } from "@/components/brand/BrandMark";
 
 // Multi-column footer aligned to the content container width (max-w-6xl,
 // same as the landing sections).
@@ -32,7 +31,6 @@ export async function Footer() {
         <div className="grid gap-6 py-8 sm:grid-cols-[1.6fr_1fr_1fr] sm:gap-8 sm:py-12">
           <div>
             <Link href="/" className="flex items-center gap-2">
-              <BrandMark className="h-7 w-7 rounded-lg" />
               <span className="text-sm font-extrabold text-ink">
                 {t.common.siteName}
               </span>
