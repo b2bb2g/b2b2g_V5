@@ -1,20 +1,18 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getMenuBySlug, menuTitle } from "@/lib/data/menus";
 import { listPostsForMenu } from "@/lib/data/posts";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
-import { repThumbnail } from "@/lib/media";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { stripRichText } from "@/lib/richtext";
-import type { PostTeaser } from "@/lib/types";
 import type { Metadata } from "next";
-import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
+import { ProductCard } from "@/components/marketplace/ProductCard";
+import { BoardHero } from "@/components/marketplace/BoardHero";
 
 export async function generateMetadata(props: {
   params: Promise<{ menuSlug: string }>;
@@ -23,11 +21,13 @@ export async function generateMetadata(props: {
   const menu = await getMenuBySlug(menuSlug);
   if (!menu) return {};
   const { locale } = await getT();
-  return { title: menuTitle(menu, locale) };
-}
-
-function thumbnail(post: PostTeaser): string | null {
-  return repThumbnail(post);
+  const title = menuTitle(menu, locale);
+  return {
+    title,
+    description: `${title} B2B marketplace products and sourcing opportunities`,
+    alternates: { canonical: `/${menuSlug}` },
+    openGraph: { title, description: `${title} B2B marketplace products and sourcing opportunities` },
+  };
 }
 
 export default async function BoardPage(props: {
@@ -78,14 +78,7 @@ export default async function BoardPage(props: {
   return (
     <div className="wide space-y-4">
       {/* Creation lives on the dashboard and avatar menu only (UX policy). */}
-      <section className="relative overflow-hidden rounded-[1.5rem] bg-ink px-5 py-7 text-white sm:px-8 sm:py-10">
-        <span className="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
-        <div className="relative max-w-2xl">
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{t.board.eyebrow} · {typeLabel}</p>
-          <div className="mt-3 flex flex-wrap items-end gap-3"><h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h1><span className="mb-1 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/65">{posts.length} {t.board.availableNow}</span></div>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/60">{isRequestBoard ? t.board.requestHint : t.board.browseHint}</p>
-        </div>
-      </section>
+      <BoardHero eyebrow={t.board.eyebrow} type={typeLabel} title={title} count={posts.length} countLabel={t.board.availableNow} description={isRequestBoard ? t.board.requestHint : t.board.browseHint} />
 
       {categoryNavVisible && (categories ?? []).length > 0 && (
         <nav className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4">
@@ -119,37 +112,7 @@ export default async function BoardPage(props: {
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />
       ) : isGallery ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-          {posts.map((post) => {
-            const thumb = thumbnail(post);
-            return (
-              <Link
-                key={post.id}
-                href={`/${menu.slug}/${post.id}`}
-                className="card-hover group overflow-hidden"
-              >
-                <div className="relative aspect-square bg-surface-sub">
-                  {thumb ? (
-                    <Image
-                      src={thumb}
-                      alt={post.title_en}
-                      fill
-                      sizes="(max-width: 640px) 50vw, 33vw"
-                      className="object-cover transition-transform group-hover:scale-[1.03]"
-                    />
-                  ) : <MediaPlaceholder />}
-                  <span className="absolute right-3 top-3 flex h-8 w-8 translate-y-1 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm transition-all group-hover:translate-y-0 group-hover:opacity-100">→</span>
-                </div>
-                <div className="space-y-1 p-3">
-                  <p className="line-clamp-2 text-sm font-bold leading-snug">
-                    {locale === "ko" && post.title_ko ? post.title_ko : post.title_en}
-                  </p>
-                  <p className="truncate text-xs text-ink-faint">
-                    {post.author_company ?? post.author_name}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
+          {posts.map((post, index) => <ProductCard key={post.id} post={post} href={`/${menu.slug}/${post.id}`} locale={locale} priority={index < 4} />)}
         </div>
       ) : (
         <div className="space-y-2.5">

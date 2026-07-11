@@ -18,7 +18,7 @@ import type { Metadata } from "next";
 export async function generateMetadata(props: {
   params: Promise<{ menuSlug: string; postId: string }>;
 }): Promise<Metadata> {
-  const { postId } = await props.params;
+  const { menuSlug, postId } = await props.params;
   const teaser = await getPostTeaser(postId);
   if (!teaser) return {};
   const description = stripRichText(teaser.body_teaser_en).slice(0, 160);
@@ -31,6 +31,8 @@ export async function generateMetadata(props: {
       description,
       ...(image ? { images: [image] } : {}),
     },
+    alternates: { canonical: `/${menuSlug}/${postId}` },
+    twitter: { card: "summary_large_image", title: teaser.title_en, description, ...(image ? { images: [image] } : {}) },
   };
 }
 
@@ -294,7 +296,7 @@ export default async function PostDetailPage(props: {
         </section>
 
         {!isOwn && (
-          <section className="rounded-[1.25rem] bg-ink p-5 text-white shadow-(--shadow-float) max-lg:sticky max-lg:bottom-3">
+          <section className="mobile-sticky-action rounded-[1.25rem] bg-ink p-5 text-white shadow-(--shadow-float) max-lg:sticky max-lg:bottom-3">
             <p className="text-base font-extrabold">{isMember ? t.post.inquire : t.common.signUp}</p>
             <p className="mt-2 text-xs leading-relaxed text-white/60">{isMember ? t.post.inquiryHint : t.post.signUpToInquire}</p>
             {isMember && post?.status === POST_STATUS.APPROVED ? (

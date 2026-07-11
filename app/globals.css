@@ -5,7 +5,7 @@
    below restricts Pretendard to Latin/punctuation so Korean never uses it. */
 @font-face {
   font-family: "PretendardLatin";
-  src: url("https://fastly.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2")
+  src: url("/fonts/PretendardLatin.woff2")
     format("woff2-variations");
   font-weight: 45 920;
   font-style: normal;
@@ -16,20 +16,20 @@
 /* Design tokens: bright, clean neutral base (DESIGN.md 2.0).
    Single light theme; mid-tone blue accent, no heavy industrial mood. */
 @theme {
-  --color-primary: #3182f6;
-  --color-primary-strong: #1b64da;
+  --color-primary: #1b64da;
+  --color-primary-strong: #174ea6;
   --color-primary-soft: #e8f3ff;
   --color-ink: #191f28;
   --color-ink-soft: #4e5968;
-  --color-ink-faint: #8b95a1;
+  --color-ink-faint: #667085;
   --color-line: #e5e8eb;
   --color-surface: #ffffff;
   --color-surface-sub: #f2f4f6;
-  --color-positive: #12b76a;
+  --color-positive: #087a49;
   --color-positive-soft: #e6f6ee;
-  --color-caution: #d97706;
+  --color-caution: #a34f00;
   --color-caution-soft: #fdf1e0;
-  --color-negative: #ef4444;
+  --color-negative: #c92a2a;
   --color-negative-soft: #fdecec;
   /* Badge palette: navy carries calm authority (Manufacturer badge). */
   --color-navy: #2c4a6b;
@@ -249,6 +249,41 @@ main > :where(*) {
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  border-radius: 0.75rem;
+  background: var(--color-ink);
+  color: white;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: transform 150ms ease;
+}
+.skip-link:not(:focus) {
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  padding: 0;
+}
+.skip-link:focus {
+  width: auto;
+  height: auto;
+  clip: auto;
+  clip-path: none;
+}
+
+@media (max-width: 1023px) {
+  body:has(.global-banner) .mobile-sticky-action {
+    bottom: 8.5rem;
+  }
 }
 
 /* Horizontal-scroll rows (dynamic menus, media strips) without a scrollbar. */

@@ -64,16 +64,16 @@ export default async function MembersPage(props: {
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-base font-bold">{t.admin.memberList}</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
         <a href="/admin/members/export" download className="btn-secondary btn-sm">
           {t.admin.exportCsv}
         </a>
-        <form className="flex gap-2">
+        <form className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
           <input
             name="q"
             defaultValue={q ?? ""}
             placeholder={`${t.admin.uid} / ${t.nav.profile}`}
-            className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
+            className="min-w-0 rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
           />
           <select name="role" defaultValue={role} className="field w-auto px-2 py-1.5 text-xs">
             <option value="">{t.common.all}</option>
@@ -92,7 +92,7 @@ export default async function MembersPage(props: {
 
       {/* Bulk actions (PRD 17.2): select rows, pick an action, confirm */}
       <form action={bulkMemberAction} className="space-y-3">
-        <div className="card flex flex-wrap items-center gap-2 px-4 py-3">
+        <div className="card grid gap-2 px-4 py-3 sm:flex sm:flex-wrap sm:items-center">
           <p className="text-xs font-bold text-ink-soft">{t.admin.bulkAction}</p>
           <select name="bulkAction" className="field w-auto px-2 py-1.5 text-xs">
             <option value="notify">{t.admin.bulkNotify}</option>
@@ -101,7 +101,7 @@ export default async function MembersPage(props: {
           <input
             name="message"
             placeholder={t.admin.bulkMessage}
-            className="field w-56 px-2 py-1.5 text-xs"
+            className="field w-full px-2 py-1.5 text-xs sm:w-56"
           />
           <select name="tierId" className="field w-auto px-2 py-1.5 text-xs">
             <option value="">{t.admin.tiers}</option>

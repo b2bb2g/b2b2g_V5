@@ -9,11 +9,13 @@ export function MobileMenu({
   searchLabel,
   signInLabel,
   signUpLabel,
+  menuLabel,
 }: {
   items: { id: string; slug: string; label: string }[];
   searchLabel: string;
   signInLabel: string;
   signUpLabel: string;
+  menuLabel: string;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -25,7 +27,7 @@ export function MobileMenu({
         type="button"
         onClick={() => setOpen((value) => !value)}
         className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-soft hover:bg-surface-sub"
-        aria-label="Menu"
+        aria-label={menuLabel}
         aria-expanded={open}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">

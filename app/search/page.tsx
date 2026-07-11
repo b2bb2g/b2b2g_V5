@@ -1,20 +1,17 @@
-import Link from "next/link";
-import Image from "next/image";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
-import { repThumbnail } from "@/lib/media";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
 import { ClearableInput } from "@/components/ui/TextField";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
-import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
+import { ProductCard } from "@/components/marketplace/ProductCard";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t.search.title };
+  return { title: t.search.title, robots: { index: false, follow: true } };
 }
 
 // Unified search (A11): public posts only, so results match exactly what a
@@ -78,36 +75,7 @@ export default async function SearchPage(props: {
           <EmptyState title={t.search.noResults} hint={t.search.noResultsHint} />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-            {results.map((post) => {
-              const thumb = repThumbnail(post);
-              return (
-                <Link
-                  key={post.id}
-                  href={`/${menuSlugById.get(post.menu_id) ?? "industrial"}/${post.id}`}
-                  className="card-hover group block overflow-hidden"
-                >
-                  <div className="relative aspect-square bg-surface-sub">
-                    {thumb ? (
-                      <Image
-                        src={thumb}
-                        alt={post.title_en}
-                        fill
-                        sizes="(max-width: 640px) 50vw, 33vw"
-                        className="object-cover transition-transform group-hover:scale-[1.03]"
-                      />
-                    ) : <MediaPlaceholder />}
-                  </div>
-                  <div className="space-y-1 p-3">
-                    <p className="line-clamp-2 text-sm font-bold leading-snug">
-                      {locale === "ko" && post.title_ko ? post.title_ko : post.title_en}
-                    </p>
-                    <p className="truncate text-xs text-ink-faint">
-                      {post.author_company ?? post.author_name}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
+            {results.map((post) => <ProductCard key={post.id} post={post} href={`/${menuSlugById.get(post.menu_id) ?? "industrial"}/${post.id}`} locale={locale} />)}
           </div>
         ))}
 

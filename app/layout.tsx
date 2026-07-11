@@ -37,9 +37,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const googleVerify = settingString(settings, SETTING_KEYS.GOOGLE_SITE_VERIFICATION);
   const naverVerify = settingString(settings, SETTING_KEYS.NAVER_SITE_VERIFICATION);
   return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
     title: { default: title, template: `%s | ${title}` },
     description,
+    applicationName: title,
+    alternates: { canonical: "/" },
     openGraph: {
+      type: "website",
+      siteName: title,
+      title,
+      description,
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
       title,
       description,
       ...(ogImage ? { images: [ogImage] } : {}),
@@ -69,12 +80,13 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
+        <a href="#main-content" className="skip-link">{t.common.skipToContent}</a>
         <Suspense>
           <NavigationFeedback />
         </Suspense>
         <PullToRefresh />
         <RouteChrome hideOnAdmin><Header /></RouteChrome>
-        <main className="w-full flex-1">{children}</main>
+        <main id="main-content" tabIndex={-1} className="w-full flex-1">{children}</main>
         <RouteChrome hideOnAdmin><Footer /></RouteChrome>
         <Suspense>
           <Toaster messages={t.toast} />

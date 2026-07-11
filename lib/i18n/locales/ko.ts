@@ -44,6 +44,7 @@ const ko: Dict = {
     discardBody: "저장하지 않은 내용은 사라져요.",
     discardConfirm: "버리기",
     keepEditing: "계속 작성",
+    skipToContent: "본문으로 바로가기",
   },
   nav: {
     menu: "메뉴",

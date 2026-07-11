@@ -40,6 +40,7 @@ const en = {
     discardBody: "Anything you have not saved will be lost.",
     discardConfirm: "Discard",
     keepEditing: "Keep editing",
+    skipToContent: "Skip to main content",
   },
   nav: {
     menu: "Menu",

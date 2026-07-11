@@ -92,7 +92,7 @@ export function GlobalBanners({
 
   if (!consentDone) {
     return (
-      <div className="global-banner fixed inset-x-0 bottom-0 z-50 p-3">
+      <div className="global-banner fixed inset-x-0 bottom-0 z-50 p-3" role="region" aria-live="polite">
         <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-3 shadow-lg sm:flex sm:items-center sm:gap-4 sm:px-4">
           <p className="flex-1 text-xs leading-relaxed text-ink-soft">{cookie.message}</p>
           <div className="mt-2 flex shrink-0 gap-2 sm:mt-0">
@@ -121,7 +121,7 @@ export function GlobalBanners({
   if (!showPwa) return null;
 
   return (
-    <div className="global-banner fixed inset-x-0 bottom-0 z-50 p-3">
+    <div className="global-banner fixed inset-x-0 bottom-0 z-50 p-3" role="region" aria-live="polite">
       <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-4 shadow-lg">
         <p className="text-sm font-bold">{pwa.installTitle}</p>
         <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">

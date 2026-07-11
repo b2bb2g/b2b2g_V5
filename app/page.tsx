@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getT } from "@/lib/i18n/server";
-import { getVisibleMenus } from "@/lib/data/menus";
+import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
@@ -15,7 +15,9 @@ import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
 import { stripRichText } from "@/lib/richtext";
 import type { Dictionary } from "@/lib/i18n";
 import type { Menu, PostTeaser } from "@/lib/types";
-import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
+import { ProductCard } from "@/components/marketplace/ProductCard";
+import { SectionHeader } from "@/components/marketplace/SectionHeader";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 // Storefront data: new products, latest requests, event posts, featured
 // companies (paid exposure, PRD 5.3 -- slot count is an admin setting),
@@ -126,66 +128,6 @@ function WireframeRow() {
   );
 }
 
-function ProductCard({
-  post,
-  href,
-  locale,
-}: {
-  post: PostTeaser;
-  href: string;
-  locale: string;
-}) {
-  const thumb = thumbnailOf(post);
-  return (
-    <Link href={href} className="card-hover group block overflow-hidden">
-      <div className="relative aspect-square bg-surface-sub">
-        {thumb ? (
-          <Image
-            src={thumb}
-            alt={post.title_en}
-            fill
-            sizes="(max-width: 640px) 50vw, 25vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-          />
-        ) : <MediaPlaceholder />}
-      </div>
-      <div className="space-y-1 p-3">
-        <p className="line-clamp-2 text-sm font-bold leading-snug">
-          {locale === "ko" && post.title_ko ? post.title_ko : post.title_en}
-        </p>
-        <p className="truncate text-xs text-ink-faint">
-          {post.author_company ?? post.author_name}
-        </p>
-      </div>
-    </Link>
-  );
-}
-
-function SectionHeader({
-  title,
-  href,
-  viewAll,
-}: {
-  title: string;
-  href: string;
-  viewAll: string;
-}) {
-  return (
-    <div className="flex items-end justify-between">
-      <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">{title}</h2>
-      <Link
-        href={href}
-        className="flex items-center gap-0.5 text-sm font-semibold text-primary hover:text-primary-strong"
-      >
-        {viewAll}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="m9 18 6-6-6-6" />
-        </svg>
-      </Link>
-    </div>
-  );
-}
-
 function HeroVisual({ t }: { t: Dictionary }) {
   return (
     <div className="relative mx-auto w-full max-w-2xl">
@@ -247,6 +189,23 @@ export default async function Home() {
 
   return (
     <div className="full-bleed">
+      <JsonLd data={[{
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: t.common.siteName,
+        url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+        description: t.home.heroSubtitle,
+      }, {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: t.common.siteName,
+        url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      }]} />
       {/* ============ Hero ============ */}
       <section className="relative overflow-hidden border-b border-line bg-[radial-gradient(circle_at_15%_10%,rgba(49,130,246,0.14),transparent_35%),linear-gradient(to_bottom,#f8fbff,#fff)]">
         <div className={`${container} grid items-center gap-10 py-12 sm:py-16 lg:max-w-7xl lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:py-24`}>
@@ -291,6 +250,28 @@ export default async function Home() {
             <span className="min-w-0"><strong className="block text-sm">{t.home.supplierPath}</strong><span className="mt-1 block text-xs text-ink-soft">{t.home.supplierPathBody}</span></span>
             <span className="ml-auto text-primary transition-transform group-hover:translate-x-1">→</span>
           </Link>
+        </div>
+      </section>
+
+      {/* ============ Marketplace map ============ */}
+      <section className="border-b border-line bg-surface">
+        <div className={`${container} py-12 sm:py-16`}>
+          <Reveal>
+            <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+              <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">{t.home.proofLabel}</p><h2 className="mt-2 text-2xl font-extrabold tracking-tight">{t.home.boardsTitle}</h2></div>
+              <p className="max-w-md text-sm text-ink-soft">{t.home.step1Body}</p>
+            </div>
+          </Reveal>
+          <nav className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6" aria-label={t.home.boardsTitle}>
+            {menus.slice(0, 6).map((menu, index) => (
+              <Reveal key={menu.id} delay={index * 45}>
+                <Link href={`/${menu.slug}`} className="group flex h-full min-h-28 flex-col justify-between rounded-2xl border border-line bg-surface p-4 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-(--shadow-card)">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-surface-sub text-xs font-extrabold text-primary">0{index + 1}</span>
+                  <span className="mt-5 flex items-end justify-between gap-2"><strong className="text-sm leading-snug">{menuTitle(menu, locale)}</strong><span className="text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary" aria-hidden="true">→</span></span>
+                </Link>
+              </Reveal>
+            ))}
+          </nav>
         </div>
       </section>
 

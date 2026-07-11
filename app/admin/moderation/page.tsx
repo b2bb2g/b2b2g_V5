@@ -26,7 +26,7 @@ export default async function ModerationPage() {
         <EmptyState title={t.admin.noPending} />
       ) : (
         posts.map((post) => (
-          <div key={post.id} className="rounded-card border border-line p-4">
+          <article key={post.id} className="rounded-[1.25rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
             <p className="text-xs font-semibold text-ink-faint">
               {post.menus
                 ? locale === "ko"
@@ -73,7 +73,7 @@ export default async function ModerationPage() {
                 </PendingButton>
               </div>
             </form>
-          </div>
+          </article>
         ))
       )}
     </div>

@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
 import { BrandMark } from "@/components/brand/BrandMark";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // Auth screens share a centered card with the brand mark on top.
 // Core auth actions steer out of in-app browsers (PRD 13).

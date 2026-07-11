@@ -2,9 +2,11 @@ import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { AdminNav, type AdminNavGroup } from "@/components/layout/AdminNav";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { BrandMark } from "@/components/brand/BrandMark";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // Admin console: desktop-first exception to mobile-first (DESIGN section D).
 // Grouped sidebar covers every management area (PRD 17: operations complete
@@ -57,16 +59,15 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div className="wide space-y-5 pt-4">
-      <header className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 shadow-(--shadow-card)">
+    <div className="wide space-y-5 bg-surface-sub/35 pt-4">
+      <header className="sticky top-3 z-30 flex items-center justify-between rounded-2xl border border-line bg-surface/90 px-4 py-3 shadow-(--shadow-card) backdrop-blur-xl">
         <Link href="/admin" className="flex items-center gap-2.5">
           <BrandMark className="h-9 w-9" />
           <div><p className="text-sm font-extrabold">{t.common.siteName}</p><p className="text-[11px] font-semibold text-ink-faint">{t.admin.title}</p></div>
         </Link>
         <Link href="/" className="btn-secondary btn-sm">{t.admin.viewSite}</Link>
       </header>
-      <PageHeader title={t.admin.title} />
-      <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
+      <div className="grid gap-6 lg:grid-cols-[232px_minmax(0,1fr)]">
         <AdminNav groups={groups} />
         <div className="min-w-0">{children}</div>
       </div>

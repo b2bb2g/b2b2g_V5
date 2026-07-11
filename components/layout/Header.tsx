@@ -130,7 +130,7 @@ export async function Header() {
               </>
             )}
             {!session.userId && (
-              <MobileMenu items={menuItems} searchLabel={t.common.search} signInLabel={t.common.signIn} signUpLabel={t.common.signUp} />
+              <MobileMenu items={menuItems} searchLabel={t.common.search} signInLabel={t.common.signIn} signUpLabel={t.common.signUp} menuLabel={t.nav.menu} />
             )}
           </nav>
         </div>
