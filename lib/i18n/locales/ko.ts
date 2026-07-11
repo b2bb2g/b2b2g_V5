@@ -77,6 +77,11 @@ const ko: Dict = {
     curatedCollection: "엄선된 컬렉션",
     picks: "지금 주목할 상품",
     featuredProduct: "주목할 상품",
+    noticeCenter: "운영 안내 센터",
+    latestNotice: "최신 공지",
+    allNotices: "전체 업데이트",
+    noticeHint:
+      "플랫폼 이용 안내와 신뢰 정책, 서비스 업데이트를 한곳에서 확인하세요.",
   },
   home: {
     eyebrow: "글로벌 B2B · B2G 마켓플레이스",

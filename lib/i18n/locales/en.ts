@@ -73,6 +73,11 @@ const en = {
     curatedCollection: "Curated collection",
     picks: "Recommended picks",
     featuredProduct: "Featured product",
+    noticeCenter: "Operations center",
+    latestNotice: "Latest notice",
+    allNotices: "All updates",
+    noticeHint:
+      "Important platform guidance, trust policies, and service updates in one place.",
   },
   home: {
     eyebrow: "Global B2B · B2G marketplace",
