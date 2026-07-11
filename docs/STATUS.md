@@ -144,6 +144,8 @@
   hostnames에 dev.b2bb2g.com 등록 + Supabase Redirect URLs에
   `http://dev.b2bb2g.com:3000/**` 추가 후 http://dev.b2bb2g.com:3000 으로 접속.
   (next.config.ts `allowedDevOrigins`에 등록됨)
+- 2026-07-11 실검증 완료: dev.b2bb2g.com 별칭에서 인비저블 캡차 → Supabase
+  Secret 검증 → 로그인 성공 (Attack Protection ON 상태 전 구간 통과)
 - 인증 E2E 2종은 캡차 강제 하에서 자동화 불가(설계상 정상) →
   `E2E_SKIP_AUTH=1 npm run test:e2e`로 스킵 실행 (6 passed + 2 skipped)
 
