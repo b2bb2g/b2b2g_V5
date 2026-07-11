@@ -24,6 +24,7 @@ export type PostInput = {
   categoryId: string | null;
   deadline: string | null;
   repVideoUrl: string;
+  repIsVideo: boolean;
   imagePaths: string[];
   repImagePath: string | null;
   attachments: AttachmentInput[];
@@ -89,6 +90,7 @@ export async function savePost(input: PostInput): Promise<{ error?: string; post
     category_id: input.categoryId,
     deadline: input.deadline || null,
     rep_video_url: input.repVideoUrl || null,
+    rep_is_video: input.repIsVideo && !!input.repVideoUrl,
     rep_image_path: input.repImagePath,
   };
 
@@ -159,6 +161,7 @@ export async function closeOwnPost(formData: FormData) {
     .update({ status: POST_STATUS.CLOSED, closed_at: new Date().toISOString() })
     .eq("id", postId);
   revalidatePath("/dashboard/posts");
+  redirect("/dashboard/posts?toast=closed");
 }
 
 export async function deleteOwnPost(formData: FormData) {
@@ -166,4 +169,5 @@ export async function deleteOwnPost(formData: FormData) {
   const supabase = await createClient();
   await supabase.from("posts").delete().eq("id", postId);
   revalidatePath("/dashboard/posts");
+  redirect("/dashboard/posts?toast=deleted");
 }

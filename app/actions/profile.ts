@@ -39,7 +39,7 @@ export async function updateProfile(formData: FormData) {
     .eq("profile_id", user.id);
 
   revalidatePath("/dashboard");
-  redirect("/dashboard/profile?saved=1");
+  redirect("/dashboard/profile?toast=saved");
 }
 
 // Self-service withdrawal (PRD 17.2): anonymize and end the session.

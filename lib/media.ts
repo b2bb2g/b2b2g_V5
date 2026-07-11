@@ -27,3 +27,21 @@ export function videoEmbedUrl(url: string, autoplay: boolean): string | null {
   }
   return null;
 }
+
+// Single thumbnail rule for every list/OG surface: the author's explicit
+// representative choice wins; otherwise image, then video frame.
+export function repThumbnail(post: {
+  rep_image_path: string | null;
+  rep_video_url: string | null;
+  rep_is_video?: boolean | null;
+}): string | null {
+  if (post.rep_is_video && post.rep_video_url) {
+    return (
+      videoThumbnail(post.rep_video_url) ??
+      (post.rep_image_path ? postMediaUrl(post.rep_image_path) : null)
+    );
+  }
+  if (post.rep_image_path) return postMediaUrl(post.rep_image_path);
+  if (post.rep_video_url) return videoThumbnail(post.rep_video_url);
+  return null;
+}

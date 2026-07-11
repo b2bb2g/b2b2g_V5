@@ -66,6 +66,7 @@ export default async function WritePage(props: {
       categoryId: p.category_id,
       deadline: p.deadline ?? "",
       repVideoUrl: p.rep_video_url ?? "",
+      repIsVideo: p.rep_is_video ?? false,
       repImagePath: p.rep_image_path,
       imagePaths: (media ?? []).map((m) => m.path),
       attachments: (files ?? []).map((f) => ({

@@ -33,5 +33,5 @@ export async function applyForBadge(formData: FormData) {
   });
 
   revalidatePath("/dashboard/badges");
-  redirect("/dashboard/badges");
+  redirect("/dashboard/badges?toast=submitted");
 }

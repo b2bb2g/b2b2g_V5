@@ -3,7 +3,7 @@ import Image from "next/image";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
-import { postMediaUrl, videoThumbnail } from "@/lib/media";
+import { repThumbnail } from "@/lib/media";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
@@ -78,11 +78,7 @@ export default async function SearchPage(props: {
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             {results.map((post) => {
-              const thumb = post.rep_image_path
-                ? postMediaUrl(post.rep_image_path)
-                : post.rep_video_url
-                  ? videoThumbnail(post.rep_video_url)
-                  : null;
+              const thumb = repThumbnail(post);
               return (
                 <Link
                   key={post.id}

@@ -21,7 +21,7 @@ const TIMELINE: string[] = [
 // (DESIGN 1.3: waiting as process, not anxiety). Not a chat UI.
 export default async function InquiryDetailPage(props: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ sent?: string; error?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const [{ id }, query] = await Promise.all([props.params, props.searchParams]);
   const session = await getSession();
@@ -81,12 +81,6 @@ export default async function InquiryDetailPage(props: {
         ))}
       </ol>
       <p className="text-xs text-ink-faint">{t.inquiry.stepHint}</p>
-
-      {query.sent && (
-        <p className="rounded-lg bg-positive-soft px-3 py-2 text-xs font-semibold text-positive">
-          {t.inquiry.sent}
-        </p>
-      )}
 
       {/* Correspondence log: card per letter, not bubbles */}
       <div className="space-y-3">

@@ -41,6 +41,7 @@ type Props = {
     categoryId: string | null;
     deadline: string;
     repVideoUrl: string;
+    repIsVideo: boolean;
     repImagePath: string | null;
     imagePaths: string[];
     attachments: AttachmentInput[];
@@ -78,6 +79,7 @@ export function PostComposer({
   );
   const [deadline, setDeadline] = useState(initial?.deadline ?? "");
   const [videoUrl, setVideoUrl] = useState(initial?.repVideoUrl ?? "");
+  const [repIsVideo, setRepIsVideo] = useState(initial?.repIsVideo ?? false);
   const [images, setImages] = useState<string[]>(initial?.imagePaths ?? []);
   const [repImage, setRepImage] = useState<string | null>(
     initial?.repImagePath ?? null
@@ -139,6 +141,7 @@ export function PostComposer({
       categoryId,
       deadline: boardType === BOARD_TYPES.REQUEST ? deadline || null : null,
       repVideoUrl: videoUrl,
+      repIsVideo,
       imagePaths: images,
       repImagePath: repImage,
       attachments,
@@ -163,7 +166,7 @@ export function PostComposer({
     }, 30_000);
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- interval reads latest state via closure re-created on each render cycle of deps below
-  }, [autosave, pending, uploading, titleEn, titleKo, bodyEn, bodyKo, categoryId, deadline, videoUrl, images, repImage, attachments, specs]);
+  }, [autosave, pending, uploading, titleEn, titleKo, bodyEn, bodyKo, categoryId, deadline, videoUrl, repIsVideo, images, repImage, attachments, specs]);
 
   function submit(asDraft: boolean) {
     setError(null);
@@ -179,7 +182,7 @@ export function PostComposer({
         return;
       }
       dirty.current = false;
-      router.push("/dashboard/posts");
+      router.push(`/dashboard/posts?toast=${asDraft ? "draftSaved" : "submitted"}`);
     });
   }
 
@@ -400,6 +403,20 @@ export function PostComposer({
           placeholder="https://youtube.com/..."
           className={inputCls}
         />
+        {videoUrl.trim() && (
+          <span className="mt-2 flex items-center gap-2 text-xs font-semibold text-ink-soft">
+            <input
+              type="checkbox"
+              checked={repIsVideo}
+              onChange={(e) => {
+                setRepIsVideo(e.target.checked);
+                markDirty();
+              }}
+              className="h-4 w-4 rounded border-line accent-[var(--color-primary)]"
+            />
+            {t.post.useVideoAsRep}
+          </span>
+        )}
       </label>
 
       {boardType !== BOARD_TYPES.NOTICE && (

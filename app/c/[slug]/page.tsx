@@ -5,7 +5,7 @@ import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { getVisibleMenus } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
-import { postMediaUrl, videoThumbnail } from "@/lib/media";
+import { postMediaUrl, repThumbnail } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
@@ -148,11 +148,7 @@ export default async function CompanyPage(props: {
           <h2 className="text-base font-bold">{t.homepage.companyPosts}</h2>
           <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {posts.map((post) => {
-              const thumb = post.rep_image_path
-                ? postMediaUrl(post.rep_image_path)
-                : post.rep_video_url
-                  ? videoThumbnail(post.rep_video_url)
-                  : null;
+              const thumb = repThumbnail(post);
               return (
                 <Link
                   key={post.id}

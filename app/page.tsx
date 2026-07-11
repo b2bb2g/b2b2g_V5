@@ -5,7 +5,7 @@ import { getVisibleMenus } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
-import { postMediaUrl, videoThumbnail } from "@/lib/media";
+import { postMediaUrl, repThumbnail } from "@/lib/media";
 import { Reveal } from "@/components/ui/Reveal";
 import { Carousel } from "@/components/ui/Carousel";
 import { BadgePill } from "@/components/ui/Badge";
@@ -81,9 +81,7 @@ async function getStorefront(eventsMenuId: string | null, featuredSlots: number)
 }
 
 function thumbnailOf(post: PostTeaser): string | null {
-  if (post.rep_image_path) return postMediaUrl(post.rep_image_path);
-  if (post.rep_video_url) return videoThumbnail(post.rep_video_url);
-  return null;
+  return repThumbnail(post);
 }
 
 // Development-only wireframe cards: empty sections stay visible so the

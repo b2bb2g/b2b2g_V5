@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import Youtube from "@tiptap/extension-youtube";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
@@ -31,12 +32,17 @@ export function RichTextEditor({
   maxFileMb: number;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
+  // Latest-ref for the upload handler: editorProps closures are created once
+  // at mount, before `editor` exists, so they go through this indirection.
+  const insertImageRef = useRef<((file: File) => void) | null>(null);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
       Image,
       Link.configure({ openOnClick: false, autolink: true }),
+      // Videos are link embeds, never uploads (PRD 7.2); nocookie player.
+      Youtube.configure({ nocookie: true, width: 640, height: 360 }),
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,
@@ -49,15 +55,30 @@ export function RichTextEditor({
         class:
           "rich-content min-h-40 rounded-b-xl border border-t-0 border-line px-3 py-2.5 text-sm outline-none focus:border-primary",
       },
+      // Drag-and-drop and paste insert images at the caret (PRD 7.2).
+      handleDrop: (_view, event) => {
+        const files = Array.from(event.dataTransfer?.files ?? []).filter((f) =>
+          f.type.startsWith("image/")
+        );
+        if (!files.length) return false;
+        event.preventDefault();
+        files.forEach((file) => insertImageRef.current?.(file));
+        return true;
+      },
+      handlePaste: (_view, event) => {
+        const files = Array.from(event.clipboardData?.files ?? []).filter((f) =>
+          f.type.startsWith("image/")
+        );
+        if (!files.length) return false;
+        event.preventDefault();
+        files.forEach((file) => insertImageRef.current?.(file));
+        return true;
+      },
     },
     onUpdate: ({ editor: current }) => {
       onChange(current.isEmpty ? "" : current.getHTML());
     },
   });
-
-  if (!editor) {
-    return <div className="min-h-48 rounded-xl border border-line bg-surface-sub/40" />;
-  }
 
   async function insertImage(raw: File) {
     const file = await compressImage(raw);
@@ -70,6 +91,14 @@ export function RichTextEditor({
     if (!error) {
       editor?.chain().focus().setImage({ src: postMediaUrl(path) }).run();
     }
+  }
+
+  useEffect(() => {
+    insertImageRef.current = insertImage;
+  });
+
+  if (!editor) {
+    return <div className="min-h-48 rounded-xl border border-line bg-surface-sub/40" />;
   }
 
   const btn = (active: boolean) =>
@@ -85,6 +114,9 @@ export function RichTextEditor({
         </button>
         <button type="button" aria-label={labels.italic} className={`${btn(editor.isActive("italic"))} italic`} onClick={() => editor.chain().focus().toggleItalic().run()}>
           I
+        </button>
+        <button type="button" aria-label={labels.underline} className={`${btn(editor.isActive("underline"))} underline`} onClick={() => editor.chain().focus().toggleUnderline().run()}>
+          U
         </button>
         <span className="mx-1 h-4 w-px bg-line" aria-hidden="true" />
         <button type="button" aria-label={labels.bulletList} className={btn(editor.isActive("bulletList"))} onClick={() => editor.chain().focus().toggleBulletList().run()}>
@@ -131,6 +163,19 @@ export function RichTextEditor({
         </button>
         <button type="button" aria-label={labels.image} className={btn(false)} onClick={() => fileInput.current?.click()}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        </button>
+        <button
+          type="button"
+          aria-label={labels.video}
+          className={btn(editor.isActive("youtube"))}
+          onClick={() => {
+            const url = window.prompt(labels.videoPrompt);
+            if (url) {
+              editor.chain().focus().setYoutubeVideo({ src: url }).run();
+            }
+          }}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
         </button>
         <input
           ref={fileInput}

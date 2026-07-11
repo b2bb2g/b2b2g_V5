@@ -65,7 +65,7 @@ export async function createInquiry(formData: FormData) {
   });
 
   revalidatePath("/inquiries");
-  redirect(`/inquiries/${inquiry.id}?sent=1`);
+  redirect(`/inquiries/${inquiry.id}?toast=sent`);
 }
 
 export async function replyInquiry(formData: FormData) {
@@ -86,5 +86,5 @@ export async function replyInquiry(formData: FormData) {
   });
 
   revalidatePath(`/inquiries/${inquiryId}`);
-  redirect(`/inquiries/${inquiryId}?sent=1`);
+  redirect(`/inquiries/${inquiryId}?toast=sent`);
 }

@@ -6,7 +6,7 @@ import { getMenuBySlug } from "@/lib/data/menus";
 import { listPostsForMenu } from "@/lib/data/posts";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
-import { postMediaUrl, videoThumbnail } from "@/lib/media";
+import { repThumbnail } from "@/lib/media";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -26,9 +26,7 @@ export async function generateMetadata(props: {
 }
 
 function thumbnail(post: PostTeaser): string | null {
-  if (post.rep_image_path) return postMediaUrl(post.rep_image_path);
-  if (post.rep_video_url) return videoThumbnail(post.rep_video_url);
-  return null;
+  return repThumbnail(post);
 }
 
 export default async function BoardPage(props: {

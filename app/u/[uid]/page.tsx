@@ -5,7 +5,7 @@ import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { getVisibleMenus } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
-import { postMediaUrl, videoThumbnail } from "@/lib/media";
+import { repThumbnail } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
@@ -124,11 +124,7 @@ export default async function PublicProfilePage(props: {
           <h2 className="section-title">{t.homepage.companyPosts}</h2>
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {posts.map((post) => {
-              const thumb = post.rep_image_path
-                ? postMediaUrl(post.rep_image_path)
-                : post.rep_video_url
-                  ? videoThumbnail(post.rep_video_url)
-                  : null;
+              const thumb = repThumbnail(post);
               return (
                 <Link
                   key={post.id}

@@ -73,7 +73,7 @@ export function HomepageEditor({ t, userId, initial }: Props) {
           : t.common.error);
         return;
       }
-      router.push("/dashboard/homepage?saved=1");
+      router.push("/dashboard/homepage?toast=saved");
       router.refresh();
     });
   }

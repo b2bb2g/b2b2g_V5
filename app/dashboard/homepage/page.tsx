@@ -10,17 +10,11 @@ import { postMediaUrl } from "@/lib/media";
 import { BADGE_CODES } from "@/lib/constants";
 
 // Mini homepage VIEW (UX convention: read first, edit behind a button).
-export default async function HomepageViewPage(props: {
-  searchParams: Promise<{ saved?: string }>;
-}) {
+export default async function HomepageViewPage() {
   const session = await getSession();
   if (!session.userId) redirect("/login");
 
-  const [{ t, locale }, params, supabase] = await Promise.all([
-    getT(),
-    props.searchParams,
-    createClient(),
-  ]);
+  const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
 
   const certified = session.badges.some(
     (b) => b.badge_types?.code === BADGE_CODES.CERTIFIED
@@ -78,12 +72,6 @@ export default async function HomepageViewPage(props: {
           </Link>
         }
       />
-
-      {params.saved && (
-        <p className="rounded-lg bg-positive-soft px-3 py-2 text-xs font-semibold text-positive">
-          {t.homepage.saved}
-        </p>
-      )}
 
       <div className="space-y-4 rounded-card border border-line p-4">
         <div className="flex items-center justify-between gap-2">

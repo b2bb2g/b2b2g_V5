@@ -12,17 +12,11 @@ import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 
 // Profile VIEW: avatar + UID identity card first, details below, edit behind
 // an explicit button (UX convention).
-export default async function ProfileViewPage(props: {
-  searchParams: Promise<{ saved?: string }>;
-}) {
+export default async function ProfileViewPage() {
   const session = await getSession();
   if (!session.userId || !session.profile) redirect("/login");
 
-  const [{ t, locale }, params, supabase] = await Promise.all([
-    getT(),
-    props.searchParams,
-    createClient(),
-  ]);
+  const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
   const { data: contact } = await supabase
     .from("profile_contacts")
     .select("email, phone, contact_person")
@@ -42,12 +36,6 @@ export default async function ProfileViewPage(props: {
 
   return (
     <div className="space-y-4">
-      {params.saved && (
-        <p className="rounded-lg bg-positive-soft px-3 py-2 text-xs font-semibold text-positive">
-          {t.profile.saved}
-        </p>
-      )}
-
       {/* Identity card: avatar, name, copyable UID, badges */}
       <div className="card flex items-center gap-4 p-5">
         {profile.avatar_url ? (

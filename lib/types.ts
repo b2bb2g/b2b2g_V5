@@ -59,6 +59,7 @@ export type PostTeaser = {
   body_truncated: boolean;
   rep_image_path: string | null;
   rep_video_url: string | null;
+  rep_is_video: boolean;
   deadline: string | null;
   closed_at: string | null;
   published_at: string | null;
@@ -81,6 +82,7 @@ export type Post = {
   category_id: string | null;
   rep_image_path: string | null;
   rep_video_url: string | null;
+  rep_is_video: boolean;
   deadline: string | null;
   closed_at: string | null;
   reject_reason: string | null;

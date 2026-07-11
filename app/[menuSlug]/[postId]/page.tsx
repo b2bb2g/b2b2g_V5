@@ -6,9 +6,10 @@ import { getMenuBySlug } from "@/lib/data/menus";
 import { getFullPost, getPostTeaser } from "@/lib/data/posts";
 import { getSession } from "@/lib/data/session";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
-import { postMediaUrl, videoEmbedUrl, videoThumbnail } from "@/lib/media";
+import { postMediaUrl, repThumbnail, videoEmbedUrl } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
 import { StatusLabel } from "@/components/ui/StatusLabel";
+import { MediaGallery } from "@/components/post/MediaGallery";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { isRichText, sanitizeRichText, stripRichText } from "@/lib/richtext";
 import type { Metadata } from "next";
@@ -20,11 +21,7 @@ export async function generateMetadata(props: {
   const teaser = await getPostTeaser(postId);
   if (!teaser) return {};
   const description = stripRichText(teaser.body_teaser_en).slice(0, 160);
-  const image = teaser.rep_image_path
-    ? postMediaUrl(teaser.rep_image_path)
-    : teaser.rep_video_url
-      ? videoThumbnail(teaser.rep_video_url)
-      : null;
+  const image = repThumbnail(teaser);
   return {
     title: teaser.title_en,
     description,
@@ -65,6 +62,18 @@ export default async function PostDetailPage(props: {
   const repImage = post?.rep_image_path ?? teaser?.rep_image_path ?? null;
   const repVideo = post?.rep_video_url ?? teaser?.rep_video_url ?? null;
   const embed = repVideo ? videoEmbedUrl(repVideo, autoplay) : null;
+  // The author's explicit representative choice decides the hero; a post
+  // without images always fronts its video.
+  const videoIsHero =
+    !!embed && ((post?.rep_is_video ?? teaser?.rep_is_video) || !repImage);
+
+  // Lightbox gallery (members only; teasers keep the static hero).
+  const galleryPaths = full ? full.media.map((m) => m.path) : [];
+  if (full && repImage && !galleryPaths.includes(repImage)) {
+    galleryPaths.unshift(repImage);
+  }
+  const galleryImages = galleryPaths.map(postMediaUrl);
+  const heroIndex = repImage ? Math.max(0, galleryPaths.indexOf(repImage)) : 0;
 
   const isOwn = !!post && post.author_id === session.userId;
   const isClosed =
@@ -90,26 +99,61 @@ export default async function PostDetailPage(props: {
       )}
 
       {/* Representative media: player on detail only (PRD 6.8) */}
-      {embed ? (
-        <div className="aspect-video overflow-hidden rounded-card bg-surface-sub">
-          <iframe
-            src={embed}
-            title={title ?? ""}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="h-full w-full"
-          />
+      {videoIsHero ? (
+        <div className="space-y-2">
+          <div className="aspect-video overflow-hidden rounded-card bg-surface-sub">
+            <iframe
+              src={embed!}
+              title={title ?? ""}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="h-full w-full"
+            />
+          </div>
+          {galleryImages.length > 0 && (
+            <MediaGallery
+              images={galleryImages}
+              heroIndex={heroIndex}
+              showHero={false}
+              title={title ?? ""}
+              closeLabel={t.common.close}
+            />
+          )}
         </div>
-      ) : repImage ? (
-        <div className="relative aspect-video overflow-hidden rounded-card bg-surface-sub">
-          <Image
-            src={postMediaUrl(repImage)}
-            alt={title ?? ""}
-            fill
-            sizes="(max-width: 768px) 100vw, 768px"
-            className="object-cover"
-            priority
-          />
+      ) : galleryImages.length > 0 || repImage ? (
+        <div className="space-y-2">
+          {galleryImages.length > 0 ? (
+            <MediaGallery
+              images={galleryImages}
+              heroIndex={heroIndex}
+              showHero
+              title={title ?? ""}
+              closeLabel={t.common.close}
+            />
+          ) : (
+            <div className="relative aspect-video overflow-hidden rounded-card bg-surface-sub">
+              <Image
+                src={postMediaUrl(repImage!)}
+                alt={title ?? ""}
+                fill
+                sizes="(max-width: 768px) 100vw, 768px"
+                className="object-cover"
+                priority
+              />
+            </div>
+          )}
+          {/* Image is representative, but an attached video still plays here. */}
+          {embed && (
+            <div className="aspect-video overflow-hidden rounded-card bg-surface-sub">
+              <iframe
+                src={embed}
+                title={title ?? ""}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full"
+              />
+            </div>
+          )}
         </div>
       ) : null}
 
@@ -164,25 +208,6 @@ export default async function PostDetailPage(props: {
               </div>
             );
           })()}
-
-          {full.media.length > 0 && (
-            <div className="scrollbar-none -mx-4 flex snap-x gap-2 overflow-x-auto px-4">
-              {full.media.map((m) => (
-                <div
-                  key={m.id}
-                  className="relative aspect-square w-40 shrink-0 snap-start overflow-hidden rounded-xl bg-surface-sub"
-                >
-                  <Image
-                    src={postMediaUrl(m.path)}
-                    alt=""
-                    fill
-                    sizes="160px"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
 
           {full.specs.length > 0 && (
             <section>

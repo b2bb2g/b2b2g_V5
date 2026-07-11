@@ -178,6 +178,7 @@ const ko: Dict = {
     customField: "직접 입력",
     images: "이미지",
     repMedia: "대표 이미지",
+    useVideoAsRep: "동영상을 대표 미디어로 사용해요",
     videoUrl: "동영상 링크 (선택)",
   },
   inquiry: {
@@ -412,6 +413,14 @@ const ko: Dict = {
     members: "회원",
     legal: "약관 및 정책",
   },
+  toast: {
+    saved: "저장했어요.",
+    submitted: "검수 요청을 접수했어요.",
+    draftSaved: "임시저장했어요.",
+    sent: "발송했어요. 운영팀 검토 후 전달돼요.",
+    deleted: "삭제했어요.",
+    closed: "마감했어요.",
+  },
   cookie: {
     message: "서비스 운영과 개선을 위해 쿠키를 사용해요. 전체 또는 필수 쿠키만 허용할 수 있어요.",
     acceptAll: "모두 허용",
@@ -435,6 +444,9 @@ const ko: Dict = {
     linkPrompt: "URL을 입력해 주세요",
     table: "표",
     image: "이미지 삽입",
+    underline: "밑줄",
+    video: "동영상 임베드",
+    videoPrompt: "유튜브 URL을 입력해 주세요",
   },
   legal: {
     draftNotice: "참고용 초안이에요. 최종 문구는 오픈 전에 확정돼요.",

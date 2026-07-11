@@ -174,6 +174,7 @@ const en = {
     customField: "Custom field",
     images: "Images",
     repMedia: "Cover image",
+    useVideoAsRep: "Use the video as the representative media",
     videoUrl: "Video link (optional)",
   },
   inquiry: {
@@ -408,6 +409,14 @@ const en = {
     members: "Members",
     legal: "Legal",
   },
+  toast: {
+    saved: "Saved.",
+    submitted: "Submitted for review.",
+    draftSaved: "Draft saved.",
+    sent: "Sent. Our team will review and forward it.",
+    deleted: "Deleted.",
+    closed: "Closed.",
+  },
   cookie: {
     message: "We use cookies to run this service and improve your experience. You can accept all cookies or only the essential ones.",
     acceptAll: "Accept all",
@@ -431,6 +440,9 @@ const en = {
     linkPrompt: "Enter a URL",
     table: "Table",
     image: "Insert image",
+    underline: "Underline",
+    video: "Embed video",
+    videoPrompt: "Enter a YouTube URL",
   },
   legal: {
     draftNotice: "This is a draft provided for reference. The final wording will be confirmed before launch.",

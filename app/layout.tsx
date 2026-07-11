@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { GlobalBanners } from "@/components/layout/GlobalBanners";
+import { PullToRefresh } from "@/components/layout/PullToRefresh";
+import { Toaster } from "@/components/ui/Toaster";
 import { getT } from "@/lib/i18n/server";
 import {
   getPublicSettings,
@@ -49,9 +52,13 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
+        <PullToRefresh />
         <Header />
         <main className="w-full flex-1">{children}</main>
         <Footer />
+        <Suspense>
+          <Toaster messages={t.toast} />
+        </Suspense>
         <GlobalBanners
           cookie={t.cookie}
           pwa={t.pwa}
