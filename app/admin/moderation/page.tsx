@@ -1,7 +1,7 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { reviewPost } from "@/app/actions/admin";
+import { reviewPost } from "@/app/actions/admin/reviews";
 import { POST_STATUS } from "@/lib/constants";
 import type { Post } from "@/lib/types";
 import { PendingButton } from "@/components/ui/PendingButton";

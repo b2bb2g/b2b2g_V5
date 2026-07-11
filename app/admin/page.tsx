@@ -20,9 +20,10 @@ export default async function AdminOverviewPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
 
   const weekAgo = isoDaysFromNow(-7);
+  const monthAgo = isoDaysFromNow(-30);
   const soon = isoDaysFromNow(14);
 
-  const [pendingPosts, pendingMessages, pendingBadges, newMembers, expiring] =
+  const [pendingPosts, pendingMessages, pendingBadges, newMembers, expiring, approvedPosts, recentInquiries] =
     await Promise.all([
       supabase
         .from("posts")
@@ -45,7 +46,15 @@ export default async function AdminOverviewPage() {
         .select("id", { count: "exact", head: true })
         .eq("status", SUBSCRIPTION_STATUS.ACTIVE)
         .lte("expires_at", soon),
+      supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", POST_STATUS.APPROVED),
+      supabase.from("inquiries").select("created_at, updated_at, status", { count: "exact" }).gte("created_at", monthAgo),
     ]);
+
+  const progressed = (recentInquiries.data ?? []).filter((item) => item.status !== "sent" && item.status !== "admin_review");
+  const averageHours = progressed.length
+    ? Math.round(progressed.reduce((sum, item) => sum + Math.max(0, new Date(item.updated_at).getTime() - new Date(item.created_at).getTime()), 0) / progressed.length / 3_600_000)
+    : 0;
+  const conversion = approvedPosts.count ? Math.round(((recentInquiries.count ?? 0) / approvedPosts.count) * 100) : 0;
 
   const cards = [
     { href: "/admin/moderation", label: t.admin.pendingPosts, count: pendingPosts.count ?? 0, age: hoursSince(pendingPosts.data?.[0]?.created_at), queue: true },
@@ -77,6 +86,15 @@ export default async function AdminOverviewPage() {
         </Link>
       ))}
       </div>
+      <section className="rounded-[1.5rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
+        <h2 className="text-base font-extrabold">{t.admin.performanceTitle}</h2>
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[{label:t.admin.conversionRate,value:`${conversion}%`},{label:t.admin.avgResponseTime,value:`${averageHours}${t.admin.hours}`},{label:t.admin.approvedInventory,value:approvedPosts.count ?? 0},{label:t.admin.activeInquiries,value:recentInquiries.count ?? 0}].map((metric) => (
+            <div key={metric.label} className="rounded-2xl bg-surface-sub p-4"><p className="text-2xl font-extrabold tracking-tight">{metric.value}</p><p className="mt-1 text-xs font-semibold text-ink-soft">{metric.label}</p></div>
+          ))}
+        </div>
+        <div className="mt-5 h-2 overflow-hidden rounded-full bg-surface-sub"><div className="h-full rounded-full bg-primary transition-all" style={{width:`${Math.min(100,conversion)}%`}} /></div>
+      </section>
     </div>
   );
 }

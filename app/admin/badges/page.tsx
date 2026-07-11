@@ -1,7 +1,7 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { reviewBadgeApplication } from "@/app/actions/admin";
+import { reviewBadgeApplication } from "@/app/actions/admin/reviews";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
 

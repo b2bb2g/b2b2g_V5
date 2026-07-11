@@ -116,7 +116,7 @@ export default async function MembersPage(props: {
           </PendingButton>
         </div>
 
-      <div className="overflow-x-auto rounded-card border border-line">
+      <div className="hidden overflow-x-auto rounded-card border border-line md:block">
         <table className="w-full min-w-[640px] text-left text-xs">
           <thead className="bg-surface-sub/60 text-ink-faint">
             <tr>
@@ -176,6 +176,20 @@ export default async function MembersPage(props: {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="space-y-2 md:hidden">
+        {members.map((member) => (
+          <article key={member.id} className="rounded-2xl border border-line bg-surface p-4 shadow-(--shadow-card)">
+            <div className="flex items-start gap-3">
+              <input type="checkbox" name="ids" value={member.id} aria-label={String(member.uid)} className="mt-1 h-4 w-4 rounded accent-primary" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-2"><div><p className="text-xs font-bold text-ink-faint">UID {member.uid}</p><Link href={`/admin/members/${member.id}`} className="mt-1 block truncate text-sm font-extrabold text-primary-strong">{member.display_name}</Link></div><StatusLabel status={member.status} label={statusLabels[member.status] ?? member.status} /></div>
+                {member.company_name && <p className="mt-1 truncate text-xs text-ink-soft">{member.company_name}</p>}
+                <dl className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-surface-sub p-3 text-xs"><div><dt className="font-semibold text-ink-faint">{t.admin.role}</dt><dd className="mt-0.5 text-ink-soft">{member.is_admin ? t.common.admin : member.is_coordinator ? t.badges.coordinator : t.admin.memberRole}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.joined}</dt><dd className="mt-0.5 text-ink-soft">{new Date(member.created_at).toISOString().slice(0,10)}</dd></div></dl>
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
       </form>
 

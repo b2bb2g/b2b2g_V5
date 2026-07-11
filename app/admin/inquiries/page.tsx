@@ -1,7 +1,7 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { reviewMessage } from "@/app/actions/admin";
+import { reviewMessage } from "@/app/actions/admin/reviews";
 import { MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { InquiryMessage } from "@/lib/types";
 import { PendingButton } from "@/components/ui/PendingButton";
