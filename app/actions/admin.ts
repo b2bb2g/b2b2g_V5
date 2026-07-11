@@ -197,6 +197,30 @@ export async function setMemberStatus(formData: FormData) {
   revalidatePath("/admin/members");
 }
 
+export async function adminSendPasswordReset(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const profileId = String(formData.get("profileId") ?? "");
+  const { data: contact } = await supabase
+    .from("profile_contacts")
+    .select("email")
+    .eq("profile_id", profileId)
+    .maybeSingle();
+  if (!contact?.email) return;
+
+  await supabase.auth.resetPasswordForEmail(contact.email);
+  await audit(supabase, "member_password_reset_sent", "profile", profileId);
+  revalidatePath(`/admin/members/${profileId}`);
+}
+
+// Withdrawal with anonymization (PRD 17.2): posts stay, identity goes.
+export async function withdrawMember(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const profileId = String(formData.get("profileId") ?? "");
+  await supabase.rpc("withdraw_member", { target: profileId });
+  revalidatePath(`/admin/members/${profileId}`);
+  revalidatePath("/admin/members");
+}
+
 // ---- Menus ---------------------------------------------------------------
 export async function toggleMenuFlag(formData: FormData) {
   const { supabase } = await requireAdmin();

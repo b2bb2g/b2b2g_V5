@@ -5,7 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BadgePill } from "@/components/ui/Badge";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
-import { saveMemberMemo, setMemberStatus } from "@/app/actions/admin";
+import {
+  adminSendPasswordReset,
+  saveMemberMemo,
+  setMemberStatus,
+  withdrawMember,
+} from "@/app/actions/admin";
 import { MEMBER_STATUS } from "@/lib/constants";
 
 // Admin member detail (D3): full picture of one member in one place.
@@ -166,6 +171,35 @@ export default async function AdminMemberDetailPage(props: {
           {t.common.save}
         </button>
       </form>
+
+      {/* Account actions: reset mail, withdrawal (both audited) */}
+      <div className="flex flex-wrap gap-2">
+        <form action={adminSendPasswordReset}>
+          <input type="hidden" name="profileId" value={member.id} />
+          <ConfirmSubmit
+            label={t.admin.resetPasswordMail}
+            confirmTitle={t.common.confirmTitle}
+            confirmBody={t.common.doubleConfirm}
+            confirmLabel={t.common.confirm}
+            cancelLabel={t.common.cancel}
+            className="btn-secondary btn-md"
+          />
+        </form>
+        {member.status !== MEMBER_STATUS.WITHDRAWN && (
+          <form action={withdrawMember}>
+            <input type="hidden" name="profileId" value={member.id} />
+            <ConfirmSubmit
+              label={t.admin.withdrawMember}
+              confirmTitle={t.common.confirmTitle}
+              confirmBody={t.profile.withdrawBody}
+              confirmLabel={t.admin.withdrawMember}
+              cancelLabel={t.common.cancel}
+              className="btn-danger btn-md"
+              destructive
+            />
+          </form>
+        )}
+      </div>
 
       {/* Status actions with double confirmation */}
       <form action={setMemberStatus} className="card space-y-2 p-4">

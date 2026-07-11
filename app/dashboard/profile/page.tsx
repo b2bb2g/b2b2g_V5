@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase/server";
 import { BadgeList } from "@/components/ui/Badge";
 import { CopyChip } from "@/components/ui/CopyChip";
 import { postMediaUrl } from "@/lib/media";
+import { withdrawSelf } from "@/app/actions/profile";
+import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 
 // Profile VIEW: avatar + UID identity card first, details below, edit behind
 // an explicit button (UX convention).
@@ -104,6 +106,27 @@ export default async function ProfileViewPage(props: {
       <p className="text-xs leading-relaxed text-ink-faint">
         {t.profile.contactHint}
       </p>
+
+      {/* Danger zone: anonymizing withdrawal (PRD 17.2) */}
+      <div className="card flex flex-wrap items-center justify-between gap-3 border-negative-soft p-4">
+        <div>
+          <p className="text-sm font-bold text-negative">{t.profile.withdrawTitle}</p>
+          <p className="mt-0.5 max-w-md text-xs leading-relaxed text-ink-faint">
+            {t.profile.withdrawBody}
+          </p>
+        </div>
+        <form action={withdrawSelf}>
+          <ConfirmSubmit
+            label={t.profile.withdrawAction}
+            confirmTitle={t.common.confirmTitle}
+            confirmBody={t.profile.withdrawBody}
+            confirmLabel={t.profile.withdrawAction}
+            cancelLabel={t.common.cancel}
+            className="btn-danger btn-md"
+            destructive
+          />
+        </form>
+      </div>
     </div>
   );
 }

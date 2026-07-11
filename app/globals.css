@@ -199,6 +199,16 @@ main > :where(.full-bleed) {
   .rich-content img {
     @apply my-3 max-w-full rounded-xl;
   }
+  .rich-content table {
+    @apply my-3 w-full border-collapse text-sm;
+  }
+  .rich-content th,
+  .rich-content td {
+    @apply border border-line px-2.5 py-1.5 text-left align-top;
+  }
+  .rich-content th {
+    @apply bg-surface-sub font-bold;
+  }
 }
 
 /* Defensive CSS for in-app browsers (PRD 13): dvh-based full height. */

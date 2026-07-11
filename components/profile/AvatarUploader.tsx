@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/imageCompress";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 
@@ -25,8 +26,9 @@ export function AvatarUploader({
   const [uploading, setUploading] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
-  async function upload(file: File) {
+  async function upload(raw: File) {
     setUploading(true);
+    const file = await compressImage(raw);
     const supabase = createClient();
     const storagePath = `${userId}/avatar-${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
     const { error } = await supabase.storage

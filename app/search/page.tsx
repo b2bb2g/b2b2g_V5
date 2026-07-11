@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { postMediaUrl, videoThumbnail } from "@/lib/media";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Pagination } from "@/components/ui/Pagination";
 import { ClearableInput } from "@/components/ui/TextField";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
@@ -18,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // Unified search (A11): public posts only, so results match exactly what a
 // visitor is allowed to see (teaser view; no locked data leaks).
 export default async function SearchPage(props: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const [{ t, locale }, params, menus] = await Promise.all([
     getT(),
@@ -30,19 +31,24 @@ export default async function SearchPage(props: {
   // Strip characters that would break the PostgREST or() filter grammar.
   const q = raw.replace(/[,()%\\]/g, " ").replace(/\s+/g, " ").trim();
 
+  const PAGE_SIZE = 24;
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   let results: PostTeaser[] = [];
+  let totalPages = 1;
   if (q) {
     const supabase = await createClient();
     const pattern = `%${q}%`;
-    const { data } = await supabase
+    const from = (page - 1) * PAGE_SIZE;
+    const { data, count } = await supabase
       .from("public_posts")
-      .select("*")
+      .select("*", { count: "exact" })
       .or(
         `title_en.ilike.${pattern},title_ko.ilike.${pattern},body_teaser_en.ilike.${pattern},body_teaser_ko.ilike.${pattern}`
       )
       .order("published_at", { ascending: false })
-      .limit(40);
+      .range(from, from + PAGE_SIZE - 1);
     results = (data as PostTeaser[]) ?? [];
+    totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   }
 
   const menuSlugById = new Map(menus.map((menu) => [menu.id, menu.slug]));
@@ -107,6 +113,17 @@ export default async function SearchPage(props: {
             })}
           </div>
         ))}
+
+      {q && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          basePath="/search"
+          extraQuery={{ q: raw }}
+          prevLabel={t.home.prev}
+          nextLabel={t.home.next}
+        />
+      )}
     </div>
   );
 }

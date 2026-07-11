@@ -3,20 +3,27 @@ import type { Post, PostSpec, PostTeaser } from "@/lib/types";
 
 // Lists always read the anon-safe view: it only contains approved/closed
 // posts with teaser columns, which is exactly what a list needs.
+export const BOARD_PAGE_SIZE = 24;
+
 export async function listPostsForMenu(
   menuId: string,
-  categoryId?: string
-): Promise<PostTeaser[]> {
+  categoryId?: string,
+  page = 1
+): Promise<{ posts: PostTeaser[]; totalPages: number }> {
   const supabase = await createClient();
+  const from = (page - 1) * BOARD_PAGE_SIZE;
   let query = supabase
     .from("public_posts")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq("menu_id", menuId)
     .order("published_at", { ascending: false })
-    .limit(60);
+    .range(from, from + BOARD_PAGE_SIZE - 1);
   if (categoryId) query = query.eq("category_id", categoryId);
-  const { data } = await query;
-  return (data as PostTeaser[]) ?? [];
+  const { data, count } = await query;
+  return {
+    posts: (data as PostTeaser[]) ?? [],
+    totalPages: Math.max(1, Math.ceil((count ?? 0) / BOARD_PAGE_SIZE)),
+  };
 }
 
 export async function getPostTeaser(postId: string): Promise<PostTeaser | null> {

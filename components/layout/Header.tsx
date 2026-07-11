@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { MenuNav } from "@/components/layout/MenuNav";
 import { AvatarMenu, type AvatarMenuItem } from "@/components/layout/AvatarMenu";
 import { LocaleMenu } from "@/components/layout/LocaleMenu";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import { postMediaUrl } from "@/lib/media";
 import { BADGE_CODES, NOTIFICATION_STATE } from "@/lib/constants";
 
@@ -92,21 +93,11 @@ export async function Header() {
             <LocaleMenu locale={locale} label={t.common.language} />
             {session.userId && session.profile ? (
               <>
-                <Link
-                  href="/notifications"
-                  className="relative rounded-full p-2 text-ink-soft transition-colors hover:bg-surface-sub"
-                  aria-label={t.common.notifications}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
-                  {unread > 0 && (
-                    <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-negative px-1 text-[10px] font-bold text-white">
-                      {unread > 99 ? "99+" : unread}
-                    </span>
-                  )}
-                </Link>
+                <NotificationBell
+                  userId={session.userId}
+                  initialCount={unread}
+                  label={t.common.notifications}
+                />
                 <AvatarMenu
                   name={
                     session.profile.display_name ??

@@ -1,16 +1,27 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Pagination } from "@/components/ui/Pagination";
 
 // Audit log viewer (D16): who changed what, when. Rows are written by
 // log_audit() from every admin action.
-export default async function AuditLogPage() {
-  const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
-  const { data } = await supabase
+export default async function AuditLogPage(props: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const [{ t }, params, supabase] = await Promise.all([
+    getT(),
+    props.searchParams,
+    createClient(),
+  ]);
+  const PAGE_SIZE = 50;
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const { data, count } = await supabase
     .from("audit_logs")
-    .select("id, action, target_type, target_id, detail, created_at, profiles(display_name, uid)")
+    .select("id, action, target_type, target_id, detail, created_at, profiles(display_name, uid)", { count: "exact" })
     .order("created_at", { ascending: false })
-    .limit(100);
+    .range(from, from + PAGE_SIZE - 1);
+  const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
 
   const logs = (data ?? []) as unknown as {
     id: string;
@@ -60,6 +71,14 @@ export default async function AuditLogPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        basePath="/admin/audit"
+        prevLabel={t.home.prev}
+        nextLabel={t.home.next}
+      />
     </div>
   );
 }

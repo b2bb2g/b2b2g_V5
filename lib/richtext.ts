@@ -18,8 +18,14 @@ const ALLOWED_TAGS = [
   "img",
   "h2",
   "h3",
+  "table",
+  "thead",
+  "tbody",
+  "tr",
+  "th",
+  "td",
 ];
-const ALLOWED_ATTR = ["href", "src", "alt", "target", "rel"];
+const ALLOWED_ATTR = ["href", "src", "alt", "target", "rel", "colspan", "rowspan"];
 
 export function sanitizeRichText(html: string): string {
   return DOMPurify.sanitize(html, {

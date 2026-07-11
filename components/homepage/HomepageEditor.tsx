@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/imageCompress";
 import { saveHomepage } from "@/app/actions/homepage";
 import { DiscardModal } from "@/components/ui/EditFormFrame";
 import { postMediaUrl } from "@/lib/media";
@@ -44,7 +45,8 @@ export function HomepageEditor({ t, userId, initial }: Props) {
   const [customDomain, setCustomDomain] = useState(initial.customDomain);
   const [isPublished, setIsPublished] = useState(initial.isPublished);
 
-  async function upload(file: File, prefix: string): Promise<string | null> {
+  async function upload(raw: File, prefix: string): Promise<string | null> {
+    const file = await compressImage(raw);
     const supabase = createClient();
     const path = `${userId}/${prefix}-${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
     const { error: upErr } = await supabase.storage

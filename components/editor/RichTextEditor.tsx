@@ -5,7 +5,12 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/imageCompress";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
@@ -32,6 +37,10 @@ export function RichTextEditor({
       StarterKit.configure({ heading: { levels: [2, 3] } }),
       Image,
       Link.configure({ openOnClick: false, autolink: true }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value,
     immediatelyRender: false,
@@ -50,7 +59,8 @@ export function RichTextEditor({
     return <div className="min-h-48 rounded-xl border border-line bg-surface-sub/40" />;
   }
 
-  async function insertImage(file: File) {
+  async function insertImage(raw: File) {
+    const file = await compressImage(raw);
     if (file.size > maxFileMb * 1024 * 1024) return;
     const supabase = createClient();
     const path = `${userId}/body-${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
@@ -106,6 +116,18 @@ export function RichTextEditor({
           }}
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <button
+          type="button"
+          aria-label={labels.table}
+          className={btn(editor.isActive("table"))}
+          onClick={() =>
+            editor.isActive("table")
+              ? editor.chain().focus().deleteTable().run()
+              : editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+          }
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
         </button>
         <button type="button" aria-label={labels.image} className={btn(false)} onClick={() => fileInput.current?.click()}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/imageCompress";
 import {
   savePost,
   type AttachmentInput,
@@ -110,7 +111,8 @@ export function PostComposer({
     setUploading(true);
     const supabase = createClient();
     const uploaded: string[] = [];
-    for (const file of Array.from(files)) {
+    for (const raw of Array.from(files)) {
+      const file = await compressImage(raw);
       if (file.size > maxFileMb * 1024 * 1024) continue;
       const path = `${userId}/${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
       const { error: upErr } = await supabase.storage

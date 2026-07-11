@@ -41,3 +41,17 @@ export async function updateProfile(formData: FormData) {
   revalidatePath("/dashboard");
   redirect("/dashboard/profile?saved=1");
 }
+
+// Self-service withdrawal (PRD 17.2): anonymize and end the session.
+export async function withdrawSelf() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  await supabase.rpc("withdraw_member", { target: user.id });
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/");
+}

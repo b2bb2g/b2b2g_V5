@@ -12,16 +12,27 @@ import { BOARD_TYPES, POST_STATUS } from "@/lib/constants";
 import type { Post } from "@/lib/types";
 
 // My posts + review status + drafts (PRD 6.5).
-export default async function MyPostsPage() {
+export default async function MyPostsPage(props: {
+  searchParams: Promise<{ view?: string }>;
+}) {
   const session = await getSession();
   if (!session.userId) redirect("/login");
 
-  const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
-  const { data: posts } = await supabase
+  const [{ t, locale }, params, supabase] = await Promise.all([
+    getT(),
+    props.searchParams,
+    createClient(),
+  ]);
+  const draftsView = params.view === "drafts";
+  let query = supabase
     .from("posts")
     .select("*, menus(slug, title_en, title_ko)")
     .eq("author_id", session.userId)
     .order("updated_at", { ascending: false });
+  query = draftsView
+    ? query.eq("status", POST_STATUS.DRAFT)
+    : query.neq("status", POST_STATUS.DRAFT);
+  const { data: posts } = await query;
 
   const rows = (posts ?? []) as unknown as (Post & {
     menus: { slug: string; title_en: string; title_ko: string } | null;
@@ -38,6 +49,26 @@ export default async function MyPostsPage() {
           </Link>
         }
       />
+
+      {/* Published vs drafts tabs (PRD 6.5) */}
+      <nav className="flex gap-1">
+        {[
+          { key: "", label: t.dashboard.myPostsSummary },
+          { key: "drafts", label: t.post.status.draft },
+        ].map((tab) => (
+          <Link
+            key={tab.key}
+            href={tab.key ? `/dashboard/posts?view=${tab.key}` : "/dashboard/posts"}
+            className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              (tab.key === "drafts") === draftsView
+                ? "bg-ink text-white"
+                : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
+            }`}
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </nav>
 
       {rows.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />

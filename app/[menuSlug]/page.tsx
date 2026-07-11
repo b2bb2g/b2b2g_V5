@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { postMediaUrl, videoThumbnail } from "@/lib/media";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Pagination } from "@/components/ui/Pagination";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
@@ -32,7 +33,7 @@ function thumbnail(post: PostTeaser): string | null {
 
 export default async function BoardPage(props: {
   params: Promise<{ menuSlug: string }>;
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; page?: string }>;
 }) {
   const [{ menuSlug }, query] = await Promise.all([
     props.params,
@@ -49,11 +50,12 @@ export default async function BoardPage(props: {
     false
   );
   const activeCategory = categoryNavVisible ? (query.category ?? "") : "";
+  const page = Math.max(1, Number.parseInt(query.page ?? "1", 10) || 1);
 
   const supabase = await createClient();
-  const [{ t, locale }, posts, { data: categories }] = await Promise.all([
+  const [{ t, locale }, { posts, totalPages }, { data: categories }] = await Promise.all([
     getT(),
-    listPostsForMenu(menu.id, activeCategory || undefined),
+    listPostsForMenu(menu.id, activeCategory || undefined, page),
     categoryNavVisible
       ? supabase
           .from("categories")
@@ -189,6 +191,15 @@ export default async function BoardPage(props: {
           })}
         </div>
       )}
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        basePath={`/${menu.slug}`}
+        extraQuery={activeCategory ? { category: activeCategory } : {}}
+        prevLabel={t.home.prev}
+        nextLabel={t.home.next}
+      />
     </div>
   );
 }

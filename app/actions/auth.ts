@@ -48,9 +48,23 @@ export async function signIn(formData: FormData) {
   }
 
   const supabase = await createClient({ sessionOnly: !remember });
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
+
+  // Suspended / withdrawn members cannot sign in (PRD 17.2).
+  if (data.user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("status")
+      .eq("id", data.user.id)
+      .maybeSingle();
+    if (profile && profile.status !== "active") {
+      await supabase.auth.signOut();
+      redirect(`/login?error=restricted&next=${encodeURIComponent(next)}`);
+    }
+  }
+
   revalidatePath("/", "layout");
   redirect(next.startsWith("/") ? next : "/dashboard");
 }
