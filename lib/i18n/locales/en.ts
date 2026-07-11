@@ -62,11 +62,17 @@ const en = {
   },
   board: {
     eyebrow: "Curated B2B marketplace",
-    browseHint: "Discover export-ready products and credible partners selected for business buyers.",
-    requestHint: "Review active sourcing opportunities and respond with the right business proposal.",
+    browseHint:
+      "Discover export-ready products and credible partners selected for business buyers.",
+    requestHint:
+      "Review active sourcing opportunities and respond with the right business proposal.",
     availableNow: "available now",
     nextTitle: "Looking for something specific?",
-    nextBody: "Search the full marketplace or join free to start a direct sourcing conversation.",
+    nextBody:
+      "Search the full marketplace or join free to start a direct sourcing conversation.",
+    curatedCollection: "Curated collection",
+    picks: "Recommended picks",
+    featuredProduct: "Featured product",
   },
   home: {
     eyebrow: "Global B2B · B2G marketplace",
@@ -85,26 +91,33 @@ const en = {
     boardsTitle: "Shop by category",
     valueTitle: "Why companies trade here",
     value1Title: "Verified partners",
-    value1Body: "Every company builds credibility with documented profiles before you deal.",
+    value1Body:
+      "Every company builds credibility with documented profiles before you deal.",
     value2Title: "Quotes made simple",
-    value2Body: "Ask about any product and receive a tailored quote inside the platform.",
+    value2Body:
+      "Ask about any product and receive a tailored quote inside the platform.",
     value3Title: "Badges you can trust",
-    value3Body: "Manufacturer and certified badges show partner credibility at a glance.",
+    value3Body:
+      "Manufacturer and certified badges show partner credibility at a glance.",
     featured: "Featured companies",
     newProducts: "New arrivals",
     latestRequests: "Latest sourcing requests",
     eventsTitle: "Events and exhibitions",
     newCompanies: "New companies",
     promoTitle: "Grow faster with certified membership",
-    promoBody: "Unlimited listings, your own company homepage, and featured exposure on the front page.",
+    promoBody:
+      "Unlimited listings, your own company homepage, and featured exposure on the front page.",
     promoCta: "Explore membership",
     howItWorksTitle: "How it works",
     step1Title: "Discover",
-    step1Body: "Browse products and sourcing requests across industrial and consumer categories.",
+    step1Body:
+      "Browse products and sourcing requests across industrial and consumer categories.",
     step2Title: "Request a quote",
-    step2Body: "Ask about any product and get an answer straight from the supplier's team.",
+    step2Body:
+      "Ask about any product and get an answer straight from the supplier's team.",
     step3Title: "Grow together",
-    step3Body: "Build trust with badges and turn first deals into lasting partnerships.",
+    step3Body:
+      "Build trust with badges and turn first deals into lasting partnerships.",
     finalCtaTitle: "Start trading globally today",
     finalCtaBody: "Join with one email and meet your next business partner.",
     startNow: "Get started",
@@ -120,28 +133,33 @@ const en = {
     email: "Email",
     password: "Password",
     signInTitle: "Sign in",
-    signInSubtitle: "Continue sourcing, responding, and building trusted partnerships.",
+    signInSubtitle:
+      "Continue sourcing, responding, and building trusted partnerships.",
     welcomeBack: "Welcome back",
     joinNetwork: "Join the network",
     backHome: "Back to marketplace",
     valueTitle: "One trusted network for every business opportunity.",
-    valueBody: "Discover verified partners, manage inquiries, and turn conversations into long-term business—all in one place.",
+    valueBody:
+      "Discover verified partners, manage inquiries, and turn conversations into long-term business—all in one place.",
     valuePoint1: "Verified company profiles",
     valuePoint2: "Direct sourcing inquiries",
     valuePoint3: "Global-ready storefront",
-    termsHint: "By creating an account, you agree to our Terms and Privacy Policy.",
+    termsHint:
+      "By creating an account, you agree to our Terms and Privacy Policy.",
     signUpTitle: "Create your account",
     signUpSubtitle: "Only an email is needed to get started.",
     alreadyHaveAccount: "Already have an account?",
     noAccount: "New here?",
     verifyTitle: "Check your inbox",
-    verifyBody: "We sent a verification link to your email. Open it to activate your account.",
+    verifyBody:
+      "We sent a verification link to your email. Open it to activate your account.",
     resend: "Resend email",
     referredBy: "Invited by member",
     signUpDone: "Account created. Please verify your email.",
     invalidCredentials: "Email or password is incorrect.",
     captchaRequired: "Please complete the security check below.",
-    accountRestricted: "This account is suspended or withdrawn. Contact the operations team if you think this is a mistake.",
+    accountRestricted:
+      "This account is suspended or withdrawn. Contact the operations team if you think this is a mistake.",
     rememberMe: "Keep me signed in",
     forgotPassword: "Forgot password?",
     accountRecovery: "Account security recovery",
@@ -149,24 +167,30 @@ const en = {
     resetBody: "Enter your email and we will send a reset link.",
     resetSent: "Reset link sent. Check your inbox.",
     resetSentTitle: "Check your inbox",
-    resetSentHint: "If the email does not appear, check spam or request another link in a moment.",
+    resetSentHint:
+      "If the email does not appear, check spam or request another link in a moment.",
     sendResetLink: "Send reset link",
     backToSignIn: "Back to sign in",
     newPassword: "New password",
     updatePassword: "Update password",
-    linkExpired: "That link has expired or was already used. Please request a new one.",
-    linkAlreadyUsed: "That link was already used. Just set your new password below to continue.",
+    linkExpired:
+      "That link has expired or was already used. Please request a new one.",
+    linkAlreadyUsed:
+      "That link was already used. Just set your new password below to continue.",
     setNewPasswordHint: "Set a new password to continue using your account.",
     keepCurrentPassword: "Cancel and keep my current password",
     showPassword: "Show password",
     hidePassword: "Hide password",
     samePassword: "Your new password must be different from the current one.",
-    emailRateLimited: "Too many emails were requested in a short time. Please wait a minute and try again.",
-    weakPassword: "That password is too easy to guess. Try a longer, less common one.",
+    emailRateLimited:
+      "Too many emails were requested in a short time. Please wait a minute and try again.",
+    weakPassword:
+      "That password is too easy to guess. Try a longer, less common one.",
   },
   post: {
     quotaLine: "Free plan: {used} of {limit} posts used",
-    quotaBlocked: "You have reached the free-plan post limit. Get verified for unlimited posts.",
+    quotaBlocked:
+      "You have reached the free-plan post limit. Get verified for unlimited posts.",
     inquire: "Send inquiry",
     specs: "Specifications",
     attachments: "Attachments",
@@ -176,14 +200,18 @@ const en = {
     closed: "Closed",
     closeRequest: "Close request",
     membersOnlyTitle: "Members can see everything",
-    membersOnlyBody: "Full specifications, attachments and inquiries are available after you sign in.",
+    membersOnlyBody:
+      "Full specifications, attachments and inquiries are available after you sign in.",
     signInToContinue: "Sign in to continue",
     postedBy: "Posted by",
     supplierProfile: "Supplier profile",
-    supplierTrustHint: "Review the company profile and trust badges before starting a conversation.",
+    supplierTrustHint:
+      "Review the company profile and trust badges before starting a conversation.",
     viewCompany: "View company profile",
-    inquiryHint: "Send your requirements directly. The operations team reviews messages before delivery.",
-    signUpToInquire: "Create a free account to view details and contact this company.",
+    inquiryHint:
+      "Send your requirements directly. The operations team reviews messages before delivery.",
+    signUpToInquire:
+      "Create a free account to view details and contact this company.",
     status: {
       draft: "Draft",
       pending: "In review",
@@ -219,7 +247,8 @@ const en = {
   },
   inquiry: {
     reviseResendTitle: "Revise and resend",
-    reviseResendHint: "This message was returned. Update it below to address the reason, then send it for review again.",
+    reviseResendHint:
+      "This message was returned. Update it below to address the reason, then send it for review again.",
     resend: "Resend for review",
     title: "Inquiries",
     newInquiry: "New inquiry",
@@ -246,7 +275,8 @@ const en = {
   dashboard: {
     title: "My dashboard",
     commandCenter: "Business workspace",
-    commandHint: "Manage products, sourcing conversations, and company trust in one place.",
+    commandHint:
+      "Manage products, sourcing conversations, and company trust in one place.",
     needsAttention: "Needs your attention",
     quickActions: "Quick actions",
     referralLink: "My referral link",
@@ -269,8 +299,10 @@ const en = {
     pendingPosts: "Posts waiting for review",
     unreadReplies: "Unread inquiry updates",
     recentActivity: "Recent activity",
-    recentActivityHint: "The latest changes across your posts and sourcing conversations.",
-    noRecentActivity: "New activity will appear here as you publish and inquire.",
+    recentActivityHint:
+      "The latest changes across your posts and sourcing conversations.",
+    noRecentActivity:
+      "New activity will appear here as you publish and inquire.",
     updated: "Updated",
   },
   // Badge labels are brand marks: identical in every locale.
@@ -280,12 +312,17 @@ const en = {
     coordinator: "Coordinator",
     documents: "Documents",
     attachDocuments: "Attach documents (business license, certificates)",
-    attachIdentityDocs: "Attach identity documents (ID, business card, company info)",
-    manufacturerHint: "Free role badge. Submit your company profile and supporting documents; our team reviews and approves them.",
-    certifiedHint: "Paid trust badge. Requires an active subscription and a simple identity check; it is granted after review, not by payment alone.",
-    certifiedNeedsSubscription: "This badge requires a subscription. See the plan and bank-transfer guide first.",
+    attachIdentityDocs:
+      "Attach identity documents (ID, business card, company info)",
+    manufacturerHint:
+      "Free role badge. Submit your company profile and supporting documents; our team reviews and approves them.",
+    certifiedHint:
+      "Paid trust badge. Requires an active subscription and a simple identity check; it is granted after review, not by payment alone.",
+    certifiedNeedsSubscription:
+      "This badge requires a subscription. See the plan and bank-transfer guide first.",
     membershipGuideLink: "View subscription guide",
-    companyInfoPlaceholder: "Company introduction, business registration number, main products",
+    companyInfoPlaceholder:
+      "Company introduction, business registration number, main products",
     rejectedReason: "Reason",
   },
   membership: {
@@ -294,17 +331,22 @@ const en = {
     statusActive: "Active",
     statusExpiring: "Expiring soon",
     statusExpired: "Expired",
-    statusExpiredBody: "Your subscription has ended. Renew below to restore the verified benefits.",
+    statusExpiredBody:
+      "Your subscription has ended. Renew below to restore the verified benefits.",
     title: "Certified membership",
     subtitle: "Verified trust plus every growth tool, in one membership.",
     benefit1Title: "Unlimited posts",
-    benefit1Body: "Free members have a post limit. Certified members publish without limits.",
+    benefit1Body:
+      "Free members have a post limit. Certified members publish without limits.",
     benefit2Title: "Mini homepage",
-    benefit2Body: "A public company page with your products, documents and story. Custom domain supported.",
+    benefit2Body:
+      "A public company page with your products, documents and story. Custom domain supported.",
     benefit3Title: "Featured exposure",
-    benefit3Body: "Your company appears in the featured section on the front page.",
+    benefit3Body:
+      "Your company appears in the featured section on the front page.",
     benefit4Title: "Certified badge",
-    benefit4Body: "An identity-verified trust signal shown on everything you do.",
+    benefit4Body:
+      "An identity-verified trust signal shown on everything you do.",
     howTitle: "How to subscribe",
     how1: "Apply for the certified badge with your identity documents.",
     how2: "Complete the bank transfer using the details our team sends you.",
@@ -316,7 +358,8 @@ const en = {
     freeDescription: "Explore the network and start your first conversations.",
     freeFeature1: "Browse the public marketplace",
     freeFeature2: "Publish within the free post limit",
-    certifiedDescription: "Build visible trust and scale your company presence.",
+    certifiedDescription:
+      "Build visible trust and scale your company presence.",
     recommended: "Recommended for growth",
     included: "Everything you need to be discovered and trusted",
     apply: "Apply now",
@@ -326,7 +369,8 @@ const en = {
     certificates: "Certificates",
     title: "Mini homepage",
     slug: "Homepage address",
-    slugHint: "Lowercase letters, numbers and hyphens. Your page lives at /c/your-address.",
+    slugHint:
+      "Lowercase letters, numbers and hyphens. Your page lives at /c/your-address.",
     introEn: "Company introduction (English)",
     introKo: "Company introduction (Korean, optional)",
     cover: "Cover photo",
@@ -335,10 +379,12 @@ const en = {
     published: "Published",
     notPublished: "Hidden",
     visit: "View my homepage",
-    needCertified: "The mini homepage is a benefit for certified members. Subscribe and get verified to open yours.",
+    needCertified:
+      "The mini homepage is a benefit for certified members. Subscribe and get verified to open yours.",
     companyPosts: "Products and posts",
     customDomain: "Custom domain (optional)",
-    customDomainHint: "Enter a domain you own. Our team will contact you to complete the connection.",
+    customDomainHint:
+      "Enter a domain you own. Our team will contact you to complete the connection.",
     saved: "Homepage saved.",
     inquireCompany: "Contact this company",
     notFound: "This homepage is not available.",
@@ -361,14 +407,16 @@ const en = {
     bio: "About",
     phone: "Phone",
     contactPerson: "Contact person",
-    contactHint: "Contact details are visible only to you and the operations team. They are never shown to other members.",
+    contactHint:
+      "Contact details are visible only to you and the operations team. They are never shown to other members.",
     saved: "Profile saved.",
     avatar: "Profile photo",
     changePhoto: "Change photo",
     removePhoto: "Remove photo",
     memberId: "Member ID",
     withdrawTitle: "Delete account",
-    withdrawBody: "Your profile is anonymized and your posts are preserved without your identity. This cannot be undone.",
+    withdrawBody:
+      "Your profile is anonymized and your posts are preserved without your identity. This cannot be undone.",
     withdrawAction: "Delete my account",
   },
   admin: {
@@ -389,14 +437,16 @@ const en = {
       translation_assist_visible: "Show translation assist in the editor",
       video_autoplay: "Video autoplay (muted)",
       referral_stats_visible: "Show referral performance to members",
-      coordinator_message_access_global: "Coordinators can read referred members' inquiries (global)",
+      coordinator_message_access_global:
+        "Coordinators can read referred members' inquiries (global)",
       pwa_banner_enabled: "App install banner",
       pwa_banner_redisplay_days: "Install banner re-show interval (days)",
       inapp_redirect_enabled: "In-app browser external-open guidance",
       inapp_redirect_paths: "In-app guidance paths (comma separated)",
       upload_max_file_mb: "Max upload size per file (MB)",
       upload_max_files_per_post: "Max files per post",
-      subscription_expiry_notice_days: "Subscription expiry notice (days before)",
+      subscription_expiry_notice_days:
+        "Subscription expiry notice (days before)",
       seo_index_enabled: "Allow search engine indexing",
       robots_extra_disallow: "Extra robots.txt blocked paths (comma separated)",
       google_site_verification: "Google Search Console verification code",
@@ -423,12 +473,15 @@ const en = {
     rejectionHistory: "Recent rejections",
     miniHomepage: "Mini homepage",
     coordinatorMessages: "Coordinator messages",
-    coordinatorMessagesHint: "Direct messages between coordinators and their referred members. This channel skips moderation, so it is always readable here.",
+    coordinatorMessagesHint:
+      "Direct messages between coordinators and their referred members. This channel skips moderation, so it is always readable here.",
     editMenu: "Edit name",
     deleteMenu: "Delete",
     deleteMenuConfirmTitle: "Delete this board?",
-    deleteMenuConfirmBody: "The board is removed from the site immediately. Boards that already have posts cannot be deleted -- hide them instead.",
-    menuHasPosts: "This board has posts, so it cannot be deleted. Turn its visibility off instead.",
+    deleteMenuConfirmBody:
+      "The board is removed from the site immediately. Boards that already have posts cannot be deleted -- hide them instead.",
+    menuHasPosts:
+      "This board has posts, so it cannot be deleted. Turn its visibility off instead.",
     title: "Admin console",
     viewSite: "View marketplace",
     overview: "Overview",
@@ -556,7 +609,8 @@ const en = {
     privacy: "Privacy Policy",
     cookies: "Cookie Policy",
     copyright: "B2BB2G. All rights reserved.",
-    tagline: "A trusted global B2B and B2G marketplace connecting buyers and suppliers.",
+    tagline:
+      "A trusted global B2B and B2G marketplace connecting buyers and suppliers.",
     marketplace: "Marketplace",
     members: "Members",
     legal: "Legal",
@@ -574,7 +628,8 @@ const en = {
     reasonRequired: "Enter a reason before rejecting.",
   },
   cookie: {
-    message: "We use cookies to run this service and improve your experience. You can accept all cookies or only the essential ones.",
+    message:
+      "We use cookies to run this service and improve your experience. You can accept all cookies or only the essential ones.",
     acceptAll: "Accept all",
     preferencesTitle: "Cookie preferences",
     essentialLabel: "Essential cookies (always on)",
@@ -604,7 +659,8 @@ const en = {
     videoPrompt: "Enter a YouTube URL",
   },
   legal: {
-    draftNotice: "This is a draft provided for reference. The final wording will be confirmed before launch.",
+    draftNotice:
+      "This is a draft provided for reference. The final wording will be confirmed before launch.",
     terms: [
       "1. Service. B2BB2G is a global B2B and B2G marketplace where member companies list products, post sourcing requests, and exchange quotes. The platform provides the venue and tools; contracts for goods and services are concluded between the trading parties.",
       "2. Accounts. An account requires a verified email address. Members are responsible for keeping their credentials secure and for all activity under their account.",
@@ -631,17 +687,23 @@ const en = {
   },
   emails: {
     postApprovedSubject: "Your post is now published",
-    postApprovedBody: "Your post \"{title}\" has been approved and is now visible to buyers.",
+    postApprovedBody:
+      'Your post "{title}" has been approved and is now visible to buyers.',
     postRejectedSubject: "Your post was returned",
-    postRejectedBody: "Your post \"{title}\" was returned after review. Reason: {reason}. You can revise and resubmit it.",
+    postRejectedBody:
+      'Your post "{title}" was returned after review. Reason: {reason}. You can revise and resubmit it.',
     messageDeliveredSubject: "A new message was delivered to you",
-    messageDeliveredBody: "A reviewed message regarding \"{title}\" is waiting in your inbox.",
+    messageDeliveredBody:
+      'A reviewed message regarding "{title}" is waiting in your inbox.',
     messageRejectedSubject: "Your message was returned",
-    messageRejectedBody: "Your message regarding \"{title}\" was returned after review. Reason: {reason}. You can revise and resend it.",
+    messageRejectedBody:
+      'Your message regarding "{title}" was returned after review. Reason: {reason}. You can revise and resend it.',
     badgeApprovedSubject: "Your badge application was approved",
-    badgeApprovedBody: "Congratulations. Your badge application has been approved and the badge now shows on your profile.",
+    badgeApprovedBody:
+      "Congratulations. Your badge application has been approved and the badge now shows on your profile.",
     badgeRejectedSubject: "Your badge application was returned",
-    badgeRejectedBody: "Your badge application was returned after review. Reason: {reason}.",
+    badgeRejectedBody:
+      "Your badge application was returned after review. Reason: {reason}.",
     openSite: "Open {site}",
   },
 };

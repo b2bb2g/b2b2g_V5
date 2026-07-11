@@ -66,11 +66,17 @@ const ko: Dict = {
   },
   board: {
     eyebrow: "엄선된 B2B 마켓플레이스",
-    browseHint: "비즈니스 구매자를 위해 선별한 수출 준비 상품과 신뢰할 수 있는 파트너를 만나보세요.",
-    requestHint: "진행 중인 소싱 기회를 확인하고 적합한 비즈니스 제안으로 응답하세요.",
+    browseHint:
+      "비즈니스 구매자를 위해 선별한 수출 준비 상품과 신뢰할 수 있는 파트너를 만나보세요.",
+    requestHint:
+      "진행 중인 소싱 기회를 확인하고 적합한 비즈니스 제안으로 응답하세요.",
     availableNow: "건 확인 가능",
     nextTitle: "찾는 상품이 따로 있으신가요?",
-    nextBody: "전체 마켓을 검색하거나 무료 가입 후 직접 소싱 대화를 시작하세요.",
+    nextBody:
+      "전체 마켓을 검색하거나 무료 가입 후 직접 소싱 대화를 시작하세요.",
+    curatedCollection: "엄선된 컬렉션",
+    picks: "지금 주목할 상품",
+    featuredProduct: "주목할 상품",
   },
   home: {
     eyebrow: "글로벌 B2B · B2G 마켓플레이스",
@@ -91,7 +97,8 @@ const ko: Dict = {
     value1Title: "검증된 파트너",
     value1Body: "모든 기업은 신뢰할 수 있는 프로필을 갖춘 뒤 거래를 시작해요.",
     value2Title: "간편한 견적",
-    value2Body: "관심 있는 상품에 문의하면 플랫폼 안에서 맞춤 견적을 받아볼 수 있어요.",
+    value2Body:
+      "관심 있는 상품에 문의하면 플랫폼 안에서 맞춤 견적을 받아볼 수 있어요.",
     value3Title: "믿을 수 있는 배지",
     value3Body: "제조사·인증 배지로 파트너의 신뢰도를 한눈에 확인해요.",
     featured: "추천 기업",
@@ -100,7 +107,8 @@ const ko: Dict = {
     eventsTitle: "이벤트 & 전시",
     newCompanies: "새로 참여한 기업",
     promoTitle: "인증 회원으로 더 빠르게 성장하세요",
-    promoBody: "무제한 등록, 나만의 회사 홈페이지, 메인 추천 노출까지 하나의 멤버십으로.",
+    promoBody:
+      "무제한 등록, 나만의 회사 홈페이지, 메인 추천 노출까지 하나의 멤버십으로.",
     promoCta: "멤버십 알아보기",
     howItWorksTitle: "이렇게 진행돼요",
     step1Title: "발견해요",
@@ -108,7 +116,8 @@ const ko: Dict = {
     step2Title: "견적을 받아요",
     step2Body: "관심 상품에 문의하면 공급자에게서 직접 답변이 도착해요.",
     step3Title: "함께 성장해요",
-    step3Body: "배지로 신뢰를 쌓고, 첫 거래를 오래가는 파트너십으로 이어가세요.",
+    step3Body:
+      "배지로 신뢰를 쌓고, 첫 거래를 오래가는 파트너십으로 이어가세요.",
     finalCtaTitle: "글로벌 거래, 오늘 시작하세요",
     finalCtaBody: "이메일 하나로 가입하고 새로운 비즈니스 파트너를 만나보세요.",
     startNow: "시작하기",
@@ -129,7 +138,8 @@ const ko: Dict = {
     joinNetwork: "비즈니스 네트워크 참여",
     backHome: "마켓으로 돌아가기",
     valueTitle: "모든 비즈니스 기회를 잇는 하나의 신뢰 네트워크.",
-    valueBody: "검증된 파트너를 발견하고, 문의를 관리하고, 대화를 장기 거래로 연결하세요. 필요한 모든 흐름이 한곳에 있습니다.",
+    valueBody:
+      "검증된 파트너를 발견하고, 문의를 관리하고, 대화를 장기 거래로 연결하세요. 필요한 모든 흐름이 한곳에 있습니다.",
     valuePoint1: "검증된 기업 프로필",
     valuePoint2: "직접 소싱 문의",
     valuePoint3: "글로벌 기업 쇼케이스",
@@ -145,7 +155,8 @@ const ko: Dict = {
     signUpDone: "계정을 만들었어요. 이메일 인증을 완료해 주세요.",
     invalidCredentials: "이메일 또는 비밀번호가 올바르지 않아요.",
     captchaRequired: "아래 보안 확인을 완료해 주세요.",
-    accountRestricted: "이용이 제한되었거나 탈퇴한 계정이에요. 오류라고 생각되면 운영팀에 문의해 주세요.",
+    accountRestricted:
+      "이용이 제한되었거나 탈퇴한 계정이에요. 오류라고 생각되면 운영팀에 문의해 주세요.",
     rememberMe: "로그인 상태 유지",
     forgotPassword: "비밀번호를 잊으셨나요?",
     accountRecovery: "계정 보안 복구",
@@ -153,24 +164,29 @@ const ko: Dict = {
     resetBody: "가입한 이메일을 입력하면 재설정 링크를 보내드려요.",
     resetSent: "재설정 링크를 보냈어요. 메일함을 확인해 주세요.",
     resetSentTitle: "메일함을 확인해 주세요",
-    resetSentHint: "메일이 보이지 않으면 스팸함을 확인하거나 잠시 후 다시 요청해 주세요.",
+    resetSentHint:
+      "메일이 보이지 않으면 스팸함을 확인하거나 잠시 후 다시 요청해 주세요.",
     sendResetLink: "재설정 링크 받기",
     backToSignIn: "로그인으로 돌아가기",
     newPassword: "새 비밀번호",
     updatePassword: "비밀번호 변경",
     linkExpired: "링크가 만료되었거나 이미 사용되었어요. 다시 요청해 주세요.",
-    linkAlreadyUsed: "이미 사용된 링크예요. 아래에서 새 비밀번호만 설정하면 계속할 수 있어요.",
+    linkAlreadyUsed:
+      "이미 사용된 링크예요. 아래에서 새 비밀번호만 설정하면 계속할 수 있어요.",
     setNewPasswordHint: "계속 이용하려면 새 비밀번호를 설정해 주세요.",
     keepCurrentPassword: "취소하고 기존 비밀번호 유지하기",
     showPassword: "비밀번호 보기",
     hidePassword: "비밀번호 숨기기",
     samePassword: "새 비밀번호는 기존 비밀번호와 달라야 해요.",
-    emailRateLimited: "짧은 시간에 이메일 요청이 많았어요. 1분 뒤에 다시 시도해 주세요.",
-    weakPassword: "추측하기 쉬운 비밀번호예요. 더 길고 흔하지 않은 비밀번호로 정해 주세요.",
+    emailRateLimited:
+      "짧은 시간에 이메일 요청이 많았어요. 1분 뒤에 다시 시도해 주세요.",
+    weakPassword:
+      "추측하기 쉬운 비밀번호예요. 더 길고 흔하지 않은 비밀번호로 정해 주세요.",
   },
   post: {
     quotaLine: "무료 회원 게시글 {used} / {limit} 사용 중이에요",
-    quotaBlocked: "무료 회원 게시글 수 제한에 도달했어요. 인증 회원이 되면 제한 없이 작성할 수 있어요.",
+    quotaBlocked:
+      "무료 회원 게시글 수 제한에 도달했어요. 인증 회원이 되면 제한 없이 작성할 수 있어요.",
     inquire: "문의하기",
     specs: "사양",
     attachments: "첨부파일",
@@ -180,14 +196,17 @@ const ko: Dict = {
     closed: "마감",
     closeRequest: "요청 마감",
     membersOnlyTitle: "회원은 전체 내용을 볼 수 있어요",
-    membersOnlyBody: "로그인하면 전체 사양, 첨부파일, 문의 기능을 이용할 수 있어요.",
+    membersOnlyBody:
+      "로그인하면 전체 사양, 첨부파일, 문의 기능을 이용할 수 있어요.",
     signInToContinue: "로그인하고 계속하기",
     postedBy: "작성자",
     supplierProfile: "공급자 정보",
     supplierTrustHint: "문의 전 기업 프로필과 신뢰 배지를 확인해 보세요.",
     viewCompany: "기업 프로필 보기",
-    inquiryHint: "필요한 조건을 직접 보내세요. 메시지는 운영팀 검토 후 전달됩니다.",
-    signUpToInquire: "무료 가입 후 상세 정보를 확인하고 이 기업에 문의할 수 있어요.",
+    inquiryHint:
+      "필요한 조건을 직접 보내세요. 메시지는 운영팀 검토 후 전달됩니다.",
+    signUpToInquire:
+      "무료 가입 후 상세 정보를 확인하고 이 기업에 문의할 수 있어요.",
     status: {
       draft: "임시저장",
       pending: "검토 중",
@@ -223,7 +242,8 @@ const ko: Dict = {
   },
   inquiry: {
     reviseResendTitle: "수정 후 재발송",
-    reviseResendHint: "반려된 메시지예요. 사유를 반영해 아래에서 수정하면 다시 검수 후 전달돼요.",
+    reviseResendHint:
+      "반려된 메시지예요. 사유를 반영해 아래에서 수정하면 다시 검수 후 전달돼요.",
     resend: "재발송 요청",
     title: "문의함",
     newInquiry: "새 문의",
@@ -283,10 +303,14 @@ const ko: Dict = {
     certified: "Verified",
     coordinator: "Coordinator",
     documents: "서류",
-    attachIdentityDocs: "신원 확인 서류를 첨부해 주세요 (신분증, 명함, 회사정보)",
-    manufacturerHint: "무료 역할 배지예요. 회사 소개와 증빙 서류를 제출하면 운영팀이 확인 후 승인해 드려요.",
-    certifiedHint: "유료 신뢰 배지예요. 구독과 간단한 신원 확인이 필요하고, 결제만으로는 부여되지 않아요.",
-    certifiedNeedsSubscription: "이 배지는 구독이 필요해요. 요금과 계좌이체 안내를 먼저 확인해 주세요.",
+    attachIdentityDocs:
+      "신원 확인 서류를 첨부해 주세요 (신분증, 명함, 회사정보)",
+    manufacturerHint:
+      "무료 역할 배지예요. 회사 소개와 증빙 서류를 제출하면 운영팀이 확인 후 승인해 드려요.",
+    certifiedHint:
+      "유료 신뢰 배지예요. 구독과 간단한 신원 확인이 필요하고, 결제만으로는 부여되지 않아요.",
+    certifiedNeedsSubscription:
+      "이 배지는 구독이 필요해요. 요금과 계좌이체 안내를 먼저 확인해 주세요.",
     membershipGuideLink: "구독 안내 보기",
     companyInfoPlaceholder: "회사 소개, 사업자등록번호, 주력 제품",
     rejectedReason: "사유",
@@ -298,13 +322,16 @@ const ko: Dict = {
     statusActive: "구독 중",
     statusExpiring: "만료 예정",
     statusExpired: "만료됨",
-    statusExpiredBody: "구독이 종료됐어요. 아래 안내로 갱신하면 인증 혜택이 다시 적용돼요.",
+    statusExpiredBody:
+      "구독이 종료됐어요. 아래 안내로 갱신하면 인증 혜택이 다시 적용돼요.",
     title: "인증 회원",
     subtitle: "검증된 신뢰와 성장 도구를 하나의 멤버십으로.",
     benefit1Title: "글 수량 무제한",
-    benefit1Body: "무료 회원은 글 수량 제한이 있어요. 인증 회원은 제한 없이 게시할 수 있어요.",
+    benefit1Body:
+      "무료 회원은 글 수량 제한이 있어요. 인증 회원은 제한 없이 게시할 수 있어요.",
     benefit2Title: "미니 홈페이지",
-    benefit2Body: "제품, 자료, 회사 이야기를 담는 공개 회사 페이지. 자체 도메인도 연결돼요.",
+    benefit2Body:
+      "제품, 자료, 회사 이야기를 담는 공개 회사 페이지. 자체 도메인도 연결돼요.",
     benefit3Title: "추천 노출",
     benefit3Body: "메인 화면 추천 기업 영역에 회사가 노출돼요.",
     benefit4Title: "인증 배지",
@@ -330,7 +357,8 @@ const ko: Dict = {
     certificates: "인증서",
     title: "미니 홈페이지",
     slug: "홈페이지 주소",
-    slugHint: "영문 소문자, 숫자, 하이픈만 사용할 수 있어요. /c/주소 형태로 공개돼요.",
+    slugHint:
+      "영문 소문자, 숫자, 하이픈만 사용할 수 있어요. /c/주소 형태로 공개돼요.",
     introEn: "회사 소개 (영어)",
     introKo: "회사 소개 (한국어, 선택)",
     cover: "회사 전경 사진",
@@ -339,7 +367,8 @@ const ko: Dict = {
     published: "공개 중",
     notPublished: "비공개",
     visit: "내 홈페이지 보기",
-    needCertified: "미니 홈페이지는 인증 회원 혜택이에요. 구독과 신원 확인 후 개설할 수 있어요.",
+    needCertified:
+      "미니 홈페이지는 인증 회원 혜택이에요. 구독과 신원 확인 후 개설할 수 있어요.",
     companyPosts: "제품 및 게시글",
     customDomain: "자체 도메인 (선택)",
     customDomainHint: "보유한 도메인을 입력하면 운영팀이 연결을 도와드려요.",
@@ -365,14 +394,16 @@ const ko: Dict = {
     bio: "소개",
     phone: "연락처",
     contactPerson: "담당자",
-    contactHint: "연락처 정보는 본인과 운영팀만 볼 수 있어요. 다른 회원에게는 절대 공개되지 않아요.",
+    contactHint:
+      "연락처 정보는 본인과 운영팀만 볼 수 있어요. 다른 회원에게는 절대 공개되지 않아요.",
     saved: "프로필을 저장했어요.",
     avatar: "프로필 사진",
     changePhoto: "사진 변경",
     removePhoto: "사진 삭제",
     memberId: "회원 번호",
     withdrawTitle: "회원 탈퇴",
-    withdrawBody: "프로필은 익명화되고 게시글은 신원 없이 보존돼요. 되돌릴 수 없어요.",
+    withdrawBody:
+      "프로필은 익명화되고 게시글은 신원 없이 보존돼요. 되돌릴 수 없어요.",
     withdrawAction: "탈퇴하기",
   },
   admin: {
@@ -427,12 +458,15 @@ const ko: Dict = {
     rejectionHistory: "최근 반려 이력",
     miniHomepage: "미니 홈페이지",
     coordinatorMessages: "코디네이터 메시지",
-    coordinatorMessagesHint: "코디네이터와 직접 추천 회원 간 다이렉트 메시지예요. 검수 없는 유일한 채널이라 여기서 항상 열람할 수 있어요.",
+    coordinatorMessagesHint:
+      "코디네이터와 직접 추천 회원 간 다이렉트 메시지예요. 검수 없는 유일한 채널이라 여기서 항상 열람할 수 있어요.",
     editMenu: "이름 수정",
     deleteMenu: "삭제",
     deleteMenuConfirmTitle: "이 게시판을 삭제할까요?",
-    deleteMenuConfirmBody: "삭제하면 사이트에서 바로 사라져요. 게시글이 있는 게시판은 삭제할 수 없고 노출 끄기로 숨겨 주세요.",
-    menuHasPosts: "게시글이 있는 게시판이라 삭제할 수 없어요. 노출 끄기로 숨겨 주세요.",
+    deleteMenuConfirmBody:
+      "삭제하면 사이트에서 바로 사라져요. 게시글이 있는 게시판은 삭제할 수 없고 노출 끄기로 숨겨 주세요.",
+    menuHasPosts:
+      "게시글이 있는 게시판이라 삭제할 수 없어요. 노출 끄기로 숨겨 주세요.",
     title: "관리자 콘솔",
     viewSite: "마켓 보기",
     overview: "현황",
@@ -578,7 +612,8 @@ const ko: Dict = {
     reasonRequired: "반려 사유를 입력해 주세요.",
   },
   cookie: {
-    message: "서비스 운영과 개선을 위해 쿠키를 사용해요. 전체 또는 필수 쿠키만 허용할 수 있어요.",
+    message:
+      "서비스 운영과 개선을 위해 쿠키를 사용해요. 전체 또는 필수 쿠키만 허용할 수 있어요.",
     acceptAll: "모두 허용",
     preferencesTitle: "쿠키 설정",
     essentialLabel: "필수 쿠키 (항상 사용)",
@@ -635,15 +670,20 @@ const ko: Dict = {
   },
   emails: {
     postApprovedSubject: "게시글이 게시되었어요",
-    postApprovedBody: "작성하신 글 \"{title}\"이(가) 승인되어 바이어에게 공개되었어요.",
+    postApprovedBody:
+      '작성하신 글 "{title}"이(가) 승인되어 바이어에게 공개되었어요.',
     postRejectedSubject: "게시글이 반려되었어요",
-    postRejectedBody: "작성하신 글 \"{title}\"이(가) 검수 후 반려되었어요. 사유: {reason}. 수정 후 다시 제출할 수 있어요.",
+    postRejectedBody:
+      '작성하신 글 "{title}"이(가) 검수 후 반려되었어요. 사유: {reason}. 수정 후 다시 제출할 수 있어요.',
     messageDeliveredSubject: "새 메시지가 도착했어요",
-    messageDeliveredBody: "\"{title}\" 관련 메시지가 검수를 거쳐 문의함에 도착했어요.",
+    messageDeliveredBody:
+      '"{title}" 관련 메시지가 검수를 거쳐 문의함에 도착했어요.',
     messageRejectedSubject: "메시지가 반려되었어요",
-    messageRejectedBody: "\"{title}\" 관련 메시지가 검수 후 반려되었어요. 사유: {reason}. 수정 후 다시 보낼 수 있어요.",
+    messageRejectedBody:
+      '"{title}" 관련 메시지가 검수 후 반려되었어요. 사유: {reason}. 수정 후 다시 보낼 수 있어요.',
     badgeApprovedSubject: "배지 신청이 승인되었어요",
-    badgeApprovedBody: "축하해요. 배지 신청이 승인되어 프로필에 배지가 표시돼요.",
+    badgeApprovedBody:
+      "축하해요. 배지 신청이 승인되어 프로필에 배지가 표시돼요.",
     badgeRejectedSubject: "배지 신청이 반려되었어요",
     badgeRejectedBody: "배지 신청이 검수 후 반려되었어요. 사유: {reason}.",
     openSite: "{site} 열기",

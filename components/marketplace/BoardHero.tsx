@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function BoardHero({
   eyebrow,
   type,
@@ -5,6 +7,7 @@ export function BoardHero({
   count,
   countLabel,
   description,
+  image,
 }: {
   eyebrow: string;
   type: string;
@@ -12,9 +15,26 @@ export function BoardHero({
   count: number;
   countLabel: string;
   description: string;
+  image?: string;
 }) {
   return (
     <section className="relative min-h-72 overflow-hidden rounded-[2rem] bg-[#101923] px-6 py-9 text-white shadow-[0_24px_70px_rgba(16,25,35,.18)] sm:flex sm:items-end sm:px-10 sm:py-12">
+      {image && (
+        <Image
+          src={image}
+          alt=""
+          fill
+          priority
+          sizes="(max-width:1280px) 100vw, 1280px"
+          className="object-cover object-center"
+        />
+      )}
+      {image && (
+        <span
+          className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,17,24,.97)_0%,rgba(10,17,24,.80)_45%,rgba(10,17,24,.22)_100%)]"
+          aria-hidden="true"
+        />
+      )}
       <span
         className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-primary/35 blur-3xl"
         aria-hidden="true"
