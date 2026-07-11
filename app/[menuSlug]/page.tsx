@@ -90,6 +90,8 @@ export default async function BoardPage(props: {
         : isGallery
           ? "/landing-v2/hero-global-collaboration.jpg"
           : undefined;
+  const latestNoticeThumb =
+    isNoticeBoard && posts[0] ? repThumbnail(posts[0]) : null;
 
   return (
     <div className="wide space-y-4">
@@ -149,7 +151,7 @@ export default async function BoardPage(props: {
               className="absolute -right-14 -top-20 h-60 w-60 rounded-full bg-primary/10 blur-2xl"
               aria-hidden="true"
             />
-            <div className="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+            <div className="relative">
               <div className="max-w-2xl">
                 <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
                   {t.board.noticeCenter}
@@ -161,29 +163,32 @@ export default async function BoardPage(props: {
                   {t.board.noticeHint}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-xl font-extrabold text-white">
-                  {posts.length}
-                </span>
-                <span className="text-xs font-bold leading-5 text-ink-faint">
-                  {t.board.availableNow}
-                  <br />
-                  {t.board.adminPublished}
-                </span>
-              </div>
             </div>
           </header>
           <Link
             href={`/${menu.slug}/${posts[0].id}`}
-            className="group grid overflow-hidden rounded-[1.75rem] bg-[#101923] text-white shadow-[0_20px_60px_rgba(16,25,35,.16)] lg:grid-cols-[11rem_1fr_auto] lg:items-center"
+            className="group grid overflow-hidden rounded-[1.75rem] bg-[#101923] text-white shadow-[0_20px_60px_rgba(16,25,35,.16)] sm:grid-cols-[15rem_1fr_auto] sm:items-center"
           >
-            <span className="flex min-h-32 flex-col justify-center bg-primary p-6">
-              <span className="text-xs font-bold uppercase tracking-[.14em] text-white/70">
-                {t.board.latestNotice}
-              </span>
-              <strong className="mt-3 text-2xl font-extrabold">
-                {posts[0].published_at?.slice(5, 10).replace("-", ".")}
-              </strong>
+            <span className="relative min-h-44 overflow-hidden bg-primary sm:h-full">
+              {latestNoticeThumb ? (
+                <Image
+                  src={latestNoticeThumb}
+                  alt=""
+                  fill
+                  priority
+                  sizes="(max-width:640px) 100vw, 240px"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <span className="absolute inset-0 flex flex-col justify-center p-6">
+                  <span className="text-xs font-bold uppercase tracking-[.14em] text-white/70">
+                    {t.board.latestNotice}
+                  </span>
+                  <strong className="mt-3 text-2xl font-extrabold">
+                    {posts[0].published_at?.slice(5, 10).replace("-", ".")}
+                  </strong>
+                </span>
+              )}
             </span>
             <span className="min-w-0 p-6 sm:p-8">
               <strong className="block text-xl font-extrabold leading-snug sm:text-2xl">
@@ -198,6 +203,9 @@ export default async function BoardPage(props: {
                     : posts[0].body_teaser_en,
                 )}
               </span>
+              <span className="mt-4 block text-xs font-semibold text-white/40">
+                {t.board.latestNotice} · {posts[0].published_at?.slice(0, 10)}
+              </span>
             </span>
             <span className="m-6 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
               →
@@ -211,37 +219,51 @@ export default async function BoardPage(props: {
               </span>
             </div>
             <div className="space-y-1">
-              {posts.slice(1).map((post, index) => (
-                <Link
-                  key={post.id}
-                  href={`/${menu.slug}/${post.id}`}
-                  className="group grid gap-3 rounded-2xl px-4 py-5 transition hover:bg-surface-sub sm:grid-cols-[3rem_1fr_auto] sm:items-center"
-                >
-                  <span className="text-xs font-extrabold text-primary">
-                    {String(index + 2).padStart(2, "0")}
-                  </span>
-                  <span className="min-w-0">
-                    <strong className="block truncate text-sm font-extrabold">
-                      {locale === "ko" && post.title_ko
-                        ? post.title_ko
-                        : post.title_en}
-                    </strong>
-                    <span className="mt-1 block line-clamp-1 text-xs text-ink-soft">
-                      {stripRichText(
-                        locale === "ko" && post.body_teaser_ko
-                          ? post.body_teaser_ko
-                          : post.body_teaser_en,
-                      )}
+              {posts.slice(1).map((post, index) => {
+                const noticeThumb = repThumbnail(post);
+                return (
+                  <Link
+                    key={post.id}
+                    href={`/${menu.slug}/${post.id}`}
+                    className={`group grid gap-4 rounded-2xl px-4 py-4 transition hover:bg-surface-sub ${noticeThumb ? "sm:grid-cols-[5rem_3rem_1fr_auto]" : "sm:grid-cols-[3rem_1fr_auto]"} sm:items-center`}
+                  >
+                    {noticeThumb && (
+                      <span className="relative col-span-full aspect-[2/1] overflow-hidden rounded-xl bg-surface-sub sm:col-span-1 sm:aspect-video">
+                        <Image
+                          src={noticeThumb}
+                          alt=""
+                          fill
+                          sizes="(max-width:640px) 100vw, 80px"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </span>
+                    )}
+                    <span className="text-xs font-extrabold text-primary">
+                      {String(index + 2).padStart(2, "0")}
                     </span>
-                  </span>
-                  <span className="flex items-center gap-4 text-xs text-ink-faint">
-                    <span>{post.published_at?.slice(0, 10)}</span>
-                    <span className="transition-transform group-hover:translate-x-1 group-hover:text-primary">
-                      →
+                    <span className="min-w-0">
+                      <strong className="block truncate text-sm font-extrabold">
+                        {locale === "ko" && post.title_ko
+                          ? post.title_ko
+                          : post.title_en}
+                      </strong>
+                      <span className="mt-1 block line-clamp-1 text-xs text-ink-soft">
+                        {stripRichText(
+                          locale === "ko" && post.body_teaser_ko
+                            ? post.body_teaser_ko
+                            : post.body_teaser_en,
+                        )}
+                      </span>
                     </span>
-                  </span>
-                </Link>
-              ))}
+                    <span className="flex items-center gap-4 text-xs text-ink-faint">
+                      <span>{post.published_at?.slice(0, 10)}</span>
+                      <span className="transition-transform group-hover:translate-x-1 group-hover:text-primary">
+                        →
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
