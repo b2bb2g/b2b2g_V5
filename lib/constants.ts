@@ -87,6 +87,11 @@ export const SETTING_KEYS = {
   UPLOAD_MAX_FILE_MB: "upload_max_file_mb",
   UPLOAD_MAX_FILES_PER_POST: "upload_max_files_per_post",
   SUBSCRIPTION_EXPIRY_NOTICE_DAYS: "subscription_expiry_notice_days",
+  SEO_INDEX_ENABLED: "seo_index_enabled",
+  ROBOTS_EXTRA_DISALLOW: "robots_extra_disallow",
+  GOOGLE_SITE_VERIFICATION: "google_site_verification",
+  NAVER_SITE_VERIFICATION: "naver_site_verification",
+  INAPP_REDIRECT_PATHS: "inapp_redirect_paths",
 } as const;
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];
 

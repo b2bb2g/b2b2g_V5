@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { GlobalBanners } from "@/components/layout/GlobalBanners";
+import { InAppGuard } from "@/components/layout/InAppGuard";
 import { PullToRefresh } from "@/components/layout/PullToRefresh";
 import { Toaster } from "@/components/ui/Toaster";
 import { getT } from "@/lib/i18n/server";
@@ -29,6 +30,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = settingString(settings, SETTING_KEYS.SITE_TITLE, "B2BB2G");
   const description = settingString(settings, SETTING_KEYS.SITE_DESCRIPTION);
   const ogImage = settingString(settings, SETTING_KEYS.SITE_OG_IMAGE);
+  // Search-engine ownership proofs are admin settings (PRD 12.2: Google +
+  // Naver Search Advisor).
+  const googleVerify = settingString(settings, SETTING_KEYS.GOOGLE_SITE_VERIFICATION);
+  const naverVerify = settingString(settings, SETTING_KEYS.NAVER_SITE_VERIFICATION);
   return {
     title: { default: title, template: `%s | ${title}` },
     description,
@@ -37,6 +42,16 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       ...(ogImage ? { images: [ogImage] } : {}),
     },
+    ...(googleVerify || naverVerify
+      ? {
+          verification: {
+            ...(googleVerify ? { google: googleVerify } : {}),
+            ...(naverVerify
+              ? { other: { "naver-site-verification": naverVerify } }
+              : {}),
+          },
+        }
+      : {}),
   };
 }
 
@@ -59,6 +74,16 @@ export default async function RootLayout({
         <Suspense>
           <Toaster messages={t.toast} />
         </Suspense>
+        <InAppGuard
+          enabled={settingBool(settings, SETTING_KEYS.INAPP_REDIRECT_ENABLED, true)}
+          paths={settingString(settings, SETTING_KEYS.INAPP_REDIRECT_PATHS)
+            .split(",")
+            .map((path) => path.trim())
+            .filter((path) => path.startsWith("/"))}
+          title={t.inapp.title}
+          body={t.inapp.body}
+          openLabel={t.inapp.open}
+        />
         <GlobalBanners
           cookie={t.cookie}
           pwa={t.pwa}

@@ -2,11 +2,23 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
-import { grantSubscription, revokeSubscription } from "@/app/actions/admin";
+import { grantSubscription, revokeSubscription, saveBenefit, toggleBenefitActive } from "@/app/actions/admin";
 import { SUBSCRIPTION_STATUS } from "@/lib/constants";
 
 export default async function SubscriptionsAdminPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
+  const { data: benefitRows } = await supabase
+    .from("benefits")
+    .select("*")
+    .order("sort_order");
+  const benefits = (benefitRows ?? []) as {
+    id: string;
+    title_en: string;
+    title_ko: string | null;
+    body_en: string;
+    body_ko: string | null;
+    is_active: boolean;
+  }[];
   const { data } = await supabase
     .from("subscriptions")
     .select("id, status, starts_at, expires_at, deposit_note, profiles!subscriptions_profile_id_fkey(uid, display_name, company_name)")
@@ -100,6 +112,60 @@ export default async function SubscriptionsAdminPage() {
           ))}
         </div>
       )}
+
+      {/* Dynamic benefit catalog (PRD 5.4): edited here, rendered on /membership */}
+      <section className="space-y-2 rounded-card border border-line p-4">
+        <p className="text-sm font-bold">{t.admin.benefitsTitle}</p>
+        <div className="space-y-2">
+          {benefits.map((benefit) => (
+            <details key={benefit.id} className="rounded-xl border border-line px-3 py-2">
+              <summary className="flex cursor-pointer items-center justify-between gap-2 text-xs font-semibold">
+                <span className={benefit.is_active ? "" : "text-ink-faint line-through"}>
+                  {benefit.title_en}
+                </span>
+                <form action={toggleBenefitActive}>
+                  <input type="hidden" name="id" value={benefit.id} />
+                  <input type="hidden" name="value" value={(!benefit.is_active).toString()} />
+                  <button
+                    type="submit"
+                    className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${
+                      benefit.is_active
+                        ? "bg-positive-soft text-positive"
+                        : "bg-surface-sub text-ink-faint"
+                    }`}
+                  >
+                    {benefit.is_active ? t.common.on : t.common.off}
+                  </button>
+                </form>
+              </summary>
+              <form action={saveBenefit} className="mt-2 grid grid-cols-2 gap-2">
+                <input type="hidden" name="id" value={benefit.id} />
+                <input name="titleEn" required defaultValue={benefit.title_en} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
+                <input name="titleKo" defaultValue={benefit.title_ko ?? ""} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
+                <input name="bodyEn" defaultValue={benefit.body_en} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
+                <input name="bodyKo" defaultValue={benefit.body_ko ?? ""} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
+                <button type="submit" className="col-span-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-strong">
+                  {t.common.save}
+                </button>
+              </form>
+            </details>
+          ))}
+        </div>
+        <details className="rounded-xl border border-dashed border-line px-3 py-2">
+          <summary className="cursor-pointer text-xs font-semibold text-primary">
+            {t.admin.addBenefit}
+          </summary>
+          <form action={saveBenefit} className="mt-2 grid grid-cols-2 gap-2">
+            <input name="titleEn" required placeholder={t.post.titleEn} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
+            <input name="titleKo" placeholder={t.post.titleKo} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
+            <input name="bodyEn" placeholder={t.post.bodyEn} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
+            <input name="bodyKo" placeholder={t.post.bodyKo} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
+            <button type="submit" className="col-span-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-strong">
+              {t.common.save}
+            </button>
+          </form>
+        </details>
+      </section>
     </div>
   );
 }

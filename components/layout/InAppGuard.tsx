@@ -5,25 +5,32 @@
    sync after mount avoids SSR hydration mismatches. */
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 // PRD 13: core actions (auth, uploads) are pushed out of in-app browsers.
 // KakaoTalk on Android supports a scheme that opens the default browser;
 // elsewhere we show guidance. Controlled by the inapp_redirect_enabled switch.
 export function InAppGuard({
   enabled,
+  paths,
   title,
   body,
   openLabel,
 }: {
   enabled: boolean;
+  // Admin-configured path prefixes that trigger the escape (PRD 17.11).
+  paths: string[];
   title: string;
   body: string;
   openLabel: string;
 }) {
+  const pathname = usePathname();
   const [state, setState] = useState<{ show: boolean; kakaoAndroid: boolean }>({
     show: false,
     kakaoAndroid: false,
   });
+
+  const matches = paths.some((prefix) => pathname.startsWith(prefix));
 
   useEffect(() => {
     if (!enabled) return;
@@ -36,7 +43,7 @@ export function InAppGuard({
     });
   }, [enabled]);
 
-  if (!state.show) return null;
+  if (!state.show || !matches) return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 p-3">

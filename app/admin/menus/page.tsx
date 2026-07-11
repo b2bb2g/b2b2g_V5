@@ -1,6 +1,7 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { createMenu, moveMenu, toggleMenuFlag } from "@/app/actions/admin";
+import { createMenu, deleteMenu, moveMenu, toggleMenuFlag, updateMenu } from "@/app/actions/admin";
+import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { BOARD_TYPES } from "@/lib/constants";
 import type { Menu } from "@/lib/types";
 
@@ -62,7 +63,10 @@ function FlagToggle({
   );
 }
 
-export default async function MenusAdminPage() {
+export default async function MenusAdminPage(props: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await props.searchParams;
   const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
   const { data } = await supabase.from("menus").select("*").order("sort_order");
   const menus = (data ?? []) as Menu[];
@@ -71,6 +75,12 @@ export default async function MenusAdminPage() {
   return (
     <div className="space-y-4">
       <h2 className="text-base font-bold">{t.admin.menus}</h2>
+
+      {params.error === "has_posts" && (
+        <p className="rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
+          {t.admin.menuHasPosts}
+        </p>
+      )}
 
       <div className="space-y-2">
         {menus.map((menu) => (
@@ -112,7 +122,46 @@ export default async function MenusAdminPage() {
                 onLabel={`${t.admin.reviewRequired}: ${t.common.on}`}
                 offLabel={`${t.admin.reviewRequired}: ${t.common.off}`}
               />
+              <form action={deleteMenu}>
+                <input type="hidden" name="menuId" value={menu.id} />
+                <ConfirmSubmit
+                  label={t.admin.deleteMenu}
+                  confirmTitle={t.admin.deleteMenuConfirmTitle}
+                  confirmBody={t.admin.deleteMenuConfirmBody}
+                  confirmLabel={t.admin.deleteMenu}
+                  cancelLabel={t.common.cancel}
+                  destructive
+                  className="rounded-lg bg-negative-soft px-2.5 py-1.5 text-[11px] font-semibold text-negative"
+                />
+              </form>
             </div>
+            <details className="w-full">
+              <summary className="cursor-pointer text-xs font-semibold text-primary">
+                {t.admin.editMenu}
+              </summary>
+              <form action={updateMenu} className="mt-2 flex flex-wrap gap-2">
+                <input type="hidden" name="menuId" value={menu.id} />
+                <input
+                  name="titleEn"
+                  required
+                  defaultValue={menu.title_en}
+                  placeholder={t.post.titleEn}
+                  className="min-w-40 flex-1 rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
+                />
+                <input
+                  name="titleKo"
+                  defaultValue={menu.title_ko ?? ""}
+                  placeholder={t.post.titleKo}
+                  className="min-w-40 flex-1 rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
+                />
+                <button
+                  type="submit"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-strong"
+                >
+                  {t.common.save}
+                </button>
+              </form>
+            </details>
           </div>
         ))}
       </div>

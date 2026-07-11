@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { sendNotificationEmail } from "@/lib/notify-email";
+import type { HomepageInput } from "@/app/actions/homepage";
 import {
   BADGE_CODES,
   MESSAGE_REVIEW_STATUS,
@@ -319,7 +320,121 @@ export async function createMenu(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+export async function updateMenu(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const menuId = String(formData.get("menuId") ?? "");
+  const titleEn = String(formData.get("titleEn") ?? "").trim();
+  const titleKo = String(formData.get("titleKo") ?? "").trim();
+  if (!menuId || !titleEn) return;
+
+  await supabase
+    .from("menus")
+    .update({ title_en: titleEn, title_ko: titleKo || titleEn })
+    .eq("id", menuId);
+  await audit(supabase, "menu_update", "menu", menuId, { titleEn, titleKo });
+  revalidatePath("/admin/menus");
+  revalidatePath("/", "layout");
+}
+
+export async function deleteMenu(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const menuId = String(formData.get("menuId") ?? "");
+  if (!menuId) return;
+
+  // A board with posts cannot be deleted -- hide it instead (data safety).
+  const { count } = await supabase
+    .from("posts")
+    .select("id", { count: "exact", head: true })
+    .eq("menu_id", menuId);
+  if ((count ?? 0) > 0) {
+    redirect("/admin/menus?error=has_posts");
+  }
+
+  await supabase.from("menus").delete().eq("id", menuId);
+  await audit(supabase, "menu_delete", "menu", menuId, {});
+  revalidatePath("/admin/menus");
+  revalidatePath("/", "layout");
+  redirect("/admin/menus?toast=deleted");
+}
+
 // ---- Catalog: categories + spec field pool (D10) ---------------------------
+// Admin edit of a member's mini homepage (PRD 17.2). Uploads made while
+// editing land in the admin's own storage folder; the public bucket serves
+// them regardless of folder.
+export async function saveHomepageAdmin(
+  profileId: string,
+  input: HomepageInput
+): Promise<{ error?: string }> {
+  const { supabase } = await requireAdmin();
+
+  const slug = input.slug.trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) return { error: "slug" };
+
+  const { error } = await supabase.from("mini_homepages").upsert({
+    profile_id: profileId,
+    slug,
+    intro_en: input.introEn,
+    intro_ko: input.introKo || null,
+    cover_image_path: input.coverImagePath,
+    doc_paths: input.docPaths,
+    gallery_paths: input.galleryPaths,
+    cert_paths: input.certPaths,
+    custom_domain: input.customDomain.trim() || null,
+    is_published: input.isPublished,
+  });
+  if (error) {
+    return { error: error.code === "23505" ? "slug_taken" : "save" };
+  }
+  await audit(supabase, "homepage_admin_update", "mini_homepage", profileId, { slug });
+  revalidatePath(`/c/${slug}`);
+  revalidatePath(`/admin/members/${profileId}`);
+  return {};
+}
+
+export async function saveBenefit(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const titleEn = String(formData.get("titleEn") ?? "").trim();
+  const titleKo = String(formData.get("titleKo") ?? "").trim();
+  const bodyEn = String(formData.get("bodyEn") ?? "").trim();
+  const bodyKo = String(formData.get("bodyKo") ?? "").trim();
+  if (!titleEn) return;
+
+  const row = {
+    title_en: titleEn,
+    title_ko: titleKo || titleEn,
+    body_en: bodyEn,
+    body_ko: bodyKo || bodyEn,
+  };
+  if (id) {
+    await supabase.from("benefits").update(row).eq("id", id);
+  } else {
+    const { data: last } = await supabase
+      .from("benefits")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    await supabase
+      .from("benefits")
+      .insert({ ...row, sort_order: (last?.sort_order ?? 0) + 1 });
+  }
+  await audit(supabase, id ? "benefit_update" : "benefit_create", "benefit", id || titleEn, {});
+  revalidatePath("/admin/subscriptions");
+  revalidatePath("/membership");
+}
+
+export async function toggleBenefitActive(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const value = String(formData.get("value") ?? "") === "true";
+  if (!id) return;
+  await supabase.from("benefits").update({ is_active: value }).eq("id", id);
+  await audit(supabase, "benefit_toggle", "benefit", id, { value });
+  revalidatePath("/admin/subscriptions");
+  revalidatePath("/membership");
+}
+
 export async function saveCategory(formData: FormData) {
   const { supabase } = await requireAdmin();
   const id = String(formData.get("id") ?? "");

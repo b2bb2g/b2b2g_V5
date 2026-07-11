@@ -34,18 +34,23 @@ function isExpiringSoon(expiresAt: string, noticeDays: number): boolean {
 // Subscription guide (DESIGN C5): benefits, manual bank-transfer process
 // (PRD 4 -- payments are confirmed by the operations team, no PG yet).
 export default async function MembershipPage() {
-  const [{ t }, session, settings] = await Promise.all([
+  const [{ t, locale }, session, settings] = await Promise.all([
     getT(),
     getSession(),
     getPublicSettings(),
   ]);
 
-  const benefits = [
-    { title: t.membership.benefit1Title, body: t.membership.benefit1Body },
-    { title: t.membership.benefit2Title, body: t.membership.benefit2Body },
-    { title: t.membership.benefit3Title, body: t.membership.benefit3Body },
-    { title: t.membership.benefit4Title, body: t.membership.benefit4Body },
-  ];
+  // Benefit catalog is admin-managed data (PRD 5.4), not code.
+  const supabaseAnon = await createClient();
+  const { data: benefitRows } = await supabaseAnon
+    .from("benefits")
+    .select("title_en, title_ko, body_en, body_ko")
+    .eq("is_active", true)
+    .order("sort_order");
+  const benefits = (benefitRows ?? []).map((b) => ({
+    title: locale === "ko" && b.title_ko ? b.title_ko : b.title_en,
+    body: locale === "ko" && b.body_ko ? b.body_ko : b.body_en,
+  }));
   const steps = [t.membership.how1, t.membership.how2, t.membership.how3];
   const priceNote = settingString(settings, "membership_price_note");
   const bankNote = settingString(settings, "membership_bank_note");
@@ -56,8 +61,7 @@ export default async function MembershipPage() {
   let subscription: { expires_at: string; expiring: boolean } | null = null;
   let hadSubscription = false;
   if (session.userId) {
-    const supabase = await createClient();
-    const { data: rows } = await supabase
+    const { data: rows } = await supabaseAnon
       .from("subscriptions")
       .select("status, expires_at")
       .eq("profile_id", session.userId)

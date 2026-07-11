@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/imageCompress";
-import { saveHomepage } from "@/app/actions/homepage";
+import { saveHomepage, type HomepageInput } from "@/app/actions/homepage";
 import { DiscardModal } from "@/components/ui/EditFormFrame";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
@@ -28,16 +28,19 @@ type Props = {
     customDomain: string;
     isPublished: boolean;
   };
+  // Admin reuse: alternate save action and return location.
+  save?: (input: HomepageInput) => Promise<{ error?: string }>;
+  doneHref?: string;
 };
 
-export function HomepageEditor({ t, userId, initial }: Props) {
+export function HomepageEditor({ t, userId, initial, save, doneHref }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const dirty = useRef(false);
-  const cancelHref = "/dashboard/homepage";
+  const cancelHref = doneHref ?? "/dashboard/homepage";
 
   const [slug, setSlug] = useState(initial.slug);
   const [introEn, setIntroEn] = useState(initial.introEn);
@@ -62,7 +65,7 @@ export function HomepageEditor({ t, userId, initial }: Props) {
   function submit() {
     setError(null);
     startTransition(async () => {
-      const result = await saveHomepage({
+      const result = await (save ?? saveHomepage)({
         slug,
         introEn,
         introKo,
@@ -79,7 +82,7 @@ export function HomepageEditor({ t, userId, initial }: Props) {
           : t.common.error);
         return;
       }
-      router.push("/dashboard/homepage?toast=saved");
+      router.push(`${cancelHref}?toast=saved`);
       router.refresh();
     });
   }

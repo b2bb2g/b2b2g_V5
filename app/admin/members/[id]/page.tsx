@@ -44,8 +44,19 @@ export default async function AdminMemberDetailPage(props: {
     member_admin_memos: { memo: string } | null;
   };
 
-  const [{ data: badges }, { data: subscriptions }, { data: posts }, { data: logins }, referrer] =
-    await Promise.all([
+  const [
+    { data: badges },
+    { data: subscriptions },
+    { data: posts },
+    { data: logins },
+    referrer,
+    { data: homepage },
+    { count: sentCount },
+    { count: receivedCount },
+    { count: rejectedPostCount },
+    { data: rejectedPosts },
+    { count: rejectedMsgCount },
+  ] = await Promise.all([
       supabase
         .from("member_badges")
         .select("badge_type_id, badge_types(*)")
@@ -75,6 +86,36 @@ export default async function AdminMemberDetailPage(props: {
             .eq("id", member.referred_by)
             .maybeSingle()
         : Promise.resolve({ data: null }),
+      supabase
+        .from("mini_homepages")
+        .select("slug, is_published")
+        .eq("profile_id", id)
+        .maybeSingle(),
+      supabase
+        .from("inquiries")
+        .select("id", { count: "exact", head: true })
+        .eq("sender_id", id),
+      supabase
+        .from("inquiries")
+        .select("id", { count: "exact", head: true })
+        .eq("recipient_id", id),
+      supabase
+        .from("posts")
+        .select("id", { count: "exact", head: true })
+        .eq("author_id", id)
+        .eq("status", "rejected"),
+      supabase
+        .from("posts")
+        .select("id, title_en, reject_reason, updated_at")
+        .eq("author_id", id)
+        .eq("status", "rejected")
+        .order("updated_at", { ascending: false })
+        .limit(5),
+      supabase
+        .from("inquiry_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("sender_id", id)
+        .eq("review_status", "rejected"),
     ]);
 
   const statusLabels: Record<string, string> = t.admin.memberStatus;
@@ -166,6 +207,64 @@ export default async function AdminMemberDetailPage(props: {
           </div>
         )}
       </dl>
+
+      {/* Activity + moderation history (PRD 17.2): counts for sanction calls */}
+      <section className="card divide-y divide-line">
+        <div className="grid grid-cols-2 gap-2 px-4 py-3 sm:grid-cols-4">
+          <div>
+            <p className="text-xs font-semibold text-ink-faint">{t.admin.inquiriesSent}</p>
+            <p className="mt-0.5 text-sm font-bold">{sentCount ?? 0}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-ink-faint">{t.admin.inquiriesReceived}</p>
+            <p className="mt-0.5 text-sm font-bold">{receivedCount ?? 0}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-ink-faint">{t.admin.rejectedPosts}</p>
+            <p className="mt-0.5 text-sm font-bold">{rejectedPostCount ?? 0}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-ink-faint">{t.admin.rejectedMessages}</p>
+            <p className="mt-0.5 text-sm font-bold">{rejectedMsgCount ?? 0}</p>
+          </div>
+        </div>
+        {(rejectedPosts ?? []).length > 0 && (
+          <div className="space-y-1.5 px-4 py-3">
+            <p className="text-xs font-semibold text-ink-faint">{t.admin.rejectionHistory}</p>
+            {(rejectedPosts ?? []).map((post) => (
+              <p key={post.id} className="text-xs text-ink-soft">
+                <span className="font-semibold">{post.title_en}</span>
+                {post.reject_reason && ` — ${post.reject_reason}`}
+              </p>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+          <p className="text-xs font-semibold text-ink-faint">{t.admin.miniHomepage}</p>
+          {homepage ? (
+            <span className="flex items-center gap-2 text-xs">
+              <Link
+                href={`/c/${homepage.slug}`}
+                className="font-semibold text-primary-strong"
+              >
+                /c/{homepage.slug}
+              </Link>
+              <StatusLabel
+                status={homepage.is_published ? "approved" : "draft"}
+                label={homepage.is_published ? t.homepage.published : t.post.status.draft}
+              />
+              <Link
+                href={`/admin/members/${member.id}/homepage`}
+                className="font-semibold text-primary-strong underline underline-offset-2"
+              >
+                {t.common.edit}
+              </Link>
+            </span>
+          ) : (
+            <span className="text-xs text-ink-faint">-</span>
+          )}
+        </div>
+      </section>
 
       {/* Admin memo (admin-only table, PRD 17.2) */}
       <form action={saveMemberMemo} className="card space-y-2 p-4">
