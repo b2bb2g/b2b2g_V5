@@ -1,5 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { signIn } from "@/app/actions/auth";
+import { CaptchaField } from "@/components/auth/CaptchaField";
 import { ClearableInput, PasswordInput } from "@/components/ui/TextField";
 import Link from "next/link";
 
@@ -18,7 +19,9 @@ export default async function LoginPage(props: {
             ? t.auth.linkExpired
             : params.error === "restricted"
               ? t.auth.accountRestricted
-              : t.auth.invalidCredentials}
+              : params.error === "captcha"
+                ? t.auth.captchaRequired
+                : t.auth.invalidCredentials}
         </p>
       )}
 
@@ -57,6 +60,7 @@ export default async function LoginPage(props: {
           />
           {t.auth.rememberMe}
         </label>
+        <CaptchaField />
         <button
           type="submit"
           className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"

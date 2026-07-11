@@ -14,6 +14,7 @@ export async function signUp(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const referredByUid = String(formData.get("ref") ?? "").trim();
+  const captchaToken = String(formData.get("captchaToken") ?? "") || undefined;
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
@@ -22,10 +23,14 @@ export async function signUp(formData: FormData) {
     options: {
       emailRedirectTo: `${siteUrl()}/auth/confirm`,
       data: referredByUid ? { referred_by_uid: referredByUid } : undefined,
+      captchaToken,
     },
   });
 
-  if (error) redirect(`/signup?error=1${referredByUid ? `&ref=${referredByUid}` : ""}`);
+  if (error) {
+    const kind = error.message.toLowerCase().includes("captcha") ? "captcha" : "1";
+    redirect(`/signup?error=${kind}${referredByUid ? `&ref=${referredByUid}` : ""}`);
+  }
   redirect("/verify");
 }
 
@@ -34,6 +39,7 @@ export async function signIn(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/dashboard");
   const remember = formData.get("remember") === "on";
+  const captchaToken = String(formData.get("captchaToken") ?? "") || undefined;
 
   const store = await cookies();
   if (remember) {
@@ -48,9 +54,16 @@ export async function signIn(formData: FormData) {
   }
 
   const supabase = await createClient({ sessionOnly: !remember });
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+    options: { captchaToken },
+  });
 
-  if (error) redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
+  if (error) {
+    const kind = error.message.toLowerCase().includes("captcha") ? "captcha" : "1";
+    redirect(`/login?error=${kind}&next=${encodeURIComponent(next)}`);
+  }
 
   // Suspended / withdrawn members cannot sign in (PRD 17.2).
   if (data.user) {
@@ -93,9 +106,11 @@ export async function signOut() {
 
 export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
+  const captchaToken = String(formData.get("captchaToken") ?? "") || undefined;
   const supabase = await createClient();
   await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${siteUrl()}/auth/confirm?next=/reset/update`,
+    captchaToken,
   });
   redirect("/reset?sent=1");
 }

@@ -131,9 +131,16 @@
 - 일괄 작업: 회원 목록 체크박스 선택 → 알림 발송(운영팀 알림) 또는 등급 변경, 감사 기록
 - 접속 이력: 로그인 이벤트 기록(UA 포함) + last_seen 하트비트(시간당 1회), 회원 상세 표시
 
-## 다음 작업 큐 (갱신)
+## hCaptcha (2026-07-11 구현 완료)
 
-1. hCaptcha 통합 (사용자 사이트 키 제공 대기)
+- 가입/로그인/비밀번호 재설정 폼에 위젯 (`CaptchaField`, NEXT_PUBLIC_HCAPTCHA_SITE_KEY
+  설정 시에만 렌더링), 토큰은 Supabase 인증 호출(captchaToken)로 전달
+- Supabase Attack Protection 캡차 토글 ON 상태로 운영 중 (Secret은 대시보드에만 존재)
+- 캡차 미완료 제출 시 전용 안내 문구 표시
+- 인증 E2E 2종은 캡차 강제 하에서 자동화 불가(설계상 정상) →
+  `E2E_SKIP_AUTH=1 npm run test:e2e`로 스킵 실행 (6 passed + 2 skipped)
+
+## 다음 작업 큐 (갱신)
 2. 번역 보조 (번역 API 선정 필요 — PRD 11, 스위치는 준비됨)
 3. PG 결제 연동 (PRD 19 미확정), 법적 문구 최종 확정
 4. 배포: Vercel + b2bb2g.com (테스트 완료 후)

@@ -1,5 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { signUp } from "@/app/actions/auth";
+import { CaptchaField } from "@/components/auth/CaptchaField";
 import { ClearableInput, PasswordInput } from "@/components/ui/TextField";
 import Link from "next/link";
 
@@ -20,7 +21,7 @@ export default async function SignUpPage(props: {
       )}
       {params.error && (
         <p className="mt-3 rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
-          {t.common.error}
+          {params.error === "captcha" ? t.auth.captchaRequired : t.common.error}
         </p>
       )}
 
@@ -52,6 +53,7 @@ export default async function SignUpPage(props: {
             />
           </div>
         </label>
+        <CaptchaField />
         <button
           type="submit"
           className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"

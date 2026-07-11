@@ -1,5 +1,12 @@
 import { expect, test } from "@playwright/test";
 
+// Once Supabase captcha protection is switched on, password sign-in requires
+// a human-solved token, so run with E2E_SKIP_AUTH=1 to skip these two specs.
+test.skip(
+  process.env.E2E_SKIP_AUTH === "1",
+  "captcha protection enforced; auth specs skipped"
+);
+
 // Authenticated flow against the seeded test account (global setup/teardown).
 const EMAIL = "e2e-smoke@example.com";
 const PASSWORD = "E2eSmokeTest1234";

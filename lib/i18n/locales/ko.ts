@@ -118,6 +118,7 @@ const ko: Dict = {
     referredBy: "추천인",
     signUpDone: "계정을 만들었어요. 이메일 인증을 완료해 주세요.",
     invalidCredentials: "이메일 또는 비밀번호가 올바르지 않아요.",
+    captchaRequired: "아래 보안 확인을 완료해 주세요.",
     accountRestricted: "이용이 제한되었거나 탈퇴한 계정이에요. 오류라고 생각되면 운영팀에 문의해 주세요.",
     rememberMe: "로그인 상태 유지",
     forgotPassword: "비밀번호를 잊으셨나요?",

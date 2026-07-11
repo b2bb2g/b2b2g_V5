@@ -114,6 +114,7 @@ const en = {
     referredBy: "Invited by member",
     signUpDone: "Account created. Please verify your email.",
     invalidCredentials: "Email or password is incorrect.",
+    captchaRequired: "Please complete the security check below.",
     accountRestricted: "This account is suspended or withdrawn. Contact the operations team if you think this is a mistake.",
     rememberMe: "Keep me signed in",
     forgotPassword: "Forgot password?",
