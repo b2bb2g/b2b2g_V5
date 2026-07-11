@@ -226,6 +226,19 @@ main > :where(*) {
   .rich-content img {
     @apply my-3 max-w-full rounded-xl;
   }
+  .notice-content {
+    @apply text-base leading-8;
+  }
+  .notice-content h2 {
+    @apply mb-4 mt-0 text-2xl font-extrabold tracking-tight;
+  }
+  .notice-content h3 {
+    @apply mb-3 mt-8 text-lg font-extrabold;
+  }
+  .notice-content p,
+  .notice-content li {
+    @apply text-ink-soft;
+  }
   .rich-content table {
     @apply my-3 w-full border-collapse text-sm;
   }

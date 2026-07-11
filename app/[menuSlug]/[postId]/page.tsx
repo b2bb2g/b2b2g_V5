@@ -110,6 +110,9 @@ export default async function PostDetailPage(props: {
         ? full.post.body_ko
         : full.post.body_en;
     const publishedAt = full.post.published_at ?? full.post.created_at;
+    const noticeImage = full.post.rep_image_path
+      ? postMediaUrl(full.post.rep_image_path)
+      : null;
     return (
       <article className="wide space-y-5">
         <nav aria-label={t.board.backToNotices}>
@@ -121,77 +124,61 @@ export default async function PostDetailPage(props: {
             {t.board.backToNotices}
           </Link>
         </nav>
-        <header className="relative overflow-hidden rounded-[2rem] bg-[#101923] px-6 py-10 text-white shadow-[0_24px_75px_rgba(16,25,35,.2)] sm:px-10 sm:py-14 lg:px-14">
+        <header className="relative min-h-[25rem] overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_24px_75px_rgba(16,25,35,.2)] sm:min-h-[32rem]">
+          {noticeImage ? (
+            <Image
+              src={noticeImage}
+              alt=""
+              fill
+              priority
+              sizes="(max-width:1280px) 100vw, 1280px"
+              className="object-cover"
+            />
+          ) : (
+            <span
+              className="absolute -right-20 -top-28 h-80 w-80 rounded-full bg-primary/35 blur-3xl"
+              aria-hidden="true"
+            />
+          )}
           <span
-            className="absolute -right-20 -top-28 h-80 w-80 rounded-full bg-primary/35 blur-3xl"
+            className={`absolute inset-0 ${noticeImage ? "bg-gradient-to-t from-black/90 via-black/25 to-black/10" : "bg-transparent"}`}
             aria-hidden="true"
           />
-          <span
-            className="absolute bottom-0 right-16 h-28 w-28 rounded-t-full border-[24px] border-white/5"
-            aria-hidden="true"
-          />
-          <div className="relative max-w-4xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-primary px-3 py-1.5 text-xs font-extrabold uppercase tracking-[.14em]">
-                {t.board.officialNotice}
-              </span>
-              <span className="rounded-full border border-white/15 bg-white/7 px-3 py-1.5 text-xs font-semibold text-white/65">
-                {t.board.publicNotice}
-              </span>
-            </div>
-            <h1 className="mt-7 text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">
+          <div className="absolute inset-x-0 bottom-0 p-7 sm:p-10 lg:p-14">
+            <span className="rounded-full bg-primary px-3 py-1.5 text-xs font-extrabold uppercase tracking-[.14em]">
+              {t.board.officialNotice}
+            </span>
+            <h1 className="mt-6 max-w-4xl text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">
               {title}
             </h1>
-            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 pt-5 text-xs text-white/58">
-              <span>{t.board.adminPublished}</span>
-              <time dateTime={publishedAt}>{publishedAt.slice(0, 10)}</time>
-            </div>
+            <time
+              dateTime={publishedAt}
+              className="mt-6 block text-xs font-semibold text-white/60"
+            >
+              {publishedAt.slice(0, 10)}
+            </time>
           </div>
         </header>
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-          <section className="rounded-[2rem] border border-line/80 bg-white px-6 py-8 shadow-(--shadow-card) sm:px-10 sm:py-12 lg:px-14">
-            {isRichText(body) ? (
-              <div
-                className="rich-content notice-content"
-                dangerouslySetInnerHTML={{ __html: sanitizeRichText(body) }}
-              />
-            ) : (
-              <div className="whitespace-pre-wrap text-base leading-8 text-ink">
-                {body}
-              </div>
-            )}
-          </section>
-          <aside className="space-y-3 lg:sticky lg:top-24">
-            <section className="rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-(--shadow-card)">
-              <span
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-positive-soft text-positive"
-                aria-hidden="true"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="m5 12 4 4L19 6" />
-                </svg>
-              </span>
-              <h2 className="mt-4 text-sm font-extrabold">
-                {t.board.adminPublished}
-              </h2>
-              <p className="mt-2 text-xs leading-6 text-ink-soft">
-                {t.board.noticeReadingHint}
-              </p>
-            </section>
-            <Link
-              href="/notices"
-              className="flex items-center justify-between rounded-[1.5rem] bg-primary p-5 text-sm font-extrabold text-white shadow-[0_14px_40px_rgba(27,100,218,.2)]"
-            >
-              {t.board.backToNotices}
-              <span aria-hidden="true">→</span>
-            </Link>
-          </aside>
+        <section className="mx-auto w-full max-w-5xl rounded-[2rem] border border-line/80 bg-white px-6 py-9 shadow-(--shadow-card) sm:px-10 sm:py-12 lg:px-16 lg:py-16">
+          {isRichText(body) ? (
+            <div
+              className="rich-content notice-content"
+              dangerouslySetInnerHTML={{ __html: sanitizeRichText(body) }}
+            />
+          ) : (
+            <div className="whitespace-pre-wrap text-base leading-8 text-ink">
+              {body}
+            </div>
+          )}
+        </section>
+        <div className="mx-auto flex w-full max-w-5xl justify-center pt-2">
+          <Link
+            href="/notices"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-extrabold text-white shadow-[0_12px_35px_rgba(27,100,218,.2)]"
+          >
+            {t.board.backToNotices}
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </article>
     );
