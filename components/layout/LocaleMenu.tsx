@@ -48,7 +48,14 @@ export function LocaleMenu({
           className="animate-fade-up absolute right-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-(--shadow-float)"
           style={{ animationDuration: "0.25s" }}
         >
-          <form action={setLocale}>
+          {/* The menu must stay mounted until the action finishes -- closing
+              onClick unmounts the form and the submit never fires. */}
+          <form
+            action={async (formData: FormData) => {
+              await setLocale(formData);
+              setOpen(false);
+            }}
+          >
             {LOCALES.map((l) => (
               <button
                 key={l}
@@ -56,7 +63,6 @@ export function LocaleMenu({
                 name="locale"
                 value={l}
                 role="menuitem"
-                onClick={() => setOpen(false)}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
                   l === locale
                     ? "bg-primary-soft text-primary-strong"
