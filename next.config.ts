@@ -5,6 +5,8 @@ const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
   : "*.supabase.co";
 
 const nextConfig: NextConfig = {
+  // Local dev via a hosts-file alias (hCaptcha does not support localhost).
+  allowedDevOrigins: ["dev.b2bb2g.com"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: supabaseHost },

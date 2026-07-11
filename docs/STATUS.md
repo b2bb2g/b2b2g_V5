@@ -133,10 +133,17 @@
 
 ## hCaptcha (2026-07-11 구현 완료)
 
-- 가입/로그인/비밀번호 재설정 폼에 위젯 (`CaptchaField`, NEXT_PUBLIC_HCAPTCHA_SITE_KEY
-  설정 시에만 렌더링), 토큰은 Supabase 인증 호출(captchaToken)로 전달
-- Supabase Attack Protection 캡차 토글 ON 상태로 운영 중 (Secret은 대시보드에만 존재)
+- **인비저블 모드**: 체크박스 없음. 제출 버튼(`CaptchaSubmit`, components/auth/CaptchaField.tsx)이
+  클릭 시 백그라운드 검증(의심 트래픽만 퍼즐 팝업) 후 토큰을 붙여 폼 제출.
+  NEXT_PUBLIC_HCAPTCHA_SITE_KEY 미설정 시 일반 제출 버튼으로 동작
+- 토큰은 Supabase 인증 호출(captchaToken)로 전달, Attack Protection 토글 ON
+  (Secret은 대시보드에만 존재)
 - 캡차 미완료 제출 시 전용 안내 문구 표시
+- **로컬 개발**: hCaptcha는 localhost 미지원(콘솔 경고 + 검증 실패 가능).
+  `/etc/hosts`에 `127.0.0.1 dev.b2bb2g.com` 추가 + hCaptcha 대시보드 사이트
+  hostnames에 dev.b2bb2g.com 등록 + Supabase Redirect URLs에
+  `http://dev.b2bb2g.com:3000/**` 추가 후 http://dev.b2bb2g.com:3000 으로 접속.
+  (next.config.ts `allowedDevOrigins`에 등록됨)
 - 인증 E2E 2종은 캡차 강제 하에서 자동화 불가(설계상 정상) →
   `E2E_SKIP_AUTH=1 npm run test:e2e`로 스킵 실행 (6 passed + 2 skipped)
 
