@@ -121,6 +121,8 @@ export default async function DashboardPage() {
       </header>
 
       {/* Primary actions: register or request (UX convention: clear entry points) */}
+      <section>
+      <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">{t.dashboard.quickActions}</p>
       <div className="flex flex-wrap gap-2">
         <Link href="/write/select" className="btn-primary btn-lg">
           {t.dashboard.registerProduct}
@@ -129,7 +131,10 @@ export default async function DashboardPage() {
           {t.dashboard.postRequest}
         </Link>
       </div>
+      </section>
 
+      <section>
+      <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">{t.dashboard.needsAttention}</p>
       <div className="grid grid-cols-2 gap-3">
         <Link href="/dashboard/posts" className="card-hover p-4">
           <p className="text-2xl font-extrabold text-primary-strong">{pendingPosts.count ?? 0}</p>
@@ -140,6 +145,7 @@ export default async function DashboardPage() {
           <p className="mt-1 text-sm font-semibold text-ink-soft">{t.dashboard.unreadReplies}</p>
         </Link>
       </div>
+      </section>
 
       {/* Status cards: three across on the wide frame */}
       <div className="grid gap-4 lg:grid-cols-3">

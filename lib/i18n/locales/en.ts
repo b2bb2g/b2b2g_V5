@@ -165,6 +165,11 @@ const en = {
     membersOnlyBody: "Full specifications, attachments and inquiries are available after you sign in.",
     signInToContinue: "Sign in to continue",
     postedBy: "Posted by",
+    supplierProfile: "Supplier profile",
+    supplierTrustHint: "Review the company profile and trust badges before starting a conversation.",
+    viewCompany: "View company profile",
+    inquiryHint: "Send your requirements directly. The operations team reviews messages before delivery.",
+    signUpToInquire: "Create a free account to view details and contact this company.",
     status: {
       draft: "Draft",
       pending: "In review",
@@ -226,6 +231,10 @@ const en = {
   },
   dashboard: {
     title: "My dashboard",
+    commandCenter: "Business workspace",
+    commandHint: "Manage products, sourcing conversations, and company trust in one place.",
+    needsAttention: "Needs your attention",
+    quickActions: "Quick actions",
     referralLink: "My referral link",
     referralHint: "Members who join through this link are connected to you.",
     referralCount: "Members you invited",

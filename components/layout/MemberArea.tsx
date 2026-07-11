@@ -32,8 +32,13 @@ export async function MemberArea({ children }: { children: ReactNode }) {
 
   return (
     <div className="wide space-y-5">
+      <div className="rounded-[1.5rem] bg-ink px-5 py-6 text-white sm:px-7">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{t.dashboard.commandCenter}</p>
+        <h1 className="mt-2 text-2xl font-extrabold tracking-tight">{t.dashboard.title}</h1>
+        <p className="mt-1 max-w-xl text-sm text-white/55">{t.dashboard.commandHint}</p>
+      </div>
       <MemberTabs items={items} />
-      {children}
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }

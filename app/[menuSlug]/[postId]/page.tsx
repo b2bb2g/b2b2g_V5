@@ -10,6 +10,7 @@ import { postMediaUrl, repThumbnail, videoEmbedUrl } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { MediaGallery } from "@/components/post/MediaGallery";
+import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { isRichText, sanitizeRichText, stripRichText } from "@/lib/richtext";
 import type { Metadata } from "next";
@@ -83,9 +84,13 @@ export default async function PostDetailPage(props: {
   const isRequest = (post?.type ?? teaser?.type) === BOARD_TYPES.REQUEST;
 
   const statusLabels: Record<string, string> = t.post.status;
+  const authorUid = full?.author?.uid ?? teaser?.author_uid;
+  const authorName =
+    (full?.author?.company_name ?? full?.author?.display_name) ??
+    (teaser?.author_company ?? teaser?.author_name);
 
   return (
-    <article className="space-y-6">
+    <article className="wide space-y-6">
       {/* Own-post review status banner (PRD 14: waiting made transparent) */}
       {isOwn && post && post.status !== POST_STATUS.APPROVED && (
         <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">
@@ -98,6 +103,8 @@ export default async function PostDetailPage(props: {
         </div>
       )}
 
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="min-w-0 space-y-6">
       {/* Representative media: player on detail only (PRD 6.8) */}
       {videoIsHero ? (
         <div className="space-y-2">
@@ -155,6 +162,10 @@ export default async function PostDetailPage(props: {
             </div>
           )}
         </div>
+      ) : !isRequest ? (
+        <div className="aspect-video overflow-hidden rounded-[1.25rem] border border-line">
+          <MediaPlaceholder />
+        </div>
       ) : null}
 
       <header className="space-y-2">
@@ -162,11 +173,10 @@ export default async function PostDetailPage(props: {
         <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
           <span>{t.post.postedBy}</span>
           <Link
-            href={`/u/${full?.author?.uid ?? teaser?.author_uid}`}
+            href={`/u/${authorUid}`}
             className="font-semibold text-ink hover:text-primary-strong"
           >
-            {(full?.author?.company_name ?? full?.author?.display_name) ??
-              (teaser?.author_company ?? teaser?.author_name)}
+            {authorName}
           </Link>
           {full?.author?.badges.map((b) => (
             <BadgePill
@@ -243,25 +253,6 @@ export default async function PostDetailPage(props: {
             </section>
           )}
 
-          {!isOwn && post?.status === POST_STATUS.APPROVED && (
-            <div className="sticky bottom-4">
-              {isClosed && isRequest ? (
-                <button
-                  disabled
-                  className="w-full rounded-xl bg-surface-sub px-4 py-3.5 text-sm font-bold text-ink-faint"
-                >
-                  {t.post.closed}
-                </button>
-              ) : (
-                <Link
-                  href={`/inquiries/new?post=${post.id}`}
-                  className="block w-full rounded-xl bg-primary px-4 py-3.5 text-center text-sm font-bold text-white shadow-lg hover:bg-primary-strong"
-                >
-                  {t.post.inquire}
-                </Link>
-              )}
-            </div>
-          )}
         </>
       ) : (
         teaser && (
@@ -287,6 +278,35 @@ export default async function PostDetailPage(props: {
           </>
         )
       )}
+      </div>
+
+      <aside className="space-y-3 lg:sticky lg:top-24">
+        <section className="rounded-[1.25rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-ink-faint">{t.post.supplierProfile}</p>
+          <Link href={`/u/${authorUid}`} className="mt-3 block text-lg font-extrabold hover:text-primary-strong">{authorName}</Link>
+          {full?.author?.badges && full.author.badges.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {full.author.badges.map((badge) => <BadgePill key={badge.code} code={badge.code} label={locale === "ko" ? badge.name_ko : badge.name_en} />)}
+            </div>
+          )}
+          <p className="mt-4 text-xs leading-relaxed text-ink-soft">{t.post.supplierTrustHint}</p>
+          <Link href={`/u/${authorUid}`} className="btn-secondary btn-md mt-4 w-full">{t.post.viewCompany}</Link>
+        </section>
+
+        {!isOwn && (
+          <section className="rounded-[1.25rem] bg-ink p-5 text-white shadow-(--shadow-float) max-lg:sticky max-lg:bottom-3">
+            <p className="text-base font-extrabold">{isMember ? t.post.inquire : t.common.signUp}</p>
+            <p className="mt-2 text-xs leading-relaxed text-white/60">{isMember ? t.post.inquiryHint : t.post.signUpToInquire}</p>
+            {isMember && post?.status === POST_STATUS.APPROVED ? (
+              isClosed && isRequest ? <button disabled className="mt-5 w-full rounded-xl bg-white/10 px-4 py-3 text-sm font-bold text-white/40">{t.post.closed}</button> :
+              <Link href={`/inquiries/new?post=${post.id}`} className="btn-primary btn-lg mt-5 w-full">{t.post.inquire}</Link>
+            ) : !isMember ? (
+              <Link href="/signup" className="btn-primary btn-lg mt-5 w-full">{t.common.signUp}</Link>
+            ) : null}
+          </section>
+        )}
+      </aside>
+      </div>
     </article>
   );
 }

@@ -169,6 +169,11 @@ const ko: Dict = {
     membersOnlyBody: "로그인하면 전체 사양, 첨부파일, 문의 기능을 이용할 수 있어요.",
     signInToContinue: "로그인하고 계속하기",
     postedBy: "작성자",
+    supplierProfile: "공급자 정보",
+    supplierTrustHint: "문의 전 기업 프로필과 신뢰 배지를 확인해 보세요.",
+    viewCompany: "기업 프로필 보기",
+    inquiryHint: "필요한 조건을 직접 보내세요. 메시지는 운영팀 검토 후 전달됩니다.",
+    signUpToInquire: "무료 가입 후 상세 정보를 확인하고 이 기업에 문의할 수 있어요.",
     status: {
       draft: "임시저장",
       pending: "검토 중",
@@ -230,6 +235,10 @@ const ko: Dict = {
   },
   dashboard: {
     title: "내 대시보드",
+    commandCenter: "비즈니스 워크스페이스",
+    commandHint: "상품, 소싱 대화, 기업 신뢰 정보를 한곳에서 관리하세요.",
+    needsAttention: "지금 확인할 항목",
+    quickActions: "빠른 작업",
     referralLink: "내 추천 링크",
     referralHint: "이 링크로 가입한 회원은 나와 연결돼요.",
     referralCount: "내가 초대한 회원",
