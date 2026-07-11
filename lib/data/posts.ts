@@ -9,6 +9,7 @@ export async function listPostsForMenu(
   menuId: string,
   categoryId?: string,
   page = 1,
+  authorUid?: number,
 ): Promise<{ posts: PostTeaser[]; totalPages: number }> {
   const supabase = await createClient();
   const from = (page - 1) * BOARD_PAGE_SIZE;
@@ -19,6 +20,7 @@ export async function listPostsForMenu(
     .order("published_at", { ascending: false })
     .range(from, from + BOARD_PAGE_SIZE - 1);
   if (categoryId) query = query.eq("category_id", categoryId);
+  if (authorUid) query = query.eq("author_uid", authorUid);
   const { data, count } = await query;
   return {
     posts: (data as PostTeaser[]) ?? [],
@@ -36,6 +38,24 @@ export async function getPostTeaser(
     .eq("id", postId)
     .maybeSingle();
   return (data as PostTeaser) ?? null;
+}
+
+// Product detail recommendations stay on the anon-safe public view. Limit at
+// the database so detail pages do not fetch a full board just to render a row.
+export async function listRelatedPosts(
+  menuId: string,
+  currentPostId: string,
+  limit = 8,
+): Promise<PostTeaser[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("public_posts")
+    .select("*")
+    .eq("menu_id", menuId)
+    .neq("id", currentPostId)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  return (data as PostTeaser[]) ?? [];
 }
 
 export type FullPost = {

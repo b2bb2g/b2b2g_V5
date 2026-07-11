@@ -13,7 +13,8 @@ export async function updateProfile(formData: FormData) {
 
   const displayName = String(formData.get("displayName") ?? "").trim();
   const companyName = String(formData.get("companyName") ?? "").trim();
-  const bio = String(formData.get("bio") ?? "").trim();
+  const bioEn = String(formData.get("bioEn") ?? "").trim();
+  const bioKo = String(formData.get("bioKo") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const contactPerson = String(formData.get("contactPerson") ?? "").trim();
   const avatarPath = String(formData.get("avatarPath") ?? "").trim();
@@ -24,7 +25,9 @@ export async function updateProfile(formData: FormData) {
     .update({
       display_name: displayName || null,
       company_name: companyName || null,
-      bio: bio || null,
+      bio: bioEn || null,
+      bio_en: bioEn || null,
+      bio_ko: bioKo || null,
       avatar_url: avatarPath || null,
     })
     .eq("id", user.id);

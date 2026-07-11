@@ -101,7 +101,7 @@ export default async function RootLayout({
         <main id="main-content" tabIndex={-1} className="w-full flex-1">
           {children}
         </main>
-        <RouteChrome hideOnAdmin hideOnHome>
+        <RouteChrome hideOnAdmin hideOnHome hideOnMember>
           <Footer />
         </RouteChrome>
         <Suspense>

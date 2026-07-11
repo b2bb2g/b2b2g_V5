@@ -37,6 +37,12 @@ site setting automatically becomes an admin.
   the UI is presentation; the locked data is never delivered.
 - **Mediated inquiries** (PRD 8): every message is admin-reviewed before the
   counterpart can read it, enforced by RLS on `inquiry_messages`.
+- **Member network** (PRD 16.6): public UID-based business updates with image
+  galleries, likes, comments, reposts, external sharing and follows. Writes are
+  authenticated and ownership-scoped by RLS.
+- **B2B commerce detail**: Commercial, Industrial and EPC+IPP use a unified
+  image/video gallery, key specifications, inquiry-first CTA, rich product
+  content and related products instead of price/cart checkout UI.
 - **UI text**: no hardcoded strings; everything goes through the language packs.
   No emoji anywhere (PRD rule 2).
 

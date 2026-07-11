@@ -7,13 +7,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const entries: MetadataRoute.Sitemap = [
     { url: site, changeFrequency: "daily", priority: 1 },
+    { url: `${site}/feed`, changeFrequency: "daily", priority: 0.8 },
     { url: `${site}/membership`, changeFrequency: "monthly", priority: 0.5 },
   ];
 
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     );
     const [{ data: menus }, { data: posts }, { data: homepages }] =
       await Promise.all([
@@ -23,7 +24,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .select("id, menu_id, published_at")
           .order("published_at", { ascending: false })
           .limit(2000),
-        supabase.from("mini_homepages").select("slug, updated_at").eq("is_published", true),
+        supabase
+          .from("mini_homepages")
+          .select("slug, updated_at")
+          .eq("is_published", true),
       ]);
 
     const menuSlugById = new Map((menus ?? []).map((m) => [m.id, m.slug]));

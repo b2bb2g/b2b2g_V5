@@ -2,15 +2,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
-import { getMenuBySlug } from "@/lib/data/menus";
-import { getFullPost, getPostTeaser } from "@/lib/data/posts";
+import { getMenuBySlug, menuTitle } from "@/lib/data/menus";
+import { getFullPost, getPostTeaser, listRelatedPosts } from "@/lib/data/posts";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { postMediaUrl, repThumbnail, videoEmbedUrl } from "@/lib/media";
-import { BadgePill } from "@/components/ui/Badge";
+import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
+import { ProductCard } from "@/components/marketplace/ProductCard";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { MediaGallery } from "@/components/post/MediaGallery";
+import { RichContentViewer } from "@/components/post/RichContentViewer";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { isRichText, sanitizeRichText, stripRichText } from "@/lib/richtext";
@@ -96,14 +98,32 @@ export default async function PostDetailPage(props: {
       (post?.deadline ?? teaser?.deadline)! <
         new Date().toISOString().slice(0, 10));
   const isRequest = (post?.type ?? teaser?.type) === BOARD_TYPES.REQUEST;
+  const inquiryEligible = [
+    "commercial",
+    "industrial",
+    "epc",
+    "requests",
+    "events",
+  ].includes(menu.slug);
+  const isEvent = menu.slug === "events";
+  const isCommerceProduct = ["commercial", "industrial", "epc"].includes(
+    menu.slug,
+  );
 
   const statusLabels: Record<string, string> = t.post.status;
   const authorUid = full?.author?.uid ?? teaser?.author_uid;
-  const authorName =
-    full?.author?.company_name ??
-    full?.author?.display_name ??
-    teaser?.author_company ??
-    teaser?.author_name;
+  if (!authorUid) notFound();
+  const authorBadges = full?.author?.badges ?? teaser?.author_badges ?? [];
+  const inquiryPath = `/inquiries/new?post=${postId}`;
+  const sectionTitle = menuTitle(menu, locale);
+  const publishedAt =
+    post?.published_at ??
+    teaser?.published_at ??
+    post?.created_at ??
+    teaser?.created_at;
+  const relatedProducts = isCommerceProduct
+    ? await listRelatedPosts(menu.id, postId, 8)
+    : [];
 
   if (isNotice && full) {
     const body =
@@ -295,8 +315,379 @@ export default async function PostDetailPage(props: {
     );
   }
 
+  if (isCommerceProduct) {
+    const body = full
+      ? locale === "ko" && full.post.body_ko
+        ? full.post.body_ko
+        : full.post.body_en
+      : locale === "ko" && teaser?.body_teaser_ko
+        ? teaser.body_teaser_ko
+        : (teaser?.body_teaser_en ?? "");
+    const summary = stripRichText(body).replace(/\s+/g, " ").trim();
+    const highlightedSpecs = full?.specs.slice(0, 4) ?? [];
+    const commerceImages =
+      galleryImages.length > 0
+        ? galleryImages
+        : repImage
+          ? [postMediaUrl(repImage)]
+          : [];
+
+    return (
+      <article className="wide space-y-6 pb-16">
+        {isOwn && post && post.status !== POST_STATUS.APPROVED && (
+          <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">
+            <StatusLabel
+              status={post.status}
+              label={statusLabels[post.status] ?? post.status}
+            />
+            {post.status === POST_STATUS.REJECTED && post.reject_reason && (
+              <p className="text-xs text-ink-soft">
+                {t.post.rejectionReason}: {post.reject_reason}
+              </p>
+            )}
+          </div>
+        )}
+
+        <nav aria-label={t.post.backToList}>
+          <Link
+            href={`/${menu.slug}`}
+            className="group inline-flex min-h-10 items-center gap-2 rounded-full px-1 text-sm font-bold text-ink-soft transition hover:text-primary"
+          >
+            <span
+              aria-hidden="true"
+              className="transition-transform group-hover:-translate-x-1"
+            >
+              ←
+            </span>
+            {t.post.backToList.replace("{menu}", sectionTitle)}
+          </Link>
+        </nav>
+
+        <section className="overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
+          <div className="grid lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,.82fr)]">
+            <div className="min-w-0 p-3 sm:p-5 lg:p-7">
+              {commerceImages.length > 0 || embed ? (
+                <MediaGallery
+                  images={commerceImages}
+                  heroIndex={Math.min(heroIndex, commerceImages.length - 1)}
+                  showHero
+                  title={title ?? ""}
+                  closeLabel={t.common.close}
+                  variant="commerce"
+                  videoSrc={embed}
+                  videoLabel={t.post.video}
+                  initialMedia={videoIsHero ? "video" : "image"}
+                  previousLabel={t.post.previousMedia}
+                  nextLabel={t.post.nextMedia}
+                />
+              ) : (
+                <div className="aspect-square overflow-hidden rounded-[1.5rem] bg-surface-sub">
+                  <MediaPlaceholder />
+                </div>
+              )}
+            </div>
+
+            <header className="flex min-w-0 flex-col border-t border-line p-6 sm:p-8 lg:border-l lg:border-t-0 lg:p-10">
+              <div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
+                    {sectionTitle}
+                  </span>
+                </div>
+                <h1 className="mt-5 text-3xl font-extrabold leading-[1.2] tracking-[-.04em] text-ink sm:text-4xl lg:text-[2.5rem]">
+                  {title}
+                </h1>
+                <div className="mt-5 flex flex-wrap items-center gap-2 border-b border-line pb-5 text-sm text-ink-soft">
+                  <span className="sr-only">{t.post.postedBy}</span>
+                  <AuthorIdentity
+                    uid={authorUid}
+                    badges={authorBadges}
+                    locale={locale}
+                    linked
+                  />
+                </div>
+
+                {summary && (
+                  <p className="mt-5 line-clamp-4 text-sm leading-7 text-ink-soft">
+                    {summary}
+                  </p>
+                )}
+
+                {highlightedSpecs.length > 0 && (
+                  <section className="mt-6 rounded-2xl bg-surface-sub/80 p-4">
+                    <h2 className="text-xs font-extrabold uppercase tracking-[.12em] text-ink-faint">
+                      {t.post.keySpecifications}
+                    </h2>
+                    <dl className="mt-3 divide-y divide-line/80">
+                      {highlightedSpecs.map((spec) => (
+                        <div
+                          key={spec.id}
+                          className="grid grid-cols-[minmax(6rem,.8fr)_1.2fr] gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
+                        >
+                          <dt className="font-semibold text-ink-faint">
+                            {locale === "ko" && spec.name_ko
+                              ? spec.name_ko
+                              : spec.name_en}
+                          </dt>
+                          <dd className="text-right font-bold text-ink">
+                            {spec.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </section>
+                )}
+
+                <ul className="mt-6 grid gap-2 text-xs font-semibold text-ink-soft sm:grid-cols-3 lg:grid-cols-1">
+                  {[
+                    t.post.publicUidIdentity,
+                    t.post.linkedInquiry,
+                    t.post.memberDetailAccess,
+                  ].map((item) => (
+                    <li key={item} className="flex items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-positive-soft text-[11px] font-black text-positive"
+                      >
+                        ✓
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-auto pt-8">
+                <div className="rounded-2xl border border-primary/15 bg-primary-soft/55 p-4">
+                  <p className="text-sm font-extrabold text-ink">
+                    {t.post.requestProductDetails}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-ink-soft">
+                    {t.post.productInquiryHint}
+                  </p>
+                </div>
+                {isOwn && post ? (
+                  <Link
+                    href={`/write?menu=${menu.slug}&post=${postId}`}
+                    className="btn-secondary btn-lg mt-3 w-full"
+                  >
+                    {t.post.editPost}
+                  </Link>
+                ) : isMember && post?.status === POST_STATUS.APPROVED ? (
+                  <Link
+                    href={inquiryPath}
+                    className="btn-primary btn-lg mt-3 w-full"
+                  >
+                    {t.post.inquire}
+                  </Link>
+                ) : !isMember ? (
+                  <Link
+                    href={`/login?next=${encodeURIComponent(inquiryPath)}`}
+                    className="btn-primary btn-lg mt-3 w-full"
+                  >
+                    {t.post.inquire}
+                  </Link>
+                ) : null}
+              </div>
+            </header>
+          </div>
+        </section>
+
+        <nav
+          aria-label={t.post.detailNavigation}
+          className="scrollbar-none sticky top-16 z-20 -mx-1 flex overflow-x-auto border-b border-line bg-[#f7f8fa]/95 px-1 pt-1 backdrop-blur sm:top-18"
+        >
+          <a
+            href="#product-overview"
+            className="shrink-0 border-b-2 border-ink px-5 py-4 text-sm font-extrabold text-ink"
+          >
+            {t.post.productInformation}
+          </a>
+          {full && full.specs.length > 0 && (
+            <a
+              href="#product-specifications"
+              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+            >
+              {t.post.specs}
+            </a>
+          )}
+          {full && full.attachments.length > 0 && (
+            <a
+              href="#product-attachments"
+              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+            >
+              {t.post.attachments}
+            </a>
+          )}
+          {relatedProducts.length > 0 && (
+            <a
+              href="#related-products"
+              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+            >
+              {t.post.relatedProducts}
+            </a>
+          )}
+        </nav>
+
+        <div className="mx-auto w-full max-w-5xl space-y-6">
+          {full ? (
+            <>
+              <section
+                id="product-overview"
+                className="scroll-mt-32 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-10"
+              >
+                <h2 className="text-2xl font-extrabold tracking-[-.03em]">
+                  {t.post.productInformation}
+                </h2>
+                <div className="mt-6 max-w-[76ch]">
+                  {isRichText(body) ? (
+                    <RichContentViewer
+                      html={sanitizeRichText(body)}
+                      title={title ?? ""}
+                      closeLabel={t.common.close}
+                      className="rich-content product-rich-content"
+                    />
+                  ) : (
+                    <div className="whitespace-pre-wrap text-base leading-8 text-ink-soft">
+                      {body}
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {full.specs.length > 0 && (
+                <section
+                  id="product-specifications"
+                  className="scroll-mt-32 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-10"
+                >
+                  <h2 className="text-2xl font-extrabold tracking-[-.03em]">
+                    {t.post.specs}
+                  </h2>
+                  <dl className="mt-6 grid overflow-hidden rounded-2xl border border-line sm:grid-cols-2">
+                    {full.specs.map((spec) => (
+                      <div
+                        key={spec.id}
+                        className="border-b border-line p-4 last:border-b-0 sm:border-r sm:[&:nth-last-child(-n+2)]:border-b-0 sm:[&:nth-child(2n)]:border-r-0"
+                      >
+                        <dt className="text-xs font-bold text-ink-faint">
+                          {locale === "ko" && spec.name_ko
+                            ? spec.name_ko
+                            : spec.name_en}
+                        </dt>
+                        <dd className="mt-1.5 text-sm font-semibold leading-6 text-ink">
+                          {spec.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              )}
+
+              {full.attachments.length > 0 && (
+                <section
+                  id="product-attachments"
+                  className="scroll-mt-32 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-10"
+                >
+                  <h2 className="text-2xl font-extrabold tracking-[-.03em]">
+                    {t.post.attachments}
+                  </h2>
+                  <ul className="mt-6 overflow-hidden rounded-2xl border border-line">
+                    {full.attachments.map((attachment) => (
+                      <li
+                        key={attachment.id}
+                        className="border-b border-line last:border-b-0"
+                      >
+                        <Link
+                          href={`/api/attachments/${attachment.id}`}
+                          className="group flex items-center justify-between gap-4 px-4 py-4 text-sm font-bold text-ink transition hover:bg-primary-soft/40 hover:text-primary-strong"
+                        >
+                          <span className="min-w-0 truncate">
+                            {attachment.filename}
+                          </span>
+                          <span
+                            aria-hidden="true"
+                            className="shrink-0 text-primary transition-transform group-hover:translate-y-0.5"
+                          >
+                            ↓
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </>
+          ) : (
+            teaser && (
+              <section
+                id="product-overview"
+                className="scroll-mt-32 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-10"
+              >
+                <h2 className="text-2xl font-extrabold tracking-[-.03em]">
+                  {t.post.productInformation}
+                </h2>
+                <div className="teaser-fade mt-6 whitespace-pre-wrap text-base leading-8 text-ink-soft">
+                  {summary}
+                </div>
+                <div className="mt-7 rounded-2xl bg-surface-sub p-6 text-center">
+                  <p className="text-base font-bold">
+                    {t.post.membersOnlyTitle}
+                  </p>
+                  <p className="mt-1 text-sm text-ink-soft">
+                    {t.post.membersOnlyBody}
+                  </p>
+                  <Link
+                    href="/signup"
+                    className="mt-4 inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
+                  >
+                    {t.common.signUp}
+                  </Link>
+                </div>
+              </section>
+            )
+          )}
+        </div>
+
+        {relatedProducts.length > 0 && (
+          <section id="related-products" className="scroll-mt-32 pt-4">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
+                  {sectionTitle}
+                </p>
+                <h2 className="mt-2 text-2xl font-extrabold tracking-[-.03em] sm:text-3xl">
+                  {t.post.relatedProducts}
+                </h2>
+              </div>
+              <Link
+                href={`/${menu.slug}`}
+                className="shrink-0 text-sm font-bold text-primary hover:text-primary-strong"
+              >
+                {t.common.viewAll} →
+              </Link>
+            </div>
+            <div className="scrollbar-none -mx-4 mt-5 flex snap-x gap-4 overflow-x-auto px-4 pb-6">
+              {relatedProducts.map((related) => (
+                <div
+                  key={related.id}
+                  className="w-[72vw] max-w-64 shrink-0 snap-start sm:w-60"
+                >
+                  <ProductCard
+                    post={related}
+                    href={`/${menu.slug}/${related.id}`}
+                    locale={locale}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </article>
+    );
+  }
+
   return (
-    <article className="wide space-y-6">
+    <article className="wide space-y-5 pb-16 sm:space-y-6">
       {/* Own-post review status banner (PRD 14: waiting made transparent) */}
       {isOwn && post && post.status !== POST_STATUS.APPROVED && (
         <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">
@@ -312,12 +703,27 @@ export default async function PostDetailPage(props: {
         </div>
       )}
 
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="min-w-0 space-y-6">
+      <nav aria-label={t.post.backToList}>
+        <Link
+          href={`/${menu.slug}`}
+          className="group inline-flex min-h-10 items-center gap-2 rounded-full px-1 text-sm font-bold text-ink-soft transition hover:text-primary"
+        >
+          <span
+            aria-hidden="true"
+            className="transition-transform group-hover:-translate-x-1"
+          >
+            ←
+          </span>
+          {t.post.backToList.replace("{menu}", sectionTitle)}
+        </Link>
+      </nav>
+
+      <section className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(20rem,.75fr)] lg:gap-5">
+        <div className="min-w-0 overflow-hidden rounded-[1.75rem] border border-line/80 bg-white shadow-(--shadow-card)">
           {/* Representative media: player on detail only (PRD 6.8) */}
           {videoIsHero ? (
-            <div className="space-y-2">
-              <div className="aspect-video overflow-hidden rounded-card bg-surface-sub">
+            <div className="space-y-2 p-2">
+              <div className="aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-surface-sub sm:aspect-video lg:aspect-[4/3]">
                 <iframe
                   src={embed!}
                   title={title ?? ""}
@@ -337,7 +743,7 @@ export default async function PostDetailPage(props: {
               )}
             </div>
           ) : galleryImages.length > 0 || repImage ? (
-            <div className="space-y-2">
+            <div className="space-y-2 p-2">
               {galleryImages.length > 0 ? (
                 <MediaGallery
                   images={galleryImages}
@@ -347,7 +753,7 @@ export default async function PostDetailPage(props: {
                   closeLabel={t.common.close}
                 />
               ) : (
-                <div className="relative aspect-video overflow-hidden rounded-card bg-surface-sub">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-surface-sub sm:aspect-video lg:aspect-[4/3]">
                   <Image
                     src={postMediaUrl(repImage!)}
                     alt={title ?? ""}
@@ -360,7 +766,7 @@ export default async function PostDetailPage(props: {
               )}
               {/* Image is representative, but an attached video still plays here. */}
               {embed && (
-                <div className="aspect-video overflow-hidden rounded-card bg-surface-sub">
+                <div className="aspect-video overflow-hidden rounded-[1.25rem] bg-surface-sub">
                   <iframe
                     src={embed}
                     title={title ?? ""}
@@ -371,29 +777,39 @@ export default async function PostDetailPage(props: {
                 </div>
               )}
             </div>
-          ) : !isRequest ? (
-            <div className="aspect-video overflow-hidden rounded-[1.25rem] border border-line">
+          ) : (
+            <div className="aspect-[4/3] overflow-hidden bg-surface-sub sm:aspect-video lg:aspect-[4/3]">
               <MediaPlaceholder />
             </div>
-          ) : null}
+          )}
+        </div>
 
-          <header className="space-y-2">
-            <h1 className="text-xl font-extrabold leading-snug">{title}</h1>
-            <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
-              <span>{t.post.postedBy}</span>
-              <Link
-                href={`/u/${authorUid}`}
-                className="font-semibold text-ink hover:text-primary-strong"
-              >
-                {authorName}
-              </Link>
-              {full?.author?.badges.map((b) => (
-                <BadgePill
-                  key={b.code}
-                  code={b.code}
-                  label={locale === "ko" ? b.name_ko : b.name_en}
-                />
-              ))}
+        <header className="flex min-w-0 flex-col rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-8 lg:min-h-full">
+          <div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
+                {sectionTitle}
+              </span>
+              {publishedAt && (
+                <time
+                  dateTime={publishedAt}
+                  className="text-xs font-semibold text-ink-faint"
+                >
+                  {publishedAt.slice(0, 10)}
+                </time>
+              )}
+            </div>
+            <h1 className="mt-5 text-2xl font-extrabold leading-[1.25] tracking-[-.035em] text-ink sm:text-3xl lg:text-[2rem]">
+              {title}
+            </h1>
+            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-line pt-5 text-sm text-ink-soft">
+              <span className="sr-only">{t.post.postedBy}</span>
+              <AuthorIdentity
+                uid={authorUid}
+                badges={authorBadges}
+                locale={locale}
+                linked
+              />
               {isRequest && (
                 <StatusLabel
                   status={isClosed ? "closed" : "approved"}
@@ -407,42 +823,129 @@ export default async function PostDetailPage(props: {
                 />
               )}
             </div>
-          </header>
+          </div>
 
+          <div className="mt-auto pt-8">
+            {isOwn && post ? (
+              <Link
+                href={`/write?menu=${menu.slug}&post=${postId}`}
+                className="btn-secondary btn-lg w-full"
+              >
+                {t.post.editPost}
+              </Link>
+            ) : inquiryEligible ? (
+              isClosed && isRequest ? (
+                <button
+                  disabled
+                  className="w-full rounded-xl bg-surface-sub px-5 py-3.5 text-sm font-bold text-ink-faint"
+                >
+                  {t.post.closed}
+                </button>
+              ) : isMember && post?.status === POST_STATUS.APPROVED ? (
+                <Link href={inquiryPath} className="btn-primary btn-lg w-full">
+                  {t.post.inquire}
+                </Link>
+              ) : !isMember ? (
+                <Link
+                  href={`/login?next=${encodeURIComponent(inquiryPath)}`}
+                  className="btn-primary btn-lg w-full"
+                >
+                  {t.post.inquire}
+                </Link>
+              ) : null
+            ) : null}
+            {inquiryEligible && !isOwn && !(isClosed && isRequest) && (
+              <p className="mt-3 text-center text-xs leading-5 text-ink-faint">
+                {isEvent ? t.post.eventInquiryHint : t.post.directInquiryHint}
+              </p>
+            )}
+          </div>
+        </header>
+      </section>
+
+      {full && (full.specs.length > 0 || full.attachments.length > 0) && (
+        <nav
+          aria-label={t.post.detailNavigation}
+          className="scrollbar-none flex gap-2 overflow-x-auto rounded-2xl border border-line/80 bg-white p-2 shadow-(--shadow-card)"
+        >
+          <a
+            href="#overview"
+            className="shrink-0 rounded-xl bg-[#101923] px-4 py-2.5 text-sm font-bold text-white"
+          >
+            {t.post.overview}
+          </a>
+          {full.specs.length > 0 && (
+            <a
+              href="#specifications"
+              className="shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
+            >
+              {t.post.specs}
+            </a>
+          )}
+          {full.attachments.length > 0 && (
+            <a
+              href="#attachments"
+              className="shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
+            >
+              {t.post.attachments}
+            </a>
+          )}
+        </nav>
+      )}
+
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="min-w-0 space-y-5">
           {full ? (
             <>
-              {(() => {
-                const body =
-                  locale === "ko" && full.post.body_ko
-                    ? full.post.body_ko
-                    : full.post.body_en;
-                return isRichText(body) ? (
-                  <div
-                    className="rich-content"
-                    dangerouslySetInnerHTML={{ __html: sanitizeRichText(body) }}
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
-                    {body}
-                  </div>
-                );
-              })()}
+              <section
+                id="overview"
+                className="scroll-mt-28 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-9"
+              >
+                <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
+                  {isEvent ? t.post.eventInformation : t.post.overview}
+                </p>
+                <div className="mt-5 max-w-[72ch]">
+                  {(() => {
+                    const body =
+                      locale === "ko" && full.post.body_ko
+                        ? full.post.body_ko
+                        : full.post.body_en;
+                    return isRichText(body) ? (
+                      <div
+                        className="rich-content"
+                        dangerouslySetInnerHTML={{
+                          __html: sanitizeRichText(body),
+                        }}
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap text-[15px] leading-8 text-ink-soft sm:text-base">
+                        {body}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </section>
 
               {full.specs.length > 0 && (
-                <section>
-                  <h2 className="text-base font-bold">{t.post.specs}</h2>
-                  <dl className="mt-2 divide-y divide-line rounded-card border border-line">
+                <section
+                  id="specifications"
+                  className="scroll-mt-28 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-9"
+                >
+                  <h2 className="text-xl font-extrabold">{t.post.specs}</h2>
+                  <dl className="mt-5 grid overflow-hidden rounded-2xl border border-line sm:grid-cols-2">
                     {full.specs.map((spec) => (
                       <div
                         key={spec.id}
-                        className="flex gap-4 px-4 py-2.5 text-sm"
+                        className="border-b border-line p-4 last:border-b-0 sm:border-r sm:[&:nth-last-child(-n+2)]:border-b-0 sm:[&:nth-child(2n)]:border-r-0"
                       >
-                        <dt className="w-36 shrink-0 font-semibold text-ink-soft">
+                        <dt className="text-xs font-bold text-ink-faint">
                           {locale === "ko" && spec.name_ko
                             ? spec.name_ko
                             : spec.name_en}
                         </dt>
-                        <dd className="text-ink">{spec.value}</dd>
+                        <dd className="mt-1.5 text-sm font-semibold leading-6 text-ink">
+                          {spec.value}
+                        </dd>
                       </div>
                     ))}
                   </dl>
@@ -450,16 +953,30 @@ export default async function PostDetailPage(props: {
               )}
 
               {full.attachments.length > 0 && (
-                <section>
-                  <h2 className="text-base font-bold">{t.post.attachments}</h2>
-                  <ul className="mt-2 space-y-1.5">
+                <section
+                  id="attachments"
+                  className="scroll-mt-28 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-9"
+                >
+                  <h2 className="text-xl font-extrabold">
+                    {t.post.attachments}
+                  </h2>
+                  <ul className="mt-5 overflow-hidden rounded-2xl border border-line">
                     {full.attachments.map((a) => (
-                      <li key={a.id}>
+                      <li
+                        key={a.id}
+                        className="border-b border-line last:border-b-0"
+                      >
                         <Link
                           href={`/api/attachments/${a.id}`}
-                          className="flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-primary-strong hover:bg-primary-soft/40"
+                          className="group flex items-center justify-between gap-4 px-4 py-4 text-sm font-bold text-ink transition hover:bg-primary-soft/40 hover:text-primary-strong"
                         >
-                          {a.filename}
+                          <span className="min-w-0 truncate">{a.filename}</span>
+                          <span
+                            aria-hidden="true"
+                            className="shrink-0 text-primary transition-transform group-hover:translate-y-0.5"
+                          >
+                            ↓
+                          </span>
                         </Link>
                       </li>
                     ))}
@@ -469,16 +986,19 @@ export default async function PostDetailPage(props: {
             </>
           ) : (
             teaser && (
-              <>
+              <section className="rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-9">
                 {/* Gradient lock: only teaser data was ever sent to the client */}
-                <div className="teaser-fade whitespace-pre-wrap text-sm leading-relaxed text-ink">
+                <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
+                  {t.post.overview}
+                </p>
+                <div className="teaser-fade mt-5 whitespace-pre-wrap text-[15px] leading-8 text-ink-soft sm:text-base">
                   {stripRichText(
                     locale === "ko" && teaser.body_teaser_ko
                       ? teaser.body_teaser_ko
                       : teaser.body_teaser_en,
                   )}
                 </div>
-                <div className="rounded-card border border-line bg-surface-sub/60 p-6 text-center">
+                <div className="mt-6 rounded-2xl bg-surface-sub p-6 text-center">
                   <p className="text-base font-bold">
                     {t.post.membersOnlyTitle}
                   </p>
@@ -492,76 +1012,10 @@ export default async function PostDetailPage(props: {
                     {t.common.signUp}
                   </Link>
                 </div>
-              </>
+              </section>
             )
           )}
         </div>
-
-        <aside className="space-y-3 lg:sticky lg:top-24">
-          <section className="rounded-[1.25rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-ink-faint">
-              {t.post.supplierProfile}
-            </p>
-            <Link
-              href={`/u/${authorUid}`}
-              className="mt-3 block text-lg font-extrabold hover:text-primary-strong"
-            >
-              {authorName}
-            </Link>
-            {full?.author?.badges && full.author.badges.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {full.author.badges.map((badge) => (
-                  <BadgePill
-                    key={badge.code}
-                    code={badge.code}
-                    label={locale === "ko" ? badge.name_ko : badge.name_en}
-                  />
-                ))}
-              </div>
-            )}
-            <p className="mt-4 text-xs leading-relaxed text-ink-soft">
-              {t.post.supplierTrustHint}
-            </p>
-            <Link
-              href={`/u/${authorUid}`}
-              className="btn-secondary btn-md mt-4 w-full"
-            >
-              {t.post.viewCompany}
-            </Link>
-          </section>
-
-          {!isOwn && (
-            <section className="mobile-sticky-action rounded-[1.25rem] bg-ink p-5 text-white shadow-(--shadow-float) max-lg:sticky max-lg:bottom-3">
-              <p className="text-base font-extrabold">
-                {isMember ? t.post.inquire : t.common.signUp}
-              </p>
-              <p className="mt-2 text-xs leading-relaxed text-white/60">
-                {isMember ? t.post.inquiryHint : t.post.signUpToInquire}
-              </p>
-              {isMember && post?.status === POST_STATUS.APPROVED ? (
-                isClosed && isRequest ? (
-                  <button
-                    disabled
-                    className="mt-5 w-full rounded-xl bg-white/10 px-4 py-3 text-sm font-bold text-white/40"
-                  >
-                    {t.post.closed}
-                  </button>
-                ) : (
-                  <Link
-                    href={`/inquiries/new?post=${post.id}`}
-                    className="btn-primary btn-lg mt-5 w-full"
-                  >
-                    {t.post.inquire}
-                  </Link>
-                )
-              ) : !isMember ? (
-                <Link href="/signup" className="btn-primary btn-lg mt-5 w-full">
-                  {t.common.signUp}
-                </Link>
-              ) : null}
-            </section>
-          )}
-        </aside>
       </div>
     </article>
   );

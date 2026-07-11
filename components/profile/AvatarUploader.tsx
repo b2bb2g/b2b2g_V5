@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/imageCompress";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
+import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 
 // Avatar register/change/remove inside the profile edit form. The chosen
 // storage path travels with the form via a hidden input.
@@ -50,9 +51,7 @@ export function AvatarUploader({
           className="h-18 w-18 rounded-full object-cover"
         />
       ) : (
-        <span className="flex h-18 w-18 items-center justify-center rounded-full bg-primary-soft text-2xl font-extrabold text-primary-strong">
-          {name.slice(0, 1).toUpperCase()}
-        </span>
+        <DefaultAvatar className="h-18 w-18" editable />
       )}
       <div className="flex flex-col gap-1.5">
         <input

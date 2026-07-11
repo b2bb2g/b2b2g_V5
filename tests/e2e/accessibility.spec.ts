@@ -1,7 +1,15 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const publicRoutes = ["/", "/industrial", "/login", "/reset", "/reset?sent=1"];
+const publicRoutes = [
+  "/",
+  "/industrial",
+  "/feed",
+  "/u/100027",
+  "/login",
+  "/reset",
+  "/reset?sent=1",
+];
 
 for (const route of publicRoutes) {
   test(`${route} has no serious accessibility violations`, async ({ page }) => {
@@ -10,7 +18,8 @@ for (const route of publicRoutes) {
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
     const severe = results.violations.filter(
-      (violation) => violation.impact === "serious" || violation.impact === "critical"
+      (violation) =>
+        violation.impact === "serious" || violation.impact === "critical",
     );
     expect(severe, JSON.stringify(severe, null, 2)).toEqual([]);
   });

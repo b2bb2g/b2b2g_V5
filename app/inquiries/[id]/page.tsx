@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -48,7 +48,8 @@ export default async function InquiryDetailPage(props: {
   const stepLabels: Record<string, string> = t.inquiry.steps;
   const currentStep = TIMELINE.indexOf(inquiry.status);
   const isParticipant =
-    inquiry.sender_id === session.userId || inquiry.recipient_id === session.userId;
+    inquiry.sender_id === session.userId ||
+    inquiry.recipient_id === session.userId;
 
   // The latest own message, if rejected, gets a dedicated revise-and-resend
   // form instead of the generic reply composer (PRD 8.3).
@@ -105,7 +106,10 @@ export default async function InquiryDetailPage(props: {
                 <p className="text-xs font-bold text-ink-soft">
                   {mine ? t.inquiry.outbox : t.inquiry.inbox}
                   <span className="ml-2 font-normal text-ink-faint">
-                    {new Date(message.created_at).toISOString().slice(0, 16).replace("T", " ")}
+                    {new Date(message.created_at)
+                      .toISOString()
+                      .slice(0, 16)
+                      .replace("T", " ")}
                   </span>
                 </p>
                 {mine && (
@@ -113,14 +117,16 @@ export default async function InquiryDetailPage(props: {
                     status={
                       message.review_status === MESSAGE_REVIEW_STATUS.PENDING
                         ? "admin_review"
-                        : message.review_status === MESSAGE_REVIEW_STATUS.FORWARDED
+                        : message.review_status ===
+                            MESSAGE_REVIEW_STATUS.FORWARDED
                           ? "forwarded"
                           : "rejected"
                     }
                     label={
                       message.review_status === MESSAGE_REVIEW_STATUS.PENDING
                         ? stepLabels.admin_review
-                        : message.review_status === MESSAGE_REVIEW_STATUS.FORWARDED
+                        : message.review_status ===
+                            MESSAGE_REVIEW_STATUS.FORWARDED
                           ? stepLabels.forwarded
                           : stepLabels.rejected
                     }
@@ -163,9 +169,7 @@ export default async function InquiryDetailPage(props: {
               defaultValue={rejectedToRevise.body}
               className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
             />
-            <PendingButton
-              className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-            >
+            <PendingButton className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong">
               {t.inquiry.resend}
             </PendingButton>
           </form>
@@ -191,9 +195,7 @@ export default async function InquiryDetailPage(props: {
               required
               className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
             />
-            <PendingButton
-              className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-            >
+            <PendingButton className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong">
               {t.inquiry.send}
             </PendingButton>
           </form>

@@ -16,6 +16,8 @@ const ALLOWED_TAGS = [
   "hr",
   "a",
   "img",
+  "figure",
+  "figcaption",
   "h2",
   "h3",
   "table",
@@ -43,7 +45,8 @@ const ALLOWED_ATTR = [
 ];
 
 // Iframes are only for video link embeds (PRD 7.2); any other src is removed.
-const EMBED_HOSTS = /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)\//;
+const EMBED_HOSTS =
+  /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)\//;
 
 DOMPurify.addHook("uponSanitizeElement", (node, data) => {
   if (data.tagName !== "iframe") return;

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -11,7 +11,7 @@ export default async function HomepageEditPage() {
   if (!session.userId) redirect("/login");
 
   const certified = session.badges.some(
-    (b) => b.badge_types?.code === BADGE_CODES.CERTIFIED
+    (b) => b.badge_types?.code === BADGE_CODES.CERTIFIED,
   );
   if (!certified) redirect("/dashboard/homepage");
 
@@ -24,7 +24,10 @@ export default async function HomepageEditPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title={t.homepage.title} subtitle={homepage ? t.common.edit : t.common.add} />
+      <PageHeader
+        title={t.homepage.title}
+        subtitle={homepage ? t.common.edit : t.common.add}
+      />
 
       <HomepageEditor
         t={t}
@@ -34,9 +37,11 @@ export default async function HomepageEditPage() {
           introEn: homepage?.intro_en ?? "",
           introKo: homepage?.intro_ko ?? "",
           coverImagePath: homepage?.cover_image_path ?? null,
-          docPaths: (homepage?.doc_paths as { path: string; name: string }[]) ?? [],
+          docPaths:
+            (homepage?.doc_paths as { path: string; name: string }[]) ?? [],
           galleryPaths: (homepage?.gallery_paths as string[]) ?? [],
-          certPaths: (homepage?.cert_paths as { path: string; name: string }[]) ?? [],
+          certPaths:
+            (homepage?.cert_paths as { path: string; name: string }[]) ?? [],
           customDomain: homepage?.custom_domain ?? "",
           isPublished: homepage?.is_published ?? false,
         }}

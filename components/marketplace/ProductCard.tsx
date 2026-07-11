@@ -3,17 +3,20 @@ import Link from "next/link";
 import { repThumbnail } from "@/lib/media";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import type { PostTeaser } from "@/lib/types";
+import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 
 export function ProductCard({
   post,
   href,
   locale,
   priority = false,
+  showAuthor = true,
 }: {
   post: PostTeaser;
   href: string;
   locale: string;
   priority?: boolean;
+  showAuthor?: boolean;
 }) {
   const thumbnail = repThumbnail(post);
   const title =
@@ -48,9 +51,14 @@ export function ProductCard({
         <p className="line-clamp-2 text-sm font-extrabold leading-snug">
           {title}
         </p>
-        <p className="truncate text-xs text-ink-faint">
-          {post.author_company ?? post.author_name}
-        </p>
+        {showAuthor && (
+          <AuthorIdentity
+            uid={post.author_uid}
+            badges={post.author_badges}
+            locale={locale}
+            className="text-xs font-semibold text-ink-faint"
+          />
+        )}
       </div>
     </Link>
   );

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
@@ -17,13 +17,15 @@ export default async function HomepageViewPage() {
   const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
 
   const certified = session.badges.some(
-    (b) => b.badge_types?.code === BADGE_CODES.CERTIFIED
+    (b) => b.badge_types?.code === BADGE_CODES.CERTIFIED,
   );
 
   if (!certified) {
     return (
       <div className="mx-auto max-w-lg space-y-4 py-8 text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight">{t.homepage.title}</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight">
+          {t.homepage.title}
+        </h1>
         <p className="text-sm leading-relaxed text-ink-soft">
           {t.homepage.needCertified}
         </p>
@@ -46,8 +48,12 @@ export default async function HomepageViewPage() {
   if (!homepage) {
     return (
       <div className="mx-auto max-w-lg space-y-4 py-8 text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight">{t.homepage.title}</h1>
-        <p className="text-sm leading-relaxed text-ink-soft">{t.homepage.slugHint}</p>
+        <h1 className="text-2xl font-extrabold tracking-tight">
+          {t.homepage.title}
+        </h1>
+        <p className="text-sm leading-relaxed text-ink-soft">
+          {t.homepage.slugHint}
+        </p>
         <Link
           href="/dashboard/homepage/edit"
           className="inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
@@ -60,7 +66,9 @@ export default async function HomepageViewPage() {
 
   const docs = (homepage.doc_paths as { path: string; name: string }[]) ?? [];
   const intro =
-    locale === "ko" && homepage.intro_ko ? homepage.intro_ko : homepage.intro_en;
+    locale === "ko" && homepage.intro_ko
+      ? homepage.intro_ko
+      : homepage.intro_en;
 
   return (
     <div className="space-y-4">
@@ -75,10 +83,16 @@ export default async function HomepageViewPage() {
 
       <div className="space-y-4 rounded-card border border-line p-4">
         <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-sm font-semibold text-ink-soft">/c/{homepage.slug}</p>
+          <p className="truncate text-sm font-semibold text-ink-soft">
+            /c/{homepage.slug}
+          </p>
           <StatusLabel
             status={homepage.is_published ? "approved" : "draft"}
-            label={homepage.is_published ? t.homepage.published : t.homepage.notPublished}
+            label={
+              homepage.is_published
+                ? t.homepage.published
+                : t.homepage.notPublished
+            }
           />
         </div>
 

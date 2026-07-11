@@ -48,16 +48,18 @@ export function GlobalBanners({
 
     const dismissedAt = Number(localStorage.getItem(PWA_DISMISS_KEY) ?? 0);
     setPwaDismissed(
-      dismissedAt > 0 && Date.now() - dismissedAt < redisplayDays * 86400_000
+      dismissedAt > 0 && Date.now() - dismissedAt < redisplayDays * 86400_000,
     );
 
     setIsStandalone(
       window.matchMedia("(display-mode: standalone)").matches ||
         ("standalone" in navigator &&
-          (navigator as { standalone?: boolean }).standalone === true)
+          (navigator as { standalone?: boolean }).standalone === true),
     );
     setIsIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
-    setIsInApp(/KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent));
+    setIsInApp(
+      /KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent),
+    );
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -70,7 +72,11 @@ export function GlobalBanners({
   function saveConsent(all: boolean) {
     localStorage.setItem(
       CONSENT_KEY,
-      JSON.stringify({ essential: true, analytics: all, at: new Date().toISOString() })
+      JSON.stringify({
+        essential: true,
+        analytics: all,
+        at: new Date().toISOString(),
+      }),
     );
     setConsentDone(true);
   }
@@ -92,21 +98,27 @@ export function GlobalBanners({
 
   if (!consentDone) {
     return (
-      <div className="global-banner fixed inset-x-0 bottom-0 z-50 p-3" role="region" aria-live="polite">
-        <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-3 shadow-lg sm:flex sm:items-center sm:gap-4 sm:px-4">
-          <p className="flex-1 text-xs leading-relaxed text-ink-soft">{cookie.message}</p>
+      <div
+        className="global-banner fixed inset-x-0 bottom-0 z-50 p-2 sm:p-3"
+        role="region"
+        aria-live="polite"
+      >
+        <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-2.5 shadow-lg sm:flex sm:items-center sm:gap-4 sm:px-4 sm:py-3">
+          <p className="line-clamp-2 flex-1 text-[11px] leading-4 text-ink-soft sm:text-xs sm:leading-relaxed">
+            {cookie.message}
+          </p>
           <div className="mt-2 flex shrink-0 gap-2 sm:mt-0">
             <button
               type="button"
               onClick={() => saveConsent(false)}
-              className="flex-1 rounded-xl bg-surface-sub px-4 py-2 text-xs font-semibold text-ink-soft"
+              className="flex-1 rounded-xl bg-surface-sub px-3 py-1.5 text-[11px] font-semibold text-ink-soft sm:px-4 sm:py-2 sm:text-xs"
             >
               {cookie.essentialOnly}
             </button>
             <button
               type="button"
               onClick={() => saveConsent(true)}
-              className="flex-1 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white"
+              className="flex-1 rounded-xl bg-primary px-3 py-1.5 text-[11px] font-bold text-white sm:px-4 sm:py-2 sm:text-xs"
             >
               {cookie.acceptAll}
             </button>
@@ -121,7 +133,11 @@ export function GlobalBanners({
   if (!showPwa) return null;
 
   return (
-    <div className="global-banner fixed inset-x-0 bottom-0 z-50 p-3" role="region" aria-live="polite">
+    <div
+      className="global-banner fixed inset-x-0 bottom-0 z-50 p-3"
+      role="region"
+      aria-live="polite"
+    >
       <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-4 shadow-lg">
         <p className="text-sm font-bold">{pwa.installTitle}</p>
         <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">

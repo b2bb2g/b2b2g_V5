@@ -8,10 +8,12 @@ export function RouteChrome({
   children,
   hideOnAdmin = false,
   hideOnHome = false,
+  hideOnMember = false,
 }: {
   children: React.ReactNode;
   hideOnAdmin?: boolean;
   hideOnHome?: boolean;
+  hideOnMember?: boolean;
 }) {
   const pathname = usePathname();
   if (
@@ -28,5 +30,13 @@ export function RouteChrome({
     return null;
   }
   if (hideOnHome && pathname === "/") return null;
+  if (
+    hideOnMember &&
+    ["/dashboard", "/inquiries", "/notifications", "/write"].some(
+      (path) => pathname === path || pathname.startsWith(`${path}/`),
+    )
+  ) {
+    return null;
+  }
   return children;
 }

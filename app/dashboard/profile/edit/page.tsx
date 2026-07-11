@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -81,15 +81,26 @@ export default async function ProfileEditPage() {
             </div>
           </label>
         </div>
-        <label className="block">
-          <span className={labelCls}>{t.profile.bio}</span>
-          <textarea
-            name="bio"
-            rows={4}
-            defaultValue={session.profile.bio ?? ""}
-            className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
-          />
-        </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className={labelCls}>{t.profile.bioEn}</span>
+            <textarea
+              name="bioEn"
+              rows={5}
+              defaultValue={session.profile.bio_en ?? session.profile.bio ?? ""}
+              className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+            />
+          </label>
+          <label className="block">
+            <span className={labelCls}>{t.profile.bioKo}</span>
+            <textarea
+              name="bioKo"
+              rows={5}
+              defaultValue={session.profile.bio_ko ?? ""}
+              className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+            />
+          </label>
+        </div>
 
         <p className="rounded-lg bg-surface-sub/60 px-3 py-2 text-xs leading-relaxed text-ink-faint">
           {t.profile.contactHint}

@@ -5,7 +5,7 @@ import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import type { Inquiry } from "@/lib/types";
 
 // Ticket-style inquiry list (DESIGN C8): not a chat.
@@ -28,7 +28,10 @@ export default async function InquiriesPage() {
       <PageHeader title={t.inquiry.title} subtitle={t.inquiry.stepHint} />
 
       {inquiries.length === 0 ? (
-        <EmptyState title={t.inquiry.noInquiries} hint={t.common.emptyListHint} />
+        <EmptyState
+          title={t.inquiry.noInquiries}
+          hint={t.common.emptyListHint}
+        />
       ) : (
         <div className="space-y-2.5">
           {inquiries.map((inquiry) => {

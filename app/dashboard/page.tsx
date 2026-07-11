@@ -1,290 +1,536 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
+import { getMemberNetworkStats } from "@/lib/data/feed";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
-import Image from "next/image";
 import { BadgeList } from "@/components/ui/Badge";
-import { CopyField } from "@/components/ui/CopyField";
 import { CopyChip } from "@/components/ui/CopyChip";
+import { CopyField } from "@/components/ui/CopyField";
 import { ReferralQr } from "@/components/ui/ReferralQr";
+import { StatusLabel } from "@/components/ui/StatusLabel";
+import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
+import {
+  DashboardActionCard,
+  DashboardMetricCard,
+} from "@/components/dashboard/DashboardCards";
 import { postMediaUrl } from "@/lib/media";
-import { signOut } from "@/app/actions/auth";
 import {
   BADGE_CODES,
   POST_STATUS,
   SETTING_KEYS,
   SUBSCRIPTION_STATUS,
 } from "@/lib/constants";
-import { StatusLabel } from "@/components/ui/StatusLabel";
 
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session.userId || !session.profile) redirect("/login");
 
-  const [{ t, locale }, settings, supabase] = await Promise.all([
+  const [{ t, locale }, settings, supabase, networkStats] = await Promise.all([
     getT(),
     getPublicSettings(),
     createClient(),
+    getMemberNetworkStats(session.userId),
   ]);
 
-  const [postsCount, inquiriesCount, pendingPosts, unreadReplies, subscription, referralCount, recentPosts, recentInquiries] =
-    await Promise.all([
-      supabase
-        .from("posts")
-        .select("id", { count: "exact", head: true })
-        .eq("author_id", session.userId)
-        .neq("status", POST_STATUS.DRAFT),
-      supabase
-        .from("inquiries")
-        .select("id", { count: "exact", head: true })
-        .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`),
-      supabase
-        .from("posts")
-        .select("id", { count: "exact", head: true })
-        .eq("author_id", session.userId)
-        .eq("status", POST_STATUS.PENDING),
-      supabase
-        .from("notifications")
-        .select("id", { count: "exact", head: true })
-        .eq("profile_id", session.userId)
-        .eq("state", "unread")
-        .eq("type", "message_delivered"),
-      supabase
-        .from("subscriptions")
-        .select("expires_at")
-        .eq("profile_id", session.userId)
-        .eq("status", SUBSCRIPTION_STATUS.ACTIVE)
-        .order("expires_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("referred_by", session.userId),
-      supabase
-        .from("posts")
-        .select("id, title_en, title_ko, status, updated_at")
-        .eq("author_id", session.userId)
-        .order("updated_at", { ascending: false })
-        .limit(4),
-      supabase
-        .from("inquiries")
-        .select("id, subject, status, updated_at")
-        .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`)
-        .order("updated_at", { ascending: false })
-        .limit(4),
-    ]);
+  const [
+    postsCount,
+    inquiriesCount,
+    pendingPosts,
+    draftPosts,
+    unreadReplies,
+    profileContact,
+    subscription,
+    referralCount,
+    recentPosts,
+    recentInquiries,
+  ] = await Promise.all([
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("author_id", session.userId)
+      .neq("status", POST_STATUS.DRAFT),
+    supabase
+      .from("inquiries")
+      .select("id", { count: "exact", head: true })
+      .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`),
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("author_id", session.userId)
+      .eq("status", POST_STATUS.PENDING),
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("author_id", session.userId)
+      .eq("status", POST_STATUS.DRAFT),
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", session.userId)
+      .eq("state", "unread")
+      .eq("type", "message_delivered"),
+    supabase
+      .from("profile_contacts")
+      .select("email, phone, contact_person")
+      .eq("profile_id", session.userId)
+      .maybeSingle(),
+    supabase
+      .from("subscriptions")
+      .select("expires_at")
+      .eq("profile_id", session.userId)
+      .eq("status", SUBSCRIPTION_STATUS.ACTIVE)
+      .order("expires_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("referred_by", session.userId),
+    supabase
+      .from("posts")
+      .select("id, title_en, title_ko, status, updated_at")
+      .eq("author_id", session.userId)
+      .order("updated_at", { ascending: false })
+      .limit(4),
+    supabase
+      .from("inquiries")
+      .select("id, subject, status, updated_at")
+      .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`)
+      .order("updated_at", { ascending: false })
+      .limit(4),
+  ]);
 
+  const profile = session.profile;
+  const profileBio =
+    locale === "ko"
+      ? profile.bio_ko || profile.bio || profile.bio_en || ""
+      : profile.bio_en || profile.bio || profile.bio_ko || "";
+  const completionSignals = [
+    !!profile.avatar_url,
+    !!profileBio,
+    !!profile.company_name,
+    !!(
+      profileContact.data?.email ||
+      profileContact.data?.phone ||
+      profileContact.data?.contact_person
+    ),
+  ];
+  const profileCompletion =
+    completionSignals.filter(Boolean).length * (100 / completionSignals.length);
+  const pendingCount = pendingPosts.count ?? 0;
+  const unreadCount = unreadReplies.count ?? 0;
+  const hasAttention = pendingCount + unreadCount > 0;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const referralLink = `${siteUrl}/signup?ref=${session.profile.uid}`;
+  const referralLink = `${siteUrl}/signup?ref=${profile.uid}`;
   const showReferralStats = settingBool(
     settings,
     SETTING_KEYS.REFERRAL_STATS_VISIBLE,
-    false
+    false,
   );
 
+  const recentActivity = [
+    ...(recentPosts.data ?? []).map((item) => ({
+      ...item,
+      href: "/dashboard/posts",
+      title: locale === "ko" && item.title_ko ? item.title_ko : item.title_en,
+    })),
+    ...(recentInquiries.data ?? []).map((item) => ({
+      ...item,
+      href: `/inquiries/${item.id}`,
+      title: item.subject,
+    })),
+  ]
+    .sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    )
+    .slice(0, 6);
+
+  const roleLinks: { href: string; label: string }[] = [];
+  if (
+    session.badges.some(
+      (badge) => badge.badge_types?.code === BADGE_CODES.CERTIFIED,
+    )
+  ) {
+    roleLinks.push({ href: "/dashboard/homepage", label: t.homepage.title });
+  }
+  if (profile.is_coordinator) {
+    roleLinks.push({
+      href: "/dashboard/coordinator",
+      label: t.coordinator.title,
+    });
+  } else if (profile.referred_by) {
+    roleLinks.push({
+      href: "/dashboard/messages",
+      label: t.coordinator.directMessages,
+    });
+  }
+
   return (
-    <div className="space-y-5">
-      {/* Identity header: same card grammar as the profile screen */}
-      <header className="card flex flex-wrap items-center gap-4 p-5">
-        {session.profile.avatar_url ? (
-          <Image
-            src={postMediaUrl(session.profile.avatar_url)}
-            alt={session.profile.display_name ?? ""}
-            width={56}
-            height={56}
-            className="h-14 w-14 shrink-0 rounded-full object-cover"
-          />
-        ) : (
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xl font-extrabold text-primary-strong">
-            {(session.profile.display_name ?? "U").slice(0, 1).toUpperCase()}
-          </span>
-        )}
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-lg font-extrabold">
-            {session.profile.display_name ?? session.profile.company_name}
-          </p>
-          <CopyChip
-            value={String(session.profile.uid)}
-            display={`${t.profile.memberId} ${session.profile.uid}`}
-            copyLabel={t.common.copy}
-            copiedLabel={t.common.copied}
-          />
-          {session.badges.length > 0 && (
-            <div className="mt-1">
-              <BadgeList badges={session.badges} locale={locale} />
+    <div className="space-y-7">
+      <section className="overflow-hidden rounded-[1.5rem] border border-line bg-white shadow-(--shadow-card)">
+        <div className="grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_14rem] xl:items-center">
+          <div className="flex min-w-0 items-start gap-4">
+            {profile.avatar_url ? (
+              <Image
+                src={postMediaUrl(profile.avatar_url)}
+                alt=""
+                width={72}
+                height={72}
+                priority
+                className="h-18 w-18 shrink-0 rounded-full border border-line object-cover"
+              />
+            ) : (
+              <DefaultAvatar className="h-18 w-18" />
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
+                {t.dashboard.workspaceOverview}
+              </p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <h2 className="text-2xl font-extrabold tracking-[-.035em]">
+                  UID:{profile.uid}
+                </h2>
+                <CopyChip
+                  value={String(profile.uid)}
+                  display=""
+                  copyLabel={t.common.copy}
+                  copiedLabel={t.common.copied}
+                />
+                {session.badges.length > 0 && (
+                  <BadgeList badges={session.badges} locale={locale} />
+                )}
+              </div>
+              <p className="mt-2 line-clamp-2 max-w-2xl text-sm leading-6 text-ink-soft">
+                {profileBio || t.profile.publicMemberHint}
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <Link href={`/u/${profile.uid}`} className="btn-primary btn-sm">
+                  {t.dashboard.publicProfile}
+                </Link>
+                <Link
+                  href="/dashboard/profile/edit"
+                  className="btn-secondary btn-sm"
+                >
+                  {t.common.edit}
+                </Link>
+              </div>
             </div>
-          )}
-        </div>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <Link href="/dashboard/profile" className="btn-secondary btn-sm">
-            {t.nav.profile}
-          </Link>
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-ink-faint transition-colors hover:bg-surface-sub"
+          </div>
+          <div className="rounded-2xl bg-surface-sub p-4">
+            <div className="flex items-end justify-between gap-3">
+              <p className="text-xs font-bold text-ink-soft">
+                {t.dashboard.profileReadiness}
+              </p>
+              <strong className="text-xl font-extrabold">
+                {profileCompletion}%
+              </strong>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+              <span
+                className="block h-full rounded-full bg-primary"
+                style={{ width: `${profileCompletion}%` }}
+              />
+            </div>
+            <Link
+              href="/dashboard/profile/edit"
+              className="mt-3 inline-block text-xs font-bold text-primary"
             >
-              {t.common.signOut}
-            </button>
-          </form>
+              {t.dashboard.completeProfile} →
+            </Link>
+          </div>
         </div>
-      </header>
-
-      {/* Primary actions: register or request (UX convention: clear entry points) */}
-      <section>
-      <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">{t.dashboard.quickActions}</p>
-      <div className="flex flex-wrap gap-2">
-        <Link href="/write/select" className="btn-primary btn-lg">
-          {t.dashboard.registerProduct}
-        </Link>
-        <Link href="/write?menu=requests" className="btn-soft btn-lg">
-          {t.dashboard.postRequest}
-        </Link>
-      </div>
       </section>
 
       <section>
-      <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">{t.dashboard.needsAttention}</p>
-      <div className="grid grid-cols-2 gap-3">
-        <Link href="/dashboard/posts" className="card-hover p-4">
-          <p className="text-2xl font-extrabold text-primary-strong">{pendingPosts.count ?? 0}</p>
-          <p className="mt-1 text-sm font-semibold text-ink-soft">{t.dashboard.pendingPosts}</p>
-        </Link>
-        <Link href="/inquiries" className="card-hover p-4">
-          <p className="text-2xl font-extrabold text-primary-strong">{unreadReplies.count ?? 0}</p>
-          <p className="mt-1 text-sm font-semibold text-ink-soft">{t.dashboard.unreadReplies}</p>
-        </Link>
-      </div>
+        <p className="mb-3 text-xs font-bold uppercase tracking-[.15em] text-ink-faint">
+          {t.dashboard.quickActions}
+        </p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <DashboardActionCard
+            href="/write/select"
+            icon="product"
+            title={t.dashboard.registerProduct}
+            body={t.dashboard.registerProductHint}
+            tone="primary"
+          />
+          <DashboardActionCard
+            href="/write?menu=requests"
+            icon="request"
+            title={t.dashboard.postRequest}
+            body={t.dashboard.postRequestHint}
+            tone="dark"
+          />
+          <DashboardActionCard
+            href="/feed"
+            icon="feed"
+            title={t.dashboard.shareUpdate}
+            body={t.dashboard.shareUpdateHint}
+          />
+        </div>
       </section>
 
-      <section className="overflow-hidden rounded-[1.25rem] border border-line bg-surface shadow-(--shadow-card)">
-        <div className="flex items-end justify-between gap-4 border-b border-line px-5 py-4">
-          <div><h2 className="text-base font-extrabold">{t.dashboard.recentActivity}</h2><p className="mt-0.5 text-xs text-ink-faint">{t.dashboard.recentActivityHint}</p></div>
+      <section>
+        <p className="mb-3 text-xs font-bold uppercase tracking-[.15em] text-ink-faint">
+          {t.dashboard.needsAttention}
+        </p>
+        {hasAttention ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Link
+              href="/dashboard/posts"
+              className="group rounded-[1.35rem] border border-caution/20 bg-caution-soft/45 p-5 transition hover:border-caution/40"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-4xl font-extrabold text-caution">
+                    {pendingCount}
+                  </p>
+                  <h3 className="mt-2 text-sm font-extrabold">
+                    {t.dashboard.pendingPosts}
+                  </h3>
+                  <p className="mt-1 text-xs leading-5 text-ink-soft">
+                    {t.dashboard.pendingPostsHint}
+                  </p>
+                </div>
+                <span className="text-caution transition group-hover:translate-x-1">
+                  →
+                </span>
+              </div>
+            </Link>
+            <Link
+              href="/inquiries"
+              className="group rounded-[1.35rem] border border-primary/15 bg-primary-soft/55 p-5 transition hover:border-primary/35"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-4xl font-extrabold text-primary">
+                    {unreadCount}
+                  </p>
+                  <h3 className="mt-2 text-sm font-extrabold">
+                    {t.dashboard.unreadReplies}
+                  </h3>
+                  <p className="mt-1 text-xs leading-5 text-ink-soft">
+                    {t.dashboard.unreadRepliesHint}
+                  </p>
+                </div>
+                <span className="text-primary transition group-hover:translate-x-1">
+                  →
+                </span>
+              </div>
+            </Link>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 rounded-[1.15rem] border border-positive/15 bg-positive-soft/55 px-4 py-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-positive text-sm font-extrabold text-white">
+              ✓
+            </span>
+            <div>
+              <p className="text-sm font-extrabold text-positive">
+                {t.dashboard.allClear}
+              </p>
+              <p className="mt-0.5 text-xs leading-5 text-ink-soft">
+                {t.dashboard.allClearHint}
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <DashboardMetricCard
+          href="/dashboard/posts"
+          icon="posts"
+          value={postsCount.count ?? 0}
+          label={`${t.dashboard.myPostsSummary}${(draftPosts.count ?? 0) > 0 ? ` · ${t.post.status.draft} ${draftPosts.count}` : ""}`}
+        />
+        <DashboardMetricCard
+          href="/inquiries"
+          icon="inquiries"
+          value={inquiriesCount.count ?? 0}
+          label={t.dashboard.myInquiriesSummary}
+        />
+        <DashboardMetricCard
+          href="/feed"
+          icon="feed"
+          value={networkStats.posts}
+          label={t.dashboard.feedUpdates}
+        />
+        <DashboardMetricCard
+          href={`/u/${profile.uid}`}
+          icon="network"
+          value={networkStats.followers}
+          label={t.dashboard.networkReach}
+        />
+      </section>
+
+      <section className="overflow-hidden rounded-[1.5rem] border border-line bg-white shadow-(--shadow-card)">
+        <div className="flex items-end justify-between gap-4 border-b border-line px-5 py-4 sm:px-6">
+          <div>
+            <h2 className="text-base font-extrabold">
+              {t.dashboard.recentActivity}
+            </h2>
+            <p className="mt-0.5 text-xs text-ink-faint">
+              {t.dashboard.recentActivityHint}
+            </p>
+          </div>
+          <div className="flex gap-2 text-xs font-bold">
+            <Link href="/dashboard/posts" className="text-primary">
+              {t.dashboard.managePosts}
+            </Link>
+            <span className="text-line">·</span>
+            <Link href="/inquiries" className="text-primary">
+              {t.dashboard.openInquiries}
+            </Link>
+          </div>
         </div>
-        {(recentPosts.data?.length ?? 0) + (recentInquiries.data?.length ?? 0) === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-ink-faint">{t.dashboard.noRecentActivity}</p>
+        {recentActivity.length === 0 ? (
+          <p className="px-5 py-10 text-center text-sm text-ink-faint">
+            {t.dashboard.noRecentActivity}
+          </p>
         ) : (
           <div className="divide-y divide-line">
-            {[...(recentPosts.data ?? []).map((item) => ({ ...item, href: "/dashboard/posts", title: locale === "ko" && item.title_ko ? item.title_ko : item.title_en })), ...(recentInquiries.data ?? []).map((item) => ({ ...item, href: `/inquiries/${item.id}`, title: item.subject }))]
-              .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()).slice(0, 5).map((item) => (
-              <Link key={`${item.href}-${item.id}`} href={item.href} className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface-sub/70">
+            {recentActivity.map((item) => (
+              <Link
+                key={`${item.href}-${item.id}`}
+                href={item.href}
+                className="group flex items-center gap-3 px-5 py-3.5 transition hover:bg-surface-sub/70 sm:px-6"
+              >
                 <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />
-                <p className="min-w-0 flex-1 truncate text-sm font-semibold">{item.title}</p>
-                <StatusLabel status={item.status} label={(t.post.status as Record<string,string>)[item.status] ?? (t.inquiry.steps as Record<string,string>)[item.status] ?? item.status} />
-                <span className="hidden text-xs text-ink-faint sm:block">{t.dashboard.updated} {new Date(item.updated_at).toISOString().slice(0, 10)}</span>
-                <span className="text-ink-faint transition-transform group-hover:translate-x-1">→</span>
+                <p className="min-w-0 flex-1 truncate text-sm font-semibold">
+                  {item.title}
+                </p>
+                <StatusLabel
+                  status={item.status}
+                  label={
+                    (t.post.status as Record<string, string>)[item.status] ??
+                    (t.inquiry.steps as Record<string, string>)[item.status] ??
+                    item.status
+                  }
+                />
+                <time
+                  dateTime={item.updated_at}
+                  className="hidden text-xs text-ink-faint sm:block"
+                >
+                  {new Date(item.updated_at).toISOString().slice(0, 10)}
+                </time>
+                <span className="text-ink-faint transition group-hover:translate-x-1">
+                  →
+                </span>
               </Link>
             ))}
           </div>
         )}
       </section>
 
-      {/* Status cards: three across on the wide frame */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <section className="card h-full p-4">
-          <h2 className="text-sm font-bold">{t.dashboard.referralLink}</h2>
-          <p className="mt-0.5 text-xs text-ink-faint">{t.dashboard.referralHint}</p>
-          <div className="mt-3">
+      <div className="grid gap-4 xl:grid-cols-2">
+        <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[.15em] text-primary">
+            {t.dashboard.trustStatus}
+          </p>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-extrabold">{t.dashboard.myBadges}</h2>
+              <div className="mt-2">
+                {session.badges.length ? (
+                  <BadgeList badges={session.badges} locale={locale} />
+                ) : (
+                  <p className="text-sm text-ink-faint">
+                    {t.dashboard.noBadges}
+                  </p>
+                )}
+              </div>
+              <Link
+                href="/dashboard/badges"
+                className="mt-4 inline-block text-sm font-bold text-primary"
+              >
+                {t.dashboard.applyBadge} →
+              </Link>
+            </div>
+            <div className="border-t border-line pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+              <h2 className="text-sm font-extrabold">
+                {t.dashboard.subscription}
+              </h2>
+              {subscription.data ? (
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  <span className="font-bold text-positive">
+                    {t.dashboard.subActive}
+                  </span>
+                  <br />
+                  {t.dashboard.subExpiresOn}{" "}
+                  {new Date(subscription.data.expires_at)
+                    .toISOString()
+                    .slice(0, 10)}
+                </p>
+              ) : (
+                <p className="mt-2 text-sm text-ink-faint">
+                  {t.dashboard.subNone}
+                </p>
+              )}
+              <Link
+                href="/membership"
+                className="mt-4 inline-block text-sm font-bold text-primary"
+              >
+                {t.dashboard.subCta} →
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[.15em] text-primary">
+            {t.dashboard.growthTools}
+          </p>
+          <h2 className="mt-2 text-base font-extrabold">
+            {t.dashboard.referralLink}
+          </h2>
+          <p className="mt-1 text-xs leading-5 text-ink-faint">
+            {t.dashboard.referralHint}
+          </p>
+          <div className="mt-4">
             <CopyField
               value={referralLink}
               copyLabel={t.common.copy}
               copiedLabel={t.common.copied}
             />
           </div>
-          <ReferralQr value={referralLink} label={t.dashboard.qr} />
-          {showReferralStats && (
-            <p className="mt-3 text-sm text-ink-soft">
-              {t.dashboard.referralCount}:{" "}
-              <span className="font-bold text-ink">{referralCount.count ?? 0}</span>
-            </p>
-          )}
-        </section>
-
-        <section className="card h-full p-4">
-          <h2 className="text-sm font-bold">{t.dashboard.myBadges}</h2>
-          <div className="mt-2">
-            {session.badges.length ? (
-              <BadgeList badges={session.badges} locale={locale} />
-            ) : (
-              <p className="text-sm text-ink-faint">{t.dashboard.noBadges}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <ReferralQr value={referralLink} label={t.dashboard.qr} />
+            {showReferralStats && (
+              <p className="text-sm text-ink-soft">
+                {t.dashboard.referralCount}:{" "}
+                <span className="font-extrabold text-ink">
+                  {referralCount.count ?? 0}
+                </span>
+              </p>
             )}
           </div>
-          <Link
-            href="/dashboard/badges"
-            className="mt-3 inline-block text-sm font-semibold text-primary"
-          >
-            {t.dashboard.applyBadge}
-          </Link>
-        </section>
-
-        <section className="card h-full p-4">
-          <h2 className="text-sm font-bold">{t.dashboard.subscription}</h2>
-          {subscription.data ? (
-            <p className="mt-2 text-sm text-ink-soft">
-              <span className="font-semibold text-positive">{t.dashboard.subActive}</span>
-              {" · "}
-              {t.dashboard.subExpiresOn}{" "}
-              {new Date(subscription.data.expires_at).toISOString().slice(0, 10)}
-            </p>
-          ) : (
-            <p className="mt-2 text-sm text-ink-faint">{t.dashboard.subNone}</p>
-          )}
-          <Link
-            href="/membership"
-            className="mt-3 inline-block text-sm font-semibold text-primary"
-          >
-            {t.dashboard.subCta}
-          </Link>
         </section>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Link
-          href="/dashboard/posts"
-          className="rounded-card border border-line p-4 hover:border-primary"
-        >
-          <p className="text-2xl font-extrabold">{postsCount.count ?? 0}</p>
-          <p className="mt-1 text-sm font-semibold text-ink-soft">
-            {t.dashboard.myPostsSummary}
+      {roleLinks.length > 0 && (
+        <section>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[.15em] text-ink-faint">
+            {t.dashboard.roleShortcuts}
           </p>
-        </Link>
-        <Link
-          href="/inquiries"
-          className="rounded-card border border-line p-4 hover:border-primary"
-        >
-          <p className="text-2xl font-extrabold">{inquiriesCount.count ?? 0}</p>
-          <p className="mt-1 text-sm font-semibold text-ink-soft">
-            {t.dashboard.myInquiriesSummary}
-          </p>
-        </Link>
-        {session.badges.some((b) => b.badge_types?.code === BADGE_CODES.CERTIFIED) && (
-          <Link
-            href="/dashboard/homepage"
-            className="rounded-card border border-line p-4 hover:border-primary"
-          >
-            <p className="text-sm font-bold">{t.homepage.title}</p>
-          </Link>
-        )}
-        {session.profile.is_coordinator && (
-          <Link
-            href="/dashboard/coordinator"
-            className="rounded-card border border-line p-4 hover:border-primary"
-          >
-            <p className="text-sm font-bold">{t.coordinator.title}</p>
-          </Link>
-        )}
-        {session.profile.referred_by && !session.profile.is_coordinator && (
-          <Link
-            href="/dashboard/messages"
-            className="rounded-card border border-line p-4 hover:border-primary"
-          >
-            <p className="text-sm font-bold">{t.coordinator.directMessages}</p>
-          </Link>
-        )}
-      </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {roleLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex items-center justify-between rounded-[1.25rem] border border-line bg-white px-5 py-4 text-sm font-extrabold shadow-[0_8px_24px_rgba(25,31,40,.045)] transition hover:border-primary/35"
+              >
+                {item.label}
+                <span className="text-primary transition group-hover:translate-x-1">
+                  →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

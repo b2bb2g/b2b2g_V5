@@ -14,6 +14,9 @@ import { postMediaUrl, repThumbnail } from "@/lib/media";
 import { stripRichText } from "@/lib/richtext";
 import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
 import type { Menu, PostTeaser } from "@/lib/types";
+import { listFeed } from "@/lib/data/feed";
+import { FeedCard } from "@/components/feed/FeedCard";
+import { getFeedCardLabels } from "@/lib/i18n/feed";
 
 async function getStorefront(
   eventsMenuId: string | null,
@@ -113,11 +116,14 @@ export default async function Home() {
   const firstProductBoard =
     menus.find((menu) => menu.board_type === BOARD_TYPES.PRODUCT)?.slug ??
     "industrial";
-  const { products, requests, events, featured, companies } =
-    await getStorefront(
+  const [storefront, feedItems] = await Promise.all([
+    getStorefront(
       eventsMenu?.id ?? null,
       settingNumber(settings, SETTING_KEYS.FEATURED_SLOTS, 6),
-    );
+    ),
+    listFeed({ limit: 3 }),
+  ]);
+  const { products, requests, events, featured, companies } = storefront;
   const menuSlugById = new Map<string, string>(
     menus.map((menu: Menu) => [menu.id, menu.slug]),
   );
@@ -632,6 +638,41 @@ export default async function Home() {
         </section>
       )}
 
+      {feedItems.length > 0 && (
+        <section className="bg-[#f4f7fb] py-24">
+          <div className={container}>
+            <div className="flex items-end justify-between gap-5">
+              <Reveal>
+                <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                  {t.feed.title}
+                </p>
+                <h2 className="mt-3 text-3xl font-extrabold tracking-tight">
+                  {t.home.feedTitle}
+                </h2>
+                <p className="mt-3 max-w-xl text-sm leading-7 text-ink-soft">
+                  {t.home.feedBody}
+                </p>
+              </Reveal>
+              <Link href="/feed" className="btn-secondary btn-md shrink-0">
+                {t.dashboard.viewAll} →
+              </Link>
+            </div>
+            <div className="mt-8 grid gap-4 lg:grid-cols-3">
+              {feedItems.map((item) => (
+                <FeedCard
+                  key={item.id}
+                  item={item}
+                  viewerId={session.userId}
+                  returnTo="/"
+                  compact
+                  labels={getFeedCardLabels(t)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {requestsMenu && requests.length > 0 && (
         <section className="bg-[#111a24] text-white">
           <div
@@ -739,10 +780,7 @@ export default async function Home() {
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               {companies.map((company) => {
-                const name =
-                  company.company_name ??
-                  company.display_name ??
-                  `UID ${company.uid}`;
+                const name = `UID:${company.uid}`;
                 const badge = company.member_badges
                   .map((item) => item.badge_types)
                   .find(Boolean);

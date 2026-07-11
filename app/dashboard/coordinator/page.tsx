@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
@@ -16,7 +16,9 @@ export default async function CoordinatorPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
   const { data } = await supabase
     .from("profiles")
-    .select("id, uid, display_name, company_name, created_at, profile_contacts(email)")
+    .select(
+      "id, uid, display_name, company_name, created_at, profile_contacts(email)",
+    )
     .eq("referred_by", session.userId)
     .order("created_at", { ascending: false });
 
@@ -31,7 +33,10 @@ export default async function CoordinatorPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title={t.coordinator.title} subtitle={t.coordinator.referralsTitle} />
+      <PageHeader
+        title={t.coordinator.title}
+        subtitle={t.coordinator.referralsTitle}
+      />
 
       {referrals.length === 0 ? (
         <EmptyState title={t.coordinator.empty} />

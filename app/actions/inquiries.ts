@@ -37,12 +37,12 @@ export async function createInquiry(formData: FormData) {
   } else if (toProfileId) {
     const { data: recipient } = await supabase
       .from("profiles")
-      .select("id, company_name, display_name")
+      .select("id, uid")
       .eq("id", toProfileId)
       .maybeSingle();
     if (!recipient || recipient.id === user.id) redirect("/inquiries");
     recipientId = recipient.id;
-    defaultSubject = recipient.company_name ?? recipient.display_name ?? "";
+    defaultSubject = `UID:${recipient.uid}`;
   }
   if (!recipientId) redirect("/inquiries");
 

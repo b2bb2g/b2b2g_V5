@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -19,7 +19,11 @@ export default async function BadgeApplicationPage() {
   const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
   const [{ data: types }, { data: applications }, { data: subs }] =
     await Promise.all([
-      supabase.from("badge_types").select("*").eq("is_active", true).order("sort_order"),
+      supabase
+        .from("badge_types")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order"),
       supabase
         .from("badge_applications")
         .select("id, badge_type_id, status, reject_reason, created_at")
@@ -37,13 +41,15 @@ export default async function BadgeApplicationPage() {
   const hasActiveSubscription = (subs?.length ?? 0) > 0;
   const ownedTypeIds = new Set(session.badges.map((b) => b.badge_type_id));
   const pendingTypeIds = new Set(
-    (applications ?? []).filter((a) => a.status === "pending").map((a) => a.badge_type_id)
+    (applications ?? [])
+      .filter((a) => a.status === "pending")
+      .map((a) => a.badge_type_id),
   );
   const typeNameById = new Map(
     ((types as BadgeType[]) ?? []).map((type) => [
       type.id,
       locale === "ko" ? type.name_ko : type.name_en,
-    ])
+    ]),
   );
   const appStatusLabels: Record<string, string> = {
     pending: t.post.status.pending,
@@ -64,7 +70,8 @@ export default async function BadgeApplicationPage() {
           const description =
             locale === "ko"
               ? (type as BadgeType & { description_ko?: string }).description_ko
-              : (type as BadgeType & { description_en?: string }).description_en;
+              : (type as BadgeType & { description_en?: string })
+                  .description_en;
           // Differentiated flows (C4): manufacturer = free role badge with
           // company documents; certified = subscription + identity check.
           const hint = isManufacturer
@@ -79,7 +86,10 @@ export default async function BadgeApplicationPage() {
                   {locale === "ko" ? type.name_ko : type.name_en}
                 </p>
                 {owned && (
-                  <StatusLabel status="approved" label={t.post.status.approved} />
+                  <StatusLabel
+                    status="approved"
+                    label={t.post.status.approved}
+                  />
                 )}
                 {pending && (
                   <StatusLabel status="pending" label={t.post.status.pending} />
@@ -91,7 +101,9 @@ export default async function BadgeApplicationPage() {
                 </p>
               )}
               {hint && (
-                <p className="mt-1 text-xs leading-relaxed text-ink-faint">{hint}</p>
+                <p className="mt-1 text-xs leading-relaxed text-ink-faint">
+                  {hint}
+                </p>
               )}
               {!owned && !pending && isCertified && !hasActiveSubscription && (
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-primary-soft/60 px-3 py-2.5">
@@ -148,7 +160,10 @@ export default async function BadgeApplicationPage() {
                     {new Date(a.created_at).toISOString().slice(0, 10)}
                   </span>
                 </p>
-                <StatusLabel status={a.status} label={appStatusLabels[a.status] ?? a.status} />
+                <StatusLabel
+                  status={a.status}
+                  label={appStatusLabels[a.status] ?? a.status}
+                />
               </div>
               {a.status === "rejected" && a.reject_reason && (
                 <p className="text-xs text-ink-soft">

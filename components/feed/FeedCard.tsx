@@ -1,0 +1,262 @@
+import Image from "next/image";
+import Link from "next/link";
+import { postMediaUrl } from "@/lib/media";
+import {
+  toggleFeedLike,
+  deleteFeedPost,
+  toggleFeedRepost,
+  toggleMemberFollow,
+} from "@/app/actions/feed";
+import { PendingButton } from "@/components/ui/PendingButton";
+import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
+import { ShareButton } from "@/components/feed/ShareButton";
+import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
+import { ExpandableFeedText } from "@/components/feed/ExpandableFeedText";
+import { FeedMediaGrid } from "@/components/feed/FeedMediaGrid";
+import {
+  CommentIcon,
+  GlobeIcon,
+  LikeIcon,
+  RepostIcon,
+} from "@/components/feed/FeedIcons";
+import type { FeedItem } from "@/lib/data/feed";
+
+export type FeedLabels = {
+  like: string;
+  liked: string;
+  comment: string;
+  comments: string;
+  repost: string;
+  reposted: string;
+  share: string;
+  copied: string;
+  follow: string;
+  following: string;
+  memberSubtitle: string;
+  publicPost: string;
+  more: string;
+  less: string;
+  edit: string;
+  delete: string;
+  deleteTitle: string;
+  deleteBody: string;
+  cancel: string;
+};
+
+export function FeedCard({
+  item,
+  viewerId,
+  returnTo,
+  labels,
+  compact = false,
+}: {
+  item: FeedItem;
+  viewerId: string | null;
+  returnTo: string;
+  compact?: boolean;
+  labels: FeedLabels;
+}) {
+  const isOwn = viewerId === item.authorId;
+  const sharePath = `/feed/${item.id}`;
+  const media = item.mediaPaths;
+
+  return (
+    <article className="overflow-hidden rounded-[1.35rem] border border-line/90 bg-white shadow-[0_8px_30px_rgba(25,31,40,.055)]">
+      <header className="flex items-start justify-between gap-3 px-5 pb-3 pt-5 sm:px-6">
+        <Link
+          href={`/u/${item.authorUid}`}
+          className="flex min-w-0 items-start gap-3"
+        >
+          {item.avatarPath ? (
+            <Image
+              src={postMediaUrl(item.avatarPath)}
+              alt=""
+              width={52}
+              height={52}
+              className="h-13 w-13 rounded-full border border-line object-cover"
+            />
+          ) : (
+            <DefaultAvatar className="h-13 w-13" />
+          )}
+          <span className="min-w-0 pt-0.5">
+            <strong className="block truncate text-base font-extrabold tracking-[-.01em] text-ink">
+              UID:{item.authorUid}
+            </strong>
+            <span className="block truncate text-xs leading-5 text-ink-soft">
+              {labels.memberSubtitle}
+            </span>
+            <span className="flex items-center gap-1 text-xs text-ink-faint">
+              <time dateTime={item.createdAt}>
+                {item.createdAt.slice(0, 10)}
+              </time>
+              <span aria-hidden="true">·</span>
+              <GlobeIcon className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.8]" />
+              <span className="sr-only">{labels.publicPost}</span>
+            </span>
+          </span>
+        </Link>
+
+        <div className="flex shrink-0 items-center gap-1">
+          {!isOwn &&
+            (viewerId ? (
+              <form action={toggleMemberFollow}>
+                <input type="hidden" name="targetId" value={item.authorId} />
+                <input type="hidden" name="returnTo" value={returnTo} />
+                <PendingButton className="rounded-full px-3 py-2 text-sm font-extrabold text-primary hover:bg-primary-soft">
+                  {item.followingAuthor
+                    ? `✓ ${labels.following}`
+                    : `＋ ${labels.follow}`}
+                </PendingButton>
+              </form>
+            ) : (
+              <Link
+                href={`/login?next=${encodeURIComponent(returnTo)}`}
+                className="rounded-full px-3 py-2 text-sm font-extrabold text-primary hover:bg-primary-soft"
+              >
+                ＋ {labels.follow}
+              </Link>
+            ))}
+          {isOwn && !compact && (
+            <div className="flex items-center gap-1">
+              <Link
+                href={`/feed/${item.id}/edit`}
+                className="px-2 py-1 text-xs font-bold text-ink-soft hover:text-primary"
+              >
+                {labels.edit}
+              </Link>
+              <form action={deleteFeedPost}>
+                <input type="hidden" name="postId" value={item.id} />
+                <ConfirmSubmit
+                  label={labels.delete}
+                  confirmTitle={labels.deleteTitle}
+                  confirmBody={labels.deleteBody}
+                  confirmLabel={labels.delete}
+                  cancelLabel={labels.cancel}
+                  className="px-2 py-1 text-xs font-bold text-negative"
+                  destructive
+                />
+              </form>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <ExpandableFeedText
+        body={item.body}
+        moreLabel={labels.more}
+        lessLabel={labels.less}
+      />
+
+      <FeedMediaGrid
+        paths={media}
+        href={sharePath}
+        label={item.body.slice(0, 100)}
+      />
+
+      <div className="flex items-center justify-between gap-3 border-b border-line/70 px-5 py-2.5 text-xs text-ink-soft sm:px-6">
+        <div className="flex items-center gap-1.5">
+          {item.likeCount > 0 && (
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white ring-2 ring-white">
+              <LikeIcon className="h-3 w-3 fill-none stroke-current stroke-[2.3]" />
+            </span>
+          )}
+          {item.repostCount > 0 && (
+            <span className="-ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#2f9e67] text-white ring-2 ring-white">
+              <RepostIcon className="h-3 w-3 fill-none stroke-current stroke-[2.3]" />
+            </span>
+          )}
+          {(item.likeCount > 0 || item.repostCount > 0) && (
+            <span>{item.likeCount + item.repostCount}</span>
+          )}
+        </div>
+        {item.commentCount > 0 ? (
+          <Link
+            href={`${sharePath}#comments`}
+            className="hover:text-ink hover:underline"
+          >
+            {item.commentCount}{" "}
+            {item.commentCount === 1 ? labels.comment : labels.comments}
+          </Link>
+        ) : (
+          <span aria-hidden="true" />
+        )}
+      </div>
+
+      <footer className="grid grid-cols-4 px-2 py-1.5 text-ink-soft sm:px-3">
+        {viewerId ? (
+          <form action={toggleFeedLike}>
+            <input type="hidden" name="postId" value={item.id} />
+            <input type="hidden" name="returnTo" value={returnTo} />
+            <PendingButton
+              aria-pressed={item.likedByViewer}
+              title={item.likedByViewer ? labels.liked : labels.like}
+              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold transition hover:bg-surface-sub ${item.likedByViewer ? "text-primary" : "text-ink-soft"}`}
+            >
+              <LikeIcon />
+              {item.likeCount > 0 && <span>{item.likeCount}</span>}
+              <span className="sr-only">
+                {item.likedByViewer ? labels.liked : labels.like}
+              </span>
+            </PendingButton>
+          </form>
+        ) : (
+          <Link
+            href={`/login?next=${encodeURIComponent(sharePath)}`}
+            title={labels.like}
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub"
+          >
+            <LikeIcon />
+            {item.likeCount > 0 && <span>{item.likeCount}</span>}
+            <span className="sr-only">{labels.like}</span>
+          </Link>
+        )}
+        <Link
+          href={`${sharePath}#comments`}
+          title={labels.comment}
+          className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub"
+        >
+          <CommentIcon />
+          {item.commentCount > 0 && <span>{item.commentCount}</span>}
+          <span className="sr-only">{labels.comment}</span>
+        </Link>
+        {viewerId ? (
+          <form action={toggleFeedRepost}>
+            <input type="hidden" name="postId" value={item.id} />
+            <input type="hidden" name="returnTo" value={returnTo} />
+            <PendingButton
+              aria-pressed={item.repostedByViewer}
+              title={item.repostedByViewer ? labels.reposted : labels.repost}
+              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub ${item.repostedByViewer ? "text-[#238558]" : "text-ink-soft"}`}
+            >
+              <RepostIcon />
+              {item.repostCount > 0 && <span>{item.repostCount}</span>}
+              <span className="sr-only">
+                {item.repostedByViewer ? labels.reposted : labels.repost}
+              </span>
+            </PendingButton>
+          </form>
+        ) : (
+          <Link
+            href={`/login?next=${encodeURIComponent(sharePath)}`}
+            title={labels.repost}
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub"
+          >
+            <RepostIcon />
+            {item.repostCount > 0 && <span>{item.repostCount}</span>}
+            <span className="sr-only">{labels.repost}</span>
+          </Link>
+        )}
+        <ShareButton
+          url={sharePath}
+          title={item.body.slice(0, 80)}
+          label={labels.share}
+          copiedLabel={labels.copied}
+          postId={item.id}
+          viewerId={viewerId}
+          returnTo={returnTo}
+          count={item.shareCount}
+        />
+      </footer>
+    </article>
+  );
+}

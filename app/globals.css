@@ -226,6 +226,41 @@ main > :where(*) {
   .rich-content img {
     @apply my-3 max-w-full rounded-xl;
   }
+  .product-rich-content {
+    @apply text-base leading-8 text-ink-soft;
+  }
+  .product-rich-content p {
+    @apply my-4;
+  }
+  .product-rich-content h2 {
+    @apply mb-4 mt-10 text-2xl font-extrabold tracking-[-.03em] text-ink first:mt-0;
+  }
+  .product-rich-content h3 {
+    @apply mb-3 mt-8 text-xl font-extrabold text-ink;
+  }
+  .product-rich-content ul,
+  .product-rich-content ol {
+    @apply my-5 space-y-1.5 pl-6;
+  }
+  .product-rich-content figure {
+    @apply my-8;
+  }
+  .product-rich-content img {
+    @apply my-8 w-full cursor-zoom-in rounded-[1.5rem] shadow-(--shadow-card) transition duration-300 hover:brightness-[.98];
+  }
+  .product-rich-content figure img {
+    @apply mb-0 mt-0;
+  }
+  .product-rich-content figcaption {
+    @apply mt-3 text-center text-xs leading-5 text-ink-faint;
+  }
+  .product-rich-content iframe,
+  .product-rich-content div[data-youtube-video] > iframe {
+    @apply my-8 max-w-none rounded-[1.5rem] shadow-(--shadow-card);
+  }
+  .product-rich-content table {
+    @apply my-8 block max-w-full overflow-x-auto rounded-xl border border-line;
+  }
   .notice-content {
     @apply text-base leading-8;
   }

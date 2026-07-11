@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -16,8 +16,11 @@ export default async function MemberMessagesPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
 
   const referrerId = session.profile.referred_by;
-  let coordinator: { id: string; display_name: string | null; is_coordinator: boolean } | null =
-    null;
+  let coordinator: {
+    id: string;
+    display_name: string | null;
+    is_coordinator: boolean;
+  } | null = null;
   if (referrerId) {
     const { data } = await supabase
       .from("profiles")
@@ -67,7 +70,10 @@ export default async function MemberMessagesPage() {
                 {message.body}
               </p>
               <p className="mt-1 text-[11px] text-ink-faint">
-                {new Date(message.created_at).toISOString().slice(0, 16).replace("T", " ")}
+                {new Date(message.created_at)
+                  .toISOString()
+                  .slice(0, 16)
+                  .replace("T", " ")}
               </p>
             </div>
           ))}
@@ -84,9 +90,7 @@ export default async function MemberMessagesPage() {
           required
           className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
         />
-        <PendingButton
-          className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary-strong"
-        >
+        <PendingButton className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary-strong">
           {t.coordinator.send}
         </PendingButton>
       </form>

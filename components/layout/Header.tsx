@@ -45,6 +45,7 @@ export async function Header() {
   if (session.profile) {
     dropdown.push(
       { href: "/dashboard", label: t.common.dashboard },
+      { href: "/feed", label: t.feed.title },
       { href: "/dashboard/profile", label: t.nav.profile },
       { href: "/write/select", label: t.dashboard.registerProduct },
       { href: "/write?menu=requests", label: t.dashboard.postRequest },
@@ -124,11 +125,7 @@ export async function Header() {
                   label={t.common.notifications}
                 />
                 <AvatarMenu
-                  name={
-                    session.profile.display_name ??
-                    session.profile.company_name ??
-                    `UID ${session.profile.uid}`
-                  }
+                  name={`UID:${session.profile.uid}`}
                   uid={session.profile.uid}
                   avatarUrl={
                     session.profile.avatar_url

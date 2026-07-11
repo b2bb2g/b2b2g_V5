@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signOut } from "@/app/actions/auth";
+import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 
 export type AvatarMenuItem = { href: string; label: string };
 
@@ -54,9 +55,7 @@ export function AvatarMenu({
       className="h-9 w-9 rounded-full object-cover"
     />
   ) : (
-    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-extrabold text-white">
-      {name.slice(0, 1).toUpperCase()}
-    </span>
+    <DefaultAvatar className="h-9 w-9" />
   );
 
   return (
@@ -90,11 +89,32 @@ export function AvatarMenu({
                   className="flex h-5 w-5 items-center justify-center rounded text-ink-faint transition-colors hover:bg-surface-sub hover:text-ink-soft"
                 >
                   {copied ? (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-positive" aria-hidden="true">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-positive"
+                      aria-hidden="true"
+                    >
                       <path d="M20 6 9 17l-5-5" />
                     </svg>
                   ) : (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
                       <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
                       <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
                     </svg>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { notFound, redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
@@ -23,7 +23,9 @@ export default async function CoordinatorMemberPage(props: {
 
   const { data: member } = await supabase
     .from("profiles")
-    .select("id, uid, display_name, company_name, referred_by, profile_contacts(email)")
+    .select(
+      "id, uid, display_name, company_name, referred_by, profile_contacts(email)",
+    )
     .eq("id", memberId)
     .maybeSingle();
   const memberRow = member as unknown as {
@@ -76,14 +78,19 @@ export default async function CoordinatorMemberPage(props: {
               <div
                 key={message.id}
                 className={`rounded-card border border-line p-3 ${
-                  message.sender_id === session.userId ? "bg-primary-soft/30" : ""
+                  message.sender_id === session.userId
+                    ? "bg-primary-soft/30"
+                    : ""
                 }`}
               >
                 <p className="whitespace-pre-wrap text-sm leading-relaxed">
                   {message.body}
                 </p>
                 <p className="mt-1 text-[11px] text-ink-faint">
-                  {new Date(message.created_at).toISOString().slice(0, 16).replace("T", " ")}
+                  {new Date(message.created_at)
+                    .toISOString()
+                    .slice(0, 16)
+                    .replace("T", " ")}
                 </p>
               </div>
             ))}
@@ -99,9 +106,7 @@ export default async function CoordinatorMemberPage(props: {
             required
             className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
           />
-          <PendingButton
-            className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary-strong"
-          >
+          <PendingButton className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary-strong">
             {t.coordinator.send}
           </PendingButton>
         </form>
@@ -121,7 +126,9 @@ export default async function CoordinatorMemberPage(props: {
                 href={`/inquiries/${inquiry.id}`}
                 className="flex items-center justify-between gap-3 rounded-card border border-line px-4 py-3 hover:border-primary"
               >
-                <p className="truncate text-sm font-semibold">{inquiry.subject}</p>
+                <p className="truncate text-sm font-semibold">
+                  {inquiry.subject}
+                </p>
                 <StatusLabel
                   status={inquiry.status}
                   label={stepLabels[inquiry.status] ?? inquiry.status}

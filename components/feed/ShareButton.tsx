@@ -1,0 +1,66 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { recordFeedShare } from "@/app/actions/feed";
+import { SendIcon } from "@/components/feed/FeedIcons";
+
+export function ShareButton({
+  url,
+  title,
+  label,
+  copiedLabel,
+  postId,
+  viewerId,
+  returnTo,
+  count,
+}: {
+  url: string;
+  title: string;
+  label: string;
+  copiedLabel: string;
+  postId: string;
+  viewerId: string | null;
+  returnTo: string;
+  count: number;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [, startTransition] = useTransition();
+
+  function record() {
+    if (!viewerId) return;
+    const formData = new FormData();
+    formData.set("postId", postId);
+    formData.set("returnTo", returnTo);
+    startTransition(() => recordFeedShare(formData));
+  }
+
+  async function share() {
+    const absolute = new URL(url, window.location.origin).toString();
+    if (navigator.share) {
+      const shared = await navigator.share({ title, url: absolute }).then(
+        () => true,
+        () => false,
+      );
+      if (shared) record();
+      return;
+    }
+    await navigator.clipboard.writeText(absolute);
+    record();
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={share}
+      aria-label={copied ? copiedLabel : label}
+      title={copied ? copiedLabel : label}
+      className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
+    >
+      <SendIcon />
+      {count > 0 && <span>{count}</span>}
+      <span className="sr-only">{copied ? copiedLabel : label}</span>
+    </button>
+  );
+}

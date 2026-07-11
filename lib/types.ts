@@ -25,6 +25,8 @@ export type Profile = {
   display_name: string | null;
   company_name: string | null;
   bio: string | null;
+  bio_en: string | null;
+  bio_ko: string | null;
   avatar_url: string | null;
   status: MemberStatus;
   is_admin: boolean;
@@ -67,6 +69,11 @@ export type PostTeaser = {
   author_uid: number;
   author_name: string | null;
   author_company: string | null;
+  author_badges: {
+    code: string;
+    name_en: string;
+    name_ko: string;
+  }[];
 };
 
 export type Post = {
