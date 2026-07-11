@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
-import { getMenuBySlug } from "@/lib/data/menus";
+import { getMenuBySlug, menuTitle } from "@/lib/data/menus";
 import { listPostsForMenu } from "@/lib/data/posts";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
@@ -22,7 +22,8 @@ export async function generateMetadata(props: {
   const { menuSlug } = await props.params;
   const menu = await getMenuBySlug(menuSlug);
   if (!menu) return {};
-  return { title: menu.title_en };
+  const { locale } = await getT();
+  return { title: menuTitle(menu, locale) };
 }
 
 function thumbnail(post: PostTeaser): string | null {
@@ -65,7 +66,7 @@ export default async function BoardPage(props: {
   ]);
 
   // Menu names always display in English (user policy).
-  const title = menu.title_en;
+  const title = menuTitle(menu, locale);
   const isRequestBoard = menu.board_type === BOARD_TYPES.REQUEST;
   const isGallery =
     menu.board_type === BOARD_TYPES.PRODUCT ||

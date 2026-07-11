@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
-import { getVisibleMenus } from "@/lib/data/menus";
+import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { MenuNav } from "@/components/layout/MenuNav";
@@ -28,11 +28,11 @@ export async function Header() {
     unread = count ?? 0;
   }
 
-  // Menu names always display in English (user policy), regardless of locale.
+  // Menu names follow the admin menu settings per locale (EN/KO fields).
   const menuItems = menus.map((menu) => ({
     id: menu.id,
     slug: menu.slug,
-    label: menu.title_en,
+    label: menuTitle(menu, locale),
   }));
 
   // Role-aware dropdown entries (member / certified / coordinator / admin).

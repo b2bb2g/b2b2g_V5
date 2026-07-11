@@ -11,6 +11,8 @@ export default async function SettingsAdminPage() {
     .order("key");
 
   const settings = (data ?? []) as { key: string; value: unknown }[];
+  // Human-readable names; the raw key stays visible as a small reference.
+  const labels: Record<string, string> = t.admin.settingLabels;
 
   return (
     <div className="space-y-3">
@@ -26,9 +28,12 @@ export default async function SettingsAdminPage() {
               className="flex flex-wrap items-center justify-between gap-2 rounded-card border border-line px-4 py-3"
             >
               <input type="hidden" name="key" value={setting.key} />
-              <p className="font-mono text-xs font-semibold text-ink-soft">
-                {setting.key}
-              </p>
+              <span className="min-w-0">
+                <p className="text-sm font-semibold">
+                  {labels[setting.key] ?? setting.key}
+                </p>
+                <p className="font-mono text-[10px] text-ink-faint">{setting.key}</p>
+              </span>
               {isBool ? (
                 <>
                   <input type="hidden" name="kind" value="boolean" />

@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
-import { getMenuBySlug } from "@/lib/data/menus";
+import { getMenuBySlug, menuTitle } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
 import { PostComposer } from "@/components/post/PostComposer";
@@ -100,7 +100,7 @@ export default async function WritePage(props: {
 
   return (
     <div className="space-y-4">
-      <PageHeader title={initial ? t.post.editPost : t.post.writePost} subtitle={menu.title_en} />
+      <PageHeader title={initial ? t.post.editPost : t.post.writePost} subtitle={menuTitle(menu, locale)} />
       <PostComposer
         t={t}
         locale={locale}

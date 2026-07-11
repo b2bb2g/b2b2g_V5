@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
-import { getVisibleMenus } from "@/lib/data/menus";
+import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 
 // Multi-column footer aligned to the content container width (max-w-6xl,
 // same as the landing sections).
 export async function Footer() {
-  const [{ t }, menus] = await Promise.all([getT(), getVisibleMenus()]);
+  const [{ t, locale }, menus] = await Promise.all([getT(), getVisibleMenus()]);
 
   const columns = [
     {
       title: t.footer.marketplace,
       links: menus.slice(0, 5).map((menu) => ({
         href: `/${menu.slug}`,
-        label: menu.title_en,
+        label: menuTitle(menu, locale),
       })),
     },
     {
