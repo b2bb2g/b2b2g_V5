@@ -141,78 +141,73 @@ export default async function PostDetailPage(props: {
             {t.board.backToNotices}
           </Link>
         </nav>
-        <header className="relative min-h-[19rem] overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_24px_75px_rgba(16,25,35,.2)] sm:min-h-[22rem]">
-          {noticeImage ? (
-            <Image
-              src={noticeImage}
-              alt=""
-              fill
-              priority
-              sizes="(max-width:1280px) 100vw, 1280px"
-              className="object-cover"
-            />
-          ) : (
-            <span
-              className="absolute -right-20 -top-28 h-80 w-80 rounded-full bg-primary/35 blur-3xl"
-              aria-hidden="true"
-            />
-          )}
-          <span
-            className={`absolute inset-0 ${noticeImage ? "bg-gradient-to-t from-black/95 via-black/35 to-black/10" : "bg-transparent"}`}
-            aria-hidden="true"
-          />
-          <div className="absolute inset-x-0 bottom-0 p-7 sm:p-10 lg:p-14">
+        <div className="mx-auto w-full max-w-4xl overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
+          <header className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14">
             <span className="rounded-full bg-primary px-3 py-1.5 text-xs font-extrabold uppercase tracking-[.14em]">
               {t.board.officialNotice}
             </span>
-            <h1 className="mt-6 max-w-4xl text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">
+            <h1 className="mt-6 text-3xl font-extrabold leading-tight tracking-[-.04em] text-ink sm:text-4xl">
               {title}
             </h1>
             <time
               dateTime={publishedAt}
-              className="mt-6 block text-xs font-semibold text-white/60"
+              className="mt-5 block text-xs font-semibold text-ink-faint"
             >
               {publishedAt.slice(0, 10)}
             </time>
-          </div>
-        </header>
-        <section className="mx-auto w-full max-w-4xl rounded-[2rem] border border-line/80 bg-white px-6 py-8 shadow-(--shadow-card) sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-          {isRichText(body) ? (
-            <div
-              className="rich-content notice-content"
-              dangerouslySetInnerHTML={{ __html: sanitizeRichText(body) }}
-            />
-          ) : (
-            <div className="whitespace-pre-wrap text-base leading-8 text-ink">
-              {body}
+          </header>
+          {noticeImage && (
+            <div className="relative aspect-[16/7] overflow-hidden bg-surface-sub">
+              <Image
+                src={noticeImage}
+                alt=""
+                fill
+                priority
+                sizes="(max-width:896px) 100vw, 896px"
+                className="object-cover"
+              />
             </div>
           )}
-          {full.attachments.length > 0 && (
-            <section className="mt-10 border-t border-line pt-8">
-              <h2 className="text-base font-extrabold">{t.post.attachments}</h2>
-              <ul className="mt-4 space-y-2">
-                {full.attachments.map((attachment) => (
-                  <li key={attachment.id}>
-                    <Link
-                      href={`/api/attachments/${attachment.id}`}
-                      className="group flex items-center justify-between rounded-2xl bg-surface-sub px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft hover:text-primary-strong"
-                    >
-                      <span className="min-w-0 truncate">
-                        {attachment.filename}
-                      </span>
-                      <span
-                        className="ml-4 text-primary transition-transform group-hover:translate-y-0.5"
-                        aria-hidden="true"
+          <section className="border-t border-line px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+            {isRichText(body) ? (
+              <div
+                className="rich-content notice-content"
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(body) }}
+              />
+            ) : (
+              <div className="whitespace-pre-wrap text-base leading-8 text-ink">
+                {body}
+              </div>
+            )}
+            {full.attachments.length > 0 && (
+              <section className="mt-10 border-t border-line pt-8">
+                <h2 className="text-base font-extrabold">
+                  {t.post.attachments}
+                </h2>
+                <ul className="mt-4 space-y-2">
+                  {full.attachments.map((attachment) => (
+                    <li key={attachment.id}>
+                      <Link
+                        href={`/api/attachments/${attachment.id}`}
+                        className="group flex items-center justify-between rounded-2xl bg-surface-sub px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft hover:text-primary-strong"
                       >
-                        ↓
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </section>
+                        <span className="min-w-0 truncate">
+                          {attachment.filename}
+                        </span>
+                        <span
+                          className="ml-4 text-primary transition-transform group-hover:translate-y-0.5"
+                          aria-hidden="true"
+                        >
+                          ↓
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </section>
+        </div>
         {(previousNotice || nextNotice) && (
           <nav
             className="mx-auto grid w-full max-w-4xl gap-3 sm:grid-cols-2"
@@ -255,41 +250,27 @@ export default async function PostDetailPage(props: {
         {relatedNotices.length > 0 && (
           <section className="mx-auto w-full max-w-4xl pb-3 pt-5">
             <h2 className="text-xl font-extrabold">{t.board.relatedNotices}</h2>
-            <div className="mt-5 grid items-start gap-3 sm:grid-cols-3">
+            <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)">
               {relatedNotices.map((item) => {
                 const thumbnail = repThumbnail(item);
                 return (
                   <Link
                     key={item.id}
                     href={`/notices/${item.id}`}
-                    className="group self-start overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)"
+                    className={`group grid items-center gap-4 border-b border-line px-4 py-4 transition last:border-b-0 hover:bg-surface-sub ${thumbnail ? "grid-cols-[6rem_1fr_auto]" : "grid-cols-[1fr_auto]"}`}
                   >
-                    {thumbnail ? (
-                      <span className="relative block aspect-video overflow-hidden bg-surface-sub">
+                    {thumbnail && (
+                      <span className="relative block aspect-[3/2] overflow-hidden rounded-xl bg-surface-sub">
                         <Image
                           src={thumbnail}
                           alt=""
                           fill
-                          sizes="(max-width:640px) 100vw, 33vw"
+                          sizes="96px"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </span>
-                    ) : (
-                      <span className="flex aspect-[2/1] items-center justify-center bg-primary-soft text-primary">
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-7 w-7"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          aria-hidden="true"
-                        >
-                          <path d="M6 3h9l3 3v15H6z" />
-                          <path d="M14 3v4h4M9 12h6M9 16h6" />
-                        </svg>
-                      </span>
                     )}
-                    <span className="block p-4">
+                    <span className="min-w-0">
                       <strong className="line-clamp-2 text-sm font-extrabold leading-snug group-hover:text-primary">
                         {locale === "ko" && item.title_ko
                           ? item.title_ko
@@ -298,6 +279,12 @@ export default async function PostDetailPage(props: {
                       <span className="mt-2 block text-xs text-ink-faint">
                         {item.published_at?.slice(0, 10)}
                       </span>
+                    </span>
+                    <span
+                      className="text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary"
+                      aria-hidden="true"
+                    >
+                      →
                     </span>
                   </Link>
                 );
