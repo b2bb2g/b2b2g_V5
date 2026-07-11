@@ -9,7 +9,6 @@ import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { repThumbnail } from "@/lib/media";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { stripRichText } from "@/lib/richtext";
@@ -72,17 +71,21 @@ export default async function BoardPage(props: {
   const isGallery =
     menu.board_type === BOARD_TYPES.PRODUCT ||
     menu.board_type === BOARD_TYPES.FLEXIBLE;
+  const typeLabel =
+    (t.admin.boardTypes as Record<string, string>)[menu.board_type] ??
+    menu.board_type;
 
   return (
     <div className="wide space-y-4">
       {/* Creation lives on the dashboard and avatar menu only (UX policy). */}
-      <PageHeader
-        title={title}
-        subtitle={
-          (t.admin.boardTypes as Record<string, string>)[menu.board_type] ??
-          menu.board_type
-        }
-      />
+      <section className="relative overflow-hidden rounded-[1.5rem] bg-ink px-5 py-7 text-white sm:px-8 sm:py-10">
+        <span className="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
+        <div className="relative max-w-2xl">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{t.board.eyebrow} · {typeLabel}</p>
+          <div className="mt-3 flex flex-wrap items-end gap-3"><h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h1><span className="mb-1 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/65">{posts.length} {t.board.availableNow}</span></div>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/60">{isRequestBoard ? t.board.requestHint : t.board.browseHint}</p>
+        </div>
+      </section>
 
       {categoryNavVisible && (categories ?? []).length > 0 && (
         <nav className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4">
@@ -134,6 +137,7 @@ export default async function BoardPage(props: {
                       className="object-cover transition-transform group-hover:scale-[1.03]"
                     />
                   ) : <MediaPlaceholder />}
+                  <span className="absolute right-3 top-3 flex h-8 w-8 translate-y-1 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm transition-all group-hover:translate-y-0 group-hover:opacity-100">→</span>
                 </div>
                 <div className="space-y-1 p-3">
                   <p className="line-clamp-2 text-sm font-bold leading-snug">
@@ -200,6 +204,13 @@ export default async function BoardPage(props: {
         prevLabel={t.home.prev}
         nextLabel={t.home.next}
       />
+
+      {posts.length > 0 && posts.length < 8 && (
+        <section className="mt-8 flex flex-col items-start justify-between gap-5 rounded-[1.5rem] bg-primary-soft px-6 py-7 sm:flex-row sm:items-center">
+          <div><h2 className="text-lg font-extrabold">{t.board.nextTitle}</h2><p className="mt-1 max-w-xl text-sm text-ink-soft">{t.board.nextBody}</p></div>
+          <div className="flex shrink-0 gap-2"><Link href="/search" className="btn-secondary btn-md">{t.common.search}</Link><Link href="/signup" className="btn-primary btn-md">{t.common.signUp}</Link></div>
+        </section>
+      )}
     </div>
   );
 }

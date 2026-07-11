@@ -63,6 +63,14 @@ const ko: Dict = {
     noResults: "검색 결과가 없어요",
     noResultsHint: "다른 키워드로 검색하거나 게시판을 둘러보세요.",
   },
+  board: {
+    eyebrow: "엄선된 B2B 마켓플레이스",
+    browseHint: "비즈니스 구매자를 위해 선별한 수출 준비 상품과 신뢰할 수 있는 파트너를 만나보세요.",
+    requestHint: "진행 중인 소싱 기회를 확인하고 적합한 비즈니스 제안으로 응답하세요.",
+    availableNow: "건 확인 가능",
+    nextTitle: "찾는 상품이 따로 있으신가요?",
+    nextBody: "전체 마켓을 검색하거나 무료 가입 후 직접 소싱 대화를 시작하세요.",
+  },
   home: {
     eyebrow: "글로벌 B2B · B2G 마켓플레이스",
     heroTitle: "구매자와 공급자를 잇는 신뢰의 다리",
@@ -258,6 +266,10 @@ const ko: Dict = {
     postRequest: "구매 요청",
     pendingPosts: "검수 대기 글",
     unreadReplies: "읽지 않은 문의 소식",
+    recentActivity: "최근 활동",
+    recentActivityHint: "게시글과 소싱 대화에서 최근 바뀐 내용을 확인하세요.",
+    noRecentActivity: "상품을 등록하거나 문의하면 최근 활동이 여기에 표시돼요.",
+    updated: "업데이트",
   },
   // 배지 라벨은 브랜드 마크: 모든 언어에서 동일 표기.
   badges: {
@@ -419,6 +431,11 @@ const ko: Dict = {
     viewSite: "마켓 보기",
     overview: "현황",
     actionQueue: "지금 운영 판단이 필요한 항목",
+    queueHealthy: "모든 검수 항목이 24시간 목표 안에 있어요.",
+    oldestWaiting: "최장 대기",
+    withinSla: "목표 이내",
+    overdue: "목표 초과",
+    hours: "시간",
     pendingPosts: "검수 대기 게시글",
     pendingInquiries: "검수 대기 메시지",
     pendingBadges: "배지 신청",

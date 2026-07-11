@@ -12,6 +12,10 @@ function isoDaysFromNow(days: number): string {
   return new Date(Date.now() + days * 86400_000).toISOString();
 }
 
+function hoursSince(value?: string): number {
+  return value ? Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 3_600_000)) : 0;
+}
+
 export default async function AdminOverviewPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
 
@@ -22,16 +26,16 @@ export default async function AdminOverviewPage() {
     await Promise.all([
       supabase
         .from("posts")
-        .select("id", { count: "exact", head: true })
-        .eq("status", POST_STATUS.PENDING),
+        .select("created_at", { count: "exact" })
+        .eq("status", POST_STATUS.PENDING).order("created_at", { ascending: true }).limit(1),
       supabase
         .from("inquiry_messages")
-        .select("id", { count: "exact", head: true })
-        .eq("review_status", MESSAGE_REVIEW_STATUS.PENDING),
+        .select("created_at", { count: "exact" })
+        .eq("review_status", MESSAGE_REVIEW_STATUS.PENDING).order("created_at", { ascending: true }).limit(1),
       supabase
         .from("badge_applications")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pending"),
+        .select("created_at", { count: "exact" })
+        .eq("status", "pending").order("created_at", { ascending: true }).limit(1),
       supabase
         .from("profiles")
         .select("id", { count: "exact", head: true })
@@ -44,11 +48,11 @@ export default async function AdminOverviewPage() {
     ]);
 
   const cards = [
-    { href: "/admin/moderation", label: t.admin.pendingPosts, count: pendingPosts.count ?? 0 },
-    { href: "/admin/inquiries", label: t.admin.pendingInquiries, count: pendingMessages.count ?? 0 },
-    { href: "/admin/badges", label: t.admin.pendingBadges, count: pendingBadges.count ?? 0 },
-    { href: "/admin/members", label: t.admin.newMembers, count: newMembers.count ?? 0 },
-    { href: "/admin/subscriptions", label: t.admin.expiringSubs, count: expiring.count ?? 0 },
+    { href: "/admin/moderation", label: t.admin.pendingPosts, count: pendingPosts.count ?? 0, age: hoursSince(pendingPosts.data?.[0]?.created_at), queue: true },
+    { href: "/admin/inquiries", label: t.admin.pendingInquiries, count: pendingMessages.count ?? 0, age: hoursSince(pendingMessages.data?.[0]?.created_at), queue: true },
+    { href: "/admin/badges", label: t.admin.pendingBadges, count: pendingBadges.count ?? 0, age: hoursSince(pendingBadges.data?.[0]?.created_at), queue: true },
+    { href: "/admin/members", label: t.admin.newMembers, count: newMembers.count ?? 0, age: 0, queue: false },
+    { href: "/admin/subscriptions", label: t.admin.expiringSubs, count: expiring.count ?? 0, age: 0, queue: false },
   ];
 
   return (
@@ -56,7 +60,7 @@ export default async function AdminOverviewPage() {
       <div className="rounded-[1.5rem] bg-ink p-6 text-white">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{t.admin.overview}</p>
         <p className="mt-2 text-3xl font-extrabold">{cards.slice(0, 3).reduce((sum, card) => sum + card.count, 0)}</p>
-        <p className="mt-1 text-sm text-white/60">{t.admin.actionQueue}</p>
+        <p className="mt-1 text-sm text-white/60">{cards.slice(0,3).some((card) => card.age > 24) ? t.admin.actionQueue : t.admin.queueHealthy}</p>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {cards.map((card) => (
@@ -69,6 +73,7 @@ export default async function AdminOverviewPage() {
         >
           <div className="flex items-start justify-between"><p className="text-2xl font-extrabold">{card.count}</p><span className="text-ink-faint transition group-hover:translate-x-1 group-hover:text-primary">→</span></div>
           <p className="mt-1 text-xs font-semibold text-ink-soft">{card.label}</p>
+          {card.queue && card.count > 0 && <p className={`mt-3 text-[11px] font-bold ${card.age > 24 ? "text-negative" : "text-positive"}`}>{card.age > 24 ? t.admin.overdue : t.admin.withinSla} · {t.admin.oldestWaiting} {card.age}{t.admin.hours}</p>}
         </Link>
       ))}
       </div>

@@ -2,6 +2,9 @@ import { STORAGE_BUCKETS } from "@/lib/constants";
 
 // Public bucket objects are addressed by URL; no listing/signing needed.
 export function postMediaUrl(path: string): string {
+  // Curated catalog assets can be deployed with the app while member uploads
+  // continue to resolve through the public Supabase Storage bucket.
+  if (path.startsWith("/")) return path;
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   return `${base}/storage/v1/object/public/${STORAGE_BUCKETS.POST_MEDIA}/${path}`;
 }

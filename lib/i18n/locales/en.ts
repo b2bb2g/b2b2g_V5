@@ -59,6 +59,14 @@ const en = {
     noResults: "No results found",
     noResultsHint: "Try a different keyword or browse the boards.",
   },
+  board: {
+    eyebrow: "Curated B2B marketplace",
+    browseHint: "Discover export-ready products and credible partners selected for business buyers.",
+    requestHint: "Review active sourcing opportunities and respond with the right business proposal.",
+    availableNow: "available now",
+    nextTitle: "Looking for something specific?",
+    nextBody: "Search the full marketplace or join free to start a direct sourcing conversation.",
+  },
   home: {
     eyebrow: "Global B2B · B2G marketplace",
     heroTitle: "The trusted bridge between buyers and suppliers",
@@ -254,6 +262,10 @@ const en = {
     postRequest: "Post a sourcing request",
     pendingPosts: "Posts waiting for review",
     unreadReplies: "Unread inquiry updates",
+    recentActivity: "Recent activity",
+    recentActivityHint: "The latest changes across your posts and sourcing conversations.",
+    noRecentActivity: "New activity will appear here as you publish and inquire.",
+    updated: "Updated",
   },
   // Badge labels are brand marks: identical in every locale.
   badges: {
@@ -415,6 +427,11 @@ const en = {
     viewSite: "View marketplace",
     overview: "Overview",
     actionQueue: "Items that need an operations decision now",
+    queueHealthy: "All review queues are within the 24-hour target.",
+    oldestWaiting: "Oldest waiting",
+    withinSla: "Within target",
+    overdue: "Over target",
+    hours: "h",
     pendingPosts: "Posts awaiting review",
     pendingInquiries: "Messages awaiting review",
     pendingBadges: "Badge applications",

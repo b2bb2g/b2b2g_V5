@@ -17,6 +17,7 @@ import {
   SETTING_KEYS,
   SUBSCRIPTION_STATUS,
 } from "@/lib/constants";
+import { StatusLabel } from "@/components/ui/StatusLabel";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -28,7 +29,7 @@ export default async function DashboardPage() {
     createClient(),
   ]);
 
-  const [postsCount, inquiriesCount, pendingPosts, unreadReplies, subscription, referralCount] =
+  const [postsCount, inquiriesCount, pendingPosts, unreadReplies, subscription, referralCount, recentPosts, recentInquiries] =
     await Promise.all([
       supabase
         .from("posts")
@@ -62,6 +63,18 @@ export default async function DashboardPage() {
         .from("profiles")
         .select("id", { count: "exact", head: true })
         .eq("referred_by", session.userId),
+      supabase
+        .from("posts")
+        .select("id, title_en, title_ko, status, updated_at")
+        .eq("author_id", session.userId)
+        .order("updated_at", { ascending: false })
+        .limit(4),
+      supabase
+        .from("inquiries")
+        .select("id, subject, status, updated_at")
+        .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`)
+        .order("updated_at", { ascending: false })
+        .limit(4),
     ]);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -145,6 +158,28 @@ export default async function DashboardPage() {
           <p className="mt-1 text-sm font-semibold text-ink-soft">{t.dashboard.unreadReplies}</p>
         </Link>
       </div>
+      </section>
+
+      <section className="overflow-hidden rounded-[1.25rem] border border-line bg-surface shadow-(--shadow-card)">
+        <div className="flex items-end justify-between gap-4 border-b border-line px-5 py-4">
+          <div><h2 className="text-base font-extrabold">{t.dashboard.recentActivity}</h2><p className="mt-0.5 text-xs text-ink-faint">{t.dashboard.recentActivityHint}</p></div>
+        </div>
+        {(recentPosts.data?.length ?? 0) + (recentInquiries.data?.length ?? 0) === 0 ? (
+          <p className="px-5 py-8 text-center text-sm text-ink-faint">{t.dashboard.noRecentActivity}</p>
+        ) : (
+          <div className="divide-y divide-line">
+            {[...(recentPosts.data ?? []).map((item) => ({ ...item, href: "/dashboard/posts", title: locale === "ko" && item.title_ko ? item.title_ko : item.title_en })), ...(recentInquiries.data ?? []).map((item) => ({ ...item, href: `/inquiries/${item.id}`, title: item.subject }))]
+              .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()).slice(0, 5).map((item) => (
+              <Link key={`${item.href}-${item.id}`} href={item.href} className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface-sub/70">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />
+                <p className="min-w-0 flex-1 truncate text-sm font-semibold">{item.title}</p>
+                <StatusLabel status={item.status} label={(t.post.status as Record<string,string>)[item.status] ?? (t.inquiry.steps as Record<string,string>)[item.status] ?? item.status} />
+                <span className="hidden text-xs text-ink-faint sm:block">{t.dashboard.updated} {new Date(item.updated_at).toISOString().slice(0, 10)}</span>
+                <span className="text-ink-faint transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Status cards: three across on the wide frame */}
