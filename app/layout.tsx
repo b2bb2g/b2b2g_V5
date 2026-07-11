@@ -73,9 +73,9 @@ export default async function RootLayout({
           <NavigationFeedback />
         </Suspense>
         <PullToRefresh />
-        <RouteChrome><Header /></RouteChrome>
+        <RouteChrome hideOnAdmin><Header /></RouteChrome>
         <main className="w-full flex-1">{children}</main>
-        <RouteChrome><Footer /></RouteChrome>
+        <RouteChrome hideOnAdmin><Footer /></RouteChrome>
         <Suspense>
           <Toaster messages={t.toast} />
         </Suspense>
@@ -89,7 +89,7 @@ export default async function RootLayout({
           body={t.inapp.body}
           openLabel={t.inapp.open}
         />
-        <RouteChrome>
+        <RouteChrome hideOnAdmin>
           <GlobalBanners
             cookie={t.cookie}
             pwa={t.pwa}

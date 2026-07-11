@@ -416,6 +416,7 @@ const ko: Dict = {
     deleteMenuConfirmBody: "삭제하면 사이트에서 바로 사라져요. 게시글이 있는 게시판은 삭제할 수 없고 노출 끄기로 숨겨 주세요.",
     menuHasPosts: "게시글이 있는 게시판이라 삭제할 수 없어요. 노출 끄기로 숨겨 주세요.",
     title: "관리자 콘솔",
+    viewSite: "마켓 보기",
     overview: "현황",
     actionQueue: "지금 운영 판단이 필요한 항목",
     pendingPosts: "검수 대기 게시글",

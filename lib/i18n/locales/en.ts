@@ -412,6 +412,7 @@ const en = {
     deleteMenuConfirmBody: "The board is removed from the site immediately. Boards that already have posts cannot be deleted -- hide them instead.",
     menuHasPosts: "This board has posts, so it cannot be deleted. Turn its visibility off instead.",
     title: "Admin console",
+    viewSite: "View marketplace",
     overview: "Overview",
     actionQueue: "Items that need an operations decision now",
     pendingPosts: "Posts awaiting review",
