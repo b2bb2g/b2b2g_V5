@@ -7,6 +7,7 @@ import { getVisibleMenus } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
 import { postMediaUrl, repThumbnail } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
+import { MediaGallery } from "@/components/post/MediaGallery";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
 
@@ -90,6 +91,8 @@ export default async function CompanyPage(props: {
     locale === "ko" && homepage.intro_ko ? homepage.intro_ko : homepage.intro_en;
   const isOwn = session.userId === owner.id;
   const docs = (homepage.doc_paths as { path: string; name: string }[]) ?? [];
+  const gallery = ((homepage.gallery_paths as string[]) ?? []).map(postMediaUrl);
+  const certs = (homepage.cert_paths as { path: string; name: string }[]) ?? [];
 
   return (
     <article className="space-y-6">
@@ -122,6 +125,41 @@ export default async function CompanyPage(props: {
       <div className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
         {intro}
       </div>
+
+      {gallery.length > 0 && (
+        <section>
+          <h2 className="text-base font-bold">{t.homepage.gallery}</h2>
+          <div className="mt-2">
+            <MediaGallery
+              images={gallery}
+              heroIndex={0}
+              showHero={false}
+              title={companyName}
+              closeLabel={t.common.close}
+            />
+          </div>
+        </section>
+      )}
+
+      {certs.length > 0 && (
+        <section>
+          <h2 className="text-base font-bold">{t.homepage.certificates}</h2>
+          <ul className="mt-2 space-y-1.5">
+            {certs.map((doc) => (
+              <li key={doc.path}>
+                <a
+                  href={postMediaUrl(doc.path)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-primary-strong hover:bg-primary-soft/40"
+                >
+                  {doc.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {docs.length > 0 && (
         <section>

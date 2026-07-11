@@ -23,6 +23,8 @@ type Props = {
     introKo: string;
     coverImagePath: string | null;
     docPaths: Doc[];
+    galleryPaths: string[];
+    certPaths: Doc[];
     customDomain: string;
     isPublished: boolean;
   };
@@ -42,6 +44,8 @@ export function HomepageEditor({ t, userId, initial }: Props) {
   const [introKo, setIntroKo] = useState(initial.introKo);
   const [cover, setCover] = useState<string | null>(initial.coverImagePath);
   const [docs, setDocs] = useState<Doc[]>(initial.docPaths);
+  const [gallery, setGallery] = useState<string[]>(initial.galleryPaths);
+  const [certs, setCerts] = useState<Doc[]>(initial.certPaths);
   const [customDomain, setCustomDomain] = useState(initial.customDomain);
   const [isPublished, setIsPublished] = useState(initial.isPublished);
 
@@ -64,6 +68,8 @@ export function HomepageEditor({ t, userId, initial }: Props) {
         introKo,
         coverImagePath: cover,
         docPaths: docs,
+        galleryPaths: gallery,
+        certPaths: certs,
         customDomain,
         isPublished,
       });
@@ -143,6 +149,87 @@ export function HomepageEditor({ t, userId, initial }: Props) {
             const path = await upload(file, "cover");
             setUploading(false);
             if (path) setCover(path);
+          }}
+          className="mt-2 block w-full text-xs text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-surface-sub file:px-3 file:py-2 file:text-xs file:font-semibold file:text-ink-soft"
+        />
+      </div>
+
+      <div>
+        <span className="text-xs font-semibold text-ink-soft">{t.homepage.gallery}</span>
+        {gallery.length > 0 && (
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {gallery.map((path) => (
+              <div key={path} className="relative aspect-square overflow-hidden rounded-xl bg-surface-sub">
+                <Image src={postMediaUrl(path)} alt="" fill sizes="160px" className="object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setGallery(gallery.filter((g) => g !== path))}
+                  aria-label={t.common.delete}
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs font-bold text-white"
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={async (e) => {
+            const files = e.target.files;
+            if (!files) return;
+            setUploading(true);
+            const added: string[] = [];
+            for (const file of Array.from(files)) {
+              const path = await upload(file, "gallery");
+              if (path) added.push(path);
+            }
+            setUploading(false);
+            setGallery((prev) => [...prev, ...added]);
+          }}
+          className="mt-2 block w-full text-xs text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-surface-sub file:px-3 file:py-2 file:text-xs file:font-semibold file:text-ink-soft"
+        />
+      </div>
+
+      <div>
+        <span className="text-xs font-semibold text-ink-soft">{t.homepage.certificates}</span>
+        {certs.length > 0 && (
+          <ul className="mt-2 space-y-1.5">
+            {certs.map((doc) => (
+              <li
+                key={doc.path}
+                className="flex items-center justify-between rounded-xl border border-line px-3 py-2 text-xs"
+              >
+                <span className="truncate">{doc.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setCerts(certs.filter((d) => d.path !== doc.path))}
+                  className="ml-2 shrink-0 font-bold text-ink-faint"
+                  aria-label={t.common.delete}
+                >
+                  X
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <input
+          type="file"
+          accept="application/pdf,image/*"
+          multiple
+          onChange={async (e) => {
+            const files = e.target.files;
+            if (!files) return;
+            setUploading(true);
+            const added: Doc[] = [];
+            for (const file of Array.from(files)) {
+              const path = await upload(file, "cert");
+              if (path) added.push({ path, name: file.name });
+            }
+            setUploading(false);
+            setCerts((prev) => [...prev, ...added]);
           }}
           className="mt-2 block w-full text-xs text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-surface-sub file:px-3 file:py-2 file:text-xs file:font-semibold file:text-ink-soft"
         />

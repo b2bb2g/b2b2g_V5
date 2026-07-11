@@ -6,13 +6,14 @@
    avoid SSR hydration mismatches. */
 
 import { useEffect, useState } from "react";
+import { COOKIE_CONSENT_KEY } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
 
 // Cookie consent + PWA install banners (PRD 18.1/18.4).
 // Priority rule: the cookie banner always goes first; the install banner
 // appears only after consent has been handled. Bottom banners only, no
 // full-screen interrupts.
-const CONSENT_KEY = "cookie-consent";
+const CONSENT_KEY = COOKIE_CONSENT_KEY;
 const PWA_DISMISS_KEY = "pwa-banner-dismissed-at";
 
 type BeforeInstallPromptEvent = Event & {

@@ -99,6 +99,8 @@ export type PermissionAction =
   (typeof PERMISSION_ACTIONS)[keyof typeof PERMISSION_ACTIONS];
 
 // Built-in badge codes (badge types are dynamic; these are the seeded ones).
+export const COOKIE_CONSENT_KEY = "cookie-consent";
+
 export const BADGE_CODES = {
   MANUFACTURER: "manufacturer",
   CERTIFIED: "certified",

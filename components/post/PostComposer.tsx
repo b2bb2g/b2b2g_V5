@@ -31,6 +31,7 @@ type Props = {
   categories: CategoryOption[];
   maxFileMb: number;
   maxFiles: number;
+  quota?: { used: number; limit: number } | null;
   autosave: boolean;
   initial?: {
     postId: string;
@@ -59,6 +60,7 @@ export function PostComposer({
   categories,
   maxFileMb,
   maxFiles,
+  quota,
   autosave,
   initial,
 }: Props) {
@@ -191,6 +193,22 @@ export function PostComposer({
 
   return (
     <div className="space-y-4">
+      {/* Proactive quota display (C7): shown before writing, not after failing */}
+      {quota && !initial?.postId && (
+        <p
+          className={`rounded-lg px-3 py-2 text-xs font-semibold ${
+            quota.used >= quota.limit
+              ? "bg-negative-soft text-negative"
+              : "bg-surface-sub text-ink-soft"
+          }`}
+        >
+          {quota.used >= quota.limit
+            ? t.post.quotaBlocked
+            : t.post.quotaLine
+                .replace("{used}", String(quota.used))
+                .replace("{limit}", String(quota.limit))}
+        </p>
+      )}
       {error && (
         <p className="rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
           {error}
@@ -540,7 +558,13 @@ export function PostComposer({
         </button>
         <button
           type="button"
-          disabled={pending || uploading || !titleEn || !bodyEn}
+          disabled={
+            pending ||
+            uploading ||
+            !titleEn ||
+            !bodyEn ||
+            (!!quota && !initial?.postId && quota.used >= quota.limit)
+          }
           onClick={() => submit(false)}
           className="flex-1 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong disabled:opacity-50"
         >

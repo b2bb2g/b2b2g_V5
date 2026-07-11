@@ -35,6 +35,8 @@ export default async function HomepageEditPage() {
           introKo: homepage?.intro_ko ?? "",
           coverImagePath: homepage?.cover_image_path ?? null,
           docPaths: (homepage?.doc_paths as { path: string; name: string }[]) ?? [],
+          galleryPaths: (homepage?.gallery_paths as string[]) ?? [],
+          certPaths: (homepage?.cert_paths as { path: string; name: string }[]) ?? [],
           customDomain: homepage?.custom_domain ?? "",
           isPublished: homepage?.is_published ?? false,
         }}

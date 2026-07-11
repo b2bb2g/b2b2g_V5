@@ -8,7 +8,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { closeOwnPost, deleteOwnPost } from "@/app/actions/posts";
-import { BOARD_TYPES, POST_STATUS } from "@/lib/constants";
+import { BADGE_CODES, BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
+import { getPublicSettings, settingNumber } from "@/lib/data/settings";
 import type { Post } from "@/lib/types";
 
 // My posts + review status + drafts (PRD 6.5).
@@ -37,6 +38,26 @@ export default async function MyPostsPage(props: {
   const rows = (posts ?? []) as unknown as (Post & {
     menus: { slug: string; title_en: string; title_ko: string } | null;
   })[];
+
+  // Free-plan quota line (C7): visible before hitting the limit.
+  const isPaid = session.badges.some(
+    (b) => b.badge_types?.code === BADGE_CODES.CERTIFIED
+  );
+  let quota: { used: number; limit: number } | null = null;
+  if (!isPaid && !session.profile?.is_admin) {
+    const [settings, { count }] = await Promise.all([
+      getPublicSettings(),
+      supabase
+        .from("posts")
+        .select("id", { count: "exact", head: true })
+        .eq("author_id", session.userId)
+        .neq("status", POST_STATUS.DRAFT),
+    ]);
+    quota = {
+      used: count ?? 0,
+      limit: settingNumber(settings, SETTING_KEYS.FREE_POST_LIMIT, 3),
+    };
+  }
   const statusLabels: Record<string, string> = t.post.status;
 
   return (
@@ -49,6 +70,22 @@ export default async function MyPostsPage(props: {
           </Link>
         }
       />
+
+      {quota && (
+        <p
+          className={`rounded-lg px-3 py-2 text-xs font-semibold ${
+            quota.used >= quota.limit
+              ? "bg-negative-soft text-negative"
+              : "bg-surface-sub text-ink-soft"
+          }`}
+        >
+          {quota.used >= quota.limit
+            ? t.post.quotaBlocked
+            : t.post.quotaLine
+                .replace("{used}", String(quota.used))
+                .replace("{limit}", String(quota.limit))}
+        </p>
+      )}
 
       {/* Published vs drafts tabs (PRD 6.5) */}
       <nav className="flex gap-1">

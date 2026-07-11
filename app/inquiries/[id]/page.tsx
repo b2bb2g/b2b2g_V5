@@ -49,6 +49,15 @@ export default async function InquiryDetailPage(props: {
   const isParticipant =
     inquiry.sender_id === session.userId || inquiry.recipient_id === session.userId;
 
+  // The latest own message, if rejected, gets a dedicated revise-and-resend
+  // form instead of the generic reply composer (PRD 8.3).
+  const myMessages = messages.filter((m) => m.sender_id === session.userId);
+  const lastMine = myMessages[myMessages.length - 1];
+  const rejectedToRevise =
+    lastMine && lastMine.review_status === MESSAGE_REVIEW_STATUS.REJECTED
+      ? lastMine
+      : null;
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -137,8 +146,34 @@ export default async function InquiryDetailPage(props: {
         })}
       </div>
 
+      {/* Rejected message: dedicated revise-and-resend entry (PRD 8.3) */}
+      {isParticipant && rejectedToRevise && (
+        <section className="rounded-card border border-line p-4">
+          <p className="text-sm font-bold">{t.inquiry.reviseResendTitle}</p>
+          <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+            {t.inquiry.reviseResendHint}
+          </p>
+          <form action={replyInquiry} className="mt-3 space-y-3">
+            <input type="hidden" name="inquiryId" value={inquiry.id} />
+            <textarea
+              name="body"
+              rows={6}
+              required
+              defaultValue={rejectedToRevise.body}
+              className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+            />
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
+            >
+              {t.inquiry.resend}
+            </button>
+          </form>
+        </section>
+      )}
+
       {/* Reply is an explicit compose step, not an instant-send input */}
-      {isParticipant && (
+      {isParticipant && !rejectedToRevise && (
         <details className="rounded-card border border-line p-4">
           <summary className="cursor-pointer text-sm font-bold text-primary">
             {t.inquiry.writeReply}

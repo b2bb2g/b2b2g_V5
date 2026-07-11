@@ -60,7 +60,18 @@ export async function savePost(input: PostInput): Promise<{ error?: string; post
   if (!menu) return { error: "menu" };
 
   // Free-member post quota (admin-set value; certified members unlimited).
-  if (!input.postId && !input.asDraft) {
+  // Applies to brand-new posts AND drafts being submitted for review --
+  // otherwise saving drafts first would bypass the limit.
+  let countsTowardQuota = !input.postId && !input.asDraft;
+  if (input.postId && !input.asDraft) {
+    const { data: existing } = await supabase
+      .from("posts")
+      .select("status")
+      .eq("id", input.postId)
+      .maybeSingle();
+    countsTowardQuota = existing?.status === POST_STATUS.DRAFT;
+  }
+  if (countsTowardQuota) {
     const paid = await isPaidMember(supabase, user.id);
     if (!paid) {
       const settings = await getPublicSettings();

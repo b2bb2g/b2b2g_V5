@@ -11,6 +11,8 @@ export type HomepageInput = {
   introKo: string;
   coverImagePath: string | null;
   docPaths: { path: string; name: string }[];
+  galleryPaths: string[];
+  certPaths: { path: string; name: string }[];
   customDomain: string;
   isPublished: boolean;
 };
@@ -42,6 +44,8 @@ export async function saveHomepage(
     intro_ko: input.introKo || null,
     cover_image_path: input.coverImagePath,
     doc_paths: input.docPaths,
+    gallery_paths: input.galleryPaths,
+    cert_paths: input.certPaths,
     custom_domain: input.customDomain.trim() || null,
     is_published: input.isPublished,
   });

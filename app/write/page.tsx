@@ -6,7 +6,7 @@ import { getMenuBySlug } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
 import { PostComposer } from "@/components/post/PostComposer";
-import { POST_STATUS, SETTING_KEYS } from "@/lib/constants";
+import { BADGE_CODES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import type { SpecFieldDef, Post, PostSpec } from "@/lib/types";
 
 export default async function WritePage(props: {
@@ -39,6 +39,21 @@ export default async function WritePage(props: {
       .or(`menu_id.is.null,menu_id.eq.${menu.id}`)
       .order("sort_order"),
   ]);
+
+  // Proactive free-plan quota display (C7): certified members are unlimited.
+  const isPaid = session.badges.some(
+    (b) => b.badge_types?.code === BADGE_CODES.CERTIFIED
+  );
+  let quota: { used: number; limit: number } | null = null;
+  if (!isPaid && !session.profile?.is_admin) {
+    const limit = settingNumber(settings, SETTING_KEYS.FREE_POST_LIMIT, 3);
+    const { count } = await supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("author_id", session.userId)
+      .neq("status", POST_STATUS.DRAFT);
+    quota = { used: count ?? 0, limit };
+  }
 
   // Edit mode: load own post (RLS restricts to author/admin anyway).
   let initial;
@@ -97,6 +112,7 @@ export default async function WritePage(props: {
         autosave={initialIsDraft}
         maxFileMb={settingNumber(settings, SETTING_KEYS.UPLOAD_MAX_FILE_MB, 10)}
         maxFiles={settingNumber(settings, SETTING_KEYS.UPLOAD_MAX_FILES_PER_POST, 10)}
+        quota={quota}
         initial={initial}
       />
     </div>

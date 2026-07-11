@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { CookiePreferences } from "@/components/legal/CookiePreferences";
 import type { Metadata } from "next";
 
 // Legal pages: draft baseline copy (final wording pending, PRD 19.6).
@@ -49,6 +50,17 @@ export default async function LegalPage(props: {
           </p>
         ))}
       </div>
+
+      {slug === "cookies" && (
+        <CookiePreferences
+          labels={{
+            title: t.cookie.preferencesTitle,
+            essential: t.cookie.essentialLabel,
+            analytics: t.cookie.analyticsLabel,
+            save: t.common.save,
+          }}
+        />
+      )}
     </div>
   );
 }
