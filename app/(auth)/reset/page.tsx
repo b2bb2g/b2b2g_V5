@@ -1,6 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { requestPasswordReset } from "@/app/actions/auth";
-import { CaptchaField } from "@/components/auth/CaptchaField";
+import { CaptchaSubmit } from "@/components/auth/CaptchaField";
 import { ClearableInput } from "@/components/ui/TextField";
 
 export default async function ResetPage(props: {
@@ -31,13 +31,7 @@ export default async function ResetPage(props: {
               />
             </div>
           </label>
-        <CaptchaField />
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-          >
-            {t.common.submit}
-          </button>
+        <CaptchaSubmit label={t.common.submit} />
         </form>
       )}
     </div>

@@ -1,6 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { signIn } from "@/app/actions/auth";
-import { CaptchaField } from "@/components/auth/CaptchaField";
+import { CaptchaSubmit } from "@/components/auth/CaptchaField";
 import { ClearableInput, PasswordInput } from "@/components/ui/TextField";
 import Link from "next/link";
 
@@ -60,13 +60,7 @@ export default async function LoginPage(props: {
           />
           {t.auth.rememberMe}
         </label>
-        <CaptchaField />
-        <button
-          type="submit"
-          className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-        >
-          {t.common.signIn}
-        </button>
+        <CaptchaSubmit label={t.common.signIn} />
       </form>
 
       <div className="mt-4 flex flex-col items-center gap-2 text-sm">
