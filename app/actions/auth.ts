@@ -116,10 +116,15 @@ export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const captchaToken = String(formData.get("captchaToken") ?? "") || undefined;
   const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(email, {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${siteUrl()}/auth/confirm?next=/reset/update`,
     captchaToken,
   });
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (message.includes("captcha")) redirect("/reset?error=captcha");
+    if (message.includes("rate") || error.status === 429) redirect("/reset?error=rate");
+  }
   redirect("/reset?sent=1");
 }
 
