@@ -141,12 +141,9 @@ export default async function PostDetailPage(props: {
             {t.board.backToNotices}
           </Link>
         </nav>
-        <div className="mx-auto w-full max-w-4xl overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
-          <header className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14">
-            <span className="rounded-full bg-primary px-3 py-1.5 text-xs font-extrabold uppercase tracking-[.14em]">
-              {t.board.officialNotice}
-            </span>
-            <h1 className="mt-6 text-3xl font-extrabold leading-tight tracking-[-.04em] text-ink sm:text-4xl">
+        <div className="w-full overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
+          <header className="px-6 py-7 sm:px-10 sm:py-8 lg:px-14">
+            <h1 className="text-3xl font-extrabold leading-tight tracking-[-.04em] text-ink sm:text-4xl">
               {title}
             </h1>
             <time
@@ -157,71 +154,73 @@ export default async function PostDetailPage(props: {
             </time>
           </header>
           {noticeImage && (
-            <div className="relative aspect-[16/7] overflow-hidden bg-surface-sub">
+            <div className="relative aspect-[16/7] overflow-hidden bg-surface-sub sm:aspect-[16/5]">
               <Image
                 src={noticeImage}
                 alt=""
                 fill
                 priority
-                sizes="(max-width:896px) 100vw, 896px"
+                sizes="(max-width:1280px) 100vw, 1280px"
                 className="object-cover"
               />
             </div>
           )}
           <section className="border-t border-line px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-            {isRichText(body) ? (
-              <div
-                className="rich-content notice-content"
-                dangerouslySetInnerHTML={{ __html: sanitizeRichText(body) }}
-              />
-            ) : (
-              <div className="whitespace-pre-wrap text-base leading-8 text-ink">
-                {body}
-              </div>
-            )}
-            {full.attachments.length > 0 && (
-              <section className="mt-10 border-t border-line pt-8">
-                <h2 className="text-base font-extrabold">
-                  {t.post.attachments}
-                </h2>
-                <ul className="mt-4 space-y-2">
-                  {full.attachments.map((attachment) => (
-                    <li key={attachment.id}>
-                      <Link
-                        href={`/api/attachments/${attachment.id}`}
-                        className="group flex items-center justify-between rounded-2xl bg-surface-sub px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft hover:text-primary-strong"
-                      >
-                        <span className="min-w-0 truncate">
-                          {attachment.filename}
-                        </span>
-                        <span
-                          className="ml-4 text-primary transition-transform group-hover:translate-y-0.5"
-                          aria-hidden="true"
+            <div className="mx-auto max-w-4xl">
+              {isRichText(body) ? (
+                <div
+                  className="rich-content notice-content"
+                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(body) }}
+                />
+              ) : (
+                <div className="whitespace-pre-wrap text-base leading-8 text-ink">
+                  {body}
+                </div>
+              )}
+              {full.attachments.length > 0 && (
+                <section className="mt-10 border-t border-line pt-8">
+                  <h2 className="text-base font-extrabold">
+                    {t.post.attachments}
+                  </h2>
+                  <ul className="mt-4 space-y-2">
+                    {full.attachments.map((attachment) => (
+                      <li key={attachment.id}>
+                        <Link
+                          href={`/api/attachments/${attachment.id}`}
+                          className="group flex items-center justify-between rounded-2xl bg-surface-sub px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft hover:text-primary-strong"
                         >
-                          ↓
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+                          <span className="min-w-0 truncate">
+                            {attachment.filename}
+                          </span>
+                          <span
+                            className="ml-4 text-primary transition-transform group-hover:translate-y-0.5"
+                            aria-hidden="true"
+                          >
+                            ↓
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
           </section>
         </div>
         {(previousNotice || nextNotice) && (
           <nav
-            className="mx-auto grid w-full max-w-4xl gap-3 sm:grid-cols-2"
+            className="grid w-full overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card) sm:grid-cols-2 sm:divide-x sm:divide-line"
             aria-label={t.board.relatedNotices}
           >
             {previousNotice ? (
               <Link
                 href={`/notices/${previousNotice.id}`}
-                className="group rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-(--shadow-card)"
+                className="group px-5 py-4 transition hover:bg-surface-sub"
               >
                 <span className="text-xs font-bold text-ink-faint">
                   ← {t.board.previousNotice}
                 </span>
-                <strong className="mt-2 block line-clamp-2 text-sm font-extrabold group-hover:text-primary">
+                <strong className="mt-1.5 block line-clamp-1 text-sm font-extrabold group-hover:text-primary">
                   {locale === "ko" && previousNotice.title_ko
                     ? previousNotice.title_ko
                     : previousNotice.title_en}
@@ -233,12 +232,12 @@ export default async function PostDetailPage(props: {
             {nextNotice && (
               <Link
                 href={`/notices/${nextNotice.id}`}
-                className="group rounded-[1.5rem] border border-line/80 bg-white p-5 text-right shadow-(--shadow-card)"
+                className="group border-t border-line px-5 py-4 text-right transition hover:bg-surface-sub sm:border-t-0"
               >
                 <span className="text-xs font-bold text-ink-faint">
                   {t.board.nextNotice} →
                 </span>
-                <strong className="mt-2 block line-clamp-2 text-sm font-extrabold group-hover:text-primary">
+                <strong className="mt-1.5 block line-clamp-1 text-sm font-extrabold group-hover:text-primary">
                   {locale === "ko" && nextNotice.title_ko
                     ? nextNotice.title_ko
                     : nextNotice.title_en}
@@ -248,7 +247,7 @@ export default async function PostDetailPage(props: {
           </nav>
         )}
         {relatedNotices.length > 0 && (
-          <section className="mx-auto w-full max-w-4xl pb-3 pt-5">
+          <section className="w-full pb-3 pt-5">
             <h2 className="text-xl font-extrabold">{t.board.relatedNotices}</h2>
             <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)">
               {relatedNotices.map((item) => {
@@ -257,8 +256,18 @@ export default async function PostDetailPage(props: {
                   <Link
                     key={item.id}
                     href={`/notices/${item.id}`}
-                    className={`group grid items-center gap-4 border-b border-line px-4 py-4 transition last:border-b-0 hover:bg-surface-sub ${thumbnail ? "grid-cols-[6rem_1fr_auto]" : "grid-cols-[1fr_auto]"}`}
+                    className={`group grid items-center gap-4 border-b border-line px-5 py-4 transition last:border-b-0 hover:bg-surface-sub ${thumbnail ? "grid-cols-[1fr_6rem_auto]" : "grid-cols-[1fr_auto]"}`}
                   >
+                    <span className="min-w-0">
+                      <strong className="line-clamp-2 text-sm font-extrabold leading-snug group-hover:text-primary">
+                        {locale === "ko" && item.title_ko
+                          ? item.title_ko
+                          : item.title_en}
+                      </strong>
+                      <span className="mt-2 block text-xs text-ink-faint">
+                        {item.published_at?.slice(0, 10)}
+                      </span>
+                    </span>
                     {thumbnail && (
                       <span className="relative block aspect-[3/2] overflow-hidden rounded-xl bg-surface-sub">
                         <Image
@@ -270,16 +279,6 @@ export default async function PostDetailPage(props: {
                         />
                       </span>
                     )}
-                    <span className="min-w-0">
-                      <strong className="line-clamp-2 text-sm font-extrabold leading-snug group-hover:text-primary">
-                        {locale === "ko" && item.title_ko
-                          ? item.title_ko
-                          : item.title_en}
-                      </strong>
-                      <span className="mt-2 block text-xs text-ink-faint">
-                        {item.published_at?.slice(0, 10)}
-                      </span>
-                    </span>
                     <span
                       className="text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary"
                       aria-hidden="true"
