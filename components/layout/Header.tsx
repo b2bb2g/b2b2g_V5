@@ -4,7 +4,10 @@ import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { MenuNav } from "@/components/layout/MenuNav";
-import { AvatarMenu, type AvatarMenuItem } from "@/components/layout/AvatarMenu";
+import {
+  AvatarMenu,
+  type AvatarMenuItem,
+} from "@/components/layout/AvatarMenu";
 import { LocaleMenu } from "@/components/layout/LocaleMenu";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { postMediaUrl } from "@/lib/media";
@@ -46,15 +49,23 @@ export async function Header() {
       { href: "/write/select", label: t.dashboard.registerProduct },
       { href: "/write?menu=requests", label: t.dashboard.postRequest },
       { href: "/dashboard/posts", label: t.nav.myPosts },
-      { href: "/inquiries", label: t.inquiry.title }
+      { href: "/inquiries", label: t.inquiry.title },
     );
-    if (session.badges.some((b) => b.badge_types?.code === BADGE_CODES.CERTIFIED)) {
+    if (
+      session.badges.some((b) => b.badge_types?.code === BADGE_CODES.CERTIFIED)
+    ) {
       dropdown.push({ href: "/dashboard/homepage", label: t.homepage.title });
     }
     if (session.profile.is_coordinator) {
-      dropdown.push({ href: "/dashboard/coordinator", label: t.coordinator.title });
+      dropdown.push({
+        href: "/dashboard/coordinator",
+        label: t.coordinator.title,
+      });
     } else if (session.profile.referred_by) {
-      dropdown.push({ href: "/dashboard/messages", label: t.coordinator.directMessages });
+      dropdown.push({
+        href: "/dashboard/messages",
+        label: t.coordinator.directMessages,
+      });
     }
     if (session.profile.is_admin) {
       dropdown.push({ href: "/admin", label: t.common.admin });
@@ -62,11 +73,15 @@ export async function Header() {
   }
 
   return (
-    <header className="site-header sticky top-0 z-40 border-b border-line bg-surface/88 backdrop-blur-xl">
+    <header className="site-header sticky top-0 z-40 border-b border-line/70 bg-white/82 backdrop-blur-2xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex h-16 items-center gap-6">
-          <Link href="/" className="flex shrink-0 items-center gap-2" aria-label={t.common.siteName}>
-            <span className="text-base font-extrabold tracking-tight text-ink">
+        <div className="flex h-[4.5rem] items-center gap-7">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2"
+            aria-label={t.common.siteName}
+          >
+            <span className="text-lg font-extrabold tracking-[-.04em] text-ink">
               {t.common.siteName}
             </span>
           </Link>
@@ -83,12 +98,24 @@ export async function Header() {
               className="hidden rounded-full p-2 text-ink-soft transition-colors hover:bg-surface-sub md:block"
               aria-label={t.common.search}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.3-4.3" />
               </svg>
             </Link>
-            <div className="hidden md:block"><LocaleMenu locale={locale} label={t.common.language} /></div>
+            <div className="hidden md:block">
+              <LocaleMenu locale={locale} label={t.common.language} />
+            </div>
             {session.userId && session.profile ? (
               <>
                 <NotificationBell
@@ -118,21 +145,29 @@ export async function Header() {
               <>
                 <Link
                   href="/login"
-                  className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub md:block"
+                  className="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub md:block"
                 >
                   {t.common.signIn}
                 </Link>
-                <Link href="/signup" className="btn-primary btn-md hidden md:inline-flex">
+                <Link
+                  href="/signup"
+                  className="btn-primary btn-md hidden rounded-full px-5 md:inline-flex"
+                >
                   {t.common.signUp}
                 </Link>
               </>
             )}
             {!session.userId && (
-              <MobileMenu items={menuItems} searchLabel={t.common.search} signInLabel={t.common.signIn} signUpLabel={t.common.signUp} menuLabel={t.nav.menu} />
+              <MobileMenu
+                items={menuItems}
+                searchLabel={t.common.search}
+                signInLabel={t.common.signIn}
+                signUpLabel={t.common.signUp}
+                menuLabel={t.nav.menu}
+              />
             )}
           </nav>
         </div>
-
       </div>
     </header>
   );

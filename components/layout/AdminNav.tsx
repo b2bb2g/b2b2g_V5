@@ -19,26 +19,28 @@ export function AdminNav({ groups }: { groups: AdminNavGroup[] }) {
     <>
       {/* Mobile: chips */}
       <nav className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto border-y border-line bg-surface px-4 py-2 lg:hidden">
-        {groups.flatMap((group) => group.items).map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-              isActive(item.href)
-                ? "bg-ink text-white"
-                : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
-            }`}
-          >
-            {item.label}
-          </Link>
-        ))}
+        {groups
+          .flatMap((group) => group.items)
+          .map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                isActive(item.href)
+                  ? "bg-ink text-white"
+                  : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
       </nav>
 
       {/* Desktop: grouped sidebar */}
-      <nav className="sticky top-24 hidden self-start rounded-2xl border border-line bg-surface p-2 shadow-(--shadow-card) lg:block">
+      <nav className="sticky top-24 hidden self-start overflow-hidden rounded-[1.5rem] bg-[#101923] p-3 text-white shadow-[0_20px_55px_rgba(16,25,35,.15)] lg:block">
         {groups.map((group) => (
           <div key={group.label} className="mb-4 last:mb-0">
-            <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-ink-faint">
+            <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-white/40">
               {group.label}
             </p>
             <ul className="mt-1.5 space-y-0.5">
@@ -48,8 +50,8 @@ export function AdminNav({ groups }: { groups: AdminNavGroup[] }) {
                     href={item.href}
                     className={`relative block rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
                       isActive(item.href)
-                        ? "bg-primary-soft font-semibold text-primary-strong before:absolute before:bottom-2 before:left-0 before:top-2 before:w-0.5 before:rounded-full before:bg-primary"
-                        : "text-ink-soft hover:bg-surface-sub hover:text-ink"
+                        ? "bg-white/12 font-semibold text-white before:absolute before:bottom-2 before:left-0 before:top-2 before:w-0.5 before:rounded-full before:bg-[#75aaff]"
+                        : "text-white/58 hover:bg-white/7 hover:text-white"
                     }`}
                   >
                     {item.label}

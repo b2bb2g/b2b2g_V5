@@ -16,10 +16,14 @@ export function ProductCard({
   priority?: boolean;
 }) {
   const thumbnail = repThumbnail(post);
-  const title = locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
+  const title =
+    locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
 
   return (
-    <Link href={href} className="card-hover group block h-full overflow-hidden">
+    <Link
+      href={href}
+      className="group block h-full overflow-hidden rounded-[1.5rem] bg-white shadow-[0_10px_35px_rgba(25,31,40,.06)] ring-1 ring-line/70 transition duration-300 hover:-translate-y-1.5 hover:shadow-(--shadow-float) hover:ring-primary/30"
+    >
       <div className="relative aspect-square overflow-hidden bg-surface-sub">
         {thumbnail ? (
           <Image
@@ -33,12 +37,17 @@ export function ProductCard({
         ) : (
           <MediaPlaceholder />
         )}
-        <span className="absolute right-3 top-3 flex h-8 w-8 translate-y-1 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm backdrop-blur transition-all group-hover:translate-y-0 group-hover:opacity-100" aria-hidden="true">
+        <span
+          className="absolute right-3 top-3 flex h-8 w-8 translate-y-1 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm backdrop-blur transition-all group-hover:translate-y-0 group-hover:opacity-100"
+          aria-hidden="true"
+        >
           →
         </span>
       </div>
-      <div className="space-y-1 p-3.5">
-        <p className="line-clamp-2 text-sm font-bold leading-snug">{title}</p>
+      <div className="space-y-1.5 p-4">
+        <p className="line-clamp-2 text-sm font-extrabold leading-snug">
+          {title}
+        </p>
         <p className="truncate text-xs text-ink-faint">
           {post.author_company ?? post.author_name}
         </p>

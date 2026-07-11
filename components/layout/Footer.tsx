@@ -26,23 +26,27 @@ export async function Footer() {
   ];
 
   return (
-    <footer className="site-footer mt-auto border-t border-line bg-surface-sub/60">
+    <footer className="site-footer mt-auto bg-[#101923] text-white">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-6 py-8 sm:grid-cols-[1.6fr_1fr_1fr] sm:gap-8 sm:py-12">
+        <div className="grid gap-8 py-10 sm:grid-cols-[1.6fr_1fr_1fr] sm:gap-8 sm:py-14">
           <div>
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-sm font-extrabold text-ink">
+              <span className="text-base font-extrabold text-white">
                 {t.common.siteName}
               </span>
             </Link>
-            <p className="mt-3 max-w-xs text-xs leading-relaxed text-ink-faint">
+            <p className="mt-3 max-w-xs text-xs leading-relaxed text-white/60">
               {t.footer.tagline}
             </p>
           </div>
 
           {columns.map((column) => (
-            <nav key={column.title} aria-label={column.title} className="hidden sm:block">
-              <p className="text-xs font-bold uppercase tracking-wider text-ink-faint">
+            <nav
+              key={column.title}
+              aria-label={column.title}
+              className="hidden sm:block"
+            >
+              <p className="text-xs font-bold uppercase tracking-wider text-white/55">
                 {column.title}
               </p>
               <ul className="mt-3 space-y-2">
@@ -50,7 +54,7 @@ export async function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-ink-soft transition-colors hover:text-ink"
+                      className="text-sm text-white/65 transition-colors hover:text-white"
                     >
                       {link.label}
                     </Link>
@@ -62,14 +66,21 @@ export async function Footer() {
           <nav aria-label={t.footer.legal} className="sm:hidden">
             <ul className="flex flex-wrap gap-x-4 gap-y-2">
               {columns[1].links.map((link) => (
-                <li key={link.href}><Link href={link.href} className="text-xs font-semibold text-ink-soft">{link.label}</Link></li>
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-xs font-semibold text-white/65"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
               ))}
             </ul>
           </nav>
         </div>
 
-        <div className="border-t border-line py-4 sm:py-5">
-          <p className="text-xs text-ink-faint">{t.footer.copyright}</p>
+        <div className="border-t border-white/10 py-4 sm:py-5">
+          <p className="text-xs text-white/55">{t.footer.copyright}</p>
         </div>
       </div>
     </footer>
