@@ -22,50 +22,21 @@ export async function createInquiry(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  let recipientId: string | null = null;
-  let defaultSubject = "";
-
-  if (postId) {
-    const { data: post } = await supabase
-      .from("posts")
-      .select("id, author_id, title_en")
-      .eq("id", postId)
-      .maybeSingle();
-    if (!post || post.author_id === user.id) redirect("/inquiries");
-    recipientId = post.author_id;
-    defaultSubject = post.title_en;
-  } else if (toProfileId) {
-    const { data: recipient } = await supabase
-      .from("profiles")
-      .select("id, uid")
-      .eq("id", toProfileId)
-      .maybeSingle();
-    if (!recipient || recipient.id === user.id) redirect("/inquiries");
-    recipientId = recipient.id;
-    defaultSubject = `UID:${recipient.uid}`;
+  const { data: inquiryId, error } = await supabase.rpc(
+    "create_inquiry_with_message",
+    {
+      p_post_id: postId || null,
+      p_to_profile_id: toProfileId || null,
+      p_subject: subject,
+      p_body: body,
+    },
+  );
+  if (error || !inquiryId) {
+    redirect(`/inquiries/new?${errorTarget}&error=1`);
   }
-  if (!recipientId) redirect("/inquiries");
-
-  const { data: inquiry, error } = await supabase
-    .from("inquiries")
-    .insert({
-      post_id: postId || null,
-      sender_id: user.id,
-      recipient_id: recipientId,
-      subject: subject || defaultSubject,
-    })
-    .select("id")
-    .single();
-  if (error || !inquiry) redirect(`/inquiries/new?${errorTarget}&error=1`);
-
-  await supabase.from("inquiry_messages").insert({
-    inquiry_id: inquiry.id,
-    sender_id: user.id,
-    body,
-  });
 
   revalidatePath("/inquiries");
-  redirect(`/inquiries/${inquiry.id}?toast=sent`);
+  redirect(`/inquiries/${inquiryId}?toast=sent`);
 }
 
 export async function replyInquiry(formData: FormData) {
@@ -79,11 +50,12 @@ export async function replyInquiry(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  await supabase.from("inquiry_messages").insert({
+  const { error } = await supabase.from("inquiry_messages").insert({
     inquiry_id: inquiryId,
     sender_id: user.id,
     body,
   });
+  if (error) redirect(`/inquiries/${inquiryId}?error=1`);
 
   revalidatePath(`/inquiries/${inquiryId}`);
   redirect(`/inquiries/${inquiryId}?toast=sent`);

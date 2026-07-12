@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
-import { getMemberNetworkStats } from "@/lib/data/feed";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { BadgeList } from "@/components/ui/Badge";
@@ -19,7 +18,6 @@ import {
 import { postMediaUrl } from "@/lib/media";
 import {
   BADGE_CODES,
-  POST_STATUS,
   SETTING_KEYS,
   SUBSCRIPTION_STATUS,
 } from "@/lib/constants";
@@ -28,50 +26,20 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session.userId || !session.profile) redirect("/login");
 
-  const [{ t, locale }, settings, supabase, networkStats] = await Promise.all([
+  const [{ t, locale }, settings, supabase] = await Promise.all([
     getT(),
     getPublicSettings(),
     createClient(),
-    getMemberNetworkStats(session.userId),
   ]);
 
   const [
-    postsCount,
-    inquiriesCount,
-    pendingPosts,
-    draftPosts,
-    unreadReplies,
+    summaryResult,
     profileContact,
     subscription,
-    referralCount,
     recentPosts,
     recentInquiries,
   ] = await Promise.all([
-    supabase
-      .from("posts")
-      .select("id", { count: "exact", head: true })
-      .eq("author_id", session.userId)
-      .neq("status", POST_STATUS.DRAFT),
-    supabase
-      .from("inquiries")
-      .select("id", { count: "exact", head: true })
-      .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`),
-    supabase
-      .from("posts")
-      .select("id", { count: "exact", head: true })
-      .eq("author_id", session.userId)
-      .eq("status", POST_STATUS.PENDING),
-    supabase
-      .from("posts")
-      .select("id", { count: "exact", head: true })
-      .eq("author_id", session.userId)
-      .eq("status", POST_STATUS.DRAFT),
-    supabase
-      .from("notifications")
-      .select("id", { count: "exact", head: true })
-      .eq("profile_id", session.userId)
-      .eq("state", "unread")
-      .eq("type", "message_delivered"),
+    supabase.rpc("member_dashboard_summary"),
     supabase
       .from("profile_contacts")
       .select("email, phone, contact_person")
@@ -86,10 +54,6 @@ export default async function DashboardPage() {
       .limit(1)
       .maybeSingle(),
     supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("referred_by", session.userId),
-    supabase
       .from("posts")
       .select("id, title_en, title_ko, status, updated_at")
       .eq("author_id", session.userId)
@@ -102,6 +66,17 @@ export default async function DashboardPage() {
       .order("updated_at", { ascending: false })
       .limit(4),
   ]);
+
+  const summary = (summaryResult.data ?? {}) as {
+    posts?: number;
+    drafts?: number;
+    pending?: number;
+    inquiries?: number;
+    unread_replies?: number;
+    referrals?: number;
+    feed_posts?: number;
+    followers?: number;
+  };
 
   const profile = session.profile;
   const profileBio =
@@ -120,8 +95,8 @@ export default async function DashboardPage() {
   ];
   const profileCompletion =
     completionSignals.filter(Boolean).length * (100 / completionSignals.length);
-  const pendingCount = pendingPosts.count ?? 0;
-  const unreadCount = unreadReplies.count ?? 0;
+  const pendingCount = summary.pending ?? 0;
+  const unreadCount = summary.unread_replies ?? 0;
   const hasAttention = pendingCount + unreadCount > 0;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const referralLink = `${siteUrl}/signup?ref=${profile.uid}`;
@@ -343,25 +318,25 @@ export default async function DashboardPage() {
         <DashboardMetricCard
           href="/dashboard/posts"
           icon="posts"
-          value={postsCount.count ?? 0}
-          label={`${t.dashboard.myPostsSummary}${(draftPosts.count ?? 0) > 0 ? ` · ${t.post.status.draft} ${draftPosts.count}` : ""}`}
+          value={summary.posts ?? 0}
+          label={`${t.dashboard.myPostsSummary}${(summary.drafts ?? 0) > 0 ? ` · ${t.post.status.draft} ${summary.drafts}` : ""}`}
         />
         <DashboardMetricCard
           href="/inquiries"
           icon="inquiries"
-          value={inquiriesCount.count ?? 0}
+          value={summary.inquiries ?? 0}
           label={t.dashboard.myInquiriesSummary}
         />
         <DashboardMetricCard
           href="/feed"
           icon="feed"
-          value={networkStats.posts}
+          value={summary.feed_posts ?? 0}
           label={t.dashboard.feedUpdates}
         />
         <DashboardMetricCard
           href={`/u/${profile.uid}`}
           icon="network"
-          value={networkStats.followers}
+          value={summary.followers ?? 0}
           label={t.dashboard.networkReach}
         />
       </section>
@@ -502,7 +477,7 @@ export default async function DashboardPage() {
               <p className="text-sm text-ink-soft">
                 {t.dashboard.referralCount}:{" "}
                 <span className="font-extrabold text-ink">
-                  {referralCount.count ?? 0}
+                  {summary.referrals ?? 0}
                 </span>
               </p>
             )}

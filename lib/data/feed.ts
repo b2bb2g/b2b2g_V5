@@ -89,14 +89,38 @@ async function hydrateFeedItems(
   const followed = new Set(
     (followsResult.data ?? []).map((item) => item.following_id),
   );
+  const likeCounts = new Map<string, number>();
+  const commentCounts = new Map<string, number>();
+  const repostCounts = new Map<string, number>();
+  const shareCounts = new Map<string, number>();
+  const liked = new Set<string>();
+  const reposted = new Set<string>();
+  for (const item of likes) {
+    likeCounts.set(item.post_id, (likeCounts.get(item.post_id) ?? 0) + 1);
+    if (item.profile_id === viewerId) liked.add(item.post_id);
+  }
+  for (const item of comments) {
+    commentCounts.set(
+      item.post_id,
+      (commentCounts.get(item.post_id) ?? 0) + 1,
+    );
+  }
+  for (const item of reposts) {
+    repostCounts.set(
+      item.post_id,
+      (repostCounts.get(item.post_id) ?? 0) + 1,
+    );
+    if (item.profile_id === viewerId) reposted.add(item.post_id);
+  }
+  for (const item of shares) {
+    shareCounts.set(item.post_id, (shareCounts.get(item.post_id) ?? 0) + 1);
+  }
 
   return posts.map((post) => {
     const profile = post.profiles as {
       uid: number;
       avatar_url: string | null;
     };
-    const postLikes = likes.filter((like) => like.post_id === post.id);
-    const postReposts = reposts.filter((repost) => repost.post_id === post.id);
     return {
       id: post.id,
       authorId: post.author_id,
@@ -105,16 +129,12 @@ async function hydrateFeedItems(
       body: post.body,
       mediaPaths: post.media_paths ?? [],
       createdAt: post.created_at,
-      likeCount: postLikes.length,
-      likedByViewer:
-        !!viewerId && postLikes.some((like) => like.profile_id === viewerId),
-      commentCount: comments.filter((comment) => comment.post_id === post.id)
-        .length,
-      repostCount: postReposts.length,
-      repostedByViewer:
-        !!viewerId &&
-        postReposts.some((repost) => repost.profile_id === viewerId),
-      shareCount: shares.filter((share) => share.post_id === post.id).length,
+      likeCount: likeCounts.get(post.id) ?? 0,
+      likedByViewer: liked.has(post.id),
+      commentCount: commentCounts.get(post.id) ?? 0,
+      repostCount: repostCounts.get(post.id) ?? 0,
+      repostedByViewer: reposted.has(post.id),
+      shareCount: shareCounts.get(post.id) ?? 0,
       followingAuthor: followed.has(post.author_id),
     };
   });
@@ -136,20 +156,47 @@ export async function listFeed({
     .order("created_at", { ascending: false })
     .limit(limit);
   if (authorUid) query = query.eq("profiles.uid", authorUid);
-  const { data: posts } = await query;
+  const { data: posts, error } = await query;
+  if (error) throw error;
   if (!posts?.length) return [];
   return hydrateFeedItems(supabase, posts as unknown as RawFeedPost[]);
 }
 
+export async function listFeedPage(
+  page: number,
+  pageSize = 12,
+): Promise<{ items: FeedItem[]; totalPages: number }> {
+  const supabase = await createClient();
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  const { data, count, error } = await supabase
+    .from("member_feed_posts")
+    .select(
+      "id, author_id, body, media_paths, created_at, profiles!member_feed_posts_author_id_fkey!inner(uid, avatar_url)",
+      { count: "exact" },
+    )
+    .order("created_at", { ascending: false })
+    .range(from, from + pageSize - 1);
+  if (error) throw error;
+  return {
+    items: await hydrateFeedItems(
+      supabase,
+      (data ?? []) as unknown as RawFeedPost[],
+    ),
+    totalPages: Math.max(1, Math.ceil((count ?? 0) / pageSize)),
+  };
+}
+
 export async function getFeedPost(id: string): Promise<FeedItem | null> {
   const supabase = await createClient();
-  const { data: post } = await supabase
+  const { data: post, error } = await supabase
     .from("member_feed_posts")
     .select(
       "id, author_id, body, media_paths, created_at, profiles!member_feed_posts_author_id_fkey!inner(uid, avatar_url)",
     )
     .eq("id", id)
     .maybeSingle();
+  if (error) throw error;
   if (!post) return null;
   const [item] = await hydrateFeedItems(supabase, [
     post as unknown as RawFeedPost,
@@ -162,6 +209,16 @@ export async function listFeedComments(
   limit = 60,
 ): Promise<FeedComment[]> {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: blocks } = user
+    ? await supabase
+        .from("member_blocks")
+        .select("blocked_id")
+        .eq("blocker_id", user.id)
+    : { data: [] as { blocked_id: string }[] };
+  const blocked = new Set((blocks ?? []).map((item) => item.blocked_id));
   const { data } = await supabase
     .from("member_feed_comments")
     .select(
@@ -170,7 +227,7 @@ export async function listFeedComments(
     .eq("post_id", postId)
     .order("created_at", { ascending: true })
     .limit(limit);
-  return (data ?? []).map((comment) => {
+  return (data ?? []).filter((comment) => !blocked.has(comment.author_id)).map((comment) => {
     const profile = comment.profiles as unknown as {
       uid: number;
       avatar_url: string | null;

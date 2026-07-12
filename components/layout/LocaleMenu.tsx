@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { setLocale } from "@/app/actions/locale";
 import { LOCALES, LOCALE_LABELS, type Locale } from "@/lib/constants";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 // Globe language switcher: same interaction grammar as the avatar menu
 // (hover to open, auto-close on pointer leave, tap toggle on touch).
@@ -57,9 +58,8 @@ export function LocaleMenu({
             }}
           >
             {LOCALES.map((l) => (
-              <button
+              <PendingButton
                 key={l}
-                type="submit"
                 name="locale"
                 value={l}
                 role="menuitem"
@@ -75,7 +75,7 @@ export function LocaleMenu({
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
                 )}
-              </button>
+              </PendingButton>
             ))}
           </form>
         </div>

@@ -4,14 +4,26 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { reviewBadgeApplication } from "@/app/actions/admin/reviews";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { Pagination } from "@/components/ui/Pagination";
 
-export default async function BadgeAdminPage() {
-  const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
-  const { data } = await supabase
+const PAGE_SIZE = 20;
+
+export default async function BadgeAdminPage(props: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const [{ t, locale }, supabase, params] = await Promise.all([
+    getT(),
+    createClient(),
+    props.searchParams,
+  ]);
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const { data, count } = await supabase
     .from("badge_applications")
-    .select("*, badge_types(name_en, name_ko), profiles(uid, display_name, company_name)")
+    .select("*, badge_types(name_en, name_ko), profiles(uid, display_name, company_name)", { count: "exact" })
     .eq("status", "pending")
-    .order("created_at");
+    .order("created_at")
+    .range(from, from + PAGE_SIZE - 1);
 
   const rows = (data ?? []) as unknown as {
     id: string;
@@ -122,6 +134,7 @@ export default async function BadgeAdminPage() {
           </div>
         ))
       )}
+      <Pagination page={page} totalPages={Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))} basePath="/admin/badges" prevLabel={t.home.prev} nextLabel={t.home.next} />
     </div>
   );
 }

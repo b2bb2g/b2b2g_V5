@@ -49,7 +49,6 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: title, template: `%s | ${title}` },
     description,
     applicationName: title,
-    alternates: { canonical: "/" },
     openGraph: {
       type: "website",
       siteName: title,

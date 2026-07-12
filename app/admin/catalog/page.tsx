@@ -5,7 +5,7 @@ import {
   saveSpecField,
   toggleCategoryActive,
   toggleSpecFieldActive,
-} from "@/app/actions/admin";
+} from "@/app/actions/admin/catalog";
 import type { SpecFieldDef } from "@/lib/types";
 import { PendingButton } from "@/components/ui/PendingButton";
 

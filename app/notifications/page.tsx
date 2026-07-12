@@ -10,6 +10,9 @@ import type { AppNotification } from "@/lib/types";
 import type { Dictionary } from "@/lib/i18n";
 import Link from "next/link";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { Pagination } from "@/components/ui/Pagination";
+
+const PAGE_SIZE = 30;
 
 // Notification text is derived from type + payload through the language pack
 // (no hardcoded strings in stored data).
@@ -54,7 +57,7 @@ function notificationHref(n: AppNotification): string | null {
 }
 
 export default async function NotificationsPage(props: {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; page?: string }>;
 }) {
   const session = await getSession();
   if (!session.userId) redirect("/login");
@@ -71,19 +74,21 @@ export default async function NotificationsPage(props: {
       : params.view === "trash"
         ? NOTIFICATION_STATE.TRASHED
         : "inbox";
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  const from = (page - 1) * PAGE_SIZE;
 
   let query = supabase
     .from("notifications")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq("profile_id", session.userId)
     .order("created_at", { ascending: false })
-    .limit(100);
+    .range(from, from + PAGE_SIZE - 1);
   query =
     view === "inbox"
       ? query.in("state", [NOTIFICATION_STATE.UNREAD, NOTIFICATION_STATE.READ])
       : query.eq("state", view);
 
-  const { data } = await query;
+  const { data, count } = await query;
   const notifications = (data ?? []) as AppNotification[];
 
   const tabs = [
@@ -227,6 +232,14 @@ export default async function NotificationsPage(props: {
           ))}
         </div>
       )}
+      <Pagination
+        page={page}
+        totalPages={Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))}
+        basePath="/notifications"
+        extraQuery={view === "inbox" ? {} : { view }}
+        prevLabel={t.home.prev}
+        nextLabel={t.home.next}
+      />
     </div>
   );
 }

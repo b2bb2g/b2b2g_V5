@@ -17,13 +17,17 @@ import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { isRichText, sanitizeRichText, stripRichText } from "@/lib/richtext";
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 export async function generateMetadata(props: {
   params: Promise<{ menuSlug: string; postId: string }>;
 }): Promise<Metadata> {
   const { menuSlug, postId } = await props.params;
-  const teaser = await getPostTeaser(postId);
-  if (!teaser) return {};
+  const [teaser, menu] = await Promise.all([
+    getPostTeaser(postId),
+    getMenuBySlug(menuSlug),
+  ]);
+  if (!teaser || !menu || teaser.menu_id !== menu.id) return {};
   const description = stripRichText(teaser.body_teaser_en).slice(0, 160);
   const image = repThumbnail(teaser);
   return {
@@ -66,6 +70,8 @@ export default async function PostDetailPage(props: {
   const full = isMember || isNotice ? await getFullPost(postId) : null;
   const teaser = full ? null : await getPostTeaser(postId);
   if (!full && !teaser) notFound();
+  const postMenuId = full?.post.menu_id ?? teaser?.menu_id;
+  if (postMenuId !== menu.id) notFound();
 
   const post = full?.post ?? null;
   const title =
@@ -124,6 +130,24 @@ export default async function PostDetailPage(props: {
   const relatedProducts = isCommerceProduct
     ? await listRelatedPosts(menu.id, postId, 8)
     : [];
+  const schemaBody = stripRichText(
+    locale === "ko"
+      ? (post?.body_ko ?? teaser?.body_teaser_ko ?? post?.body_en ?? teaser?.body_teaser_en ?? "")
+      : (post?.body_en ?? teaser?.body_teaser_en ?? ""),
+  )
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 300);
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": isCommerceProduct ? "Product" : "Article",
+    ...(isCommerceProduct ? { name: title } : { headline: title }),
+    description: schemaBody,
+    url: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/${menu.slug}/${postId}`,
+    ...(repImage ? { image: postMediaUrl(repImage) } : {}),
+    ...(publishedAt ? { datePublished: publishedAt } : {}),
+    author: { "@type": "Organization", name: `UID:${authorUid}` },
+  };
 
   if (isNotice && full) {
     const body =
@@ -152,6 +176,7 @@ export default async function PostDetailPage(props: {
       .slice(0, 3);
     return (
       <article className="wide space-y-5">
+        <JsonLd data={schemaData} />
         <nav aria-label={t.board.backToNotices}>
           <Link
             href="/notices"
@@ -333,7 +358,9 @@ export default async function PostDetailPage(props: {
           : [];
 
     return (
-      <article className="wide space-y-6 pb-16">
+      <>
+        <article className="wide space-y-6 pb-16">
+        <JsonLd data={schemaData} />
         {isOwn && post && post.status !== POST_STATUS.APPROVED && (
           <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">
             <StatusLabel
@@ -682,12 +709,24 @@ export default async function PostDetailPage(props: {
             </div>
           </section>
         )}
-      </article>
+        </article>
+        {!isOwn && (
+          <div className="mobile-sticky-action fixed inset-x-4 bottom-4 z-40 mx-0 w-auto max-w-none lg:hidden">
+            <Link
+              href={isMember ? inquiryPath : `/login?next=${encodeURIComponent(inquiryPath)}`}
+              className="btn-primary btn-lg w-full shadow-[0_14px_40px_rgba(28,101,220,.35)]"
+            >
+              {t.post.inquire}
+            </Link>
+          </div>
+        )}
+      </>
     );
   }
 
   return (
     <article className="wide space-y-5 pb-16 sm:space-y-6">
+      <JsonLd data={schemaData} />
       {/* Own-post review status banner (PRD 14: waiting made transparent) */}
       {isOwn && post && post.status !== POST_STATUS.APPROVED && (
         <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">

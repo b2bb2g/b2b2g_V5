@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { signOut } from "@/app/actions/auth";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 export type AvatarMenuItem = { href: string; label: string };
 
@@ -137,13 +138,12 @@ export function AvatarMenu({
             ))}
           </nav>
           <form action={signOut} className="border-t border-line p-1.5">
-            <button
-              type="submit"
+            <PendingButton
               role="menuitem"
               className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-negative transition-colors hover:bg-negative-soft"
             >
               {signOutLabel}
-            </button>
+            </PendingButton>
           </form>
         </div>
       )}

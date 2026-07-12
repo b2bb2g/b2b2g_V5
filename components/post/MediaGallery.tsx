@@ -40,6 +40,9 @@ export function MediaGallery({
   const [open, setOpen] = useState<number | null>(null);
   const [selected, setSelected] = useState(initialIndex);
   const touchX = useRef<number | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const mediaCount = images.length + (hasVideo ? 1 : 0);
   const selectedIsVideo = hasVideo && selected === videoIndex;
 
@@ -54,21 +57,39 @@ export function MediaGallery({
     [images.length],
   );
 
+  const modalOpen = open !== null;
   useEffect(() => {
-    if (open === null) return;
+    if (!modalOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") setOpen(null);
       if (event.key === "ArrowLeft") step(-1);
       if (event.key === "ArrowRight") step(1);
+      if (event.key === "Tab") {
+        const controls = dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+        );
+        if (!controls?.length) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = previousOverflow;
+      openerRef.current?.focus();
     };
-  }, [open, step]);
+  }, [modalOpen, step]);
 
   if (mediaCount === 0) return null;
 
@@ -145,7 +166,10 @@ export function MediaGallery({
           ) : (
             <button
               type="button"
-              onClick={() => setOpen(selected)}
+              onClick={(event) => {
+                openerRef.current = event.currentTarget;
+                setOpen(selected);
+              }}
               className="group relative block aspect-square w-full cursor-zoom-in overflow-hidden rounded-[1.5rem] bg-surface-sub"
             >
               <Image
@@ -168,7 +192,10 @@ export function MediaGallery({
       ) : showHero ? (
         <button
           type="button"
-          onClick={() => setOpen(heroIndex)}
+          onClick={(event) => {
+            openerRef.current = event.currentTarget;
+            setOpen(heroIndex);
+          }}
           className="relative block aspect-video w-full cursor-zoom-in overflow-hidden rounded-card bg-surface-sub"
         >
           <Image
@@ -188,7 +215,10 @@ export function MediaGallery({
             <button
               key={url}
               type="button"
-              onClick={() => setOpen(index)}
+              onClick={(event) => {
+                openerRef.current = event.currentTarget;
+                setOpen(index);
+              }}
               className="relative aspect-square w-40 shrink-0 cursor-zoom-in snap-start overflow-hidden rounded-xl bg-surface-sub"
             >
               <Image
@@ -206,6 +236,7 @@ export function MediaGallery({
       {open !== null &&
         createPortal(
           <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-label={title}
@@ -227,6 +258,7 @@ export function MediaGallery({
                 {open + 1} / {images.length}
               </span>
               <button
+                ref={closeRef}
                 type="button"
                 aria-label={closeLabel}
                 onClick={() => setOpen(null)}

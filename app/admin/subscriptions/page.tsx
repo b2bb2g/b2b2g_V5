@@ -2,7 +2,8 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
-import { grantSubscription, revokeSubscription, saveBenefit, toggleBenefitActive } from "@/app/actions/admin";
+import { saveBenefit, toggleBenefitActive } from "@/app/actions/admin/catalog";
+import { grantSubscription, revokeSubscription } from "@/app/actions/admin/subscriptions";
 import { SUBSCRIPTION_STATUS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
 
@@ -126,8 +127,7 @@ export default async function SubscriptionsAdminPage() {
                 <form action={toggleBenefitActive}>
                   <input type="hidden" name="id" value={benefit.id} />
                   <input type="hidden" name="value" value={(!benefit.is_active).toString()} />
-                  <button
-                    type="submit"
+                  <PendingButton
                     className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${
                       benefit.is_active
                         ? "bg-positive-soft text-positive"
@@ -135,7 +135,7 @@ export default async function SubscriptionsAdminPage() {
                     }`}
                   >
                     {benefit.is_active ? t.common.on : t.common.off}
-                  </button>
+                  </PendingButton>
                 </form>
               </summary>
               <form action={saveBenefit} className="mt-2 grid grid-cols-2 gap-2">
@@ -144,9 +144,9 @@ export default async function SubscriptionsAdminPage() {
                 <input name="titleKo" defaultValue={benefit.title_ko ?? ""} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
                 <input name="bodyEn" defaultValue={benefit.body_en} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
                 <input name="bodyKo" defaultValue={benefit.body_ko ?? ""} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
-                <button type="submit" className="col-span-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-strong">
+                <PendingButton className="col-span-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-strong">
                   {t.common.save}
-                </button>
+                </PendingButton>
               </form>
             </details>
           ))}
@@ -160,9 +160,9 @@ export default async function SubscriptionsAdminPage() {
             <input name="titleKo" placeholder={t.post.titleKo} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
             <input name="bodyEn" placeholder={t.post.bodyEn} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
             <input name="bodyKo" placeholder={t.post.bodyKo} className="rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary" />
-            <button type="submit" className="col-span-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-strong">
+            <PendingButton className="col-span-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-strong">
               {t.common.save}
-            </button>
+            </PendingButton>
           </form>
         </details>
       </section>

@@ -14,10 +14,11 @@ Product spec: `PRD.md` · Design spec: `DESIGN.md`.
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and
    publishable (anon) key.
-2. Apply the database schema to a fresh Supabase project:
+2. Link a Supabase project and apply the complete migration history:
 
    ```bash
-   psql "$DATABASE_URL" -f supabase/migrations/00001_init.sql
+   npx supabase link --project-ref <project-ref>
+   npx supabase db push --include-all
    ```
 
 3. `npm install && npm run dev`
@@ -54,3 +55,18 @@ site setting automatically becomes an admin.
 - `components/` layout, UI primitives, post composer
 - `supabase/migrations/` canonical schema for the Supabase project
 - `proxy.ts` session refresh + route guard (Next 16 proxy convention)
+
+## Verification
+
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+npm run test:e2e
+npm audit --audit-level=high
+```
+
+Authenticated browser regression tests use a pre-authenticated Playwright storage
+state through `E2E_AUTH_STATE`. Without it, public auth UI and all anonymous route,
+accessibility, SEO, and authorization-boundary tests still run; the authenticated
+scenario is reported as skipped instead of attempting to bypass hCaptcha.

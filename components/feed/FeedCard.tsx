@@ -20,6 +20,7 @@ import {
   RepostIcon,
 } from "@/components/feed/FeedIcons";
 import type { FeedItem } from "@/lib/data/feed";
+import { FeedSafetyMenu } from "@/components/feed/FeedSafetyMenu";
 
 export type FeedLabels = {
   like: string;
@@ -41,6 +42,17 @@ export type FeedLabels = {
   deleteTitle: string;
   deleteBody: string;
   cancel: string;
+  safetyMenu: string;
+  report: string;
+  reportReason: string;
+  reportDetails: string;
+  reportSpam: string;
+  reportMisleading: string;
+  reportAbuse: string;
+  reportOther: string;
+  block: string;
+  blockTitle: string;
+  blockBody: string;
 };
 
 export function FeedCard({
@@ -137,6 +149,27 @@ export function FeedCard({
                 />
               </form>
             </div>
+          )}
+          {!isOwn && viewerId && !compact && (
+            <FeedSafetyMenu
+              postId={item.id}
+              authorId={item.authorId}
+              returnTo={returnTo}
+              labels={{
+                menu: labels.safetyMenu,
+                report: labels.report,
+                reportReason: labels.reportReason,
+                reportDetails: labels.reportDetails,
+                spam: labels.reportSpam,
+                misleading: labels.reportMisleading,
+                abuse: labels.reportAbuse,
+                other: labels.reportOther,
+                block: labels.block,
+                blockTitle: labels.blockTitle,
+                blockBody: labels.blockBody,
+                cancel: labels.cancel,
+              }}
+            />
           )}
         </div>
       </header>

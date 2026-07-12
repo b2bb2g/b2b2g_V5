@@ -1,6 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { addTier, toggleTierPermission } from "@/app/actions/admin";
+import { addTier, toggleTierPermission } from "@/app/actions/admin/catalog";
 import { PERMISSION_ACTIONS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
 

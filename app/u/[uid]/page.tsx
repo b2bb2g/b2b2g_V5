@@ -82,6 +82,7 @@ export async function generateMetadata(props: {
   return {
     title,
     description: (data.profile.bio_en ?? data.profile.bio)?.slice(0, 160),
+    alternates: { canonical: `/u/${uid}` },
   };
 }
 

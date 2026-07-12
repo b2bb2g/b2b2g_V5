@@ -19,7 +19,10 @@ export async function generateMetadata(props: {
     privacy: t.footer.privacy,
     cookies: t.footer.cookies,
   };
-  return { title: titles[slug] };
+  return {
+    title: titles[slug],
+    alternates: { canonical: `/legal/${slug}` },
+  };
 }
 
 export default async function LegalPage(props: {

@@ -5,14 +5,26 @@ import { reviewMessage } from "@/app/actions/admin/reviews";
 import { MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { InquiryMessage } from "@/lib/types";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { Pagination } from "@/components/ui/Pagination";
 
-export default async function InquiryModerationPage() {
-  const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
-  const { data } = await supabase
+const PAGE_SIZE = 20;
+
+export default async function InquiryModerationPage(props: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const [{ t }, supabase, params] = await Promise.all([
+    getT(),
+    createClient(),
+    props.searchParams,
+  ]);
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const { data, count } = await supabase
     .from("inquiry_messages")
-    .select("*, inquiries(subject, sender_id, recipient_id), profiles!inquiry_messages_sender_id_fkey(uid, display_name)")
+    .select("*, inquiries(subject, sender_id, recipient_id), profiles!inquiry_messages_sender_id_fkey(uid, display_name)", { count: "exact" })
     .eq("review_status", MESSAGE_REVIEW_STATUS.PENDING)
-    .order("created_at");
+    .order("created_at")
+    .range(from, from + PAGE_SIZE - 1);
 
   const messages = (data ?? []) as unknown as (InquiryMessage & {
     inquiries: { subject: string } | null;
@@ -73,6 +85,7 @@ export default async function InquiryModerationPage() {
           </div>
         ))
       )}
+      <Pagination page={page} totalPages={Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))} basePath="/admin/inquiries" prevLabel={t.home.prev} nextLabel={t.home.next} />
     </div>
   );
 }

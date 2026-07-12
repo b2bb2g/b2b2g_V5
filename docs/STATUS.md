@@ -1,6 +1,6 @@
 # 개발 현황 (STATUS)
 
-최종 갱신: 2026-07-12 (공개 화면·대시보드·UID 프로필·회원 네트워크·B2B 상품 상세 전면 보강)
+최종 갱신: 2026-07-12 (운영 안정성·보안·성능·SEO·접근성 보강 및 원격 DB 반영)
 
 ## 디자인 시스템
 
@@ -131,9 +131,9 @@
 - 검색: pg_trgm GIN 인덱스 3종(제목 영/한, 본문)으로 ilike 가속
 - Realtime: 헤더 알림 배지 실시간 갱신 (`NotificationBell`, notifications 퍼블리케이션)
 - 이미지: 업로드 전 클라이언트 압축(최대 1600px, webp 재인코딩) — 전체 업로더 적용
-- E2E: Playwright 8종 (`npm run test:e2e`) — 익명 스모크 6종 + **인증 플로우 2종**
-  (시드 계정 자동 생성/삭제: scripts/e2e-seed.mjs, 로그인→대시보드→프로필→게시판
-  선택 권한→아바타 로그아웃, 잘못된 비밀번호 오류)
+- E2E: Playwright 16종 (`npm run test:e2e`) — 공개 UI·라우트 권한·메뉴/글 불일치 차단·
+  접근성 회귀. 인증 후 회귀는 `E2E_AUTH_STATE`로 사전 인증된 상태만 사용하며 hCaptcha를
+  우회하지 않음
 - 일괄 작업: 회원 목록 체크박스 선택 → 알림 발송(운영팀 알림) 또는 등급 변경, 감사 기록
 - 접속 이력: 로그인 이벤트 기록(UA 포함) + last_seen 하트비트(시간당 1회), 회원 상세 표시
 
@@ -153,7 +153,40 @@
 - 2026-07-11 실검증 완료: dev.b2bb2g.com 별칭에서 인비저블 캡차 → Supabase
   Secret 검증 → 로그인 성공 (Attack Protection ON 상태 전 구간 통과)
 - 인증 E2E 2종은 캡차 강제 하에서 자동화 불가(설계상 정상) →
-  `E2E_SKIP_AUTH=1 npm run test:e2e`로 스킵 실행 (6 passed + 2 skipped)
+  인증 상태 파일이 없으면 인증 후 시나리오만 자동 스킵하고 공개·접근성 테스트는 계속 실행
+
+## 운영 안정성 보강 (2026-07-12)
+
+- 원자적 저장 RPC: 게시글+사양+미디어+첨부, 문의+첫 메시지, 프로필 수정을 단일 트랜잭션으로
+  묶어 부분 저장을 차단
+- 저장소 정리: 게시글·피드·아바타 교체/삭제 시 더 이상 참조하지 않는 파일을 함께 제거
+- 회원 네트워크 안전: 신고, 회원 차단, 운영자 검토 큐(`/admin/feed`), 숨김 상태와 RLS 적용,
+  댓글 5초 연속 등록 방지
+- 보안 경계: `next` 리다이렉트의 프로토콜 상대 URL 차단, 상세 URL의 메뉴-게시글 소속 검증,
+  SECURITY DEFINER 보조 함수의 익명 실행 권한 정리
+- 성능: 피드 상호작용 집계를 Map 기반으로 변경, 피드/문의/알림/관리자 검수 페이지네이션,
+  대시보드 요약 RPC, 신고 FK 인덱스 추가
+- SEO: 상세 Product/Article JSON-LD, 피드·UID·법적 문서 canonical, 동적 sitemap에 공개 UID와
+  피드 URL 포함, 전역 오작동 canonical 제거
+- 접근성/모바일: 미디어 모달 포커스 트랩·호출 요소 복귀, 글로벌 오류 경계, 모바일 문의 고정
+  CTA와 글로벌 배너 겹침 보정
+- 체감 피드백: 로그아웃·언어 변경·관리자 메모·혜택 설정에 pending 상태 적용
+- 구조: 관리자 카탈로그/등급 액션과 구독 액션을 도메인 파일로 분리
+- DB 이력: `20260712090000_operational_hardening` 및
+  `20260712093000_security_advisor_followup`을 원격 적용하고 로컬/원격 버전 일치 확인
+- 최종 게이트: eslint 0, TypeScript 0, Next.js 45 routes build 성공, Playwright 16 passed / 1
+  skipped(인증 상태 파일 미제공), npm audit 취약점 0
+
+### Supabase Advisor 잔여 항목
+
+- `public_posts`는 비회원에게 본문 전체 대신 승인 글의 제한된 티저 컬럼만 전달하기 위한
+  의도적 owner-executed view다. base `posts`에는 익명 SELECT 정책이 없으며, view는 컬럼을
+  제한한다. Advisor의 `security_definer_view` 1건은 이 데이터 차단 설계를 유지하기 위해 수용
+- RLS 정책 내부에서 사용하는 SECURITY DEFINER 판별 함수는 `authenticated` 실행 경고가
+  남는다. 익명 실행은 공개 RLS 판별에 필요한 `is_admin()`만 유지하고 나머지는 제거
+- `pg_trgm` public schema 경고는 기존 검색 인덱스 의존성 때문에 이번 라운드에서는 이동하지
+  않음. 성능 Advisor의 미사용 인덱스는 운영 트래픽이 축적된 뒤 판단하고, 다중 permissive
+  policy는 기능 회귀를 막기 위해 별도 정책 통합 라운드로 분리
 
 ## 기능 완결 라운드 (2026-07-11, PRD/DESIGN 전수 재점검 후)
 

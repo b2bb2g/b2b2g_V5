@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { STORAGE_BUCKETS } from "@/lib/constants";
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
@@ -19,27 +20,27 @@ export async function updateProfile(formData: FormData) {
   const contactPerson = String(formData.get("contactPerson") ?? "").trim();
   const avatarPath = String(formData.get("avatarPath") ?? "").trim();
 
-  // Public-safe fields; privileged columns are protected by the DB guard trigger.
-  await supabase
+  const { data: previous } = await supabase
     .from("profiles")
-    .update({
-      display_name: displayName || null,
-      company_name: companyName || null,
-      bio: bioEn || null,
-      bio_en: bioEn || null,
-      bio_ko: bioKo || null,
-      avatar_url: avatarPath || null,
-    })
-    .eq("id", user.id);
-
-  // Sensitive contact data lives in its own RLS-guarded table (PRD 9).
-  await supabase
-    .from("profile_contacts")
-    .update({
-      phone: phone || null,
-      contact_person: contactPerson || null,
-    })
-    .eq("profile_id", user.id);
+    .select("avatar_url")
+    .eq("id", user.id)
+    .maybeSingle();
+  const safeAvatar = avatarPath.startsWith(`${user.id}/`) ? avatarPath : "";
+  const { error } = await supabase.rpc("update_member_profile", {
+    p_display_name: displayName,
+    p_company_name: companyName,
+    p_bio_en: bioEn,
+    p_bio_ko: bioKo,
+    p_phone: phone,
+    p_contact_person: contactPerson,
+    p_avatar_path: safeAvatar,
+  });
+  if (error) redirect("/dashboard/profile/edit?error=save");
+  if (previous?.avatar_url && previous.avatar_url !== safeAvatar) {
+    await supabase.storage
+      .from(STORAGE_BUCKETS.POST_MEDIA)
+      .remove([previous.avatar_url]);
+  }
 
   revalidatePath("/dashboard");
   redirect("/dashboard/profile?toast=saved");

@@ -5,6 +5,7 @@ import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { PW_RESET_COOKIE, SESSION_ONLY_COOKIE } from "@/lib/constants";
+import { safeInternalPath } from "@/lib/navigation";
 
 function siteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -99,7 +100,7 @@ export async function signIn(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect(next.startsWith("/") ? next : "/dashboard");
+  redirect(safeInternalPath(next));
 }
 
 export async function signOut() {

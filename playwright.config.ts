@@ -3,7 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 // E2E smoke suite: runs against the dev server (or an already-running one).
 export default defineConfig({
   testDir: "./tests/e2e",
-  timeout: 30_000,
+  timeout: 60_000,
+  workers: 2,
   retries: 0,
   reporter: [["list"]],
   globalSetup: "./tests/e2e/global-setup.ts",

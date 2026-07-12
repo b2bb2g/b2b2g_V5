@@ -22,6 +22,7 @@ export async function generateMetadata({
   return {
     title: `UID:${item.authorUid} · Member feed`,
     description: item.body.slice(0, 160),
+    alternates: { canonical: `/feed/${id}` },
     openGraph: {
       title: `UID:${item.authorUid}`,
       description: item.body.slice(0, 160),

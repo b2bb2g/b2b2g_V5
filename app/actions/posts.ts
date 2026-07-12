@@ -4,7 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
-import { BADGE_CODES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
+import {
+  BADGE_CODES,
+  POST_STATUS,
+  SETTING_KEYS,
+  STORAGE_BUCKETS,
+} from "@/lib/constants";
 
 export type SpecInput = {
   fieldDefId: string | null;
@@ -85,78 +90,60 @@ export async function savePost(input: PostInput): Promise<{ error?: string; post
     }
   }
 
-  // Review-before-publish is the global default; immediate publish is an
-  // admin-only board switch and still lands as pending for members.
-  const status = input.asDraft ? POST_STATUS.DRAFT : POST_STATUS.PENDING;
+  const oldAssets = input.postId
+    ? await Promise.all([
+        supabase.from("post_media").select("path").eq("post_id", input.postId),
+        supabase
+          .from("post_attachments")
+          .select("path")
+          .eq("post_id", input.postId),
+      ])
+    : null;
 
-  const row = {
-    menu_id: menu.id,
-    author_id: user.id,
-    type: menu.board_type,
-    status,
-    title_en: input.titleEn,
-    title_ko: input.titleKo || null,
-    body_en: input.bodyEn,
-    body_ko: input.bodyKo || null,
-    category_id: input.categoryId,
-    deadline: input.deadline || null,
-    rep_video_url: input.repVideoUrl || null,
-    rep_is_video: input.repIsVideo && !!input.repVideoUrl,
-    rep_image_path: input.repImagePath,
-  };
+  // One PostgreSQL function owns the post row and every child row. A failure
+  // rolls the whole bundle back instead of leaving a partially saved post.
+  const { data: savedId, error: saveError } = await supabase.rpc(
+    "save_post_bundle",
+    {
+      p_post_id: input.postId ?? null,
+      p_menu_slug: input.menuSlug,
+      p_title_en: input.titleEn,
+      p_title_ko: input.titleKo,
+      p_body_en: input.bodyEn,
+      p_body_ko: input.bodyKo,
+      p_category_id: input.categoryId,
+      p_deadline: input.deadline || null,
+      p_rep_video_url: input.repVideoUrl,
+      p_rep_is_video: input.repIsVideo,
+      p_rep_image_path: input.repImagePath,
+      p_as_draft: input.asDraft,
+      p_specs: input.specs,
+      p_image_paths: input.imagePaths,
+      p_attachments: input.attachments,
+    },
+  );
+  if (saveError || !savedId) return { error: "save" };
+  const postId = String(savedId);
 
-  let postId = input.postId;
-  if (postId) {
-    const { error } = await supabase.from("posts").update(row).eq("id", postId);
-    if (error) return { error: "save" };
+  if (oldAssets) {
+    const keepMedia = new Set(input.imagePaths);
+    const keepAttachments = new Set(input.attachments.map((item) => item.path));
+    const removedMedia = (oldAssets[0].data ?? [])
+      .map((item) => item.path)
+      .filter((path) => !keepMedia.has(path));
+    const removedAttachments = (oldAssets[1].data ?? [])
+      .map((item) => item.path)
+      .filter((path) => !keepAttachments.has(path));
     await Promise.all([
-      supabase.from("post_specs").delete().eq("post_id", postId),
-      supabase.from("post_media").delete().eq("post_id", postId),
-      supabase.from("post_attachments").delete().eq("post_id", postId),
+      removedMedia.length
+        ? supabase.storage.from(STORAGE_BUCKETS.POST_MEDIA).remove(removedMedia)
+        : Promise.resolve(),
+      removedAttachments.length
+        ? supabase.storage
+            .from(STORAGE_BUCKETS.ATTACHMENTS)
+            .remove(removedAttachments)
+        : Promise.resolve(),
     ]);
-  } else {
-    const { data, error } = await supabase
-      .from("posts")
-      .insert(row)
-      .select("id")
-      .single();
-    if (error || !data) return { error: "save" };
-    postId = data.id;
-  }
-
-  if (input.specs.length) {
-    await supabase.from("post_specs").insert(
-      input.specs.map((s, i) => ({
-        post_id: postId,
-        field_def_id: s.fieldDefId,
-        name_en: s.nameEn,
-        name_ko: s.nameKo,
-        value: s.value,
-        sort_order: i,
-      }))
-    );
-  }
-  if (input.imagePaths.length) {
-    await supabase.from("post_media").insert(
-      input.imagePaths.map((path, i) => ({
-        post_id: postId,
-        path,
-        sort_order: i,
-      }))
-    );
-  }
-  if (input.attachments.length) {
-    // Attachments must live under the author's own folder (bucket RLS).
-    await supabase.from("post_attachments").insert(
-      input.attachments
-        .filter((a) => a.path.startsWith(`${user.id}/`))
-        .map((a) => ({
-          post_id: postId,
-          path: a.path,
-          filename: a.name,
-          size_bytes: a.size,
-        }))
-    );
   }
 
   revalidatePath(`/${input.menuSlug}`);
@@ -178,7 +165,24 @@ export async function closeOwnPost(formData: FormData) {
 export async function deleteOwnPost(formData: FormData) {
   const postId = String(formData.get("postId") ?? "");
   const supabase = await createClient();
-  await supabase.from("posts").delete().eq("id", postId);
+  const [media, attachments] = await Promise.all([
+    supabase.from("post_media").select("path").eq("post_id", postId),
+    supabase.from("post_attachments").select("path").eq("post_id", postId),
+  ]);
+  const { error } = await supabase.from("posts").delete().eq("id", postId);
+  if (error) redirect("/dashboard/posts?error=delete");
+  await Promise.all([
+    media.data?.length
+      ? supabase.storage
+          .from(STORAGE_BUCKETS.POST_MEDIA)
+          .remove(media.data.map((item) => item.path))
+      : Promise.resolve(),
+    attachments.data?.length
+      ? supabase.storage
+          .from(STORAGE_BUCKETS.ATTACHMENTS)
+          .remove(attachments.data.map((item) => item.path))
+      : Promise.resolve(),
+  ]);
   revalidatePath("/dashboard/posts");
   redirect("/dashboard/posts?toast=deleted");
 }

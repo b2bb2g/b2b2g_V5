@@ -22,5 +22,16 @@ export function getFeedCardLabels(t: Dictionary): FeedLabels {
     deleteTitle: t.feed.deleteTitle,
     deleteBody: t.feed.deleteBody,
     cancel: t.common.cancel,
+    safetyMenu: t.feed.safetyMenu,
+    report: t.feed.report,
+    reportReason: t.feed.reportReason,
+    reportDetails: t.feed.reportDetails,
+    reportSpam: t.feed.reportSpam,
+    reportMisleading: t.feed.reportMisleading,
+    reportAbuse: t.feed.reportAbuse,
+    reportOther: t.feed.reportOther,
+    block: t.feed.block,
+    blockTitle: t.feed.blockTitle,
+    blockBody: t.feed.blockBody,
   };
 }

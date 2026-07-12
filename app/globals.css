@@ -343,8 +343,18 @@ main > :where(*) {
 }
 
 @media (max-width: 1023px) {
+  main > .mobile-sticky-action {
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
+    padding: 0;
+  }
+
+  body:has(.global-banner) {
+    padding-bottom: 7rem;
+  }
   body:has(.global-banner) .mobile-sticky-action {
-    bottom: 8.5rem;
+    bottom: 7.25rem;
   }
 }
 

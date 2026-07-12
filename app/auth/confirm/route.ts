@@ -4,6 +4,7 @@ import { type NextRequest } from "next/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { PW_RESET_COOKIE } from "@/lib/constants";
+import { safeInternalPath } from "@/lib/navigation";
 
 // Email verification / recovery landing: exchanges the token for a session.
 export async function GET(request: NextRequest) {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
         });
         redirect("/reset/update");
       }
-      redirect(next.startsWith("/") ? next : "/dashboard");
+      redirect(safeInternalPath(next));
     }
   }
 

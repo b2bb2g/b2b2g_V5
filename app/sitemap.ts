@@ -16,7 +16,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     );
-    const [{ data: menus }, { data: posts }, { data: homepages }] =
+    const [
+      { data: menus },
+      { data: posts },
+      { data: homepages },
+      { data: profiles },
+      { data: feedPosts },
+    ] =
       await Promise.all([
         supabase.from("menus").select("id, slug").eq("is_visible", true),
         supabase
@@ -28,6 +34,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .from("mini_homepages")
           .select("slug, updated_at")
           .eq("is_published", true),
+        supabase
+          .from("profiles")
+          .select("uid, updated_at")
+          .eq("status", "active")
+          .order("updated_at", { ascending: false })
+          .limit(2000),
+        supabase
+          .from("member_feed_posts")
+          .select("id, updated_at")
+          .eq("moderation_status", "visible")
+          .order("updated_at", { ascending: false })
+          .limit(2000),
       ]);
 
     const menuSlugById = new Map((menus ?? []).map((m) => [m.id, m.slug]));
@@ -54,6 +72,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: homepage.updated_at ?? undefined,
         changeFrequency: "weekly",
         priority: 0.6,
+      });
+    }
+    for (const profile of profiles ?? []) {
+      entries.push({
+        url: `${site}/u/${profile.uid}`,
+        lastModified: profile.updated_at ?? undefined,
+        changeFrequency: "weekly",
+        priority: 0.5,
+      });
+    }
+    for (const post of feedPosts ?? []) {
+      entries.push({
+        url: `${site}/feed/${post.id}`,
+        lastModified: post.updated_at ?? undefined,
+        changeFrequency: "weekly",
+        priority: 0.5,
       });
     }
   } catch {

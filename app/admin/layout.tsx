@@ -27,6 +27,7 @@ export default async function AdminLayout({
       items: [
         { href: "/admin", label: t.admin.overview },
         { href: "/admin/moderation", label: t.admin.moderation },
+        { href: "/admin/feed", label: t.admin.feedSafety },
         { href: "/admin/inquiries", label: t.admin.inquiryModeration },
         {
           href: "/admin/coordinator-messages",

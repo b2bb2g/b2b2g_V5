@@ -1,26 +1,33 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
-import { getMemberNetworkStats, listFeed } from "@/lib/data/feed";
+import { getMemberNetworkStats, listFeedPage } from "@/lib/data/feed";
 import { FeedComposer } from "@/components/feed/FeedComposer";
 import { FeedCard } from "@/components/feed/FeedCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getFeedCardLabels } from "@/lib/i18n/feed";
 import { FeedNetworkSidebar } from "@/components/feed/FeedNetworkSidebar";
+import { Pagination } from "@/components/ui/Pagination";
 
 export const metadata = {
   title: "B2BB2G Network",
   description:
     "Connect through public updates from B2BB2G marketplace members.",
+  alternates: { canonical: "/feed" },
 };
 
-export default async function FeedPage() {
-  const [{ t, locale }, session, items] = await Promise.all([
+export default async function FeedPage(props: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await props.searchParams;
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  const [{ t, locale }, session, feed] = await Promise.all([
     getT(),
     getSession(),
-    listFeed({ limit: 24 }),
+    listFeedPage(page),
   ]);
+  const { items, totalPages } = feed;
   const stats = await getMemberNetworkStats(session.userId);
   const profile = session.profile;
   const bio = profile
@@ -72,6 +79,13 @@ export default async function FeedPage() {
         ) : (
           <EmptyState title={t.feed.empty} hint={t.feed.emptyHint} />
         )}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          basePath="/feed"
+          prevLabel={t.home.prev}
+          nextLabel={t.home.next}
+        />
       </div>
       <FeedNetworkSidebar profile={profile} stats={stats} bio={bio} t={t} />
     </div>

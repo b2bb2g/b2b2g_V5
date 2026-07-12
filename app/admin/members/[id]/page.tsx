@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BadgePill } from "@/components/ui/Badge";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
+import { PendingButton } from "@/components/ui/PendingButton";
 import {
   adminSendPasswordReset,
   saveMemberMemo,
@@ -281,9 +282,9 @@ export default async function AdminMemberDetailPage(props: {
           defaultValue={member.member_admin_memos?.memo ?? ""}
           className="field"
         />
-        <button type="submit" className="btn-secondary btn-sm">
+        <PendingButton className="btn-secondary btn-sm">
           {t.common.save}
-        </button>
+        </PendingButton>
       </form>
 
       {/* Account actions: reset mail, withdrawal (both audited) */}

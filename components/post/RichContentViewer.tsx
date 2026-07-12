@@ -19,6 +19,9 @@ export function RichContentViewer({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openImage, setOpenImage] = useState<OpenImage>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -37,18 +40,25 @@ export function RichContentViewer({
     if (!openImage) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpenImage(null);
+      if (event.key === "Tab") {
+        event.preventDefault();
+        closeRef.current?.focus();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
+      openerRef.current?.focus();
     };
   }, [openImage]);
 
   const openTarget = (target: EventTarget | null) => {
     if (!(target instanceof HTMLImageElement) || !target.src) return;
+    openerRef.current = target;
     setOpenImage({ src: target.src, alt: target.alt || title });
   };
 
@@ -70,6 +80,7 @@ export function RichContentViewer({
       {openImage &&
         createPortal(
           <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-label={openImage.alt}
@@ -78,6 +89,7 @@ export function RichContentViewer({
           >
             <div className="relative z-20 flex justify-end p-4 sm:p-6">
               <button
+                ref={closeRef}
                 type="button"
                 aria-label={closeLabel}
                 onClick={() => setOpenImage(null)}

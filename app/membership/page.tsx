@@ -13,7 +13,11 @@ import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
-  return { title: t.membership.title, description: t.membership.subtitle };
+  return {
+    title: t.membership.title,
+    description: t.membership.subtitle,
+    alternates: { canonical: "/membership" },
+  };
 }
 
 
