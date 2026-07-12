@@ -18,6 +18,7 @@ export default async function SettingsAdminPage() {
     if (/^(site_|seo_|robots_|google_|naver_)/.test(key)) return "discovery";
     if (/^email_notify_/.test(key)) return "notifications";
     if (/^(pwa_|inapp_|upload_)/.test(key)) return "experience";
+    if (/^(signup_|referral_invite_|login_session_|new_device_|suspicious_login_|failed_login_|security_log_)/.test(key)) return "security";
     if (/^(bootstrap_)/.test(key)) return "access";
     return "policy";
   };
@@ -66,6 +67,23 @@ export default async function SettingsAdminPage() {
                     {setting.value ? t.common.on : t.common.off}
                   </PendingButton>
                 </>
+              ) : setting.key === "signup_mode" || setting.key === "login_session_policy" ? (
+                <span className="flex items-center gap-2">
+                  <input type="hidden" name="kind" value="string" />
+                  <select
+                    name="value"
+                    defaultValue={String(setting.value)}
+                    className="rounded-xl border border-line bg-white px-3 py-1.5 text-xs outline-none focus:border-primary"
+                  >
+                    {(setting.key === "signup_mode"
+                      ? ["open", "invite_only", "paused"]
+                      : ["multi", "single"]
+                    ).map((value) => <option key={value} value={value}>{value}</option>)}
+                  </select>
+                  <PendingButton className="rounded-lg bg-surface-sub px-3 py-1.5 text-xs font-semibold text-ink-soft">
+                    {t.common.save}
+                  </PendingButton>
+                </span>
               ) : (
                 <span className="flex items-center gap-2">
                   <input type="hidden" name="kind" value={isNumber ? "number" : "string"} />

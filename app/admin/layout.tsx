@@ -4,6 +4,7 @@ import { getSession } from "@/lib/data/session";
 import { AdminNav, type AdminNavGroup } from "@/components/layout/AdminNav";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -18,6 +19,18 @@ export default async function AdminLayout({
   const session = await getSession();
   if (!session.userId) redirect("/login?next=/admin");
   if (!session.profile?.is_admin) redirect("/");
+
+  // Every admin-console visit requires an enrolled factor and an AAL2 session.
+  // Enrollment and challenge remain available outside this layout at
+  // /dashboard/security, so an existing administrator can recover safely.
+  const supabase = await createClient();
+  const [{ data: factors }, { data: level }] = await Promise.all([
+    supabase.auth.mfa.listFactors(),
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+  ]);
+  if (!(factors?.totp?.some((factor) => factor.status === "verified") ?? false) || level?.currentLevel !== "aal2") {
+    redirect("/dashboard/security?mfa=required");
+  }
 
   const { t } = await getT();
 
@@ -41,6 +54,7 @@ export default async function AdminLayout({
       items: [
         { href: "/admin/members", label: t.admin.members },
         { href: "/admin/referrals", label: t.admin.referrals },
+        { href: "/admin/invitations", label: t.admin.invitations },
         { href: "/admin/subscriptions", label: t.admin.subscriptions },
       ],
     },

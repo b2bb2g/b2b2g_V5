@@ -47,6 +47,7 @@ export async function Header() {
       { href: "/dashboard", label: t.common.dashboard },
       { href: "/feed", label: t.feed.title },
       { href: "/dashboard/profile", label: t.nav.profile },
+      { href: "/dashboard/security", label: t.nav.security },
       { href: "/write/select", label: t.dashboard.registerProduct },
       { href: "/write?menu=requests", label: t.dashboard.postRequest },
       { href: "/dashboard/posts", label: t.nav.myPosts },

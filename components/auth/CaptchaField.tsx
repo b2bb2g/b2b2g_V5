@@ -8,7 +8,7 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 // background (a challenge pops only for suspicious traffic), then submits
 // the surrounding form with the token attached. Falls back to a plain
 // submit button when no site key is configured.
-export function CaptchaSubmit({ label }: { label: string }) {
+export function CaptchaSubmit({ label, disabled = false }: { label: string; disabled?: boolean }) {
   const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
   const captchaRef = useRef<HCaptcha>(null);
   const [token, setToken] = useState("");
@@ -31,7 +31,7 @@ export function CaptchaSubmit({ label }: { label: string }) {
       )}
       <button
         type="submit"
-        disabled={verifying || pending}
+        disabled={disabled || verifying || pending}
         aria-busy={verifying || pending}
         onClick={async (event) => {
           if (!siteKey || token) return;

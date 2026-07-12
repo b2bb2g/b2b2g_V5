@@ -1,0 +1,61 @@
+"use server";
+
+import { randomBytes } from "node:crypto";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { hashPublicValue } from "@/lib/security";
+
+export type InvitationActionState = {
+  link?: string;
+  expiresAt?: string;
+  error?: string;
+};
+
+export async function createReferralInvitation(
+  _previous: InvitationActionState,
+  formData: FormData,
+): Promise<InvitationActionState> {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims.sub) return { error: "authentication_required" };
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "invalid_email" };
+  }
+
+  const token = randomBytes(32).toString("base64url");
+  const { data, error } = await supabase
+    .rpc("create_referral_invitation", {
+      p_token_hash: hashPublicValue(token),
+      p_bound_email_hash: email ? hashPublicValue(email) : null,
+    })
+    .single();
+
+  if (error) {
+    console.error("create invitation failed", error.message);
+    return {
+      error: error.message.includes("limit") ? "active_limit" : "create_failed",
+    };
+  }
+
+  revalidatePath("/dashboard");
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const invitation = data as { expires_at: string };
+  return {
+    link: `${siteUrl}/signup?invite=${encodeURIComponent(token)}`,
+    expiresAt: String(invitation.expires_at),
+  };
+}
+
+export async function revokeReferralInvitation(formData: FormData) {
+  const invitationId = String(formData.get("invitationId") ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(invitationId)) return;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revoke_referral_invitation", {
+    p_invitation_id: invitationId,
+  });
+  if (error) console.error("revoke invitation failed", error.message);
+  revalidatePath("/dashboard");
+  revalidatePath("/admin/invitations");
+}

@@ -92,6 +92,12 @@ export const SETTING_KEYS = {
   GOOGLE_SITE_VERIFICATION: "google_site_verification",
   NAVER_SITE_VERIFICATION: "naver_site_verification",
   INAPP_REDIRECT_PATHS: "inapp_redirect_paths",
+  SIGNUP_MODE: "signup_mode",
+  REFERRAL_INVITE_EXPIRY_DAYS: "referral_invite_expiry_days",
+  REFERRAL_INVITE_MAX_ACTIVE: "referral_invite_max_active",
+  LOGIN_SESSION_POLICY: "login_session_policy",
+  NEW_DEVICE_EMAIL_ALERT: "new_device_email_alert",
+  SUSPICIOUS_LOGIN_EMAIL_ALERT: "suspicious_login_email_alert",
 } as const;
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];
 
@@ -134,6 +140,11 @@ export const PW_RESET_COOKIE = "pw-reset-required";
 // Present when the member unchecked "keep me signed in": auth cookies are
 // then written without persistence so the login ends with the browser session.
 export const SESSION_ONLY_COOKIE = "session-only";
+
+// Random browser identifier used only as a hash when recognizing a member's
+// own devices. The raw value never leaves the encrypted HTTP-only cookie.
+export const TRUSTED_DEVICE_COOKIE = "trusted-device";
+export const PENDING_VERIFY_EMAIL_COOKIE = "pending-verify-email";
 
 export const STORAGE_BUCKETS = {
   POST_MEDIA: "post-media",

@@ -7,6 +7,7 @@ import pg from "pg";
 const REF = "ruzamxdsuddjjuqmxokf";
 export const E2E_EMAIL = "e2e-smoke@example.com";
 const E2E_PASSWORD = "E2eSmokeTest1234";
+const E2E_INVITE = "b2bb2g-e2e-invitation-token-20260712";
 
 const password = readFileSync(".env.local", "utf8")
   .split("\n")
@@ -32,10 +33,25 @@ const mode = process.argv[2] ?? "up";
 await client.connect();
 try {
   if (mode === "down") {
+    await client.query(
+      "delete from public.referral_invitations where token_hash = encode(digest($1, 'sha256'), 'hex')",
+      [E2E_INVITE]
+    );
     await client.query("delete from auth.users where email = $1", [E2E_EMAIL]);
     console.log("e2e user removed");
   } else {
+    await client.query(
+      "delete from public.referral_invitations where token_hash = encode(digest($1, 'sha256'), 'hex')",
+      [E2E_INVITE]
+    );
     await client.query("delete from auth.users where email = $1", [E2E_EMAIL]);
+    await client.query(
+      `insert into public.referral_invitations (inviter_id, token_hash, status, expires_at)
+       select id, encode(digest($1, 'sha256'), 'hex'), 'active', now() + interval '1 hour'
+       from public.profiles where status = 'active'
+       order by is_admin desc, created_at limit 1`,
+      [E2E_INVITE]
+    );
     await client.query(
       `insert into auth.users (
          instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -44,9 +60,9 @@ try {
        ) values (
          '00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated',
          'authenticated', $1, crypt($2, gen_salt('bf')), now(),
-         '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''
+         '{"provider":"email","providers":["email"]}', jsonb_build_object('invite_token', $3::text), now(), now(), '', '', '', ''
        )`,
-      [E2E_EMAIL, E2E_PASSWORD]
+      [E2E_EMAIL, E2E_PASSWORD, E2E_INVITE]
     );
     await client.query(
       `insert into auth.identities (

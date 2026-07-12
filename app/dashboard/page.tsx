@@ -4,11 +4,9 @@ import { redirect } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
-import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { BadgeList } from "@/components/ui/Badge";
 import { CopyChip } from "@/components/ui/CopyChip";
-import { CopyField } from "@/components/ui/CopyField";
-import { ReferralQr } from "@/components/ui/ReferralQr";
+import { InvitationManager } from "@/components/dashboard/InvitationManager";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import {
@@ -18,7 +16,6 @@ import {
 import { postMediaUrl } from "@/lib/media";
 import {
   BADGE_CODES,
-  SETTING_KEYS,
   SUBSCRIPTION_STATUS,
 } from "@/lib/constants";
 
@@ -26,9 +23,8 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session.userId || !session.profile) redirect("/login");
 
-  const [{ t, locale }, settings, supabase] = await Promise.all([
+  const [{ t, locale }, supabase] = await Promise.all([
     getT(),
-    getPublicSettings(),
     createClient(),
   ]);
 
@@ -38,6 +34,7 @@ export default async function DashboardPage() {
     subscription,
     recentPosts,
     recentInquiries,
+    activeInvitations,
   ] = await Promise.all([
     supabase.rpc("member_dashboard_summary"),
     supabase
@@ -65,6 +62,12 @@ export default async function DashboardPage() {
       .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`)
       .order("updated_at", { ascending: false })
       .limit(4),
+    supabase
+      .from("referral_invitations")
+      .select("id, status, expires_at, created_at")
+      .in("status", ["active", "reserved"])
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false }),
   ]);
 
   const summary = (summaryResult.data ?? {}) as {
@@ -98,14 +101,6 @@ export default async function DashboardPage() {
   const pendingCount = summary.pending ?? 0;
   const unreadCount = summary.unread_replies ?? 0;
   const hasAttention = pendingCount + unreadCount > 0;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const referralLink = `${siteUrl}/signup?ref=${profile.uid}`;
-  const showReferralStats = settingBool(
-    settings,
-    SETTING_KEYS.REFERRAL_STATS_VISIBLE,
-    false,
-  );
-
   const recentActivity = [
     ...(recentPosts.data ?? []).map((item) => ({
       ...item,
@@ -454,35 +449,33 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-6">
-          <p className="text-xs font-bold uppercase tracking-[.15em] text-primary">
-            {t.dashboard.growthTools}
-          </p>
-          <h2 className="mt-2 text-base font-extrabold">
-            {t.dashboard.referralLink}
-          </h2>
-          <p className="mt-1 text-xs leading-5 text-ink-faint">
-            {t.dashboard.referralHint}
-          </p>
-          <div className="mt-4">
-            <CopyField
-              value={referralLink}
-              copyLabel={t.common.copy}
-              copiedLabel={t.common.copied}
-            />
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <ReferralQr value={referralLink} label={t.dashboard.qr} />
-            {showReferralStats && (
-              <p className="text-sm text-ink-soft">
-                {t.dashboard.referralCount}:{" "}
-                <span className="font-extrabold text-ink">
-                  {summary.referrals ?? 0}
-                </span>
-              </p>
-            )}
-          </div>
-        </section>
+        <InvitationManager
+          invitations={(activeInvitations.data ?? []) as Array<{
+            id: string;
+            status: string;
+            expires_at: string;
+            created_at: string;
+          }>}
+          labels={{
+            eyebrow: t.dashboard.growthTools,
+            title: t.dashboard.referralLink,
+            description: t.dashboard.referralHint,
+            emailLabel: t.dashboard.invitationEmail,
+            emailOptional: t.dashboard.invitationEmailOptional,
+            create: t.dashboard.createInvitation,
+            generated: t.dashboard.invitationGenerated,
+            copy: t.common.copy,
+            copied: t.common.copied,
+            qr: t.dashboard.qr,
+            expires: t.dashboard.invitationExpires,
+            active: t.dashboard.invitationActive,
+            reserved: t.dashboard.invitationReserved,
+            revoke: t.dashboard.revokeInvitation,
+            empty: t.dashboard.noActiveInvitations,
+            activeLimit: t.dashboard.invitationLimitReached,
+            error: t.dashboard.invitationCreateFailed,
+          }}
+        />
       </div>
 
       {roleLinks.length > 0 && (

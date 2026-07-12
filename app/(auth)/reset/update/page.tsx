@@ -1,12 +1,14 @@
 import { getT } from "@/lib/i18n/server";
-import { signOut, updatePassword } from "@/app/actions/auth";
-import { PasswordInput } from "@/components/ui/TextField";
+import { signOut } from "@/app/actions/auth";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { PasswordPolicyForm } from "@/components/auth/PasswordPolicyForm";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function ResetUpdatePage(props: {
   searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
-  const [{ t }, params] = await Promise.all([getT(), props.searchParams]);
+  const [{ t }, params, supabase] = await Promise.all([getT(), props.searchParams, createClient()]);
+  const { data: userData } = await supabase.auth.getUser();
 
   const errorMessage =
     params.error === "same"
@@ -35,23 +37,23 @@ export default async function ResetUpdatePage(props: {
         </p>
       )}
 
-      <form action={updatePassword} className="mt-8 space-y-4">
-        <label className="block">
-          <span className="text-sm font-semibold text-ink-soft">{t.auth.newPassword}</span>
-          <div className="mt-1">
-            <PasswordInput
-              name="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              clearLabel={t.common.clearInput}
-              showLabel={t.auth.showPassword}
-              hideLabel={t.auth.hidePassword}
-            />
-          </div>
-        </label>
-        <PendingButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong disabled:opacity-60">{t.auth.updatePassword}</PendingButton>
-      </form>
+      <PasswordPolicyForm
+        email={userData.user?.email ?? ""}
+        labels={{
+          password: t.auth.newPassword,
+          rulesTitle: t.auth.passwordRulesTitle,
+          length: t.auth.passwordLengthRule,
+          upper: t.auth.passwordUpperRule,
+          lower: t.auth.passwordLowerRule,
+          number: t.auth.passwordNumberRule,
+          symbol: t.auth.passwordSymbolRule,
+          emailRule: t.auth.passwordEmailRule,
+          clear: t.common.clearInput,
+          show: t.auth.showPassword,
+          hide: t.auth.hidePassword,
+          submit: t.auth.updatePassword,
+        }}
+      />
 
       {/* Escape hatch: signs out and keeps the existing password valid. */}
       <form action={signOut} className="mt-3">

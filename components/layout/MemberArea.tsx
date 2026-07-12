@@ -57,6 +57,7 @@ export async function MemberArea({ children }: { children: ReactNode }) {
       count: unreadNotifications.count ?? 0,
     },
     { href: "/dashboard/profile", label: t.nav.profile },
+    { href: "/dashboard/security", label: t.nav.security },
   ];
   if (
     session.badges.some((b) => b.badge_types?.code === BADGE_CODES.CERTIFIED)
