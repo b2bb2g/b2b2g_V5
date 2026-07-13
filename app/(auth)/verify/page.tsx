@@ -1,6 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { resendVerification } from "@/app/actions/auth";
-import { PendingButton } from "@/components/ui/PendingButton";
+import { CaptchaSubmit } from "@/components/auth/CaptchaField";
 
 export default async function VerifyPage(props: { searchParams: Promise<{ sent?: string; error?: string }> }) {
   const { t } = await getT();
@@ -16,10 +16,14 @@ export default async function VerifyPage(props: { searchParams: Promise<{ sent?:
       <h1 className="mt-4 text-xl font-extrabold">{t.auth.verifyTitle}</h1>
       <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t.auth.verifyBody}</p>
       {params.sent && <p role="status" className="mt-4 rounded-xl bg-positive-soft px-3 py-2 text-xs font-bold text-positive">{t.auth.signUpDone}</p>}
-      {params.error && <p role="alert" className="mt-4 rounded-xl bg-negative-soft px-3 py-2 text-xs font-bold text-negative">{t.auth.emailRateLimited}</p>}
+      {params.error && (
+        <p role="alert" className="mt-4 rounded-xl bg-negative-soft px-3 py-2 text-xs font-bold text-negative">
+          {params.error === "captcha" ? t.auth.captchaRequired : t.auth.emailRateLimited}
+        </p>
+      )}
       <p className="mt-5 text-xs leading-5 text-ink-faint">{t.auth.resetSentHint}</p>
       <form action={resendVerification} className="mt-4">
-        <PendingButton className="btn-secondary btn-md w-full">{t.auth.resend}</PendingButton>
+        <CaptchaSubmit label={t.auth.resend} />
       </form>
     </div>
   );

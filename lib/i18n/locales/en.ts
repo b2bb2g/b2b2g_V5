@@ -255,7 +255,8 @@ const en = {
     passwordUpperRule: "An uppercase letter",
     passwordLowerRule: "A lowercase letter",
     passwordNumberRule: "A number",
-    passwordSymbolRule: "A special character",
+    passwordSymbolRule: "An allowed symbol",
+    passwordSymbolHint: "Allowed symbols",
     passwordEmailRule: "Not the same as your email name",
   },
   post: {
@@ -624,6 +625,12 @@ const en = {
     block: "Block this member",
     blockTitle: "Block this member?",
     blockBody: "You will no longer see each other's network posts.",
+    openImage: "View post image",
+    closeImage: "Close image",
+    previousImage: "Previous image",
+    nextImage: "Next image",
+    fullPost: "Full post",
+    closePost: "Close full post",
   },
   admin: {
     settingGroups: {

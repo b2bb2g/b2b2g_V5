@@ -5,7 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import { signUp } from "@/app/actions/auth";
 import { CaptchaSubmit } from "@/components/auth/CaptchaField";
 import { PasswordInput } from "@/components/ui/TextField";
-import { passwordPolicyChecks } from "@/lib/password-policy";
+import {
+  passwordPolicyChecks,
+  SUPABASE_PASSWORD_SYMBOLS,
+} from "@/lib/password-policy";
 
 type Labels = {
   email: string;
@@ -23,6 +26,7 @@ type Labels = {
   lower: string;
   number: string;
   symbol: string;
+  symbolHint: string;
   emailRule: string;
   clear: string;
   show: string;
@@ -144,6 +148,10 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
             </li>
           ))}
         </ul>
+        <p className="mt-2 break-words text-[11px] leading-5 text-ink-faint">
+          {labels.symbolHint}: {" "}
+          <code className="font-mono text-ink-soft">{SUPABASE_PASSWORD_SYMBOLS}</code>
+        </p>
       </fieldset>
 
       <CaptchaSubmit label={labels.submit} disabled={!ready} />

@@ -97,6 +97,7 @@ export default async function SignUpPage(props: {
           lower: t.auth.passwordLowerRule,
           number: t.auth.passwordNumberRule,
           symbol: t.auth.passwordSymbolRule,
+          symbolHint: t.auth.passwordSymbolHint,
           emailRule: t.auth.passwordEmailRule,
           clear: t.common.clearInput,
           show: t.auth.showPassword,

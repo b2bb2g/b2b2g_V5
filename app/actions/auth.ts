@@ -252,17 +252,25 @@ export async function requestPasswordReset(formData: FormData) {
   redirect("/reset?sent=1");
 }
 
-export async function resendVerification() {
+export async function resendVerification(formData: FormData) {
   const store = await cookies();
   const email = store.get(PENDING_VERIFY_EMAIL_COOKIE)?.value;
   if (!email) redirect("/signup");
+  const captchaToken = String(formData.get("captchaToken") ?? "") || undefined;
   const supabase = await createClient();
   const { error } = await supabase.auth.resend({
     type: "signup",
     email,
-    options: { emailRedirectTo: `${siteUrl()}/auth/confirm` },
+    options: {
+      emailRedirectTo: `${siteUrl()}/auth/confirm`,
+      captchaToken,
+    },
   });
-  if (error) redirect("/verify?error=rate");
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (message.includes("captcha")) redirect("/verify?error=captcha");
+    redirect("/verify?error=rate");
+  }
   redirect("/verify?sent=1");
 }
 

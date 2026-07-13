@@ -11,8 +11,7 @@ import { PendingButton } from "@/components/ui/PendingButton";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { ShareButton } from "@/components/feed/ShareButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
-import { ExpandableFeedText } from "@/components/feed/ExpandableFeedText";
-import { FeedMediaGrid } from "@/components/feed/FeedMediaGrid";
+import { FeedPostContent } from "@/components/feed/FeedPostContent";
 import {
   CommentIcon,
   GlobeIcon,
@@ -53,6 +52,20 @@ export type FeedLabels = {
   block: string;
   blockTitle: string;
   blockBody: string;
+  openImage: string;
+  closeImage: string;
+  previousImage: string;
+  nextImage: string;
+  fullPost: string;
+  closePost: string;
+  writeComment: string;
+  commentPlaceholder: string;
+  signInToComment: string;
+  noComments: string;
+  deleteComment: string;
+  loading: string;
+  error: string;
+  tryAgain: string;
 };
 
 export function FeedCard({
@@ -61,11 +74,13 @@ export function FeedCard({
   returnTo,
   labels,
   compact = false,
+  detail = false,
 }: {
   item: FeedItem;
   viewerId: string | null;
   returnTo: string;
   compact?: boolean;
+  detail?: boolean;
   labels: FeedLabels;
 }) {
   const isOwn = viewerId === item.authorId;
@@ -73,7 +88,10 @@ export function FeedCard({
   const media = item.mediaPaths;
 
   return (
-    <article className="overflow-hidden rounded-[1.35rem] border border-line/90 bg-white shadow-[0_8px_30px_rgba(25,31,40,.055)]">
+    <article
+      data-feed-post-id={item.id}
+      className="overflow-hidden rounded-[1.35rem] border border-line/90 bg-white shadow-[0_8px_30px_rgba(25,31,40,.055)]"
+    >
       <header className="flex items-start justify-between gap-3 px-5 pb-3 pt-5 sm:px-6">
         <Link
           href={`/u/${item.authorUid}`}
@@ -174,16 +192,56 @@ export function FeedCard({
         </div>
       </header>
 
-      <ExpandableFeedText
+      <FeedPostContent
+        postId={item.id}
         body={item.body}
-        moreLabel={labels.more}
-        lessLabel={labels.less}
-      />
-
-      <FeedMediaGrid
         paths={media}
-        href={sharePath}
-        label={item.body.slice(0, 100)}
+        authorUid={item.authorUid}
+        avatarPath={item.avatarPath}
+        createdAt={item.createdAt}
+        engagement={{
+          authorId: item.authorId,
+          viewerId,
+          returnTo,
+          likeCount: item.likeCount,
+          likedByViewer: item.likedByViewer,
+          commentCount: item.commentCount,
+          repostCount: item.repostCount,
+          repostedByViewer: item.repostedByViewer,
+          shareCount: item.shareCount,
+          followingAuthor: item.followingAuthor,
+        }}
+        compact={compact}
+        detail={detail}
+        labels={{
+          openImage: labels.openImage,
+          closeImage: labels.closeImage,
+          previousImage: labels.previousImage,
+          nextImage: labels.nextImage,
+          fullPost: labels.fullPost,
+          closePost: labels.closePost,
+          more: labels.more,
+          less: labels.less,
+          publicPost: labels.publicPost,
+          like: labels.like,
+          liked: labels.liked,
+          comment: labels.comment,
+          comments: labels.comments,
+          repost: labels.repost,
+          reposted: labels.reposted,
+          share: labels.share,
+          copied: labels.copied,
+          follow: labels.follow,
+          following: labels.following,
+          writeComment: labels.writeComment,
+          commentPlaceholder: labels.commentPlaceholder,
+          signInToComment: labels.signInToComment,
+          noComments: labels.noComments,
+          deleteComment: labels.deleteComment,
+          loading: labels.loading,
+          error: labels.error,
+          tryAgain: labels.tryAgain,
+        }}
       />
 
       <div className="flex items-center justify-between gap-3 border-b border-line/70 px-5 py-2.5 text-xs text-ink-soft sm:px-6">

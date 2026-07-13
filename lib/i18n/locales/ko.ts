@@ -251,7 +251,8 @@ const ko: Dict = {
     passwordUpperRule: "영문 대문자 1개",
     passwordLowerRule: "영문 소문자 1개",
     passwordNumberRule: "숫자 1개",
-    passwordSymbolRule: "특수문자 1개",
+    passwordSymbolRule: "허용 특수문자 1개",
+    passwordSymbolHint: "사용 가능한 특수문자",
     passwordEmailRule: "이메일 아이디와 동일하지 않음",
   },
   post: {
@@ -608,6 +609,12 @@ const ko: Dict = {
     block: "이 회원 차단",
     blockTitle: "이 회원을 차단할까요?",
     blockBody: "서로의 네트워크 게시물이 더 이상 표시되지 않아요.",
+    openImage: "게시물 이미지 보기",
+    closeImage: "이미지 닫기",
+    previousImage: "이전 이미지",
+    nextImage: "다음 이미지",
+    fullPost: "게시물 전체 내용",
+    closePost: "전체 내용 닫기",
   },
   admin: {
     settingGroups: {

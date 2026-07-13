@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import { updatePassword } from "@/app/actions/auth";
 import { PasswordInput } from "@/components/ui/TextField";
 import { PendingButton } from "@/components/ui/PendingButton";
-import { passwordPolicyChecks } from "@/lib/password-policy";
+import {
+  passwordPolicyChecks,
+  SUPABASE_PASSWORD_SYMBOLS,
+} from "@/lib/password-policy";
 
 type Labels = {
   password: string;
@@ -14,6 +17,7 @@ type Labels = {
   lower: string;
   number: string;
   symbol: string;
+  symbolHint: string;
   emailRule: string;
   clear: string;
   show: string;
@@ -51,6 +55,10 @@ export function PasswordPolicyForm({ email, labels }: { email: string; labels: L
             </li>
           ))}
         </ul>
+        <p className="mt-2 break-words text-[11px] leading-5 text-ink-faint">
+          {labels.symbolHint}: {" "}
+          <code className="font-mono text-ink-soft">{SUPABASE_PASSWORD_SYMBOLS}</code>
+        </p>
       </fieldset>
       <PendingButton disabled={!valid} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong disabled:opacity-60">
         {labels.submit}

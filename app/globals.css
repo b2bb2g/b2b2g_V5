@@ -95,6 +95,19 @@ main > :where(.full-bleed) {
     transform: none;
   }
 }
+@keyframes feed-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.feed-post-sheet {
+  animation: feed-sheet-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 main > :where(*) {
   animation: page-enter 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -127,7 +140,8 @@ main > :where(*) {
 @media (prefers-reduced-motion: reduce) {
   main > :where(*),
   .animate-fade-up,
-  .animate-float {
+  .animate-float,
+  .feed-post-sheet {
     animation: none;
   }
   .reveal {

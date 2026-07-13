@@ -9,6 +9,8 @@ test("sign-in and reset surfaces remain usable without submitting captcha", asyn
   await expect(page.locator('input[name="password"]')).toBeEditable();
   await page.goto("/reset");
   await expect(page.getByRole("button", { name: "Send reset link" })).toBeVisible();
+  await page.goto("/verify");
+  await expect(page.getByRole("button", { name: "Resend email" })).toBeVisible();
 });
 
 test("public signup is closed unless a valid invitation is present", async ({ page }) => {
@@ -20,6 +22,22 @@ test("public signup is closed unless a valid invitation is present", async ({ pa
   ).toBeVisible();
   await expect(page.locator('input[name="email"]')).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+});
+
+test("a valid invitation opens the signup form", async ({ page }) => {
+  const invitationToken = process.env.E2E_INVITE_TOKEN;
+  test.skip(
+    !invitationToken,
+    "set E2E_INVITE_TOKEN to an active one-time invitation token",
+  );
+
+  await page.goto(`/signup?invite=${encodeURIComponent(invitationToken!)}`);
+  await expect(page.locator('input[name="invite"]')).toHaveValue(
+    invitationToken!,
+  );
+  await expect(page.locator('input[name="email"]')).toBeEditable();
+  await expect(page.locator('input[name="password"]')).toBeEditable();
+  await expect(page.getByRole("button", { name: "Sign up" })).toBeDisabled();
 });
 
 test.describe("authenticated member regression", () => {

@@ -50,6 +50,7 @@ export default async function FeedDetailPage({
         item={item}
         viewerId={session.userId}
         returnTo={`/feed/${id}`}
+        detail
         labels={getFeedCardLabels(t)}
       />
       <FeedComments

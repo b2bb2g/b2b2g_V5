@@ -13,6 +13,8 @@ export function ShareButton({
   viewerId,
   returnTo,
   count,
+  className,
+  showLabel = false,
 }: {
   url: string;
   title: string;
@@ -22,6 +24,8 @@ export function ShareButton({
   viewerId: string | null;
   returnTo: string;
   count: number;
+  className?: string;
+  showLabel?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [, startTransition] = useTransition();
@@ -56,11 +60,21 @@ export function ShareButton({
       onClick={share}
       aria-label={copied ? copiedLabel : label}
       title={copied ? copiedLabel : label}
-      className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
+      className={
+        className ??
+        "inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
+      }
     >
       <SendIcon />
       {count > 0 && <span>{count}</span>}
-      <span className="sr-only">{copied ? copiedLabel : label}</span>
+      <span className={showLabel ? "hidden sm:inline" : "sr-only"}>
+        {copied ? copiedLabel : label}
+      </span>
+      {showLabel && (
+        <span className="sr-only sm:hidden">
+          {copied ? copiedLabel : label}
+        </span>
+      )}
     </button>
   );
 }
