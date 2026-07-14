@@ -15,6 +15,8 @@ import { toggleMemberFollow } from "@/app/actions/feed";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { postMediaUrl } from "@/lib/media";
 import type { FeedMediaLabels } from "@/components/feed/FeedMediaGrid";
+import { RelativeTime } from "@/components/feed/RelativeTime";
+import { GlobeIcon } from "@/components/feed/FeedIcons";
 
 export function FeedPostFocusDialog({
   open,
@@ -25,6 +27,7 @@ export function FeedPostFocusDialog({
   authorUid,
   avatarPath,
   createdAt,
+  renderedAt,
   engagement,
   labels,
 }: {
@@ -36,6 +39,7 @@ export function FeedPostFocusDialog({
   authorUid: string | number;
   avatarPath: string | null;
   createdAt: string;
+  renderedAt: string;
   engagement: FeedFocusEngagementData & { followingAuthor: boolean };
   labels: FeedMediaLabels &
     FeedFocusLabels & { follow: string; following: string };
@@ -176,10 +180,16 @@ export function FeedPostFocusDialog({
                 <strong className="block truncate text-sm font-extrabold">
                   UID:{authorUid}
                 </strong>
-                <span className="flex items-center gap-1 text-xs text-ink-faint">
-                  <time dateTime={createdAt}>{createdAt.slice(0, 10)}</time>
+                <span className="flex items-center gap-1 whitespace-nowrap text-xs text-ink-faint">
+                  <RelativeTime
+                    dateTime={createdAt}
+                    locale={labels.locale}
+                    initialNow={renderedAt}
+                    justNowLabel={labels.justNow}
+                  />
                   <span aria-hidden="true">·</span>
-                  <span>{labels.publicPost}</span>
+                  <GlobeIcon className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.8]" />
+                  <span className="sr-only">{labels.publicPost}</span>
                 </span>
               </span>
             </Link>
@@ -231,6 +241,7 @@ export function FeedPostFocusDialog({
               body={body}
               data={engagement}
               labels={labels}
+              renderedAt={renderedAt}
             />
           </div>
         </div>

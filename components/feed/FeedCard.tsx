@@ -20,8 +20,11 @@ import {
 } from "@/components/feed/FeedIcons";
 import type { FeedItem } from "@/lib/data/feed";
 import { FeedSafetyMenu } from "@/components/feed/FeedSafetyMenu";
+import { RelativeTime } from "@/components/feed/RelativeTime";
+import type { Locale } from "@/lib/constants";
 
 export type FeedLabels = {
+  locale: Locale;
   like: string;
   liked: string;
   comment: string;
@@ -34,6 +37,7 @@ export type FeedLabels = {
   following: string;
   memberSubtitle: string;
   publicPost: string;
+  justNow: string;
   more: string;
   less: string;
   edit: string;
@@ -86,11 +90,12 @@ export function FeedCard({
   const isOwn = viewerId === item.authorId;
   const sharePath = `/feed/${item.id}`;
   const media = item.mediaPaths;
+  const renderedAt = new Date().toISOString();
 
   return (
     <article
       data-feed-post-id={item.id}
-      className="overflow-hidden rounded-[1.35rem] border border-line/90 bg-white shadow-[0_8px_30px_rgba(25,31,40,.055)]"
+      className={`overflow-hidden rounded-[1.35rem] border border-line/90 bg-white shadow-[0_8px_30px_rgba(25,31,40,.055)] ${compact ? "self-start" : ""}`}
     >
       <header className="flex items-start justify-between gap-3 px-5 pb-3 pt-5 sm:px-6">
         <Link
@@ -116,9 +121,12 @@ export function FeedCard({
               {labels.memberSubtitle}
             </span>
             <span className="flex items-center gap-1 text-xs text-ink-faint">
-              <time dateTime={item.createdAt}>
-                {item.createdAt.slice(0, 10)}
-              </time>
+              <RelativeTime
+                dateTime={item.createdAt}
+                locale={labels.locale}
+                initialNow={renderedAt}
+                justNowLabel={labels.justNow}
+              />
               <span aria-hidden="true">·</span>
               <GlobeIcon className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.8]" />
               <span className="sr-only">{labels.publicPost}</span>
@@ -199,6 +207,7 @@ export function FeedCard({
         authorUid={item.authorUid}
         avatarPath={item.avatarPath}
         createdAt={item.createdAt}
+        renderedAt={renderedAt}
         engagement={{
           authorId: item.authorId,
           viewerId,
@@ -223,6 +232,8 @@ export function FeedCard({
           more: labels.more,
           less: labels.less,
           publicPost: labels.publicPost,
+          locale: labels.locale,
+          justNow: labels.justNow,
           like: labels.like,
           liked: labels.liked,
           comment: labels.comment,
@@ -244,36 +255,7 @@ export function FeedCard({
         }}
       />
 
-      <div className="flex items-center justify-between gap-3 border-b border-line/70 px-5 py-2.5 text-xs text-ink-soft sm:px-6">
-        <div className="flex items-center gap-1.5">
-          {item.likeCount > 0 && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white ring-2 ring-white">
-              <LikeIcon className="h-3 w-3 fill-none stroke-current stroke-[2.3]" />
-            </span>
-          )}
-          {item.repostCount > 0 && (
-            <span className="-ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#2f9e67] text-white ring-2 ring-white">
-              <RepostIcon className="h-3 w-3 fill-none stroke-current stroke-[2.3]" />
-            </span>
-          )}
-          {(item.likeCount > 0 || item.repostCount > 0) && (
-            <span>{item.likeCount + item.repostCount}</span>
-          )}
-        </div>
-        {item.commentCount > 0 ? (
-          <Link
-            href={`${sharePath}#comments`}
-            className="hover:text-ink hover:underline"
-          >
-            {item.commentCount}{" "}
-            {item.commentCount === 1 ? labels.comment : labels.comments}
-          </Link>
-        ) : (
-          <span aria-hidden="true" />
-        )}
-      </div>
-
-      <footer className="grid grid-cols-4 px-2 py-1.5 text-ink-soft sm:px-3">
+      <footer className="grid grid-cols-4 border-t border-line/70 px-2 py-1.5 text-ink-soft sm:px-3">
         {viewerId ? (
           <form action={toggleFeedLike}>
             <input type="hidden" name="postId" value={item.id} />
@@ -283,7 +265,7 @@ export function FeedCard({
               title={item.likedByViewer ? labels.liked : labels.like}
               className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold transition hover:bg-surface-sub ${item.likedByViewer ? "text-primary" : "text-ink-soft"}`}
             >
-              <LikeIcon />
+              <LikeIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
               {item.likeCount > 0 && <span>{item.likeCount}</span>}
               <span className="sr-only">
                 {item.likedByViewer ? labels.liked : labels.like}
@@ -296,7 +278,7 @@ export function FeedCard({
             title={labels.like}
             className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub"
           >
-            <LikeIcon />
+            <LikeIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
             {item.likeCount > 0 && <span>{item.likeCount}</span>}
             <span className="sr-only">{labels.like}</span>
           </Link>
@@ -306,7 +288,7 @@ export function FeedCard({
           title={labels.comment}
           className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub"
         >
-          <CommentIcon />
+          <CommentIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
           {item.commentCount > 0 && <span>{item.commentCount}</span>}
           <span className="sr-only">{labels.comment}</span>
         </Link>
@@ -319,7 +301,7 @@ export function FeedCard({
               title={item.repostedByViewer ? labels.reposted : labels.repost}
               className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub ${item.repostedByViewer ? "text-[#238558]" : "text-ink-soft"}`}
             >
-              <RepostIcon />
+              <RepostIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
               {item.repostCount > 0 && <span>{item.repostCount}</span>}
               <span className="sr-only">
                 {item.repostedByViewer ? labels.reposted : labels.repost}
@@ -332,7 +314,7 @@ export function FeedCard({
             title={labels.repost}
             className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub"
           >
-            <RepostIcon />
+            <RepostIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
             {item.repostCount > 0 && <span>{item.repostCount}</span>}
             <span className="sr-only">{labels.repost}</span>
           </Link>
@@ -346,6 +328,7 @@ export function FeedCard({
           viewerId={viewerId}
           returnTo={returnTo}
           count={item.shareCount}
+          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
         />
       </footer>
     </article>

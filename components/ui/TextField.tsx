@@ -3,9 +3,9 @@
 import { useState, type InputHTMLAttributes } from "react";
 
 const baseCls =
-  "w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary";
+  "w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus-visible:ring-4 focus-visible:ring-primary/10";
 const iconBtnCls =
-  "flex h-7 w-7 items-center justify-center rounded-full text-ink-faint hover:text-ink-soft";
+  "flex h-7 w-7 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sub hover:text-ink-soft focus-visible:ring-4 focus-visible:ring-primary/10";
 
 function ClearIcon() {
   return (
@@ -72,6 +72,7 @@ export function ClearableInput({ clearLabel, defaultValue, className, onChange, 
 type PasswordProps = FieldProps & {
   showLabel: string;
   hideLabel: string;
+  onClear?: () => void;
 };
 
 // Password input with clear + show/hide toggle.
@@ -79,6 +80,7 @@ export function PasswordInput({
   clearLabel,
   showLabel,
   hideLabel,
+  onClear,
   className,
   onChange,
   ...props
@@ -100,7 +102,15 @@ export function PasswordInput({
       />
       <span className="absolute inset-y-0 right-2 flex items-center gap-0.5">
         {value.length > 0 && (
-          <button type="button" aria-label={clearLabel} onClick={() => setValue("")} className={iconBtnCls}>
+          <button
+            type="button"
+            aria-label={clearLabel}
+            onClick={() => {
+              setValue("");
+              onClear?.();
+            }}
+            className={iconBtnCls}
+          >
             <ClearIcon />
           </button>
         )}

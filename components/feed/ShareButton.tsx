@@ -65,7 +65,7 @@ export function ShareButton({
         "inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
       }
     >
-      <SendIcon />
+      <SendIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
       {count > 0 && <span>{count}</span>}
       <span className={showLabel ? "hidden sm:inline" : "sr-only"}>
         {copied ? copiedLabel : label}

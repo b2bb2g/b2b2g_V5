@@ -19,6 +19,7 @@ export function FeedPostContent({
   authorUid,
   avatarPath,
   createdAt,
+  renderedAt,
   engagement,
   compact = false,
   detail = false,
@@ -30,6 +31,7 @@ export function FeedPostContent({
   authorUid: string | number;
   avatarPath: string | null;
   createdAt: string;
+  renderedAt: string;
   engagement: FeedFocusEngagementData & { followingAuthor: boolean };
   compact?: boolean;
   detail?: boolean;
@@ -69,6 +71,7 @@ export function FeedPostContent({
         authorUid={authorUid}
         avatarPath={avatarPath}
         createdAt={createdAt}
+        renderedAt={renderedAt}
         labels={labels}
       />
       {!detail && focusOpen && (
@@ -81,6 +84,7 @@ export function FeedPostContent({
           authorUid={authorUid}
           avatarPath={avatarPath}
           createdAt={createdAt}
+          renderedAt={renderedAt}
           engagement={engagement}
           labels={labels}
         />

@@ -37,13 +37,14 @@ export default async function FeedDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [{ t }, session, item, comments] = await Promise.all([
+  const [{ t, locale }, session, item, comments] = await Promise.all([
     getT(),
     getSession(),
     getFeedPost(id),
     listFeedComments(id),
   ]);
   if (!item) notFound();
+  const renderedAt = new Date().toISOString();
   return (
     <div className="mx-auto w-full max-w-3xl space-y-4">
       <FeedCard
@@ -51,13 +52,15 @@ export default async function FeedDetailPage({
         viewerId={session.userId}
         returnTo={`/feed/${id}`}
         detail
-        labels={getFeedCardLabels(t)}
+        labels={getFeedCardLabels(t, locale)}
       />
       <FeedComments
         postId={id}
         comments={comments}
         viewerId={session.userId}
         returnTo={`/feed/${id}`}
+        locale={locale}
+        renderedAt={renderedAt}
         labels={{
           title: t.feed.comments,
           placeholder: t.feed.commentPlaceholder,
@@ -65,6 +68,7 @@ export default async function FeedDetailPage({
           signIn: t.feed.signInToComment,
           empty: t.feed.noComments,
           delete: t.feed.deleteComment,
+          justNow: t.feed.justNow,
         }}
       />
     </div>

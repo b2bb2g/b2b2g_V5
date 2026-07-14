@@ -5,10 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { signUp } from "@/app/actions/auth";
 import { CaptchaSubmit } from "@/components/auth/CaptchaField";
 import { PasswordInput } from "@/components/ui/TextField";
-import {
-  passwordPolicyChecks,
-  SUPABASE_PASSWORD_SYMBOLS,
-} from "@/lib/password-policy";
+import { passwordPolicyChecks } from "@/lib/password-policy";
 
 type Labels = {
   email: string;
@@ -32,7 +29,14 @@ type Labels = {
   show: string;
   hide: string;
   submit: string;
-  terms: string;
+  termsPrefix: string;
+  termsJoin: string;
+  termsSuffix: string;
+  termsLabel: string;
+  privacyLabel: string;
+  finishEmail: string;
+  finishPassword: string;
+  ready: string;
   signIn: string;
   already: string;
   resetPassword: string;
@@ -47,6 +51,14 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
   const checks = useMemo(() => passwordPolicyChecks(password, email), [password, email]);
   const passwordValid = Object.values(checks).every(Boolean);
   const emailFormatValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailHasError = [
+    "duplicate",
+    "invalid",
+    "invite_required",
+    "email_mismatch",
+    "rate_limited",
+    "unavailable",
+  ].includes(emailState);
 
   useEffect(() => {
     if (!email || !emailFormatValid) return;
@@ -83,6 +95,12 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
     unavailable: labels.rate,
   };
   const ready = emailState === "available" && passwordValid;
+  const readinessMessage =
+    emailState !== "available"
+      ? labels.finishEmail
+      : passwordValid
+        ? labels.ready
+        : labels.finishPassword;
 
   return (
     <form action={signUp} className="mt-8 space-y-4">
@@ -107,13 +125,22 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
             );
           }}
           aria-describedby="email-availability"
-          className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+          aria-invalid={emailHasError}
+          className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-colors focus-visible:ring-4 ${
+            emailState === "available"
+              ? "border-positive focus:border-positive focus-visible:ring-positive/10"
+              : emailHasError
+                ? "border-negative focus:border-negative focus-visible:ring-negative/10"
+                : "border-line focus:border-primary focus-visible:ring-primary/10"
+          }`}
         />
         <p
           id="email-availability"
           aria-live="polite"
           className={`mt-1.5 min-h-4 text-xs font-semibold ${emailState === "available" ? "text-positive" : emailState === "idle" || emailState === "checking" ? "text-ink-faint" : "text-negative"}`}
         >
+          {emailState === "available" && <span aria-hidden="true">✓ </span>}
+          {emailHasError && <span aria-hidden="true">! </span>}
           {messages[emailState] ?? ""}
           {emailState === "duplicate" && (
             <> <Link href="/reset" className="underline">{labels.resetPassword}</Link></>
@@ -130,13 +157,16 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
             minLength={10}
             autoComplete="new-password"
             onChange={(event) => setPassword(event.target.value)}
+            onClear={() => setPassword("")}
+            aria-describedby="password-rules signup-readiness"
+            aria-invalid={password.length > 0 && !passwordValid}
             clearLabel={labels.clear}
             showLabel={labels.show}
             hideLabel={labels.hide}
           />
         </div>
       </label>
-      <fieldset className="rounded-xl bg-surface-sub px-4 py-3">
+      <fieldset id="password-rules" className="rounded-xl bg-surface-sub px-4 py-3">
         <legend className="px-1 text-xs font-extrabold text-ink-soft">{labels.rulesTitle}</legend>
         <ul className="grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
           {([
@@ -148,14 +178,29 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
             </li>
           ))}
         </ul>
-        <p className="mt-2 break-words text-[11px] leading-5 text-ink-faint">
-          {labels.symbolHint}: {" "}
-          <code className="font-mono text-ink-soft">{SUPABASE_PASSWORD_SYMBOLS}</code>
-        </p>
+        <p className="mt-2 text-[11px] leading-5 text-ink-faint">{labels.symbolHint}</p>
       </fieldset>
 
-      <CaptchaSubmit label={labels.submit} disabled={!ready} />
-      <p className="text-center text-xs leading-relaxed text-ink-faint">{labels.terms}</p>
+      <p
+        id="signup-readiness"
+        aria-live="polite"
+        className={`flex items-center gap-1.5 text-xs font-semibold ${ready ? "text-positive" : "text-ink-faint"}`}
+      >
+        <span aria-hidden="true">{ready ? "✓" : "○"}</span>
+        {readinessMessage}
+      </p>
+      <CaptchaSubmit label={labels.submit} disabled={!ready} describedBy="signup-readiness" />
+      <p className="text-center text-xs leading-relaxed text-ink-faint">
+        {labels.termsPrefix}{" "}
+        <Link href="/legal/terms" className="font-semibold text-ink-soft underline decoration-line underline-offset-2 hover:text-primary">
+          {labels.termsLabel}
+        </Link>{" "}
+        {labels.termsJoin}{" "}
+        <Link href="/legal/privacy" className="font-semibold text-ink-soft underline decoration-line underline-offset-2 hover:text-primary">
+          {labels.privacyLabel}
+        </Link>
+        {labels.termsSuffix}
+      </p>
       <p className="border-t border-line pt-6 text-center text-sm text-ink-soft">
         {labels.already} <Link href="/login" className="font-semibold text-primary">{labels.signIn}</Link>
       </p>

@@ -1,8 +1,10 @@
 import type { Dictionary } from "@/lib/i18n";
 import type { FeedLabels } from "@/components/feed/FeedCard";
+import type { Locale } from "@/lib/constants";
 
-export function getFeedCardLabels(t: Dictionary): FeedLabels {
+export function getFeedCardLabels(t: Dictionary, locale: Locale): FeedLabels {
   return {
+    locale,
     like: t.feed.like,
     liked: t.feed.liked,
     comment: t.feed.comment,
@@ -15,6 +17,7 @@ export function getFeedCardLabels(t: Dictionary): FeedLabels {
     following: t.feed.following,
     memberSubtitle: t.feed.memberSubtitle,
     publicPost: t.feed.publicPost,
+    justNow: t.feed.justNow,
     more: t.feed.more,
     less: t.feed.less,
     edit: t.common.edit,

@@ -35,7 +35,7 @@ export default async function FeedPage(props: {
       ? profile.bio_ko || profile.bio || profile.bio_en || ""
       : profile.bio_en || profile.bio || profile.bio_ko || ""
     : "";
-  const labels = getFeedCardLabels(t);
+  const labels = getFeedCardLabels(t, locale);
 
   return (
     <div className="wide grid items-start justify-center gap-6 lg:grid-cols-[minmax(0,46rem)_20rem]">

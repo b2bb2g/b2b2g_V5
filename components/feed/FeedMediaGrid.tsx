@@ -7,8 +7,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { postMediaUrl } from "@/lib/media";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { FeedMediaCarousel } from "@/components/feed/FeedMediaCarousel";
+import { RelativeTime } from "@/components/feed/RelativeTime";
+import { GlobeIcon } from "@/components/feed/FeedIcons";
+import type { Locale } from "@/lib/constants";
 
 export type FeedMediaLabels = {
+  locale: Locale;
+  justNow: string;
   openImage: string;
   closeImage: string;
   previousImage: string;
@@ -25,6 +30,7 @@ export function FeedMediaGrid({
   authorUid,
   avatarPath,
   createdAt,
+  renderedAt,
   labels,
 }: {
   paths: string[];
@@ -32,6 +38,7 @@ export function FeedMediaGrid({
   authorUid: string | number;
   avatarPath: string | null;
   createdAt: string;
+  renderedAt: string;
   labels: FeedMediaLabels;
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -290,10 +297,16 @@ export function FeedMediaGrid({
                         <strong className="block truncate text-sm font-extrabold">
                           UID:{authorUid}
                         </strong>
-                        <span className="flex items-center gap-1 text-xs text-ink-faint">
-                          <time dateTime={createdAt}>{createdAt.slice(0, 10)}</time>
+                        <span className="flex items-center gap-1 whitespace-nowrap text-xs text-ink-faint">
+                          <RelativeTime
+                            dateTime={createdAt}
+                            locale={labels.locale}
+                            initialNow={renderedAt}
+                            justNowLabel={labels.justNow}
+                          />
                           <span aria-hidden="true">·</span>
-                          <span>{labels.publicPost}</span>
+                          <GlobeIcon className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.8]" />
+                          <span className="sr-only">{labels.publicPost}</span>
                         </span>
                       </span>
                     </Link>

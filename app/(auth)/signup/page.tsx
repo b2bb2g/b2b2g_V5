@@ -60,7 +60,8 @@ export default async function SignUpPage(props: {
 
       {invite && (
         <p className="mt-3 rounded-lg bg-primary-soft px-3 py-2 text-xs font-semibold text-primary-strong">
-          {t.auth.invitationRequired}
+          <span aria-hidden="true">✓ </span>
+          {t.auth.invitationConfirmed}
         </p>
       )}
       {params.error && (
@@ -103,7 +104,14 @@ export default async function SignUpPage(props: {
           show: t.auth.showPassword,
           hide: t.auth.hidePassword,
           submit: t.common.signUp,
-          terms: t.auth.termsHint,
+          termsPrefix: t.auth.termsPrefix,
+          termsJoin: t.auth.termsJoin,
+          termsSuffix: t.auth.termsSuffix,
+          termsLabel: t.footer.terms,
+          privacyLabel: t.footer.privacy,
+          finishEmail: t.auth.signupFinishEmail,
+          finishPassword: t.auth.signupFinishPassword,
+          ready: t.auth.signupReady,
           signIn: t.common.signIn,
           already: t.auth.alreadyHaveAccount,
           resetPassword: t.auth.forgotPassword,

@@ -7,6 +7,7 @@ const publicRoutes = [
   "/feed",
   "/u/100027",
   "/login",
+  "/signup",
   "/reset",
   "/reset?sent=1",
 ];

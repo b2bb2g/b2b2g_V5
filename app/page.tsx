@@ -665,7 +665,7 @@ export default async function Home() {
                   viewerId={session.userId}
                   returnTo="/"
                   compact
-                  labels={getFeedCardLabels(t)}
+                  labels={getFeedCardLabels(t, locale)}
                 />
               ))}
             </div>

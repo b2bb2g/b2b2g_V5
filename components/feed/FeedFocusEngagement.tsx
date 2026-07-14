@@ -19,8 +19,13 @@ import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { PendingButton } from "@/components/ui/PendingButton";
 import type { FeedComment } from "@/lib/data/feed";
 import { postMediaUrl } from "@/lib/media";
+import { RelativeTime } from "@/components/feed/RelativeTime";
+import { CommentSubmitButton } from "@/components/feed/CommentSubmitButton";
+import type { Locale } from "@/lib/constants";
 
 export type FeedFocusLabels = {
+  locale: Locale;
+  justNow: string;
   like: string;
   liked: string;
   comment: string;
@@ -56,11 +61,13 @@ export function FeedFocusEngagement({
   body,
   data,
   labels,
+  renderedAt,
 }: {
   postId: string;
   body: string;
   data: FeedFocusEngagementData;
   labels: FeedFocusLabels;
+  renderedAt: string;
 }) {
   const [comments, setComments] = useState<FeedComment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,38 +126,11 @@ export function FeedFocusEngagement({
     await loadComments();
   }
 
-  const displayedCommentCount = Math.max(data.commentCount, comments.length);
-  const reactionCount = data.likeCount + data.repostCount;
+  const displayedCommentCount = loading ? data.commentCount : comments.length;
 
   return (
     <section className="mt-6 border-t border-line/80" aria-label={labels.comments}>
-      <div className="flex min-h-11 items-center justify-between gap-3 px-5 py-2 text-xs text-ink-soft sm:px-6">
-        <div className="flex items-center gap-1.5">
-          {data.likeCount > 0 && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white ring-2 ring-white">
-              <LikeIcon className="h-3 w-3 fill-none stroke-current stroke-[2.3]" />
-            </span>
-          )}
-          {data.repostCount > 0 && (
-            <span className="-ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#2f9e67] text-white ring-2 ring-white">
-              <RepostIcon className="h-3 w-3 fill-none stroke-current stroke-[2.3]" />
-            </span>
-          )}
-          {reactionCount > 0 && <span>{reactionCount}</span>}
-        </div>
-        {displayedCommentCount > 0 && (
-          <button
-            type="button"
-            onClick={() => composerRef.current?.focus()}
-            className="rounded-md hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            {displayedCommentCount}{" "}
-            {displayedCommentCount === 1 ? labels.comment : labels.comments}
-          </button>
-        )}
-      </div>
-
-      <div className="grid grid-cols-4 border-y border-line/80 px-2 py-1 text-ink-soft">
+      <div className="grid grid-cols-4 border-b border-line/80 px-2 py-1 text-ink-soft">
         {data.viewerId ? (
           <form action={toggleFeedLike}>
             <input type="hidden" name="postId" value={postId} />
@@ -158,13 +138,11 @@ export function FeedFocusEngagement({
             <PendingButton
               aria-pressed={data.likedByViewer}
               title={data.likedByViewer ? labels.liked : labels.like}
-              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-1 text-xs font-bold transition hover:bg-surface-sub ${data.likedByViewer ? "text-primary" : "text-ink-soft"}`}
+              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-1 text-sm font-bold transition hover:bg-surface-sub ${data.likedByViewer ? "text-primary" : "text-ink-soft"}`}
             >
-              <LikeIcon className="h-5 w-5 fill-none stroke-current stroke-[1.9]" />
-              <span className="hidden sm:inline">
-                {data.likedByViewer ? labels.liked : labels.like}
-              </span>
-              <span className="sr-only sm:hidden">
+              <LikeIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
+              {data.likeCount > 0 && <span>{data.likeCount}</span>}
+              <span className="sr-only">
                 {data.likedByViewer ? labels.liked : labels.like}
               </span>
             </PendingButton>
@@ -172,11 +150,12 @@ export function FeedFocusEngagement({
         ) : (
           <Link
             href={`/login?next=${encodeURIComponent(sharePath)}`}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1 text-xs font-bold hover:bg-surface-sub"
+            title={labels.like}
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1 text-sm font-bold hover:bg-surface-sub"
           >
-            <LikeIcon className="h-5 w-5 fill-none stroke-current stroke-[1.9]" />
-            <span className="hidden sm:inline">{labels.like}</span>
-            <span className="sr-only sm:hidden">{labels.like}</span>
+            <LikeIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
+            {data.likeCount > 0 && <span>{data.likeCount}</span>}
+            <span className="sr-only">{labels.like}</span>
           </Link>
         )}
 
@@ -184,20 +163,22 @@ export function FeedFocusEngagement({
           <button
             type="button"
             onClick={() => composerRef.current?.focus()}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1 text-xs font-bold hover:bg-surface-sub"
+            title={labels.comment}
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1 text-sm font-bold hover:bg-surface-sub"
           >
-            <CommentIcon className="h-5 w-5 fill-none stroke-current stroke-[1.9]" />
-            <span className="hidden sm:inline">{labels.comment}</span>
-            <span className="sr-only sm:hidden">{labels.comment}</span>
+            <CommentIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
+            {displayedCommentCount > 0 && <span>{displayedCommentCount}</span>}
+            <span className="sr-only">{labels.comment}</span>
           </button>
         ) : (
           <Link
             href={`/login?next=${encodeURIComponent(sharePath)}`}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1 text-xs font-bold hover:bg-surface-sub"
+            title={labels.comment}
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1 text-sm font-bold hover:bg-surface-sub"
           >
-            <CommentIcon className="h-5 w-5 fill-none stroke-current stroke-[1.9]" />
-            <span className="hidden sm:inline">{labels.comment}</span>
-            <span className="sr-only sm:hidden">{labels.comment}</span>
+            <CommentIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
+            {displayedCommentCount > 0 && <span>{displayedCommentCount}</span>}
+            <span className="sr-only">{labels.comment}</span>
           </Link>
         )}
 
@@ -208,13 +189,11 @@ export function FeedFocusEngagement({
             <PendingButton
               aria-pressed={data.repostedByViewer}
               title={data.repostedByViewer ? labels.reposted : labels.repost}
-              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-1 text-xs font-bold transition hover:bg-surface-sub ${data.repostedByViewer ? "text-[#238558]" : "text-ink-soft"}`}
+              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-1 text-sm font-bold transition hover:bg-surface-sub ${data.repostedByViewer ? "text-[#238558]" : "text-ink-soft"}`}
             >
-              <RepostIcon className="h-5 w-5 fill-none stroke-current stroke-[1.9]" />
-              <span className="hidden sm:inline">
-                {data.repostedByViewer ? labels.reposted : labels.repost}
-              </span>
-              <span className="sr-only sm:hidden">
+              <RepostIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
+              {data.repostCount > 0 && <span>{data.repostCount}</span>}
+              <span className="sr-only">
                 {data.repostedByViewer ? labels.reposted : labels.repost}
               </span>
             </PendingButton>
@@ -222,11 +201,12 @@ export function FeedFocusEngagement({
         ) : (
           <Link
             href={`/login?next=${encodeURIComponent(sharePath)}`}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1 text-xs font-bold hover:bg-surface-sub"
+            title={labels.repost}
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1 text-sm font-bold hover:bg-surface-sub"
           >
-            <RepostIcon className="h-5 w-5 fill-none stroke-current stroke-[1.9]" />
-            <span className="hidden sm:inline">{labels.repost}</span>
-            <span className="sr-only sm:hidden">{labels.repost}</span>
+            <RepostIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
+            {data.repostCount > 0 && <span>{data.repostCount}</span>}
+            <span className="sr-only">{labels.repost}</span>
           </Link>
         )}
 
@@ -239,8 +219,7 @@ export function FeedFocusEngagement({
           viewerId={data.viewerId}
           returnTo={data.returnTo}
           count={data.shareCount}
-          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-1 text-xs font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
-          showLabel
+          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-1 text-sm font-bold text-ink-soft transition hover:bg-surface-sub hover:text-ink"
         />
       </div>
 
@@ -270,9 +249,7 @@ export function FeedFocusEngagement({
               placeholder={labels.commentPlaceholder}
               className="min-h-11 flex-1 resize-y rounded-2xl border border-line bg-surface-sub px-4 py-2.5 text-sm leading-6 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-soft"
             />
-            <PendingButton className="btn-primary min-h-11 shrink-0 rounded-xl px-4 text-sm">
-              {labels.writeComment}
-            </PendingButton>
+            <CommentSubmitButton label={labels.writeComment} />
           </form>
         ) : (
           <Link
@@ -329,12 +306,13 @@ export function FeedFocusEngagement({
                       >
                         UID:{comment.authorUid}
                       </Link>
-                      <time
+                      <RelativeTime
                         dateTime={comment.createdAt}
+                        locale={labels.locale}
+                        initialNow={renderedAt}
+                        justNowLabel={labels.justNow}
                         className="text-[11px] text-ink-faint"
-                      >
-                        {comment.createdAt.slice(0, 10)}
-                      </time>
+                      />
                     </div>
                     {data.viewerId === comment.authorId && (
                       <form action={removeComment}>

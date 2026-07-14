@@ -235,7 +235,7 @@ export default async function PublicProfilePage(props: {
                   viewerId={session.userId}
                   returnTo={`/u/${profile.uid}`}
                   compact
-                  labels={getFeedCardLabels(t)}
+                  labels={getFeedCardLabels(t, locale)}
                 />
               ))}
             </div>

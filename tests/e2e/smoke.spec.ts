@@ -147,16 +147,16 @@ test("feed text and focused posts keep each surface stable", async ({
   const landingFocus = page.getByRole("dialog", { name: "Full post" });
   await expect(landingFocus).toBeVisible();
   await expect(
-    landingFocus.getByRole("link", { name: "Like", exact: true }),
+    landingFocus.getByTitle("Like"),
   ).toBeVisible();
   await expect(
-    landingFocus.getByRole("link", { name: "Comment", exact: true }),
+    landingFocus.getByTitle("Comment"),
   ).toBeVisible();
   await expect(
-    landingFocus.getByRole("link", { name: "Repost", exact: true }),
+    landingFocus.getByTitle("Repost"),
   ).toBeVisible();
   await expect(
-    landingFocus.getByRole("button", { name: "Share", exact: true }),
+    landingFocus.getByTitle("Share"),
   ).toBeVisible();
   await expect(
     landingFocus.getByRole("heading", { name: /^Comments/ }),

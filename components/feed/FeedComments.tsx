@@ -5,18 +5,25 @@ import { PendingButton } from "@/components/ui/PendingButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { postMediaUrl } from "@/lib/media";
 import type { FeedComment } from "@/lib/data/feed";
+import { RelativeTime } from "@/components/feed/RelativeTime";
+import { CommentSubmitButton } from "@/components/feed/CommentSubmitButton";
+import type { Locale } from "@/lib/constants";
 
 export function FeedComments({
   postId,
   comments,
   viewerId,
   returnTo,
+  locale,
+  renderedAt,
   labels,
 }: {
   postId: string;
   comments: FeedComment[];
   viewerId: string | null;
   returnTo: string;
+  locale: Locale;
+  renderedAt: string;
   labels: {
     title: string;
     placeholder: string;
@@ -24,6 +31,7 @@ export function FeedComments({
     signIn: string;
     empty: string;
     delete: string;
+    justNow: string;
   };
 }) {
   return (
@@ -47,9 +55,7 @@ export function FeedComments({
             placeholder={labels.placeholder}
             className="min-h-12 flex-1 resize-y rounded-2xl border border-line bg-surface-sub px-4 py-3 text-sm leading-6 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-soft"
           />
-          <PendingButton className="btn-primary btn-md shrink-0">
-            {labels.submit}
-          </PendingButton>
+          <CommentSubmitButton label={labels.submit} />
         </form>
       ) : (
         <Link
@@ -86,12 +92,13 @@ export function FeedComments({
                     >
                       UID:{comment.authorUid}
                     </Link>
-                    <time
+                    <RelativeTime
                       dateTime={comment.createdAt}
+                      locale={locale}
+                      initialNow={renderedAt}
+                      justNowLabel={labels.justNow}
                       className="ml-2 text-xs text-ink-faint"
-                    >
-                      {comment.createdAt.slice(0, 10)}
-                    </time>
+                    />
                   </div>
                   {viewerId === comment.authorId && (
                     <form action={deleteFeedComment}>

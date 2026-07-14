@@ -59,7 +59,9 @@ export function ExpandableFeedText({
   const focusAction = variant === "compact" || (!canCollapse && hasMedia);
 
   return (
-    <div className="px-5 pb-4 text-[15px] leading-7 text-ink sm:px-6">
+    <div
+      className={`px-5 pb-4 text-[15px] leading-7 text-ink sm:px-6 ${variant === "compact" ? "min-h-[4.5rem]" : ""}`}
+    >
       <div className="relative">
         <span
           ref={measureRef}
