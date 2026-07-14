@@ -390,6 +390,15 @@ const en = {
     newInquiry: "New inquiry",
     yourMessage: "Your message",
     send: "Send inquiry",
+    aboutListing: "About this listing",
+    contactingCompany: "You're contacting",
+    recipient: "Recipient",
+    viewListing: "View listing",
+    messagePlaceholder:
+      "Introduce your company and what you're looking for — quantities, specifications, target timeline, and any questions.",
+    messageHint:
+      "The more specific your request, the faster you'll get a useful reply.",
+    reviewNote: "Reviewed by our team before it reaches the recipient.",
     sent: "Your inquiry was sent and is waiting for review.",
     writeReply: "Write a reply",
     adminFeedback: "Team note",
