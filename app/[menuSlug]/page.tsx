@@ -20,7 +20,6 @@ import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 import {
   eventStatus,
-  eventDateBlock,
   eventCountdown,
   formatEventRange,
   type EventStatus,
@@ -365,10 +364,11 @@ export default async function BoardPage(props: {
             upcoming: t.board.eventUpcomingLabel,
             ended: t.board.eventEnded,
           };
-          const rowPill: Record<EventStatus, string> = {
-            ongoing: "bg-positive-soft text-positive",
-            upcoming: "bg-primary-soft text-primary-strong",
-            ended: "bg-surface-sub text-ink-faint",
+          // Frosted status pill sits on the card image; colour by state.
+          const cardPill: Record<EventStatus, string> = {
+            ongoing: "text-positive",
+            upcoming: "text-primary-strong",
+            ended: "text-ink-faint",
           };
 
           const withMeta = posts.map((post) => ({
@@ -408,30 +408,30 @@ export default async function BoardPage(props: {
               ? eventCountdown(featured.event_start)
               : null;
 
-          // Complete schedule: live + upcoming (soonest first), then past.
-          const liveUpcoming = withMeta
+          // The featured event owns the hero; the grid shows everything else so
+          // the same poster image never appears twice, side by side.
+          const rest = withMeta.filter((e) => e.post.id !== featured.id);
+          const liveUpcoming = rest
             .filter((e) => e.status !== "ended")
             .sort((a, b) => {
               const r = groupRank(a.status) - groupRank(b.status);
               if (r !== 0) return r;
               return startKey(a.post) < startKey(b.post) ? -1 : 1;
             });
-          const past = withMeta
+          const past = rest
             .filter((e) => e.status === "ended")
             .sort((a, b) => (endKey(a.post) > endKey(b.post) ? -1 : 1));
 
-          const renderRow = ({
-            post,
-            status,
-          }: {
-            post: (typeof posts)[number];
-            status: EventStatus | null;
-          }) => {
-            const block = eventDateBlock(
-              post.event_start,
-              post.event_end,
-              locale,
-            );
+          const renderCard = (
+            {
+              post,
+              status,
+            }: {
+              post: (typeof posts)[number];
+              status: EventStatus | null;
+            },
+            index: number,
+          ) => {
             const range = formatEventRange(
               post.event_start,
               post.event_end,
@@ -441,83 +441,68 @@ export default async function BoardPage(props: {
               status === "upcoming" && post.event_start
                 ? eventCountdown(post.event_start)
                 : null;
-            const rowTitle =
+            const cardTitle =
               locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
+            const thumb = repThumbnail(post);
+            const ended = status === "ended";
             return (
-              <li key={post.id}>
-                <Link
-                  href={`/${menu.slug}/${post.id}`}
-                  className="group flex items-center gap-4 border-b border-line px-4 py-4 transition last:border-b-0 hover:bg-surface-sub sm:gap-5 sm:px-5"
-                >
-                  <span
-                    className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl ${
-                      status === "ended"
-                        ? "bg-surface-sub text-ink-faint"
-                        : "bg-[#101923] text-white"
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {block ? (
-                      <>
-                        <span className="text-[10px] font-bold uppercase tracking-[.08em] opacity-80">
-                          {block.month}
-                        </span>
-                        <span className="text-lg font-extrabold leading-none tabular-nums">
-                          {block.day}
-                        </span>
-                        <span className="mt-0.5 text-[10px] font-semibold opacity-70">
-                          {block.year}
-                        </span>
-                      </>
-                    ) : (
-                      cal()
-                    )}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-center gap-2">
-                      {status && (
-                        <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${rowPill[status]}`}
-                        >
-                          {status === "ongoing" && (
-                            <span className="relative flex h-1.5 w-1.5">
-                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-positive opacity-70" />
-                              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-positive" />
-                            </span>
-                          )}
-                          {statusText[status]}
+              <Link
+                key={post.id}
+                href={`/${menu.slug}/${post.id}`}
+                className="card-hover group flex flex-col overflow-hidden"
+              >
+                <span className="relative block aspect-[16/10] overflow-hidden bg-surface-sub">
+                  {thumb ? (
+                    <SafeImage
+                      src={thumb}
+                      alt={cardTitle}
+                      fill
+                      priority={index < 3}
+                      sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
+                      className={`object-cover transition-transform duration-700 group-hover:scale-105 ${ended ? "opacity-75 grayscale-[.4]" : ""}`}
+                    />
+                  ) : (
+                    <MediaPlaceholder />
+                  )}
+                  {status && (
+                    <span
+                      className={`absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow-sm backdrop-blur ${cardPill[status]}`}
+                    >
+                      {status === "ongoing" && (
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-positive opacity-70" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-positive" />
                         </span>
                       )}
-                      {countdown && (
-                        <span className="rounded-full bg-caution-soft px-2 py-0.5 text-[11px] font-bold tabular-nums text-caution">
-                          {countdown}
-                        </span>
-                      )}
+                      {statusText[status]}
                     </span>
-                    <strong className="mt-1.5 block truncate text-sm font-extrabold group-hover:text-primary sm:text-base">
-                      {rowTitle}
-                    </strong>
-                    <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-faint">
-                      <span className="inline-flex items-center gap-1 font-semibold text-ink-soft">
-                        {pin()}
-                        {post.event_venue ?? t.board.eventVenueTbd}
-                      </span>
-                      {range && (
-                        <>
-                          <span aria-hidden="true">·</span>
-                          <span>{range}</span>
-                        </>
-                      )}
+                  )}
+                  {countdown && (
+                    <span className="absolute right-3 top-3 rounded-full bg-[#101923]/80 px-2 py-1 text-[11px] font-bold tabular-nums text-white backdrop-blur">
+                      {countdown}
+                    </span>
+                  )}
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col p-5">
+                  {range && (
+                    <span
+                      className={`flex items-center gap-1.5 text-xs font-bold ${ended ? "text-ink-faint" : "text-primary"}`}
+                    >
+                      {cal()}
+                      {range}
+                    </span>
+                  )}
+                  <strong className="mt-2 line-clamp-2 text-base font-extrabold leading-snug group-hover:text-primary">
+                    {cardTitle}
+                  </strong>
+                  <span className="mt-2.5 flex items-center gap-1.5 text-sm text-ink-soft">
+                    {pin()}
+                    <span className="truncate">
+                      {post.event_venue ?? t.board.eventVenueTbd}
                     </span>
                   </span>
-                  <span
-                    className="shrink-0 text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-                </Link>
-              </li>
+                </span>
+              </Link>
             );
           };
 
@@ -638,13 +623,13 @@ export default async function BoardPage(props: {
                           {liveUpcoming.length}
                         </span>
                       </div>
-                      <ol className="overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)">
-                        {liveUpcoming.map(renderRow)}
-                      </ol>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {liveUpcoming.map(renderCard)}
+                      </div>
                     </div>
                   )}
                   {past.length > 0 && (
-                    <div className="mt-7">
+                    <div className="mt-8">
                       <div className="mb-3 flex items-center gap-2.5">
                         <h3 className="text-sm font-extrabold tracking-[-.01em] text-ink-soft">
                           {t.board.eventPastGroup}
@@ -653,9 +638,9 @@ export default async function BoardPage(props: {
                           {past.length}
                         </span>
                       </div>
-                      <ol className="overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)">
-                        {past.map(renderRow)}
-                      </ol>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {past.map(renderCard)}
+                      </div>
                     </div>
                   )}
                 </div>
