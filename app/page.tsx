@@ -103,6 +103,77 @@ function Arrow() {
   );
 }
 
+// One recognizable glyph per board so the category grid reads at a glance.
+function BoardIcon({ slug }: { slug: string }) {
+  const p = {
+    className: "h-6 w-6",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+  if (slug.includes("commercial"))
+    return (
+      <svg {...p}>
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <path d="M3 6h18M16 10a4 4 0 0 1-8 0" />
+      </svg>
+    );
+  if (slug.includes("industrial"))
+    return (
+      <svg {...p}>
+        <path d="M2 20h20M4 20V9l5 4V9l5 4V4l6 3v13" />
+      </svg>
+    );
+  if (slug.includes("epc"))
+    return (
+      <svg {...p}>
+        <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" />
+      </svg>
+    );
+  if (slug.includes("request") || slug.includes("rfq") || slug.includes("itb"))
+    return (
+      <svg {...p}>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6M8 13h8M8 17h5" />
+      </svg>
+    );
+  if (slug.includes("event"))
+    return (
+      <svg {...p}>
+        <rect x="3" y="4.5" width="18" height="17" rx="2.5" />
+        <path d="M3 9.5h18M8 3v3M16 3v3" />
+      </svg>
+    );
+  if (slug.includes("service"))
+    return (
+      <svg {...p}>
+        <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.8-.7-.7-2.8z" />
+      </svg>
+    );
+  if (slug.includes("notice"))
+    return (
+      <svg {...p}>
+        <path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM16 9a4 4 0 0 1 0 6" />
+      </svg>
+    );
+  if (slug.includes("faq"))
+    return (
+      <svg {...p}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 1.7-2 2-2 3.5M12 17h.01" />
+      </svg>
+    );
+  return (
+    <svg {...p}>
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <path d="M3 9h18" />
+    </svg>
+  );
+}
+
 export default async function Home() {
   const [{ t, locale }, menus, session, settings] = await Promise.all([
     getT(),
@@ -128,11 +199,17 @@ export default async function Home() {
   const menuSlugById = new Map<string, string>(
     menus.map((menu: Menu) => [menu.id, menu.slug]),
   );
+  const boardTypeLabels = t.admin.boardTypes as Record<string, string>;
   const container = "mx-auto w-full max-w-7xl px-5 sm:px-8";
+  const steps = [
+    { n: "01", title: t.home.step1Title, body: t.home.step1Body },
+    { n: "02", title: t.home.step2Title, body: t.home.step2Body },
+    { n: "03", title: t.home.step3Title, body: t.home.step3Body },
+  ];
   const values = [
-    { title: t.home.value1Title, body: t.home.value1Body, icon: "01" },
-    { title: t.home.value2Title, body: t.home.value2Body, icon: "02" },
-    { title: t.home.value3Title, body: t.home.value3Body, icon: "03" },
+    { title: t.home.value1Title, body: t.home.value1Body },
+    { title: t.home.value2Title, body: t.home.value2Body },
+    { title: t.home.value3Title, body: t.home.value3Body },
   ];
 
   return (
@@ -142,698 +219,648 @@ export default async function Home() {
           root or position:sticky stops working. */}
       <Header variant="overlay" />
       <div className="full-bleed overflow-hidden bg-white">
-      <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: t.common.siteName,
-            url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-            description: t.home.heroSubtitle,
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            name: t.common.siteName,
-            url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-            potentialAction: {
-              "@type": "SearchAction",
-              target: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/search?q={search_term_string}`,
-              "query-input": "required name=search_term_string",
+        <JsonLd
+          data={[
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: t.common.siteName,
+              url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+              description: t.home.heroSubtitle,
             },
-          },
-        ]}
-      />
-
-      <section className="relative min-h-[688px] overflow-hidden bg-[#0d151e] text-white">
-        <Image
-          src="/landing-v2/hero-global-collaboration.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center"
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: t.common.siteName,
+              url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/search?q={search_term_string}`,
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ]}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(9,15,22,.98)_0%,rgba(9,15,22,.84)_35%,rgba(9,15,22,.2)_76%,rgba(9,15,22,.25)_100%)]" />
-        <div
-          className={`${container} relative flex min-h-[688px] items-center pb-20 pt-20`}
-        >
-          <div className="animate-fade-up max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[.22em] text-[#6ea8ff]">
-              {t.home.eyebrow}
-            </p>
-            <h1 className="mt-5 text-[2.9rem] font-extrabold leading-[1.04] tracking-[-.05em] sm:text-6xl lg:text-[4.8rem]">
-              {t.home.heroTitle}
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-white/68 sm:text-lg">
-              {t.home.heroSubtitle}
-            </p>
-            <form
-              action="/search"
-              className="mt-9 flex max-w-xl items-center rounded-2xl border border-white/12 bg-white p-2 shadow-2xl"
-            >
-              <svg
-                className="ml-3 h-5 w-5 shrink-0 text-ink-faint"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-              <input
-                name="q"
-                type="search"
-                aria-label={t.home.searchPlaceholder}
-                placeholder={t.home.searchPlaceholder}
-                className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-ink-faint"
-              />
-              <button className="btn-primary btn-md shrink-0" type="submit">
-                {t.home.searchAction}
-              </button>
-            </form>
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
-              {[t.home.stat1, t.home.stat2, t.home.stat3].map((item) => (
-                <span
-                  key={item}
-                  className="flex items-center gap-2 text-xs font-semibold text-white/58"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#6ea8ff]" />
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-white/40 sm:flex">
-          <span className="h-8 w-px animate-pulse bg-white/30" />
-          Scroll to explore
-        </div>
-      </section>
 
-      <section className="relative z-10 -mt-10">
-        <div className={`${container} grid gap-3 md:grid-cols-2`}>
-          <Link
-            href={`/${firstProductBoard}`}
-            className="group flex items-center gap-4 rounded-2xl border border-line bg-white p-5 shadow-[0_18px_55px_rgba(25,31,40,.11)] transition hover:-translate-y-1 hover:border-primary/35"
-          >
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
-              <svg
-                className="h-6 w-6"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M3 7h18M5 7l1 13h12l1-13M9 11v5M15 11v5M8 7l1-3h6l1 3" />
-              </svg>
-            </span>
-            <span className="min-w-0 flex-1">
-              <strong className="block text-base">{t.home.buyerPath}</strong>
-              <span className="mt-1 block text-sm text-ink-soft">
-                {t.home.buyerPathBody}
-              </span>
-            </span>
-            <span className="text-primary transition-transform group-hover:translate-x-1">
-              <Arrow />
-            </span>
-          </Link>
-          <Link
-            href={session.userId ? "/write/select" : "/signup"}
-            className="group flex items-center gap-4 rounded-2xl border border-line bg-white p-5 shadow-[0_18px_55px_rgba(25,31,40,.11)] transition hover:-translate-y-1 hover:border-primary/35"
-          >
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-navy-soft text-navy">
-              <svg
-                className="h-6 w-6"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M4 20V10l8-6 8 6v10M9 20v-6h6v6" />
-              </svg>
-            </span>
-            <span className="min-w-0 flex-1">
-              <strong className="block text-base">{t.home.supplierPath}</strong>
-              <span className="mt-1 block text-sm text-ink-soft">
-                {t.home.supplierPathBody}
-              </span>
-            </span>
-            <span className="text-primary transition-transform group-hover:translate-x-1">
-              <Arrow />
-            </span>
-          </Link>
-        </div>
-      </section>
-
-      <section className={`${container} py-24`}>
-        <Reveal>
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-              Curated for global growth
-            </p>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
-              {t.home.valueTitle}
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-ink-soft">
-              {t.home.heroSubtitle}
-            </p>
-          </div>
-        </Reveal>
-        <div className="mt-10">
-          <Carousel prevLabel={t.home.prev} nextLabel={t.home.next}>
-            <Link
-              href={`/${firstProductBoard}`}
-              className="group relative h-[28rem] w-[86vw] max-w-3xl shrink-0 snap-start overflow-hidden rounded-[2rem] bg-ink sm:h-[32rem] sm:w-[68vw]"
-            >
-              <Image
-                src="/landing-v2/precision-manufacturing.jpg"
-                alt=""
-                fill
-                sizes="(max-width:640px) 86vw, 68vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/5 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-10">
-                <span className="text-xs font-bold uppercase tracking-[.18em] text-[#82b5ff]">
-                  Precision & industrial
-                </span>
-                <h3 className="mt-3 text-2xl font-extrabold sm:text-4xl">
-                  {t.home.buyerPath}
-                </h3>
-                <p className="mt-2 max-w-lg text-sm leading-6 text-white/65">
-                  {t.home.buyerPathBody}
-                </p>
-                <span className="mt-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
-                  <Arrow />
-                </span>
-              </div>
-            </Link>
-            <Link
-              href={session.userId ? "/write/select" : "/signup"}
-              className="group relative h-[28rem] w-[86vw] max-w-3xl shrink-0 snap-start overflow-hidden rounded-[2rem] bg-ink sm:h-[32rem] sm:w-[68vw]"
-            >
-              <Image
-                src="/landing-v2/consumer-export-brand.jpg"
-                alt=""
-                fill
-                sizes="(max-width:640px) 86vw, 68vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-10">
-                <span className="text-xs font-bold uppercase tracking-[.18em] text-[#82b5ff]">
-                  Consumer & lifestyle
-                </span>
-                <h3 className="mt-3 text-2xl font-extrabold sm:text-4xl">
-                  {t.home.supplierPath}
-                </h3>
-                <p className="mt-2 max-w-lg text-sm leading-6 text-white/65">
-                  {t.home.supplierPathBody}
-                </p>
-                <span className="mt-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
-                  <Arrow />
-                </span>
-              </div>
-            </Link>
-          </Carousel>
-        </div>
-      </section>
-
-      <section className={`${container} py-24`}>
-        <Reveal>
-          <div className="grid gap-6 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                {t.home.proofLabel}
-              </p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-[-.035em] sm:text-4xl">
-                {t.home.boardsTitle}
-              </h2>
-            </div>
-            <p className="max-w-xl text-sm leading-7 text-ink-soft lg:justify-self-end">
-              {t.home.step1Body}
-            </p>
-          </div>
-        </Reveal>
-        <nav
-          className="mt-10 grid auto-rows-[9rem] grid-cols-2 gap-3 lg:auto-rows-[10rem] lg:grid-cols-4"
-          aria-label={t.home.boardsTitle}
-        >
-          {menus.slice(0, 6).map((menu, index) => (
-            <Reveal
-              key={menu.id}
-              delay={index * 45}
-              className={
-                index === 0
-                  ? "lg:col-span-2 lg:row-span-2"
-                  : index === 1
-                    ? "lg:col-span-2"
-                    : ""
-              }
-            >
-              <Link
-                href={`/${menu.slug}`}
-                className={`group relative flex h-full overflow-hidden rounded-[1.5rem] p-5 transition duration-300 hover:-translate-y-1 hover:shadow-(--shadow-float) ${index === 0 ? "bg-[#111a24] text-white" : index === 1 ? "bg-primary text-white" : "border border-line bg-surface-sub/70"}`}
-              >
-                <span
-                  className={`absolute -right-8 -top-10 h-32 w-32 rounded-full border-[24px] transition-transform duration-500 group-hover:scale-125 ${index < 2 ? "border-white/8" : "border-primary/5"}`}
-                />
-                <span className="relative flex w-full flex-col justify-between">
-                  <span
-                    className={`text-xs font-extrabold ${index < 2 ? "text-white/55" : "text-primary"}`}
-                  >
-                    0{index + 1}
-                  </span>
-                  <span className="flex items-end justify-between gap-3">
-                    <strong
-                      className={`${index === 0 ? "max-w-xs text-2xl sm:text-3xl" : "text-sm"} leading-tight`}
-                    >
-                      {menuTitle(menu, locale)}
-                    </strong>
-                    <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-transform group-hover:translate-x-1 ${index < 2 ? "bg-white/12 text-white" : "bg-white text-primary shadow-sm"}`}
-                    >
-                      <Arrow />
-                    </span>
-                  </span>
-                </span>
-              </Link>
-            </Reveal>
-          ))}
-        </nav>
-      </section>
-
-      {products.length > 0 && (
-        <section className="bg-[#f6f8fa]">
-          <div className={`${container} py-24`}>
-            <Reveal>
-              <div className="flex items-end justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                    Marketplace
-                  </p>
-                  <h2 className="mt-3 text-3xl font-extrabold tracking-tight">
-                    {t.home.newProducts}
-                  </h2>
-                </div>
-                <Link
-                  href={`/${firstProductBoard}`}
-                  className="flex items-center gap-2 text-sm font-bold text-primary"
-                >
-                  {t.dashboard.viewAll}
-                  <Arrow />
-                </Link>
-              </div>
-            </Reveal>
-            <div className="mt-10">
-              <Carousel prevLabel={t.home.prev} nextLabel={t.home.next}>
-                {products.map((post, index) => (
-                  <div
-                    key={post.id}
-                    className="w-[72vw] max-w-72 shrink-0 snap-start sm:w-64 lg:w-72"
-                  >
-                    <ProductCard
-                      post={post}
-                      href={`/${menuSlugById.get(post.menu_id) ?? firstProductBoard}/${post.id}`}
-                      locale={locale}
-                      priority={index < 3}
-                    />
-                  </div>
-                ))}
-              </Carousel>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {(featured.length > 0 || events.length > 0) && (
-        <section className={`${container} py-24`}>
-          <div className="grid gap-12 lg:grid-cols-2">
-            {featured.length > 0 && (
-              <div>
-                <Reveal>
-                  <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                    Company showcase
-                  </p>
-                  <h2 className="mt-3 text-3xl font-extrabold tracking-tight">
-                    {t.home.featured}
-                  </h2>
-                </Reveal>
-                <div className="mt-8 space-y-4">
-                  {featured.slice(0, 3).map((company, i) => {
-                    const name =
-                      company.profiles?.company_name ??
-                      company.profiles?.display_name ??
-                      company.slug;
-                    const intro =
-                      locale === "ko" && company.intro_ko
-                        ? company.intro_ko
-                        : company.intro_en;
-                    return (
-                      <Reveal key={company.slug} delay={i * 60}>
-                        <Link
-                          href={`/c/${company.slug}`}
-                          className="group flex gap-4 rounded-2xl border border-line p-3 transition hover:border-primary/40 hover:shadow-(--shadow-card)"
-                        >
-                          <div className="relative h-24 w-28 shrink-0 overflow-hidden rounded-xl bg-surface-sub">
-                            {company.cover_image_path && (
-                              <Image
-                                src={postMediaUrl(company.cover_image_path)}
-                                alt={name}
-                                fill
-                                sizes="112px"
-                                className="object-cover transition-transform group-hover:scale-105"
-                              />
-                            )}
-                          </div>
-                          <div className="min-w-0 py-2">
-                            <p className="truncate text-base font-extrabold">
-                              {name}
-                            </p>
-                            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                              {intro}
-                            </p>
-                          </div>
-                        </Link>
-                      </Reveal>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {events.length > 0 && eventsMenu && (
-              <div>
-                <Reveal>
-                  <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                    Business calendar
-                  </p>
-                  <h2 className="mt-3 text-3xl font-extrabold tracking-tight">
-                    {t.home.eventsTitle}
-                  </h2>
-                </Reveal>
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  {events.map((post, i) => {
-                    const title =
-                      locale === "ko" && post.title_ko
-                        ? post.title_ko
-                        : post.title_en;
-                    const thumb = repThumbnail(post);
-                    return (
-                      <Reveal key={post.id} delay={i * 70}>
-                        <Link
-                          href={`/${eventsMenu.slug}/${post.id}`}
-                          className="card-hover group block overflow-hidden"
-                        >
-                          <div className="relative aspect-[4/3] bg-surface-sub">
-                            {thumb && (
-                              <Image
-                                src={thumb}
-                                alt={title}
-                                fill
-                                sizes="(max-width:640px) 100vw, 25vw"
-                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                              />
-                            )}
-                          </div>
-                          <div className="p-4">
-                            <p className="line-clamp-2 text-sm font-extrabold">
-                              {title}
-                            </p>
-                            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                              {stripRichText(
-                                locale === "ko" && post.body_teaser_ko
-                                  ? post.body_teaser_ko
-                                  : post.body_teaser_en,
-                              )}
-                            </p>
-                          </div>
-                        </Link>
-                      </Reveal>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {feedItems.length > 0 && (
-        <section className="bg-[#f4f7fb] py-24">
-          <div className={container}>
-            <div className="flex items-end justify-between gap-5">
-              <Reveal>
-                <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                  {t.feed.title}
-                </p>
-                <h2 className="mt-3 text-3xl font-extrabold tracking-tight">
-                  {t.home.feedTitle}
-                </h2>
-                <p className="mt-3 max-w-xl text-sm leading-7 text-ink-soft">
-                  {t.home.feedBody}
-                </p>
-              </Reveal>
-              <Link href="/feed" className="btn-secondary btn-md shrink-0">
-                {t.dashboard.viewAll} →
-              </Link>
-            </div>
-            <div className="mt-8 grid gap-4 lg:grid-cols-3">
-              {feedItems.map((item) => (
-                <FeedCard
-                  key={item.id}
-                  item={item}
-                  viewerId={session.userId}
-                  returnTo="/"
-                  compact
-                  labels={getFeedCardLabels(t, locale)}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {requestsMenu && requests.length > 0 && (
-        <section className="bg-[#111a24] text-white">
+        {/* ── Hero ─────────────────────────────────────────────── */}
+        <section className="relative overflow-hidden bg-[#0b1220] text-white">
+          <Image
+            src="/landing-v2/hero-global-collaboration.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(104deg,rgba(8,13,20,.97)_0%,rgba(8,13,20,.9)_36%,rgba(8,13,20,.45)_72%,rgba(8,13,20,.6)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(49,110,246,.28),transparent_46%)]" />
           <div
-            className={`${container} grid gap-12 py-24 lg:grid-cols-[.7fr_1.3fr]`}
+            className={`${container} relative flex min-h-[42rem] flex-col justify-center pb-24 pt-32 sm:min-h-[46rem] lg:min-h-[48rem]`}
           >
-            <Reveal>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[.18em] text-[#6ea8ff]">
-                  Live opportunities
-                </p>
-                <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                  {t.home.latestRequests}
-                </h2>
-                <p className="mt-4 max-w-sm text-sm leading-7 text-white/55">
-                  {t.home.step2Body}
-                </p>
-                <Link
-                  href={`/${requestsMenu.slug}`}
-                  className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#79adff]"
+            <div className="animate-fade-up max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[.16em] text-white/80 backdrop-blur">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6ea8ff] opacity-70" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#6ea8ff]" />
+                </span>
+                {t.home.eyebrow}
+              </span>
+              <h1 className="mt-6 text-[2.7rem] font-extrabold leading-[1.03] tracking-[-.05em] sm:text-6xl lg:text-[4.6rem]">
+                {t.home.heroTitle}
+              </h1>
+              <p className="mt-6 max-w-xl text-base leading-7 text-white/70 sm:text-lg">
+                {t.home.heroSubtitle}
+              </p>
+              <form
+                action="/search"
+                className="mt-9 flex max-w-xl items-center rounded-2xl border border-white/10 bg-white p-2 shadow-[0_20px_60px_rgba(0,0,0,.35)]"
+              >
+                <svg
+                  className="ml-3 h-5 w-5 shrink-0 text-ink-faint"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
                 >
-                  {t.dashboard.viewAll}
-                  <Arrow />
-                </Link>
-              </div>
-            </Reveal>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {requests.map((post, i) => (
-                <Reveal key={post.id} delay={(i % 2) * 60}>
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+                <input
+                  name="q"
+                  type="search"
+                  aria-label={t.home.searchPlaceholder}
+                  placeholder={t.home.searchPlaceholder}
+                  className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-ink-faint"
+                />
+                <button className="btn-primary btn-md shrink-0" type="submit">
+                  {t.home.searchAction}
+                </button>
+              </form>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {menus.slice(0, 6).map((menu) => (
                   <Link
-                    href={`/${requestsMenu.slug}/${post.id}`}
-                    className="block h-full rounded-2xl border border-white/10 bg-white/6 p-5 transition hover:-translate-y-1 hover:bg-white/10"
+                    key={menu.id}
+                    href={`/${menu.slug}`}
+                    className="rounded-full border border-white/15 bg-white/6 px-3.5 py-1.5 text-xs font-semibold text-white/75 backdrop-blur transition hover:border-white/40 hover:bg-white/12 hover:text-white"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="line-clamp-2 text-sm font-extrabold">
-                        {locale === "ko" && post.title_ko
-                          ? post.title_ko
-                          : post.title_en}
-                      </p>
-                      <span className="shrink-0 rounded-full bg-[#1b64da]/25 px-2.5 py-1 text-[10px] font-bold text-[#86b5ff]">
-                        OPEN
-                      </span>
-                    </div>
-                    <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-white/52">
-                      {stripRichText(
-                        locale === "ko" && post.body_teaser_ko
-                          ? post.body_teaser_ko
-                          : post.body_teaser_en,
-                      )}
-                    </p>
+                    {menuTitle(menu, locale)}
                   </Link>
-                </Reveal>
-              ))}
+                ))}
+              </div>
+              <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3">
+                {[t.home.stat1, t.home.stat2, t.home.stat3].map((item) => (
+                  <span
+                    key={item}
+                    className="flex items-center gap-2 text-xs font-semibold text-white/58"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#6ea8ff]" />
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </section>
-      )}
 
-      <section className="bg-[#f3f6fa]">
-        <div
-          className={`${container} grid gap-14 py-24 lg:grid-cols-[.8fr_1.2fr] lg:items-start`}
-        >
-          <Reveal>
-            <div className="lg:sticky lg:top-28">
-              <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                Trust infrastructure
-              </p>
-              <h2 className="mt-3 max-w-md text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
-                {t.home.valueTitle}
-              </h2>
-              <p className="mt-5 max-w-md text-sm leading-7 text-ink-soft">
-                {t.home.step3Body}
-              </p>
+        {/* ── Intent paths (overlap the hero) ──────────────────── */}
+        <section className="relative z-10 -mt-12">
+          <div className={`${container} grid gap-4 md:grid-cols-2`}>
+            {[
+              {
+                href: `/${firstProductBoard}`,
+                title: t.home.buyerPath,
+                body: t.home.buyerPathBody,
+                tone: "bg-primary-soft text-primary",
+                icon: (
+                  <path d="M3 7h18M5 7l1 13h12l1-13M9 11v5M15 11v5M8 7l1-3h6l1 3" />
+                ),
+              },
+              {
+                href: session.userId ? "/write/select" : "/signup",
+                title: t.home.supplierPath,
+                body: t.home.supplierPathBody,
+                tone: "bg-navy-soft text-navy",
+                icon: <path d="M4 20V10l8-6 8 6v10M9 20v-6h6v6" />,
+              },
+            ].map((path) => (
               <Link
-                href="/membership"
-                className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-primary"
+                key={path.title}
+                href={path.href}
+                className="group flex items-center gap-4 rounded-[1.4rem] border border-line bg-white p-5 shadow-[0_18px_55px_rgba(25,31,40,.11)] transition hover:-translate-y-1 hover:border-primary/35 sm:p-6"
               >
-                {t.home.promoCta}
+                <span
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${path.tone}`}
+                >
+                  <svg
+                    className="h-6 w-6"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    {path.icon}
+                  </svg>
+                </span>
+                <span className="min-w-0 flex-1">
+                  <strong className="block text-base group-hover:text-primary">
+                    {path.title}
+                  </strong>
+                  <span className="mt-1 block text-sm text-ink-soft">
+                    {path.body}
+                  </span>
+                </span>
+                <span className="text-primary transition-transform group-hover:translate-x-1">
+                  <Arrow />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Categories ───────────────────────────────────────── */}
+        <section className={`${container} py-20 sm:py-24`}>
+          <Reveal>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-xl">
+                <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                  {t.home.eyebrowBrowse}
+                </p>
+                <h2 className="mt-3 text-3xl font-extrabold tracking-[-.035em] sm:text-4xl">
+                  {t.home.boardsTitle}
+                </h2>
+              </div>
+              <Link
+                href={`/${firstProductBoard}`}
+                className="flex items-center gap-2 text-sm font-bold text-primary"
+              >
+                {t.dashboard.viewAll}
                 <Arrow />
               </Link>
             </div>
           </Reveal>
-          <div className="relative space-y-3 before:absolute before:bottom-10 before:left-[1.65rem] before:top-10 before:w-px before:bg-primary/15">
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {menus.map((menu, index) => (
+              <Reveal key={menu.id} delay={index * 35}>
+                <Link
+                  href={`/${menu.slug}`}
+                  className="group flex h-full items-center gap-4 rounded-[1.25rem] border border-line/80 bg-white p-5 shadow-(--shadow-card) transition hover:-translate-y-1 hover:border-primary/30"
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                    <BoardIcon slug={menu.slug} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <strong className="block text-base font-extrabold group-hover:text-primary">
+                      {menuTitle(menu, locale)}
+                    </strong>
+                    <span className="mt-0.5 block text-xs font-semibold text-ink-faint">
+                      {boardTypeLabels[menu.board_type] ?? menu.board_type}
+                    </span>
+                  </span>
+                  <span className="text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary">
+                    <Arrow />
+                  </span>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* ── New arrivals ─────────────────────────────────────── */}
+        {products.length > 0 && (
+          <section className="bg-[#f6f8fa]">
+            <div className={`${container} py-20 sm:py-24`}>
+              <Reveal>
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                      {t.footer.marketplace}
+                    </p>
+                    <h2 className="mt-3 text-3xl font-extrabold tracking-[-.035em] sm:text-4xl">
+                      {t.home.newProducts}
+                    </h2>
+                  </div>
+                  <Link
+                    href={`/${firstProductBoard}`}
+                    className="flex shrink-0 items-center gap-2 text-sm font-bold text-primary"
+                  >
+                    {t.dashboard.viewAll}
+                    <Arrow />
+                  </Link>
+                </div>
+              </Reveal>
+              <div className="mt-10">
+                <Carousel prevLabel={t.home.prev} nextLabel={t.home.next}>
+                  {products.map((post, index) => (
+                    <div
+                      key={post.id}
+                      className="w-[72vw] max-w-72 shrink-0 snap-start sm:w-64 lg:w-72"
+                    >
+                      <ProductCard
+                        post={post}
+                        href={`/${menuSlugById.get(post.menu_id) ?? firstProductBoard}/${post.id}`}
+                        locale={locale}
+                        priority={index < 3}
+                      />
+                    </div>
+                  ))}
+                </Carousel>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── How it works + trust values ──────────────────────── */}
+        <section className={`${container} py-20 sm:py-24`}>
+          <Reveal>
+            <div className="max-w-2xl">
+              <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                {t.home.howItWorksTitle}
+              </p>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
+                {t.home.valueTitle}
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-ink-soft">
+                {t.home.heroSubtitle}
+              </p>
+            </div>
+          </Reveal>
+          <div className="mt-12 grid gap-4 md:grid-cols-3">
+            {steps.map((step, i) => (
+              <Reveal key={step.title} delay={i * 70}>
+                <div className="group h-full rounded-[1.5rem] border border-line/80 bg-white p-7 shadow-(--shadow-card) transition hover:-translate-y-1 hover:shadow-(--shadow-float)">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-sm font-extrabold text-white">
+                      {step.n}
+                    </span>
+                    {i < steps.length - 1 && (
+                      <span className="h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent" />
+                    )}
+                  </div>
+                  <h3 className="mt-6 text-lg font-extrabold">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-ink-soft">
+                    {step.body}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <div className="mt-4 grid gap-4 rounded-[1.5rem] border border-line/70 bg-surface-sub/50 p-5 sm:grid-cols-3 sm:p-7">
             {values.map((value, i) => (
-              <Reveal key={value.title} delay={i * 70}>
-                <div className="group relative flex gap-5 rounded-[1.5rem] border border-white bg-white p-5 shadow-[0_8px_30px_rgba(25,31,40,.04)] transition hover:-translate-y-1 hover:shadow-(--shadow-float) sm:p-7">
-                  <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-extrabold text-white ring-8 ring-[#f3f6fa]">
-                    {value.icon}
+              <Reveal key={value.title} delay={i * 60}>
+                <div className="flex gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-positive-soft text-[11px] font-black text-positive"
+                  >
+                    ✓
                   </span>
                   <div>
-                    <h3 className="text-lg font-extrabold">{value.title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-ink-soft">
+                    <h3 className="text-sm font-extrabold">{value.title}</h3>
+                    <p className="mt-1 text-xs leading-6 text-ink-soft">
                       {value.body}
                     </p>
-                    <div className="mt-5 h-1 w-10 rounded-full bg-primary/20 transition-all group-hover:w-20 group-hover:bg-primary" />
                   </div>
                 </div>
               </Reveal>
             ))}
           </div>
-        </div>
-        {companies.length > 0 && (
-          <div className={`${container} border-t border-line pb-24 pt-10`}>
-            <p className="text-center text-xs font-bold uppercase tracking-[.16em] text-ink-faint">
-              {t.home.newCompanies}
-            </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              {companies.map((company) => {
-                const name = `UID:${company.uid}`;
-                const badge = company.member_badges
-                  .map((item) => item.badge_types)
-                  .find(Boolean);
-                return (
-                  <Link
-                    key={company.uid}
-                    href={`/u/${company.uid}`}
-                    className="flex items-center gap-3 rounded-full border border-line bg-white py-2 pl-2 pr-4 transition hover:border-primary/40 hover:shadow-(--shadow-card)"
-                  >
-                    {company.avatar_url ? (
-                      <Image
-                        src={postMediaUrl(company.avatar_url)}
-                        alt={name}
-                        width={36}
-                        height={36}
-                        className="h-9 w-9 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-sm font-extrabold text-primary">
-                        {name.slice(0, 1)}
-                      </span>
-                    )}
-                    <span className="max-w-40 truncate text-sm font-bold">
-                      {name}
-                    </span>
-                    {badge && (
-                      <BadgePill
-                        code={badge.code}
-                        label={locale === "ko" ? badge.name_ko : badge.name_en}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </section>
+        </section>
 
-      <section className={`${container} pb-24`}>
-        <Reveal>
-          <div className="relative overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_30px_90px_rgba(16,25,35,.2)]">
-            <div className="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-primary/35 blur-3xl" />
-            <div className="grid lg:grid-cols-[1.15fr_.85fr]">
-              <div className="relative px-7 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-                <p className="text-xs font-bold uppercase tracking-[.18em] text-[#79adff]">
-                  Your next opportunity
-                </p>
-                <h2 className="mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">
-                  {session.userId ? t.home.promoTitle : t.home.finalCtaTitle}
-                </h2>
-                <p className="mt-5 max-w-xl text-sm leading-7 text-white/65">
-                  {session.userId ? t.home.promoBody : t.home.finalCtaBody}
-                </p>
-                <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
+        {/* ── Featured companies + Events ──────────────────────── */}
+        {(featured.length > 0 || events.length > 0) && (
+          <section className="bg-[#f6f8fa]">
+            <div className={`${container} grid gap-12 py-20 sm:py-24 lg:grid-cols-2`}>
+              {featured.length > 0 && (
+                <div>
+                  <Reveal>
+                    <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                      {t.home.eyebrowShowcase}
+                    </p>
+                    <h2 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
+                      {t.home.featured}
+                    </h2>
+                  </Reveal>
+                  <div className="mt-8 space-y-3">
+                    {featured.slice(0, 3).map((company, i) => {
+                      const name =
+                        company.profiles?.company_name ??
+                        company.profiles?.display_name ??
+                        company.slug;
+                      const intro =
+                        locale === "ko" && company.intro_ko
+                          ? company.intro_ko
+                          : company.intro_en;
+                      return (
+                        <Reveal key={company.slug} delay={i * 60}>
+                          <Link
+                            href={`/c/${company.slug}`}
+                            className="group flex gap-4 rounded-2xl border border-line/80 bg-white p-3 transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-(--shadow-card)"
+                          >
+                            <div className="relative h-24 w-28 shrink-0 overflow-hidden rounded-xl bg-surface-sub">
+                              {company.cover_image_path && (
+                                <Image
+                                  src={postMediaUrl(company.cover_image_path)}
+                                  alt={name}
+                                  fill
+                                  sizes="112px"
+                                  className="object-cover transition-transform group-hover:scale-105"
+                                />
+                              )}
+                            </div>
+                            <div className="min-w-0 py-2">
+                              <p className="truncate text-base font-extrabold group-hover:text-primary">
+                                {name}
+                              </p>
+                              <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink-soft">
+                                {intro}
+                              </p>
+                            </div>
+                          </Link>
+                        </Reveal>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {events.length > 0 && eventsMenu && (
+                <div>
+                  <Reveal>
+                    <div className="flex items-end justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                          {t.board.eventsEyebrow}
+                        </p>
+                        <h2 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
+                          {t.home.eventsTitle}
+                        </h2>
+                      </div>
+                      <Link
+                        href={`/${eventsMenu.slug}`}
+                        className="flex shrink-0 items-center gap-2 text-sm font-bold text-primary"
+                      >
+                        {t.dashboard.viewAll}
+                        <Arrow />
+                      </Link>
+                    </div>
+                  </Reveal>
+                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                    {events.map((post, i) => {
+                      const title =
+                        locale === "ko" && post.title_ko
+                          ? post.title_ko
+                          : post.title_en;
+                      const thumb = repThumbnail(post);
+                      return (
+                        <Reveal key={post.id} delay={i * 70}>
+                          <Link
+                            href={`/${eventsMenu.slug}/${post.id}`}
+                            className="card-hover group block overflow-hidden"
+                          >
+                            <div className="relative aspect-[4/3] bg-surface-sub">
+                              {thumb && (
+                                <Image
+                                  src={thumb}
+                                  alt={title}
+                                  fill
+                                  sizes="(max-width:640px) 100vw, 25vw"
+                                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                              )}
+                            </div>
+                            <div className="p-4">
+                              <p className="line-clamp-2 text-sm font-extrabold group-hover:text-primary">
+                                {title}
+                              </p>
+                              <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink-soft">
+                                {stripRichText(
+                                  locale === "ko" && post.body_teaser_ko
+                                    ? post.body_teaser_ko
+                                    : post.body_teaser_en,
+                                )}
+                              </p>
+                            </div>
+                          </Link>
+                        </Reveal>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ── B2BB2G Network (kept as-is) ──────────────────────── */}
+        {feedItems.length > 0 && (
+          <section className="bg-[#f4f7fb] py-24">
+            <div className={container}>
+              <div className="flex items-end justify-between gap-5">
+                <Reveal>
+                  <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                    {t.feed.title}
+                  </p>
+                  <h2 className="mt-3 text-3xl font-extrabold tracking-tight">
+                    {t.home.feedTitle}
+                  </h2>
+                  <p className="mt-3 max-w-xl text-sm leading-7 text-ink-soft">
+                    {t.home.feedBody}
+                  </p>
+                </Reveal>
+                <Link href="/feed" className="btn-secondary btn-md shrink-0">
+                  {t.dashboard.viewAll} →
+                </Link>
+              </div>
+              <div className="mt-8 grid gap-4 lg:grid-cols-3">
+                {feedItems.map((item) => (
+                  <FeedCard
+                    key={item.id}
+                    item={item}
+                    viewerId={session.userId}
+                    returnTo="/"
+                    compact
+                    labels={getFeedCardLabels(t, locale)}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── Live sourcing requests ───────────────────────────── */}
+        {requestsMenu && requests.length > 0 && (
+          <section className="bg-[#0b1220] text-white">
+            <div
+              className={`${container} grid gap-12 py-20 sm:py-24 lg:grid-cols-[.7fr_1.3fr]`}
+            >
+              <Reveal>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[.18em] text-[#6ea8ff]">
+                    {t.home.eyebrowRequests}
+                  </p>
+                  <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+                    {t.home.latestRequests}
+                  </h2>
+                  <p className="mt-4 max-w-sm text-sm leading-7 text-white/55">
+                    {t.home.step2Body}
+                  </p>
                   <Link
-                    href={session.userId ? "/membership" : "/signup"}
-                    className="btn btn-lg rounded-full bg-white px-7 text-ink hover:bg-white/90"
+                    href={`/${requestsMenu.slug}`}
+                    className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#79adff]"
                   >
-                    {session.userId ? t.home.promoCta : t.common.signUp}
+                    {t.dashboard.viewAll}
                     <Arrow />
                   </Link>
-                  {!session.userId && (
+                </div>
+              </Reveal>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {requests.map((post, i) => (
+                  <Reveal key={post.id} delay={(i % 2) * 60}>
                     <Link
-                      href="/login"
-                      className="btn btn-lg rounded-full border border-white/20 px-7 text-white hover:bg-white/10"
+                      href={`/${requestsMenu.slug}/${post.id}`}
+                      className="block h-full rounded-2xl border border-white/10 bg-white/6 p-5 transition hover:-translate-y-1 hover:bg-white/10"
                     >
-                      {t.common.signIn}
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="line-clamp-2 text-sm font-extrabold">
+                          {locale === "ko" && post.title_ko
+                            ? post.title_ko
+                            : post.title_en}
+                        </p>
+                        <span className="shrink-0 rounded-full bg-[#1b64da]/25 px-2.5 py-1 text-[10px] font-bold text-[#86b5ff]">
+                          {t.post.open}
+                        </span>
+                      </div>
+                      <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-white/52">
+                        {stripRichText(
+                          locale === "ko" && post.body_teaser_ko
+                            ? post.body_teaser_ko
+                            : post.body_teaser_en,
+                        )}
+                      </p>
                     </Link>
-                  )}
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── Closing: trusted companies + CTA ─────────────────── */}
+        <section className={`${container} py-20 sm:py-24`}>
+          {companies.length > 0 && (
+            <Reveal>
+              <div className="mb-12">
+                <p className="text-center text-xs font-bold uppercase tracking-[.16em] text-ink-faint">
+                  {t.home.newCompanies}
+                </p>
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  {companies.map((company) => {
+                    const name = `UID:${company.uid}`;
+                    const badge = company.member_badges
+                      .map((item) => item.badge_types)
+                      .find(Boolean);
+                    return (
+                      <Link
+                        key={company.uid}
+                        href={`/u/${company.uid}`}
+                        className="flex items-center gap-3 rounded-full border border-line bg-white py-2 pl-2 pr-4 transition hover:border-primary/40 hover:shadow-(--shadow-card)"
+                      >
+                        {company.avatar_url ? (
+                          <Image
+                            src={postMediaUrl(company.avatar_url)}
+                            alt={name}
+                            width={36}
+                            height={36}
+                            className="h-9 w-9 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-sm font-extrabold text-primary">
+                            {name.slice(0, 1)}
+                          </span>
+                        )}
+                        <span className="max-w-40 truncate text-sm font-bold">
+                          {name}
+                        </span>
+                        {badge && (
+                          <BadgePill
+                            code={badge.code}
+                            label={
+                              locale === "ko" ? badge.name_ko : badge.name_en
+                            }
+                          />
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
-              <div className="relative m-4 min-h-72 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/6 p-6 lg:m-5 lg:p-8">
-                <div className="absolute inset-0 [background:radial-gradient(circle_at_80%_15%,rgba(49,130,246,.35),transparent_35%)]" />
-                <div className="relative flex h-full flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-[.16em] text-white/45">
-                      B2B opportunity flow
-                    </span>
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-[#72e3b2]" />
-                  </div>
-                  <div className="space-y-3">
-                    {[
-                      t.home.step1Title,
-                      t.home.step2Title,
-                      t.home.step3Title,
-                    ].map((step, index) => (
-                      <div
-                        key={step}
-                        className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/7 p-3 backdrop-blur"
-                      >
-                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-[10px] font-extrabold text-[#8ab9ff]">
-                          0{index + 1}
-                        </span>
-                        <span className="text-sm font-bold">{step}</span>
-                        {index < 2 && (
-                          <span className="ml-auto text-white/25">↓</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs leading-5 text-white/40">
-                    {t.home.proofLabel}
+            </Reveal>
+          )}
+          <Reveal>
+            <div className="relative overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_30px_90px_rgba(16,25,35,.2)]">
+              <div className="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-primary/35 blur-3xl" />
+              <div className="grid lg:grid-cols-[1.15fr_.85fr]">
+                <div className="relative px-7 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+                  <p className="text-xs font-bold uppercase tracking-[.18em] text-[#79adff]">
+                    {t.home.eyebrow}
                   </p>
+                  <h2 className="mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">
+                    {session.userId ? t.home.promoTitle : t.home.finalCtaTitle}
+                  </h2>
+                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/65">
+                    {session.userId ? t.home.promoBody : t.home.finalCtaBody}
+                  </p>
+                  <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
+                    <Link
+                      href={session.userId ? "/membership" : "/signup"}
+                      className="btn btn-lg rounded-full bg-white px-7 text-ink hover:bg-white/90"
+                    >
+                      {session.userId ? t.home.promoCta : t.common.signUp}
+                      <Arrow />
+                    </Link>
+                    {!session.userId && (
+                      <Link
+                        href="/login"
+                        className="btn btn-lg rounded-full border border-white/20 px-7 text-white hover:bg-white/10"
+                      >
+                        {t.common.signIn}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+                <div className="relative m-4 min-h-72 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/6 p-6 lg:m-5 lg:p-8">
+                  <div className="absolute inset-0 [background:radial-gradient(circle_at_80%_15%,rgba(49,130,246,.35),transparent_35%)]" />
+                  <div className="relative flex h-full flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-[.16em] text-white/45">
+                        {t.home.howItWorksTitle}
+                      </span>
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-[#72e3b2]" />
+                    </div>
+                    <div className="space-y-3">
+                      {steps.map((step, index) => (
+                        <div
+                          key={step.title}
+                          className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/7 p-3 backdrop-blur"
+                        >
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-[10px] font-extrabold text-[#8ab9ff]">
+                            {step.n}
+                          </span>
+                          <span className="text-sm font-bold">{step.title}</span>
+                          {index < steps.length - 1 && (
+                            <span className="ml-auto text-white/25">↓</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs leading-5 text-white/40">
+                      {t.home.proofLabel}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </Reveal>
-      </section>
-
+          </Reveal>
+        </section>
       </div>
     </>
   );
