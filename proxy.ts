@@ -82,6 +82,46 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  if (user && path.startsWith("/admin")) {
+    const [{ data: profile }, { data: assignment }] = await Promise.all([
+      supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle(),
+      supabase
+        .from("admin_staff_assignments")
+        .select("permissions, is_active")
+        .eq("profile_id", user.id)
+        .maybeSingle(),
+    ]);
+    const isOwner = Boolean(profile?.is_admin);
+    const permissions = assignment?.is_active ? assignment.permissions ?? [] : [];
+    const required = path.startsWith("/admin/team")
+      ? "team"
+      : path.startsWith("/admin/security")
+        ? "security"
+        : path.startsWith("/admin/notifications")
+          ? "notifications"
+          : path.startsWith("/admin/content")
+            ? "content"
+            : path.startsWith("/admin/settings")
+              ? "settings"
+              : path.startsWith("/admin/audit")
+                ? "audit"
+                : path.startsWith("/admin/members") || path.startsWith("/admin/referrals") || path.startsWith("/admin/invitations")
+                  ? "members"
+                  : path.startsWith("/admin/subscriptions")
+                    ? "subscriptions"
+                    : path.startsWith("/admin/menus") || path.startsWith("/admin/catalog") || path.startsWith("/admin/tiers")
+                      ? "catalog"
+                      : path.startsWith("/admin/moderation") || path.startsWith("/admin/feed") || path.startsWith("/admin/inquiries") || path.startsWith("/admin/coordinator-messages") || path.startsWith("/admin/badges")
+                        ? "review"
+                        : "overview";
+    if (!isOwner && !permissions.includes(required)) {
+      const url = request.nextUrl.clone();
+      url.pathname = permissions.includes("overview") ? "/admin" : "/dashboard";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+  }
+
   return response;
 }
 

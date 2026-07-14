@@ -98,6 +98,9 @@ export const SETTING_KEYS = {
   LOGIN_SESSION_POLICY: "login_session_policy",
   NEW_DEVICE_EMAIL_ALERT: "new_device_email_alert",
   SUSPICIOUS_LOGIN_EMAIL_ALERT: "suspicious_login_email_alert",
+  ADMIN_QUEUE_SLA_HOURS: "admin_queue_sla_hours",
+  COOKIE_BANNER_TEXT_EN: "cookie_banner_text_en",
+  COOKIE_BANNER_TEXT_KO: "cookie_banner_text_ko",
 } as const;
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];
 
@@ -150,6 +153,7 @@ export const STORAGE_BUCKETS = {
   POST_MEDIA: "post-media",
   ATTACHMENTS: "attachments",
   BADGE_DOCS: "badge-docs",
+  SITE_ASSETS: "site-assets",
 } as const;
 
 // Number of characters of the body exposed to non-members (teaser).

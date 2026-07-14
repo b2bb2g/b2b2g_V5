@@ -178,7 +178,7 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[11px] leading-5 text-ink-faint">{labels.symbolHint}</p>
+        <p className="mt-2 text-xs leading-5 text-ink-faint">{labels.symbolHint}</p>
       </fieldset>
 
       <p

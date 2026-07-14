@@ -38,8 +38,8 @@ export default async function FeedPage(props: {
   const labels = getFeedCardLabels(t, locale);
 
   return (
-    <div className="wide grid items-start justify-center gap-6 lg:grid-cols-[minmax(0,46rem)_20rem]">
-      <div className="space-y-5">
+    <div className="wide grid min-w-0 items-start justify-center gap-6 lg:grid-cols-[minmax(0,46rem)_20rem]">
+      <div className="min-w-0 space-y-5">
         <PageHeader title={t.feed.title} subtitle={t.feed.subtitle} />
         {session.userId ? (
           <FeedComposer

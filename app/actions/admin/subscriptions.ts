@@ -6,7 +6,7 @@ import { BADGE_CODES, SUBSCRIPTION_STATUS } from "@/lib/constants";
 import { audit, requireAdmin } from "@/app/actions/admin/core";
 
 export async function grantSubscription(formData: FormData) {
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId } = await requireAdmin("subscriptions");
   const uid = Number(formData.get("uid") ?? 0);
   const days = Number(formData.get("days") ?? 0);
   const note = String(formData.get("note") ?? "").trim();
@@ -50,7 +50,7 @@ export async function grantSubscription(formData: FormData) {
 }
 
 export async function revokeSubscription(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("subscriptions");
   const subscriptionId = String(formData.get("subscriptionId") ?? "");
 
   const { data: sub, error: subscriptionError } = await supabase
@@ -86,4 +86,12 @@ export async function revokeSubscription(formData: FormData) {
   }
   await audit(supabase, "subscription_revoke", "subscription", subscriptionId);
   revalidatePath("/admin/subscriptions");
+}
+
+export async function runSubscriptionExpirations() {
+  const { supabase } = await requireAdmin("subscriptions");
+  await supabase.rpc("admin_run_expirations").throwOnError();
+  await audit(supabase, "subscription_expiration_run", "system", "process_expirations");
+  revalidatePath("/admin/subscriptions");
+  redirect("/admin/subscriptions?toast=processed");
 }

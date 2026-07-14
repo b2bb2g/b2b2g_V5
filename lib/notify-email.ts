@@ -40,6 +40,17 @@ export async function sendNotificationEmail(
   type: EmailNotificationType,
   vars: { title?: string; reason?: string } = {}
 ): Promise<void> {
+  const record = async (status: "sent" | "failed" | "skipped", error?: string) => {
+    const { error: logError } = await supabase.from("admin_delivery_events").insert({
+      channel: "email",
+      event_type: type,
+      status,
+      recipient_profile_id: recipientProfileId,
+      error_code: error === "not_configured" ? "not_configured" : null,
+      error_message: error?.slice(0, 500) ?? null,
+    });
+    if (logError) console.error("notification delivery log failed:", logError.message);
+  };
   try {
     const [{ data: setting }, { data: contact }] = await Promise.all([
       supabase
@@ -54,7 +65,10 @@ export async function sendNotificationEmail(
         .maybeSingle(),
     ]);
 
-    if (setting?.value !== true || !contact?.email) return;
+    if (setting?.value !== true || !contact?.email) {
+      await record("skipped", setting?.value !== true ? "disabled_by_policy" : "recipient_email_missing");
+      return;
+    }
 
     const t = getDictionary("en").emails;
     const templates: Record<EmailNotificationType, { subject: string; body: string }> = {
@@ -82,10 +96,14 @@ export async function sendNotificationEmail(
         { site: siteName }
       )}</a></p>`,
     });
-    if (!result.sent && result.error !== "not_configured") {
-      console.error("notification email failed:", result.error);
+    if (result.sent) {
+      await record("sent");
+    } else {
+      await record(result.error === "not_configured" ? "skipped" : "failed", result.error);
+      if (result.error !== "not_configured") console.error("notification email failed:", result.error);
     }
   } catch (error) {
+    await record("failed", error instanceof Error ? error.message : "unknown_error");
     console.error("notification email failed:", error);
   }
 }

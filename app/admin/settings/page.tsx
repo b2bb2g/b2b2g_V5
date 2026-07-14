@@ -11,7 +11,11 @@ export default async function SettingsAdminPage() {
     .select("key, value, is_public")
     .order("key");
 
-  const settings = (data ?? []) as { key: string; value: unknown }[];
+  const settings = ((data ?? []) as { key: string; value: unknown }[]).filter(
+    (setting) =>
+      !/^email_notify_/.test(setting.key) &&
+      !/^(login_session_|new_device_|suspicious_login_|failed_login_|security_log_)/.test(setting.key),
+  );
   // Human-readable names; the raw key stays visible as a small reference.
   const labels: Record<string, string> = t.admin.settingLabels;
   const groupOf = (key: string) => {

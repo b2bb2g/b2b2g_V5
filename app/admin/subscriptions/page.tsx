@@ -3,9 +3,13 @@ import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { saveBenefit, toggleBenefitActive } from "@/app/actions/admin/catalog";
-import { grantSubscription, revokeSubscription } from "@/app/actions/admin/subscriptions";
+import { grantSubscription, revokeSubscription, runSubscriptionExpirations } from "@/app/actions/admin/subscriptions";
 import { SUBSCRIPTION_STATUS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
+
+function currentTimeMs() {
+  return Date.now();
+}
 
 export default async function SubscriptionsAdminPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
@@ -35,10 +39,24 @@ export default async function SubscriptionsAdminPage() {
     deposit_note: string | null;
     profiles: { uid: number; display_name: string | null; company_name: string | null } | null;
   }[];
+  const now = currentTimeMs();
+  const expiringSoon = subscriptions.filter((sub) => new Date(sub.expires_at).getTime() <= now + 14 * 86400_000).length;
+  const overdue = subscriptions.filter((sub) => new Date(sub.expires_at).getTime() < now).length;
+  const { data: lastRun } = await supabase.from("audit_logs").select("created_at").eq("action", "subscription_expiration_run").order("created_at", { ascending: false }).limit(1).maybeSingle();
 
   return (
     <div className="space-y-4">
       <h2 className="text-base font-bold">{t.admin.subscriptions}</h2>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl bg-surface-sub p-4"><p className="text-2xl font-extrabold">{subscriptions.length}</p><p className="mt-1 text-xs font-semibold text-ink-soft">{t.admin.activeSubscriptions}</p></div>
+        <div className="rounded-2xl bg-warning-soft p-4"><p className="text-2xl font-extrabold text-warning">{expiringSoon}</p><p className="mt-1 text-xs font-semibold text-ink-soft">{t.admin.expiringSubs}</p></div>
+        <div className={`rounded-2xl p-4 ${overdue ? "bg-negative-soft" : "bg-positive-soft"}`}><p className={`text-2xl font-extrabold ${overdue ? "text-negative" : "text-positive"}`}>{overdue}</p><p className="mt-1 text-xs font-semibold text-ink-soft">{t.admin.overdueSubscriptions}</p></div>
+      </section>
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-line p-4">
+        <div><p className="text-sm font-bold">{t.admin.expirationJob}</p><p className="mt-1 text-xs text-ink-faint">{lastRun?.created_at ? `${t.admin.lastManualRun}: ${new Date(lastRun.created_at).toISOString().slice(0, 16).replace("T", " ")} UTC` : t.admin.noManualRun}</p></div>
+        <form action={runSubscriptionExpirations}><PendingButton className="btn-secondary btn-sm">{t.admin.runNow}</PendingButton></form>
+      </section>
 
       {/* Manual grant after wire-transfer confirmation (PRD 4) */}
       <form

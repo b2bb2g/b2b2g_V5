@@ -18,12 +18,16 @@ export default async function WritePage(props: {
 
   const menu = params.menu ? await getMenuBySlug(params.menu) : null;
   if (!menu) notFound();
-  if (!menu.member_write && !session.profile?.is_admin) notFound();
+  const accessClient = await createClient();
+  const { data: isConsoleAdmin } = await accessClient.rpc("has_admin_permission", {
+    requested: "content",
+  });
+  if (!menu.member_write && !isConsoleAdmin) notFound();
 
   const [{ t, locale }, settings, supabase] = await Promise.all([
     getT(),
     getPublicSettings(),
-    createClient(),
+    Promise.resolve(accessClient),
   ]);
 
   const [{ data: fieldPool }, { data: categories }] = await Promise.all([
@@ -45,7 +49,7 @@ export default async function WritePage(props: {
     (b) => b.badge_types?.code === BADGE_CODES.CERTIFIED
   );
   let quota: { used: number; limit: number } | null = null;
-  if (!isPaid && !session.profile?.is_admin) {
+  if (!isPaid && !isConsoleAdmin) {
     const limit = settingNumber(settings, SETTING_KEYS.FREE_POST_LIMIT, 3);
     const { count } = await supabase
       .from("posts")
@@ -70,7 +74,7 @@ export default async function WritePage(props: {
           .eq("post_id", params.post),
       ]);
     const p = post as Post | null;
-    if (!p || (p.author_id !== session.userId && !session.profile?.is_admin)) notFound();
+    if (!p || (p.author_id !== session.userId && !isConsoleAdmin)) notFound();
     initialIsDraft = p.status === POST_STATUS.DRAFT;
     initial = {
       postId: p.id,

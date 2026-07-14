@@ -38,6 +38,17 @@
     "PretendardLatin", var(--font-noto-sans-kr), "Apple SD Gothic Neo",
     "Malgun Gothic", system-ui, sans-serif;
 
+  /* Readable product type scale. Tailwind utilities inherit these values:
+     metadata 13/20, controls 15/24, reading copy 16/26. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.625rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+
   --radius-card: 1.5rem;
 
   --shadow-card:
@@ -46,10 +57,17 @@
     0 8px 18px rgb(25 31 40 / 0.07), 0 22px 55px rgb(25 31 40 / 0.12);
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: #f7f8fa;
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.625;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -154,6 +172,22 @@ main > :where(*) {
 /* Composable component classes: one visual vocabulary across every screen.
    Tailwind 4 cannot @apply custom classes, so each variant repeats the base. */
 @layer components {
+  .type-page-title {
+    @apply text-[1.75rem] leading-[1.15] font-extrabold tracking-[-.035em] sm:text-[2rem] lg:text-[2.25rem];
+  }
+  .type-workspace-title {
+    @apply text-2xl leading-tight font-extrabold tracking-[-.035em] sm:text-[1.75rem];
+  }
+  .type-body {
+    @apply text-base leading-[1.625] text-ink-soft;
+  }
+  .type-ui {
+    @apply text-sm leading-6;
+  }
+  .type-meta {
+    @apply text-xs leading-5;
+  }
+
   .btn,
   .btn-primary,
   .btn-secondary,
@@ -306,6 +340,16 @@ main > :where(*) {
   }
 }
 
+/* Keep form controls at 16px on phones so mobile Safari and in-app browsers
+   do not zoom the viewport when an input receives focus. */
+@media (max-width: 639px) {
+  input,
+  select,
+  textarea {
+    font-size: 1rem;
+  }
+}
+
 /* Defensive CSS for in-app browsers (PRD 13): dvh-based full height. */
 .min-h-screen-safe {
   min-height: 100vh;
@@ -362,13 +406,22 @@ main > :where(*) {
     max-width: none;
     margin-inline: 0;
     padding: 0;
+    /* Safe default while client-side banner state is still being resolved. */
+    bottom: calc(7.5rem + env(safe-area-inset-bottom)) !important;
   }
 
+  body.global-banner-ready:not(.has-global-banner):not(:has(.global-banner))
+    .mobile-sticky-action {
+    bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
+  }
+  body.has-global-banner,
   body:has(.global-banner) {
     padding-bottom: 7rem;
   }
+  body.has-global-banner .mobile-sticky-action,
   body:has(.global-banner) .mobile-sticky-action {
-    bottom: 7.25rem;
+    /* Override Tailwind's bottom-4 utility while the consent/PWA banner is visible. */
+    bottom: calc(7.5rem + env(safe-area-inset-bottom)) !important;
   }
 }
 

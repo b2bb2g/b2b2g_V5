@@ -9,7 +9,7 @@ import Link from "next/link";
 // Member list with contact data: readable here only because RLS grants the
 // admin role access to profile_contacts (PRD 9 double defense).
 export default async function MembersPage(props: {
-  searchParams: Promise<{ q?: string; page?: string; role?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; role?: string; status?: string; tier?: string; badge?: string; from?: string; to?: string }>;
 }) {
   const [{ t }, params, supabase] = await Promise.all([
     getT(),
@@ -20,29 +20,47 @@ export default async function MembersPage(props: {
   const PAGE_SIZE = 25;
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const from = (page - 1) * PAGE_SIZE;
+  const q = params.q?.trim().replace(/[%,()\\]/g, "");
+  let matchedEmailIds: string[] = [];
+  if (q && !/^\d+$/.test(q)) {
+    const { data: contacts } = await supabase.from("profile_contacts").select("profile_id").ilike("email", `%${q}%`).limit(100);
+    matchedEmailIds = (contacts ?? []).map((row) => row.profile_id);
+  }
+
+  let badgeProfileIds: string[] | null = null;
+  if (params.badge) {
+    const { data: matches } = await supabase.from("member_badges").select("profile_id, badge_types!inner(code)").eq("badge_types.code", params.badge);
+    badgeProfileIds = (matches ?? []).map((row) => row.profile_id);
+  }
+
   let query = supabase
     .from("profiles")
     .select(
-      "id, uid, display_name, company_name, status, is_admin, is_coordinator, created_at, profile_contacts(email, phone), member_badges(badge_types(code))",
+      "id, uid, display_name, company_name, status, tier_id, is_admin, is_coordinator, created_at, profile_contacts(email, phone), member_tiers(name_en), member_badges(badge_types(code))",
       { count: "exact" }
     )
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
 
-  const q = params.q?.trim();
   if (q) {
     const asNumber = Number(q);
     query = Number.isInteger(asNumber) && asNumber > 0
       ? query.eq("uid", asNumber)
-      : query.ilike("display_name", `%${q}%`);
+      : query.or(`display_name.ilike.%${q}%,company_name.ilike.%${q}%${matchedEmailIds.length ? `,id.in.(${matchedEmailIds.join(",")})` : ""}`);
   }
   const role = params.role ?? "";
   if (role === "admin") query = query.eq("is_admin", true);
   if (role === "coordinator") query = query.eq("is_coordinator", true);
+  if (params.status) query = query.eq("status", params.status);
+  if (params.tier) query = query.eq("tier_id", params.tier);
+  if (params.from) query = query.gte("created_at", params.from);
+  if (params.to) query = query.lte("created_at", `${params.to}T23:59:59Z`);
+  if (badgeProfileIds) query = query.in("id", badgeProfileIds.length ? badgeProfileIds : ["00000000-0000-0000-0000-000000000000"]);
 
-  const [{ data, count }, { data: tiers }] = await Promise.all([
+  const [{ data, count }, { data: tiers }, { data: badgeTypes }] = await Promise.all([
     query,
     supabase.from("member_tiers").select("id, name_en").order("sort_order"),
+    supabase.from("badge_types").select("code, name_en").eq("is_active", true).order("sort_order"),
   ]);
   const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   const members = (data ?? []) as unknown as {
@@ -54,6 +72,7 @@ export default async function MembersPage(props: {
     is_coordinator: boolean;
     is_admin: boolean;
     created_at: string;
+    member_tiers: { name_en: string } | null;
     profile_contacts: { email: string | null; phone: string | null } | null;
     member_badges: { badge_types: { code: string } | null }[];
   }[];
@@ -68,18 +87,23 @@ export default async function MembersPage(props: {
         <a href="/admin/members/export" download className="btn-secondary btn-sm">
           {t.admin.exportCsv}
         </a>
-        <form className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
+        <form className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
           <input
             name="q"
             defaultValue={q ?? ""}
-            placeholder={`${t.admin.uid} / ${t.nav.profile}`}
-            className="min-w-0 rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
+            placeholder={`${t.admin.uid} / ${t.nav.profile} / ${t.admin.email}`}
+            className="field col-span-2 min-w-0 px-3 py-2 text-xs"
           />
           <select name="role" defaultValue={role} className="field w-auto px-2 py-1.5 text-xs">
             <option value="">{t.common.all}</option>
             <option value="admin">{t.common.admin}</option>
             <option value="coordinator">{t.badges.coordinator}</option>
           </select>
+          <select name="status" defaultValue={params.status ?? ""} className="field w-auto px-2 py-1.5 text-xs"><option value="">{t.admin.statusLabel}: {t.common.all}</option>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
+          <select name="tier" defaultValue={params.tier ?? ""} className="field w-auto px-2 py-1.5 text-xs"><option value="">{t.admin.tiers}: {t.common.all}</option>{(tiers ?? []).map((tier) => <option key={tier.id} value={tier.id}>{tier.name_en}</option>)}</select>
+          <select name="badge" defaultValue={params.badge ?? ""} className="field w-auto px-2 py-1.5 text-xs"><option value="">{t.admin.badgeAdmin}: {t.common.all}</option>{(badgeTypes ?? []).map((badge) => <option key={badge.code} value={badge.code}>{badge.name_en}</option>)}</select>
+          <input name="from" type="date" defaultValue={params.from ?? ""} aria-label={t.admin.dateFrom} className="field px-2 py-1.5 text-xs" />
+          <input name="to" type="date" defaultValue={params.to ?? ""} aria-label={t.admin.dateTo} className="field px-2 py-1.5 text-xs" />
           <button
             type="submit"
             className="rounded-xl bg-surface-sub px-3 py-2 text-xs font-semibold text-ink-soft"
@@ -125,6 +149,7 @@ export default async function MembersPage(props: {
               <th className="px-3 py-2.5 font-semibold">{t.nav.profile}</th>
               <th className="px-3 py-2.5 font-semibold">{t.admin.email}</th>
               <th className="px-3 py-2.5 font-semibold">{t.admin.role}</th>
+              <th className="px-3 py-2.5 font-semibold">{t.admin.tiers}</th>
               <th className="px-3 py-2.5 font-semibold">{t.admin.badgeAdmin}</th>
               <th className="px-3 py-2.5 font-semibold">{t.admin.joined}</th>
               <th className="px-3 py-2.5 font-semibold">{t.admin.statusLabel}</th>
@@ -160,6 +185,7 @@ export default async function MembersPage(props: {
                 <td className="px-3 py-2.5 text-ink-soft">
                   {member.is_admin ? t.common.admin : member.is_coordinator ? t.badges.coordinator : t.admin.memberRole}
                 </td>
+                <td className="px-3 py-2.5 text-ink-soft">{member.member_tiers?.name_en ?? "-"}</td>
                 <td className="px-3 py-2.5 text-ink-soft">
                   {member.member_badges.map((badge) => badge.badge_types?.code).filter(Boolean).join(", ") || "-"}
                 </td>
@@ -185,7 +211,8 @@ export default async function MembersPage(props: {
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2"><div><p className="text-xs font-bold text-ink-faint">UID {member.uid}</p><Link href={`/admin/members/${member.id}`} className="mt-1 block truncate text-sm font-extrabold text-primary-strong">{member.display_name}</Link></div><StatusLabel status={member.status} label={statusLabels[member.status] ?? member.status} /></div>
                 {member.company_name && <p className="mt-1 truncate text-xs text-ink-soft">{member.company_name}</p>}
-                <dl className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-surface-sub p-3 text-xs"><div><dt className="font-semibold text-ink-faint">{t.admin.role}</dt><dd className="mt-0.5 text-ink-soft">{member.is_admin ? t.common.admin : member.is_coordinator ? t.badges.coordinator : t.admin.memberRole}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.joined}</dt><dd className="mt-0.5 text-ink-soft">{new Date(member.created_at).toISOString().slice(0,10)}</dd></div></dl>
+                <p className="mt-2 truncate text-xs text-ink-soft">{member.profile_contacts?.email ?? "-"}</p>
+                <dl className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-surface-sub p-3 text-xs"><div><dt className="font-semibold text-ink-faint">{t.admin.role}</dt><dd className="mt-0.5 text-ink-soft">{member.is_admin ? t.common.admin : member.is_coordinator ? t.badges.coordinator : t.admin.memberRole}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.tiers}</dt><dd className="mt-0.5 text-ink-soft">{member.member_tiers?.name_en ?? "-"}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.badgeAdmin}</dt><dd className="mt-0.5 text-ink-soft">{member.member_badges.map((badge) => badge.badge_types?.code).filter(Boolean).join(", ") || "-"}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.joined}</dt><dd className="mt-0.5 text-ink-soft">{new Date(member.created_at).toISOString().slice(0,10)}</dd></div></dl>
               </div>
             </div>
           </article>
@@ -197,7 +224,7 @@ export default async function MembersPage(props: {
         page={page}
         totalPages={totalPages}
         basePath="/admin/members"
-        extraQuery={{ ...(q ? { q } : {}), ...(role ? { role } : {}) }}
+        extraQuery={{ ...(q ? { q } : {}), ...(role ? { role } : {}), ...(params.status ? { status: params.status } : {}), ...(params.tier ? { tier: params.tier } : {}), ...(params.badge ? { badge: params.badge } : {}), ...(params.from ? { from: params.from } : {}), ...(params.to ? { to: params.to } : {}) }}
         prevLabel={t.home.prev}
         nextLabel={t.home.next}
       />

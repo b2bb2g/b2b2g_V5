@@ -7,7 +7,7 @@ import { MESSAGE_REVIEW_STATUS, POST_STATUS } from "@/lib/constants";
 import { audit, requireAdmin } from "@/app/actions/admin/core";
 
 export async function reviewPost(formData: FormData) {
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId } = await requireAdmin("review");
   const postId = String(formData.get("postId") ?? "");
   const decision = String(formData.get("decision") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
@@ -21,7 +21,7 @@ export async function reviewPost(formData: FormData) {
 }
 
 export async function reviewMessage(formData: FormData) {
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId } = await requireAdmin("review");
   const messageId = String(formData.get("messageId") ?? "");
   const decision = String(formData.get("decision") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
@@ -42,7 +42,7 @@ export async function reviewMessage(formData: FormData) {
 }
 
 export async function reviewBadgeApplication(formData: FormData) {
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId } = await requireAdmin("review");
   const applicationId = String(formData.get("applicationId") ?? "");
   const decision = String(formData.get("decision") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();

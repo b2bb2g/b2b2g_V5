@@ -22,11 +22,11 @@ export function PageHeader({
             className="mb-3 block h-1 w-9 rounded-full bg-primary"
             aria-hidden="true"
           />
-          <h1 className="text-2xl font-extrabold tracking-[-.035em] sm:text-3xl">
+          <h1 className="type-page-title">
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-2 text-sm leading-6 text-ink-soft">{subtitle}</p>
+            <p className="type-ui mt-2 text-ink-soft">{subtitle}</p>
           )}
         </div>
         {action}

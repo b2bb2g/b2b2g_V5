@@ -1,6 +1,6 @@
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { addTier, toggleTierPermission } from "@/app/actions/admin/catalog";
+import { addTier, toggleTierPermission, updateTier } from "@/app/actions/admin/catalog";
 import { PERMISSION_ACTIONS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
 
@@ -74,6 +74,29 @@ export default async function TiersAdminPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-base font-bold">{t.common.edit}</h2>
+        <div className="grid gap-3 lg:grid-cols-2">
+          {(tiers ?? []).map((tier) => (
+            <form key={tier.id} action={updateTier} className="card space-y-3 p-4">
+              <input type="hidden" name="id" value={tier.id} />
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-mono text-xs font-semibold text-ink-faint">{tier.code}</p>
+                <label className="flex items-center gap-2 text-xs text-ink-soft">
+                  <input type="checkbox" name="isPaid" defaultChecked={tier.is_paid} className="h-4 w-4 rounded accent-primary" />
+                  {t.admin.paidTier}
+                </label>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input name="nameEn" required defaultValue={tier.name_en} aria-label={t.admin.nameEn} className="field px-2 py-1.5 text-xs" />
+                <input name="nameKo" defaultValue={tier.name_ko} aria-label={t.admin.nameKo} className="field px-2 py-1.5 text-xs" />
+              </div>
+              <PendingButton className="btn-secondary btn-sm">{t.common.save}</PendingButton>
+            </form>
+          ))}
         </div>
       </section>
 

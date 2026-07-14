@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
-import { createClient } from "@/lib/supabase/server";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BadgePill } from "@/components/ui/Badge";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
@@ -9,17 +8,28 @@ import { PendingButton } from "@/components/ui/PendingButton";
 import {
   adminSendPasswordReset,
   saveMemberMemo,
+  setCoordinatorMessageOverride,
   setMemberStatus,
   withdrawMember,
 } from "@/app/actions/admin";
-import { MEMBER_STATUS } from "@/lib/constants";
+import { requireAdmin } from "@/app/actions/admin/core";
+import { MEMBER_STATUS, STORAGE_BUCKETS } from "@/lib/constants";
 
 // Admin member detail (D3): full picture of one member in one place.
 export default async function AdminMemberDetailPage(props: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string; toast?: string }>;
 }) {
-  const { id } = await props.params;
-  const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
+  const [{ id }, searchParams] = await Promise.all([
+    props.params,
+    props.searchParams,
+  ]);
+  const [{ t, locale }, access] = await Promise.all([
+    getT(),
+    requireAdmin("members"),
+  ]);
+  const { supabase, isOwner, permissions } = access;
+  const canReviewBadges = isOwner || permissions.includes("review");
 
   const { data: profileRow } = await supabase
     .from("profiles")
@@ -38,6 +48,7 @@ export default async function AdminMemberDetailPage(props: {
     status: string;
     suspend_reason: string | null;
     is_coordinator: boolean;
+    coordinator_msg_override: "allow" | "deny" | null;
     referred_by: string | null;
     last_seen_at: string | null;
     created_at: string;
@@ -57,6 +68,7 @@ export default async function AdminMemberDetailPage(props: {
     { count: rejectedPostCount },
     { data: rejectedPosts },
     { count: rejectedMsgCount },
+    { data: badgeApplications },
   ] = await Promise.all([
       supabase
         .from("member_badges")
@@ -117,13 +129,49 @@ export default async function AdminMemberDetailPage(props: {
         .select("id", { count: "exact", head: true })
         .eq("sender_id", id)
         .eq("review_status", "rejected"),
+      canReviewBadges
+        ? supabase
+            .from("badge_applications")
+            .select(
+              "id, status, document_paths, created_at, badge_types(name_en, name_ko)"
+            )
+            .eq("profile_id", id)
+            .order("created_at", { ascending: false })
+            .limit(5)
+        : Promise.resolve({ data: [] }),
     ]);
+
+  const badgeApplicationDocs = await Promise.all(
+    (badgeApplications ?? []).map(async (application) => ({
+      ...application,
+      docs: await Promise.all(
+        ((application.document_paths ?? []) as string[]).map(async (path) => {
+          const { data: signed } = await supabase.storage
+            .from(STORAGE_BUCKETS.BADGE_DOCS)
+            .createSignedUrl(path, 600);
+          return {
+            name:
+              path.split("/").pop()?.replace(/^[0-9a-f-]{36}-/, "") ?? path,
+            url: signed?.signedUrl ?? null,
+          };
+        })
+      ),
+    }))
+  );
 
   const statusLabels: Record<string, string> = t.admin.memberStatus;
   const postStatusLabels: Record<string, string> = t.post.status;
 
   return (
     <div className="space-y-5">
+      {searchParams.error === "suspend_reason_required" && (
+        <p
+          role="alert"
+          className="rounded-xl bg-negative-soft px-4 py-3 text-sm font-semibold text-negative"
+        >
+          {t.admin.suspendReasonRequired}
+        </p>
+      )}
       <header className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-extrabold">
@@ -267,6 +315,57 @@ export default async function AdminMemberDetailPage(props: {
         </div>
       </section>
 
+      {canReviewBadges && badgeApplicationDocs.length > 0 && (
+        <section className="card overflow-hidden">
+          <div className="border-b border-line px-4 py-3">
+            <h3 className="text-sm font-bold">
+              {t.admin.memberBadgeApplications}
+            </h3>
+            <p className="mt-1 text-xs text-ink-faint">
+              {t.admin.memberBadgeApplicationsHint}
+            </p>
+          </div>
+          <div className="divide-y divide-line">
+            {badgeApplicationDocs.map((application) => {
+              const badgeType = Array.isArray(application.badge_types)
+                ? application.badge_types[0]
+                : application.badge_types;
+              return (
+                <article key={application.id} className="px-4 py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold">
+                      {locale === "ko"
+                        ? badgeType?.name_ko
+                        : badgeType?.name_en}
+                    </p>
+                    <StatusLabel
+                      status={application.status}
+                      label={application.status}
+                    />
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {application.docs.map(
+                      (doc) =>
+                        doc.url && (
+                          <a
+                            key={doc.url}
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-lg bg-surface-sub px-3 py-2 text-xs font-semibold text-primary-strong"
+                          >
+                            {doc.name}
+                          </a>
+                        )
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Admin memo (admin-only table, PRD 17.2) */}
       <form action={saveMemberMemo} className="card space-y-2 p-4">
         <p className="text-sm font-bold">
@@ -316,6 +415,37 @@ export default async function AdminMemberDetailPage(props: {
         )}
       </div>
 
+      {member.is_coordinator && (
+        <form
+          action={setCoordinatorMessageOverride}
+          className="card space-y-3 p-4"
+        >
+          <div>
+            <p className="text-sm font-bold">
+              {t.admin.coordinatorMessageOverride}
+            </p>
+            <p className="mt-1 text-xs text-ink-faint">
+              {t.admin.coordinatorMessageOverrideHint}
+            </p>
+          </div>
+          <input type="hidden" name="profileId" value={member.id} />
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <select
+              name="override"
+              defaultValue={member.coordinator_msg_override ?? "inherit"}
+              className="field flex-1"
+            >
+              <option value="inherit">{t.admin.policyInherit}</option>
+              <option value="allow">{t.admin.policyAllow}</option>
+              <option value="deny">{t.admin.policyDeny}</option>
+            </select>
+            <PendingButton className="btn-secondary btn-md">
+              {t.common.save}
+            </PendingButton>
+          </div>
+        </form>
+      )}
+
       {/* Status actions with double confirmation */}
       <form action={setMemberStatus} className="card space-y-2 p-4">
         <input type="hidden" name="profileId" value={member.id} />
@@ -323,6 +453,7 @@ export default async function AdminMemberDetailPage(props: {
           <>
             <input
               name="reason"
+              required
               placeholder={t.admin.suspendReason}
               className="field"
             />

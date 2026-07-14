@@ -8,7 +8,7 @@ function escapeHtml(value: string) {
 
 export async function sendSecurityEmail(input: {
   to: string;
-  kind: "new_device" | "failed_attempts";
+  kind: "new_device" | "failed_attempts" | "suspicious_signin";
   device: string;
   location: string;
   ip: string;
@@ -16,10 +16,14 @@ export async function sendSecurityEmail(input: {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const title = input.kind === "new_device"
     ? "New sign-in to your B2BB2G account"
-    : "Several unsuccessful sign-in attempts detected";
+    : input.kind === "suspicious_signin"
+      ? "Sign-in from a different location"
+      : "Several unsuccessful sign-in attempts detected";
   const lead = input.kind === "new_device"
     ? "We noticed a sign-in from a browser or device we did not recognize."
-    : "Several unsuccessful sign-in attempts were made on your account within 15 minutes.";
+    : input.kind === "suspicious_signin"
+      ? "We noticed a sign-in from a country that differs from your recent activity."
+      : "Several unsuccessful sign-in attempts were made on your account within 15 minutes.";
   const result = await sendEmail({
     to: input.to,
     subject: title,

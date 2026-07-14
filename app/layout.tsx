@@ -124,6 +124,13 @@ export default async function RootLayout({
           <GlobalBanners
             cookie={t.cookie}
             pwa={t.pwa}
+            cookieMessage={settingString(
+              settings,
+              locale === "ko"
+                ? SETTING_KEYS.COOKIE_BANNER_TEXT_KO
+                : SETTING_KEYS.COOKIE_BANNER_TEXT_EN,
+              t.cookie.message,
+            )}
             pwaEnabled={settingBool(
               settings,
               SETTING_KEYS.PWA_BANNER_ENABLED,

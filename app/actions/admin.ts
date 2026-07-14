@@ -8,7 +8,7 @@ import { audit, requireAdmin } from "@/app/actions/admin/core";
 
 // ---- Member management (D3) ----------------------------------------------
 export async function saveMemberMemo(formData: FormData) {
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId } = await requireAdmin("members");
   const profileId = String(formData.get("profileId") ?? "");
   const memo = String(formData.get("memo") ?? "").trim();
 
@@ -23,11 +23,14 @@ export async function saveMemberMemo(formData: FormData) {
 }
 
 export async function setMemberStatus(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("members");
   const profileId = String(formData.get("profileId") ?? "");
   const status = String(formData.get("status") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
   if (!["active", "suspended"].includes(status)) return;
+  if (status === "suspended" && !reason) {
+    redirect(`/admin/members/${profileId}?error=suspend_reason_required`);
+  }
 
   await supabase
     .from("profiles")
@@ -43,7 +46,7 @@ export async function setMemberStatus(formData: FormData) {
 
 // Bulk member actions (PRD 17.2): notify or retier the selected members.
 export async function bulkMemberAction(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("members");
   const ids = formData.getAll("ids").map(String).filter(Boolean);
   const action = String(formData.get("bulkAction") ?? "");
   if (!ids.length) return;
@@ -71,7 +74,7 @@ export async function bulkMemberAction(formData: FormData) {
 }
 
 export async function adminSendPasswordReset(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("members");
   const profileId = String(formData.get("profileId") ?? "");
   const { data: contact } = await supabase
     .from("profile_contacts")
@@ -87,7 +90,7 @@ export async function adminSendPasswordReset(formData: FormData) {
 
 // Withdrawal with anonymization (PRD 17.2): posts stay, identity goes.
 export async function withdrawMember(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("members");
   const profileId = String(formData.get("profileId") ?? "");
   await supabase.rpc("withdraw_member", { target: profileId });
   revalidatePath(`/admin/members/${profileId}`);
@@ -96,7 +99,7 @@ export async function withdrawMember(formData: FormData) {
 
 // ---- Menus ---------------------------------------------------------------
 export async function toggleMenuFlag(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("catalog");
   const menuId = String(formData.get("menuId") ?? "");
   const flag = String(formData.get("flag") ?? "");
   const value = String(formData.get("value") ?? "") === "true";
@@ -110,7 +113,7 @@ export async function toggleMenuFlag(formData: FormData) {
 
 // Reorder menus by swapping sort_order with the neighbour (PRD 17.6).
 export async function moveMenu(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("catalog");
   const menuId = String(formData.get("menuId") ?? "");
   const direction = Number(formData.get("direction") ?? 0);
   if (!menuId || ![-1, 1].includes(direction)) return;
@@ -134,7 +137,7 @@ export async function moveMenu(formData: FormData) {
 }
 
 export async function createMenu(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("catalog");
   const slug = String(formData.get("slug") ?? "")
     .trim()
     .toLowerCase()
@@ -165,7 +168,7 @@ export async function createMenu(formData: FormData) {
 }
 
 export async function updateMenu(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("catalog");
   const menuId = String(formData.get("menuId") ?? "");
   const titleEn = String(formData.get("titleEn") ?? "").trim();
   const titleKo = String(formData.get("titleKo") ?? "").trim();
@@ -181,7 +184,7 @@ export async function updateMenu(formData: FormData) {
 }
 
 export async function deleteMenu(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("catalog");
   const menuId = String(formData.get("menuId") ?? "");
   if (!menuId) return;
 
@@ -209,7 +212,7 @@ export async function saveHomepageAdmin(
   profileId: string,
   input: HomepageInput
 ): Promise<{ error?: string }> {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("members");
 
   const slug = input.slug.trim().toLowerCase();
   if (!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) return { error: "slug" };
@@ -237,7 +240,7 @@ export async function saveHomepageAdmin(
 
 // ---- Coordinator role (D4) --------------------------------------------------
 export async function setCoordinatorRole(formData: FormData) {
-  const { supabase } = await requireAdmin();
+  const { supabase } = await requireAdmin("members");
   const profileId = String(formData.get("profileId") ?? "");
   const enable = String(formData.get("enable") ?? "") === "true";
 
@@ -247,11 +250,30 @@ export async function setCoordinatorRole(formData: FormData) {
     .eq("id", profileId);
   await audit(supabase, enable ? "coordinator_grant" : "coordinator_revoke", "profile", profileId);
   revalidatePath("/admin/referrals");
+  revalidatePath(`/admin/members/${profileId}`);
+}
+
+export async function setCoordinatorMessageOverride(formData: FormData) {
+  const { supabase } = await requireAdmin("members");
+  const profileId = String(formData.get("profileId") ?? "");
+  const override = String(formData.get("override") ?? "inherit");
+  if (!profileId || !["inherit", "allow", "deny"].includes(override)) return;
+
+  const value = override === "inherit" ? null : override;
+  await supabase
+    .from("profiles")
+    .update({ coordinator_msg_override: value })
+    .eq("id", profileId)
+    .eq("is_coordinator", true);
+  await audit(supabase, "coordinator_message_override", "profile", profileId, {
+    override,
+  });
+  revalidatePath(`/admin/members/${profileId}`);
 }
 
 // ---- Settings ------------------------------------------------------------
 export async function updateSetting(formData: FormData) {
-  const { supabase, userId } = await requireAdmin();
+  const { supabase, userId } = await requireAdmin("settings");
   const key = String(formData.get("key") ?? "");
   const kind = String(formData.get("kind") ?? "string");
   const raw = String(formData.get("value") ?? "");

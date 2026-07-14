@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 export type AdminNavGroup = {
   label: string;
-  items: { href: string; label: string }[];
+  items: { href: string; label: string; badge?: number }[];
 };
 
 // Admin console navigation: grouped sidebar on desktop (data-dense screens
@@ -31,7 +31,7 @@ export function AdminNav({ groups }: { groups: AdminNavGroup[] }) {
                   : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
               }`}
             >
-              {item.label}
+              {item.label}{item.badge ? <span className="ml-1.5 rounded-full bg-negative px-1.5 py-0.5 text-[10px] font-extrabold text-white">{item.badge > 99 ? "99+" : item.badge}</span> : null}
             </Link>
           ))}
       </nav>
@@ -40,7 +40,7 @@ export function AdminNav({ groups }: { groups: AdminNavGroup[] }) {
       <nav className="sticky top-24 hidden self-start overflow-hidden rounded-[1.5rem] bg-[#101923] p-3 text-white shadow-[0_20px_55px_rgba(16,25,35,.15)] lg:block">
         {groups.map((group) => (
           <div key={group.label} className="mb-4 last:mb-0">
-            <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-white/40">
+            <p className="px-3 text-xs font-bold uppercase tracking-wider text-white/50">
               {group.label}
             </p>
             <ul className="mt-1.5 space-y-0.5">
@@ -54,7 +54,7 @@ export function AdminNav({ groups }: { groups: AdminNavGroup[] }) {
                         : "text-white/58 hover:bg-white/7 hover:text-white"
                     }`}
                   >
-                    {item.label}
+                    <span className="flex items-center justify-between gap-2"><span>{item.label}</span>{item.badge ? <span className="min-w-5 rounded-full bg-negative px-1.5 py-0.5 text-center text-[10px] font-extrabold text-white">{item.badge > 99 ? "99+" : item.badge}</span> : null}</span>
                   </Link>
                 </li>
               ))}

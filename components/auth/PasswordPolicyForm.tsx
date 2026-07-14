@@ -55,7 +55,7 @@ export function PasswordPolicyForm({ email, labels }: { email: string; labels: L
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[11px] leading-5 text-ink-faint">{labels.symbolHint}</p>
+        <p className="mt-2 text-xs leading-5 text-ink-faint">{labels.symbolHint}</p>
       </fieldset>
       <PendingButton disabled={!valid} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-strong disabled:opacity-60">
         {labels.submit}

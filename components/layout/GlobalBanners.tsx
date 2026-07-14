@@ -5,7 +5,7 @@
    the browser; a one-shot state sync after mount is the standard pattern to
    avoid SSR hydration mismatches. */
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { COOKIE_CONSENT_KEY } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
 
@@ -26,11 +26,13 @@ export function GlobalBanners({
   pwa,
   pwaEnabled,
   redisplayDays,
+  cookieMessage,
 }: {
   cookie: Dictionary["cookie"];
   pwa: Dictionary["pwa"];
   pwaEnabled: boolean;
   redisplayDays: number;
+  cookieMessage?: string;
 }) {
   const [consentDone, setConsentDone] = useState(true);
   const [pwaDismissed, setPwaDismissed] = useState(true);
@@ -94,9 +96,28 @@ export function GlobalBanners({
     dismissPwa();
   }
 
+  const showCookie = !isInApp && !consentDone;
+  const showPwa =
+    !isInApp &&
+    consentDone &&
+    pwaEnabled &&
+    !pwaDismissed &&
+    !isStandalone &&
+    (isIos || !!installPrompt);
+
+  useLayoutEffect(() => {
+    const visible = showCookie || showPwa;
+    document.body.classList.add("global-banner-ready");
+    document.body.classList.toggle("has-global-banner", visible);
+    return () => {
+      document.body.classList.remove("global-banner-ready");
+      document.body.classList.remove("has-global-banner");
+    };
+  }, [showCookie, showPwa]);
+
   if (isInApp) return null;
 
-  if (!consentDone) {
+  if (showCookie) {
     return (
       <div
         className="global-banner fixed inset-x-0 bottom-0 z-50 p-2 sm:p-3"
@@ -104,21 +125,21 @@ export function GlobalBanners({
         aria-live="polite"
       >
         <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-2.5 shadow-lg sm:flex sm:items-center sm:gap-4 sm:px-4 sm:py-3">
-          <p className="line-clamp-2 flex-1 text-[11px] leading-4 text-ink-soft sm:text-xs sm:leading-relaxed">
-            {cookie.message}
+          <p className="line-clamp-2 flex-1 text-xs leading-5 text-ink-soft">
+            {cookieMessage || cookie.message}
           </p>
           <div className="mt-2 flex shrink-0 gap-2 sm:mt-0">
             <button
               type="button"
               onClick={() => saveConsent(false)}
-              className="flex-1 rounded-xl bg-surface-sub px-3 py-1.5 text-[11px] font-semibold text-ink-soft sm:px-4 sm:py-2 sm:text-xs"
+              className="flex-1 rounded-xl bg-surface-sub px-3 py-1.5 text-xs font-semibold text-ink-soft sm:px-4 sm:py-2"
             >
               {cookie.essentialOnly}
             </button>
             <button
               type="button"
               onClick={() => saveConsent(true)}
-              className="flex-1 rounded-xl bg-primary px-3 py-1.5 text-[11px] font-bold text-white sm:px-4 sm:py-2 sm:text-xs"
+              className="flex-1 rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-white sm:px-4 sm:py-2"
             >
               {cookie.acceptAll}
             </button>
@@ -128,8 +149,6 @@ export function GlobalBanners({
     );
   }
 
-  const showPwa =
-    pwaEnabled && !pwaDismissed && !isStandalone && (isIos || !!installPrompt);
   if (!showPwa) return null;
 
   return (

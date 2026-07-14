@@ -2,23 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { audit, requireAdmin } from "@/app/actions/admin/core";
 
 export async function reviewFeedReport(formData: FormData) {
   const reportId = String(formData.get("reportId") ?? "");
   const postId = String(formData.get("postId") ?? "");
   const decision = String(formData.get("decision") ?? "dismiss");
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/admin/feed");
-  const { data: admin } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (!admin?.is_admin) redirect("/");
+  const { supabase, userId } = await requireAdmin("review");
 
   if (decision === "hide") {
     const { error: postError } = await supabase
@@ -33,7 +23,7 @@ export async function reviewFeedReport(formData: FormData) {
       .from("member_feed_reports")
       .update({
         status: "resolved",
-        reviewed_by: user.id,
+        reviewed_by: userId,
         reviewed_at: new Date().toISOString(),
       })
       .eq("post_id", postId)
@@ -44,12 +34,14 @@ export async function reviewFeedReport(formData: FormData) {
       .from("member_feed_reports")
       .update({
         status: "dismissed",
-        reviewed_by: user.id,
+        reviewed_by: userId,
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", reportId);
     if (error) redirect("/admin/feed?error=review");
   }
+
+  await audit(supabase, `feed_report_${decision}`, "member_feed_post", postId, { reportId });
 
   revalidatePath("/");
   revalidatePath("/feed");

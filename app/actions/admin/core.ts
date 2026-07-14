@@ -3,13 +3,65 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export async function requireAdmin() {
+export type AdminPermission =
+  | "overview"
+  | "review"
+  | "members"
+  | "subscriptions"
+  | "catalog"
+  | "content"
+  | "notifications"
+  | "security"
+  | "settings"
+  | "audit"
+  | "team";
+
+const ADMIN_PERMISSIONS: AdminPermission[] = [
+  "overview",
+  "review",
+  "members",
+  "subscriptions",
+  "catalog",
+  "content",
+  "notifications",
+  "security",
+  "settings",
+  "audit",
+  "team",
+];
+
+export async function requireAdmin(permission?: AdminPermission) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-  if (!profile?.is_admin) redirect("/");
-  return { supabase, userId: user.id };
+  const [{ data: owner }, { data: allowed }] = await Promise.all([
+    supabase.rpc("is_platform_owner"),
+    permission
+      ? supabase.rpc("has_admin_permission", { requested: permission })
+      : supabase.rpc("has_any_admin_access"),
+  ]);
+  if (!allowed) redirect("/");
+
+  let permissions: AdminPermission[] = ADMIN_PERMISSIONS;
+  if (!owner) {
+    const { data: assignment } = await supabase
+      .from("admin_staff_assignments")
+      .select("permissions")
+      .eq("profile_id", user.id)
+      .eq("is_active", true)
+      .maybeSingle();
+    permissions = ((assignment?.permissions ?? []) as string[]).filter(
+      (item): item is AdminPermission =>
+        ADMIN_PERMISSIONS.includes(item as AdminPermission)
+    );
+  }
+
+  return {
+    supabase,
+    userId: user.id,
+    isOwner: Boolean(owner),
+    permissions,
+  };
 }
 
 export async function audit(

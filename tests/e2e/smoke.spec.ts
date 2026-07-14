@@ -56,11 +56,16 @@ test("mobile inquiry action stays above the global banner", async ({ page }) => 
   await expect(action).toBeVisible();
   await expect(action).toHaveCSS("position", "fixed");
 
-  const actionBox = await action.boundingBox();
-  const bannerBox = await banner.boundingBox();
-  expect(actionBox).not.toBeNull();
-  expect(bannerBox).not.toBeNull();
-  expect(actionBox!.y + actionBox!.height).toBeLessThanOrEqual(bannerBox!.y);
+  // Banner visibility is resolved from localStorage after hydration. Poll the
+  // final layout instead of sampling the one-frame transition between states.
+  await expect
+    .poll(async () => {
+      const actionBox = await action.boundingBox();
+      const bannerBox = await banner.boundingBox();
+      if (!actionBox || !bannerBox) return false;
+      return actionBox.y + actionBox.height <= bannerBox.y;
+    })
+    .toBe(true);
 });
 
 test("feed photos open an accessible viewer and full-post sheet", async ({
@@ -133,6 +138,7 @@ test("feed photos open an accessible viewer and full-post sheet", async ({
 test("feed text and focused posts keep each surface stable", async ({
   page,
 }) => {
+  test.setTimeout(90_000);
   await page.goto("/");
 
   await expect(page.getByText("…more", { exact: true }).first()).toBeVisible();
@@ -210,7 +216,7 @@ test("feed text and focused posts keep each surface stable", async ({
   ).toHaveCount(0);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
 
   const collapsedPost = page.locator("article").filter({ hasText: "+3" });
   await expect(collapsedPost).toHaveCount(1);

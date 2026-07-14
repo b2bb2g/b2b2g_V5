@@ -44,11 +44,11 @@ export function BoardHero({
         aria-hidden="true"
       />
       <div className="relative max-w-2xl">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#79b4ff]">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#79b4ff]">
           {eyebrow} · {type}
         </p>
         <div className="mt-3 flex flex-wrap items-end gap-3">
-          <h1 className="text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
+          <h1 className="text-[2rem] leading-[1.08] font-extrabold tracking-[-.04em] sm:text-[2.75rem] lg:text-5xl">
             {title}
           </h1>
           <span className="mb-1 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/65">

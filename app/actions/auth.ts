@@ -163,7 +163,7 @@ export async function signIn(formData: FormData) {
       supabase
         .from("site_settings")
         .select("key, value")
-        .in("key", ["login_session_policy", "new_device_email_alert"]),
+        .in("key", ["login_session_policy", "new_device_email_alert", "suspicious_login_email_alert"]),
     ]);
     const isNewDevice = !knownDevice;
     const priorCountry = knownDevice?.last_country || recentLogin?.country;
@@ -215,6 +215,15 @@ export async function signIn(formData: FormData) {
       await sendSecurityEmail({
         to: email,
         kind: "new_device",
+        device: securityContext.deviceLabel,
+        location: [securityContext.city, securityContext.country].filter(Boolean).join(", "),
+        ip: securityContext.ipMasked,
+      });
+    }
+    if (countryChanged && settingMap.suspicious_login_email_alert === true) {
+      await sendSecurityEmail({
+        to: email,
+        kind: "suspicious_signin",
         device: securityContext.deviceLabel,
         location: [securityContext.city, securityContext.country].filter(Boolean).join(", "),
         ip: securityContext.ipMasked,

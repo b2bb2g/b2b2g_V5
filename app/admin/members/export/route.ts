@@ -8,12 +8,17 @@ export async function GET() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return new Response(null, { status: 401 });
-  const { data: me } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", user.id)
-    .single();
-  if (!me?.is_admin) return new Response(null, { status: 403 });
+  const [{ data: allowed }, { data: assurance }] = await Promise.all([
+    supabase.rpc("has_admin_permission", { requested: "members" }),
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+  ]);
+  if (!allowed) return new Response(null, { status: 403 });
+  if (assurance?.currentLevel !== "aal2") {
+    return new Response(null, {
+      status: 403,
+      headers: { "X-B2BB2G-MFA-Required": "true" },
+    });
+  }
 
   const { data } = await supabase
     .from("profiles")
