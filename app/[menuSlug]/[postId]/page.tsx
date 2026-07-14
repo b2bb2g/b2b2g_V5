@@ -430,9 +430,8 @@ export default async function PostDetailPage(props: {
           </Link>
         </nav>
 
-        <section className="overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
-          <div className="grid lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,.82fr)]">
-            <div className="min-w-0 p-3 sm:p-5 lg:p-7">
+        <section className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(21rem,.78fr)] lg:gap-5">
+          <div className="min-w-0 overflow-hidden rounded-[1.75rem] border border-line/80 bg-white p-3 shadow-(--shadow-card) sm:p-4">
               {commerceImages.length > 0 || embed ? (
                 <MediaGallery
                   images={commerceImages}
@@ -452,9 +451,9 @@ export default async function PostDetailPage(props: {
                   <MediaPlaceholder />
                 </div>
               )}
-            </div>
+          </div>
 
-            <header className="flex min-w-0 flex-col border-t border-line p-6 sm:p-8 lg:border-l lg:border-t-0 lg:p-10">
+          <header className="flex min-w-0 flex-col rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-8 lg:min-h-full">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
@@ -557,11 +556,49 @@ export default async function PostDetailPage(props: {
                 ) : null}
               </div>
             </header>
-          </div>
         </section>
 
+        <nav
+          aria-label={t.post.detailNavigation}
+          className="scrollbar-none sticky top-16 z-20 -mx-1 flex overflow-x-auto border-b border-line bg-[#f7f8fa]/95 px-1 pt-1 backdrop-blur sm:top-18"
+        >
+          <a
+            href="#product-overview"
+            className="shrink-0 border-b-2 border-ink px-5 py-4 text-sm font-extrabold text-ink"
+          >
+            {t.post.productInformation}
+          </a>
+          {full && full.specs.length > 0 && (
+            <a
+              href="#product-specifications"
+              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+            >
+              {t.post.specs}
+            </a>
+          )}
+          {full && full.attachments.length > 0 && (
+            <a
+              href="#product-attachments"
+              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+            >
+              {t.post.attachments}
+            </a>
+          )}
+          {relatedProducts.length > 0 && (
+            <a
+              href="#related-products"
+              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+            >
+              {t.post.relatedProducts}
+            </a>
+          )}
+        </nav>
+
         {full ? (
-          <section className="w-full overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
+          <section
+            id="product-overview"
+            className="w-full scroll-mt-32 overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]"
+          >
             <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
               <div className="mx-auto max-w-4xl">
                 <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
@@ -583,7 +620,10 @@ export default async function PostDetailPage(props: {
                 </div>
 
                 {full.specs.length > 0 && (
-                  <div className="mt-10 border-t border-line pt-8">
+                  <div
+                    id="product-specifications"
+                    className="mt-10 scroll-mt-32 border-t border-line pt-8"
+                  >
                     <h2 className="text-xl font-extrabold tracking-[-.02em]">
                       {t.post.specs}
                     </h2>
@@ -608,7 +648,10 @@ export default async function PostDetailPage(props: {
                 )}
 
                 {full.attachments.length > 0 && (
-                  <div className="mt-10 border-t border-line pt-8">
+                  <div
+                    id="product-attachments"
+                    className="mt-10 scroll-mt-32 border-t border-line pt-8"
+                  >
                     <h2 className="text-xl font-extrabold tracking-[-.02em]">
                       {t.post.attachments}
                     </h2>
