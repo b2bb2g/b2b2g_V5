@@ -560,53 +560,14 @@ export default async function PostDetailPage(props: {
           </div>
         </section>
 
-        <nav
-          aria-label={t.post.detailNavigation}
-          className="scrollbar-none sticky top-16 z-20 -mx-1 flex overflow-x-auto border-b border-line bg-[#f7f8fa]/95 px-1 pt-1 backdrop-blur sm:top-18"
-        >
-          <a
-            href="#product-overview"
-            className="shrink-0 border-b-2 border-ink px-5 py-4 text-sm font-extrabold text-ink"
-          >
-            {t.post.productInformation}
-          </a>
-          {full && full.specs.length > 0 && (
-            <a
-              href="#product-specifications"
-              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
-            >
-              {t.post.specs}
-            </a>
-          )}
-          {full && full.attachments.length > 0 && (
-            <a
-              href="#product-attachments"
-              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
-            >
-              {t.post.attachments}
-            </a>
-          )}
-          {relatedProducts.length > 0 && (
-            <a
-              href="#related-products"
-              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
-            >
-              {t.post.relatedProducts}
-            </a>
-          )}
-        </nav>
-
-        <div className="mx-auto w-full max-w-5xl space-y-6">
-          {full ? (
-            <>
-              <section
-                id="product-overview"
-                className="scroll-mt-32 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-10"
-              >
-                <h2 className="text-2xl font-extrabold tracking-[-.03em]">
+        {full ? (
+          <section className="w-full overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
+            <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+              <div className="mx-auto max-w-4xl">
+                <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
                   {t.post.productInformation}
-                </h2>
-                <div className="mt-6 max-w-[76ch]">
+                </p>
+                <div className="mt-6">
                   {isRichText(body) ? (
                     <RichContentViewer
                       html={sanitizeRichText(body)}
@@ -620,100 +581,92 @@ export default async function PostDetailPage(props: {
                     </div>
                   )}
                 </div>
-              </section>
 
-              {full.specs.length > 0 && (
-                <section
-                  id="product-specifications"
-                  className="scroll-mt-32 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-10"
-                >
-                  <h2 className="text-2xl font-extrabold tracking-[-.03em]">
-                    {t.post.specs}
-                  </h2>
-                  <dl className="mt-6 grid overflow-hidden rounded-2xl border border-line sm:grid-cols-2">
-                    {full.specs.map((spec) => (
-                      <div
-                        key={spec.id}
-                        className="border-b border-line p-4 last:border-b-0 sm:border-r sm:[&:nth-last-child(-n+2)]:border-b-0 sm:[&:nth-child(2n)]:border-r-0"
-                      >
-                        <dt className="text-xs font-bold text-ink-faint">
-                          {locale === "ko" && spec.name_ko
-                            ? spec.name_ko
-                            : spec.name_en}
-                        </dt>
-                        <dd className="mt-1.5 text-sm font-semibold leading-6 text-ink">
-                          {spec.value}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                </section>
-              )}
-
-              {full.attachments.length > 0 && (
-                <section
-                  id="product-attachments"
-                  className="scroll-mt-32 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-10"
-                >
-                  <h2 className="text-2xl font-extrabold tracking-[-.03em]">
-                    {t.post.attachments}
-                  </h2>
-                  <ul className="mt-6 overflow-hidden rounded-2xl border border-line">
-                    {full.attachments.map((attachment) => (
-                      <li
-                        key={attachment.id}
-                        className="border-b border-line last:border-b-0"
-                      >
-                        <Link
-                          href={`/api/attachments/${attachment.id}`}
-                          className="group flex items-center justify-between gap-4 px-4 py-4 text-sm font-bold text-ink transition hover:bg-primary-soft/40 hover:text-primary-strong"
+                {full.specs.length > 0 && (
+                  <div className="mt-10 border-t border-line pt-8">
+                    <h2 className="text-xl font-extrabold tracking-[-.02em]">
+                      {t.post.specs}
+                    </h2>
+                    <dl className="mt-5 grid overflow-hidden rounded-2xl border border-line sm:grid-cols-2">
+                      {full.specs.map((spec) => (
+                        <div
+                          key={spec.id}
+                          className="border-b border-line p-4 last:border-b-0 sm:border-r sm:[&:nth-last-child(-n+2)]:border-b-0 sm:[&:nth-child(2n)]:border-r-0"
                         >
-                          <span className="min-w-0 truncate">
-                            {attachment.filename}
-                          </span>
-                          <span
-                            aria-hidden="true"
-                            className="shrink-0 text-primary transition-transform group-hover:translate-y-0.5"
+                          <dt className="text-xs font-bold text-ink-faint">
+                            {locale === "ko" && spec.name_ko
+                              ? spec.name_ko
+                              : spec.name_en}
+                          </dt>
+                          <dd className="mt-1.5 text-sm font-semibold leading-6 text-ink">
+                            {spec.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                )}
+
+                {full.attachments.length > 0 && (
+                  <div className="mt-10 border-t border-line pt-8">
+                    <h2 className="text-xl font-extrabold tracking-[-.02em]">
+                      {t.post.attachments}
+                    </h2>
+                    <ul className="mt-4 space-y-2">
+                      {full.attachments.map((attachment) => (
+                        <li key={attachment.id}>
+                          <Link
+                            href={`/api/attachments/${attachment.id}`}
+                            className="group flex items-center justify-between rounded-2xl bg-surface-sub px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft hover:text-primary-strong"
                           >
-                            ↓
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-            </>
-          ) : (
-            teaser && (
-              <section
-                id="product-overview"
-                className="scroll-mt-32 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-10"
-              >
-                <h2 className="text-2xl font-extrabold tracking-[-.03em]">
-                  {t.post.productInformation}
-                </h2>
-                <div className="teaser-fade mt-6 whitespace-pre-wrap text-base leading-8 text-ink-soft">
-                  {summary}
-                </div>
-                <div className="mt-7 rounded-2xl bg-surface-sub p-6 text-center">
-                  <p className="text-base font-bold">
-                    {t.post.membersOnlyTitle}
+                            <span className="min-w-0 truncate">
+                              {attachment.filename}
+                            </span>
+                            <span
+                              aria-hidden="true"
+                              className="ml-4 text-primary transition-transform group-hover:translate-y-0.5"
+                            >
+                              ↓
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        ) : (
+          teaser && (
+            <section className="w-full overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
+              <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+                <div className="mx-auto max-w-4xl">
+                  <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
+                    {t.post.productInformation}
                   </p>
-                  <p className="mt-1 text-sm text-ink-soft">
-                    {t.post.membersOnlyBody}
-                  </p>
-                  <Link
-                    href="/signup"
-                    className="mt-4 inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-                  >
-                    {t.common.signUp}
-                  </Link>
+                  <div className="teaser-fade mt-6 whitespace-pre-wrap text-base leading-8 text-ink-soft">
+                    {summary}
+                  </div>
+                  <div className="mt-8 rounded-2xl bg-surface-sub p-6 text-center">
+                    <p className="text-base font-bold">
+                      {t.post.membersOnlyTitle}
+                    </p>
+                    <p className="mt-1 text-sm text-ink-soft">
+                      {t.post.membersOnlyBody}
+                    </p>
+                    <Link
+                      href="/signup"
+                      className="mt-4 inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
+                    >
+                      {t.common.signUp}
+                    </Link>
+                  </div>
                 </div>
-              </section>
-            )
-          )}
-        </div>
+              </div>
+            </section>
+          )
+        )}
 
         {relatedProducts.length > 0 && (
           <section id="related-products" className="scroll-mt-32 pt-4">
