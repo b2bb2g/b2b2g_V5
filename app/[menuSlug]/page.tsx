@@ -18,6 +18,13 @@ import { BoardHero } from "@/components/marketplace/BoardHero";
 import { repThumbnail } from "@/lib/media";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
+import {
+  eventStatus,
+  eventDateBlock,
+  eventCountdown,
+  formatEventRange,
+  type EventStatus,
+} from "@/lib/events";
 
 export async function generateMetadata(props: {
   params: Promise<{ menuSlug: string }>;
@@ -324,15 +331,198 @@ export default async function BoardPage(props: {
           </div>
         </section>
       ) : isEventsBoard ? (
-        <section className="space-y-7">
-          {(() => {
-            const featured = posts[0];
-            const featuredTitle =
-              locale === "ko" && featured.title_ko
-                ? featured.title_ko
-                : featured.title_en;
-            const featuredThumb = repThumbnail(featured);
+        (() => {
+          const pin = () => (
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+              className="shrink-0"
+            >
+              <path d="M12 2c-3.9 0-7 3.1-7 7 0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
+            </svg>
+          );
+          const cal = () => (
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+              className="shrink-0"
+            >
+              <rect x="3" y="4.5" width="18" height="17" rx="2.5" />
+              <path d="M3 9.5h18M8 3v3M16 3v3" />
+            </svg>
+          );
+          const statusText: Record<EventStatus, string> = {
+            ongoing: t.board.eventNowOn,
+            upcoming: t.board.eventUpcomingLabel,
+            ended: t.board.eventEnded,
+          };
+          const rowPill: Record<EventStatus, string> = {
+            ongoing: "bg-positive-soft text-positive",
+            upcoming: "bg-primary-soft text-primary-strong",
+            ended: "bg-surface-sub text-ink-faint",
+          };
+
+          const withMeta = posts.map((post) => ({
+            post,
+            status: eventStatus(post.event_start, post.event_end),
+          }));
+          const startKey = (p: (typeof posts)[number]) =>
+            p.event_start ?? p.event_end ?? "9999-12-31";
+          const endKey = (p: (typeof posts)[number]) =>
+            p.event_end ?? p.event_start ?? "0000-01-01";
+          const groupRank = (s: EventStatus | null) =>
+            s === "ongoing" ? 0 : s === "upcoming" ? 1 : 2;
+
+          // Featured: the live event, else the soonest upcoming, else newest.
+          const featuredEntry =
+            withMeta.find((e) => e.status === "ongoing") ??
+            withMeta
+              .filter((e) => e.status === "upcoming")
+              .sort((a, b) =>
+                startKey(a.post) < startKey(b.post) ? -1 : 1,
+              )[0] ??
+            withMeta[0];
+          const featured = featuredEntry.post;
+          const featuredTitle =
+            locale === "ko" && featured.title_ko
+              ? featured.title_ko
+              : featured.title_en;
+          const featuredThumb = repThumbnail(featured);
+          const featuredStatus = featuredEntry.status;
+          const featuredRange = formatEventRange(
+            featured.event_start,
+            featured.event_end,
+            locale,
+          );
+          const featuredCountdown =
+            featuredStatus === "upcoming" && featured.event_start
+              ? eventCountdown(featured.event_start)
+              : null;
+
+          // Complete schedule: live + upcoming (soonest first), then past.
+          const liveUpcoming = withMeta
+            .filter((e) => e.status !== "ended")
+            .sort((a, b) => {
+              const r = groupRank(a.status) - groupRank(b.status);
+              if (r !== 0) return r;
+              return startKey(a.post) < startKey(b.post) ? -1 : 1;
+            });
+          const past = withMeta
+            .filter((e) => e.status === "ended")
+            .sort((a, b) => (endKey(a.post) > endKey(b.post) ? -1 : 1));
+
+          const renderRow = ({
+            post,
+            status,
+          }: {
+            post: (typeof posts)[number];
+            status: EventStatus | null;
+          }) => {
+            const block = eventDateBlock(
+              post.event_start,
+              post.event_end,
+              locale,
+            );
+            const range = formatEventRange(
+              post.event_start,
+              post.event_end,
+              locale,
+            );
+            const countdown =
+              status === "upcoming" && post.event_start
+                ? eventCountdown(post.event_start)
+                : null;
+            const rowTitle =
+              locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
             return (
+              <li key={post.id}>
+                <Link
+                  href={`/${menu.slug}/${post.id}`}
+                  className="group flex items-center gap-4 border-b border-line px-4 py-4 transition last:border-b-0 hover:bg-surface-sub sm:gap-5 sm:px-5"
+                >
+                  <span
+                    className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl ${
+                      status === "ended"
+                        ? "bg-surface-sub text-ink-faint"
+                        : "bg-[#101923] text-white"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {block ? (
+                      <>
+                        <span className="text-[10px] font-bold uppercase tracking-[.08em] opacity-80">
+                          {block.month}
+                        </span>
+                        <span className="text-lg font-extrabold leading-none tabular-nums">
+                          {block.day}
+                        </span>
+                        <span className="mt-0.5 text-[10px] font-semibold opacity-70">
+                          {block.year}
+                        </span>
+                      </>
+                    ) : (
+                      cal()
+                    )}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-2">
+                      {status && (
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${rowPill[status]}`}
+                        >
+                          {status === "ongoing" && (
+                            <span className="relative flex h-1.5 w-1.5">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-positive opacity-70" />
+                              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-positive" />
+                            </span>
+                          )}
+                          {statusText[status]}
+                        </span>
+                      )}
+                      {countdown && (
+                        <span className="rounded-full bg-caution-soft px-2 py-0.5 text-[11px] font-bold tabular-nums text-caution">
+                          {countdown}
+                        </span>
+                      )}
+                    </span>
+                    <strong className="mt-1.5 block truncate text-sm font-extrabold group-hover:text-primary sm:text-base">
+                      {rowTitle}
+                    </strong>
+                    <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-faint">
+                      <span className="inline-flex items-center gap-1 font-semibold text-ink-soft">
+                        {pin()}
+                        {post.event_venue ?? t.board.eventVenueTbd}
+                      </span>
+                      {range && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span>{range}</span>
+                        </>
+                      )}
+                    </span>
+                  </span>
+                  <span
+                    className="shrink-0 text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                </Link>
+              </li>
+            );
+          };
+
+          return (
+            <section className="space-y-8">
               <Link
                 href={`/${menu.slug}/${featured.id}`}
                 className={`group relative grid min-h-80 overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_24px_70px_rgba(16,25,35,.2)] ${featuredThumb ? "lg:grid-cols-[.9fr_1.1fr]" : "grid-cols-1"}`}
@@ -355,23 +545,52 @@ export default async function BoardPage(props: {
                     </span>
                   </span>
                   <span className="mt-10 border-t border-white/15 pt-6">
-                    <span className="flex items-center gap-3 text-xs font-bold text-white/50">
+                    <span className="flex flex-wrap items-center gap-2.5 text-xs font-bold">
                       <span className="uppercase tracking-[.14em] text-[#79b4ff]">
                         {t.board.featuredEvent}
                       </span>
-                      {featured.deadline && <span>{featured.deadline}</span>}
+                      {featuredStatus && (
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] ${
+                            featuredStatus === "ongoing"
+                              ? "bg-positive/20 text-[#7ee0a8]"
+                              : featuredStatus === "upcoming"
+                                ? "bg-white/15 text-white"
+                                : "bg-white/10 text-white/55"
+                          }`}
+                        >
+                          {featuredStatus === "ongoing" && (
+                            <span className="relative flex h-1.5 w-1.5">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7ee0a8] opacity-70" />
+                              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#7ee0a8]" />
+                            </span>
+                          )}
+                          {statusText[featuredStatus]}
+                        </span>
+                      )}
+                      {featuredCountdown && (
+                        <span className="rounded-full bg-white/15 px-2 py-1 text-[11px] tabular-nums text-white">
+                          {featuredCountdown}
+                        </span>
+                      )}
                     </span>
                     <span className="mt-3 flex items-end justify-between gap-5">
                       <span className="min-w-0">
                         <span className="block text-xl font-extrabold leading-snug sm:text-2xl">
                           {featuredTitle}
                         </span>
-                        <AuthorIdentity
-                          uid={featured.author_uid}
-                          badges={featured.author_badges}
-                          locale={locale}
-                          className="mt-2 text-sm text-white/55"
-                        />
+                        <span className="mt-3 flex flex-col gap-1.5 text-sm text-white/70">
+                          <span className="flex items-center gap-2">
+                            {pin()}
+                            {featured.event_venue ?? t.board.eventVenueTbd}
+                          </span>
+                          {featuredRange && (
+                            <span className="flex items-center gap-2">
+                              {cal()}
+                              {featuredRange}
+                            </span>
+                          )}
+                        </span>
                       </span>
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
                         →
@@ -396,83 +615,54 @@ export default async function BoardPage(props: {
                   </span>
                 )}
               </Link>
-            );
-          })()}
 
-          <div>
-            <div className="mb-5 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
-                  {t.board.eventDirectory}
-                </p>
-                <h2 className="mt-2 text-2xl font-extrabold tracking-[-.035em]">
-                  {t.board.exploreEvents}
-                </h2>
+              <div className="space-y-6">
+                <div>
+                  <div className="mb-4 flex items-end justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
+                        {t.board.eventDirectory}
+                      </p>
+                      <h2 className="mt-1.5 text-2xl font-extrabold tracking-[-.035em]">
+                        {t.board.exploreEvents}
+                      </h2>
+                    </div>
+                  </div>
+                  {liveUpcoming.length > 0 && (
+                    <div>
+                      <div className="mb-3 flex items-center gap-2.5">
+                        <h3 className="text-sm font-extrabold tracking-[-.01em]">
+                          {t.board.eventLiveGroup}
+                        </h3>
+                        <span className="rounded-full bg-surface-sub px-2 py-0.5 text-xs font-bold tabular-nums text-ink-faint">
+                          {liveUpcoming.length}
+                        </span>
+                      </div>
+                      <ol className="overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)">
+                        {liveUpcoming.map(renderRow)}
+                      </ol>
+                    </div>
+                  )}
+                  {past.length > 0 && (
+                    <div className="mt-7">
+                      <div className="mb-3 flex items-center gap-2.5">
+                        <h3 className="text-sm font-extrabold tracking-[-.01em] text-ink-soft">
+                          {t.board.eventPastGroup}
+                        </h3>
+                        <span className="rounded-full bg-surface-sub px-2 py-0.5 text-xs font-bold tabular-nums text-ink-faint">
+                          {past.length}
+                        </span>
+                      </div>
+                      <ol className="overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)">
+                        {past.map(renderRow)}
+                      </ol>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {posts.map((post, index) => {
-                const eventTitle =
-                  locale === "ko" && post.title_ko
-                    ? post.title_ko
-                    : post.title_en;
-                const eventThumb = repThumbnail(post);
-                return (
-                  <Link
-                    key={post.id}
-                    href={`/${menu.slug}/${post.id}`}
-                    className="card-hover group overflow-hidden"
-                  >
-                    <span className="relative block aspect-[16/9] overflow-hidden bg-surface-sub">
-                      {eventThumb ? (
-                        <SafeImage
-                          src={eventThumb}
-                          alt={eventTitle}
-                          fill
-                          priority={index < 2}
-                          sizes="(max-width:768px) 100vw, 50vw"
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      ) : (
-                        <MediaPlaceholder />
-                      )}
-                      {post.deadline && (
-                        <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-ink shadow-sm backdrop-blur">
-                          {post.deadline}
-                        </span>
-                      )}
-                    </span>
-                    <span className="block p-5 sm:p-6">
-                      <span className="flex items-start justify-between gap-5">
-                        <span className="min-w-0">
-                          <strong className="block text-lg font-extrabold leading-snug group-hover:text-primary">
-                            {eventTitle}
-                          </strong>
-                          <span className="mt-2 block max-h-12 overflow-hidden text-sm leading-6 text-ink-soft">
-                            {stripRichText(
-                              locale === "ko" && post.body_teaser_ko
-                                ? post.body_teaser_ko
-                                : post.body_teaser_en,
-                            )}
-                          </span>
-                          <AuthorIdentity
-                            uid={post.author_uid}
-                            badges={post.author_badges}
-                            locale={locale}
-                            className="mt-4 text-xs font-semibold text-ink-faint"
-                          />
-                        </span>
-                        <span className="mt-1 text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary">
-                          →
-                        </span>
-                      </span>
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+            </section>
+          );
+        })()
       ) : isGallery ? (
         <section className="pt-4">
           <div className="mb-6 flex items-end justify-between gap-4">

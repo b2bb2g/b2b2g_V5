@@ -16,6 +16,12 @@ import { RichContentViewer } from "@/components/post/RichContentViewer";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { isRichText, sanitizeRichText, stripRichText } from "@/lib/richtext";
+import {
+  eventStatus,
+  eventCountdown,
+  formatEventRange,
+  type EventStatus,
+} from "@/lib/events";
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/JsonLd";
 
@@ -110,6 +116,29 @@ export default async function PostDetailPage(props: {
   const inquiryEligible = menu.board_type !== BOARD_TYPES.NOTICE;
   const isEvent = menu.board_type === BOARD_TYPES.FLEXIBLE;
   const isCommerceProduct = menu.board_type === BOARD_TYPES.PRODUCT;
+
+  // Event schedule (flexible board): shown instead of the author identity.
+  const eventStart = post?.event_start ?? teaser?.event_start ?? null;
+  const eventEnd = post?.event_end ?? teaser?.event_end ?? null;
+  const eventVenue = post?.event_venue ?? teaser?.event_venue ?? null;
+  const evStatus: EventStatus | null = isEvent
+    ? eventStatus(eventStart, eventEnd)
+    : null;
+  const evRange = isEvent ? formatEventRange(eventStart, eventEnd, locale) : null;
+  const evCountdown =
+    isEvent && evStatus === "upcoming" && eventStart
+      ? eventCountdown(eventStart)
+      : null;
+  const evStatusText: Record<EventStatus, string> = {
+    ongoing: t.board.eventNowOn,
+    upcoming: t.board.eventUpcomingLabel,
+    ended: t.board.eventEnded,
+  };
+  const evStatusPill: Record<EventStatus, string> = {
+    ongoing: "bg-positive-soft text-positive",
+    upcoming: "bg-primary-soft text-primary-strong",
+    ended: "bg-surface-sub text-ink-faint",
+  };
 
   const statusLabels: Record<string, string> = t.post.status;
   const authorUid = full?.author?.uid ?? teaser?.author_uid;
@@ -836,27 +865,70 @@ export default async function PostDetailPage(props: {
             <h1 className="mt-5 text-2xl font-extrabold leading-[1.25] tracking-[-.035em] text-ink sm:text-3xl lg:text-[2rem]">
               {title}
             </h1>
-            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-line pt-5 text-sm text-ink-soft">
-              <span className="sr-only">{t.post.postedBy}</span>
-              <AuthorIdentity
-                uid={authorUid}
-                badges={authorBadges}
-                locale={locale}
-                linked
-              />
-              {isRequest && (
-                <StatusLabel
-                  status={isClosed ? "closed" : "approved"}
-                  label={
-                    isClosed
-                      ? t.post.closed
-                      : (post?.deadline ?? teaser?.deadline)
-                        ? `${t.post.deadline} ${post?.deadline ?? teaser?.deadline}`
-                        : t.post.openEnded
-                  }
+            {isEvent ? (
+              <div className="mt-5 border-t border-line pt-5">
+                {evStatus && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${evStatusPill[evStatus]}`}
+                    >
+                      {evStatus === "ongoing" && (
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-positive opacity-70" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-positive" />
+                        </span>
+                      )}
+                      {evStatusText[evStatus]}
+                    </span>
+                    {evCountdown && (
+                      <span className="rounded-full bg-caution-soft px-2.5 py-1 text-xs font-bold tabular-nums text-caution">
+                        {evCountdown}
+                      </span>
+                    )}
+                  </div>
+                )}
+                <dl className="mt-4 space-y-3 text-sm">
+                  {evRange && (
+                    <div className="flex items-start gap-3">
+                      <dt className="w-16 shrink-0 font-semibold text-ink-faint">
+                        {t.board.eventScheduleLabel}
+                      </dt>
+                      <dd className="font-bold text-ink">{evRange}</dd>
+                    </div>
+                  )}
+                  <div className="flex items-start gap-3">
+                    <dt className="w-16 shrink-0 font-semibold text-ink-faint">
+                      {t.board.eventVenueLabel}
+                    </dt>
+                    <dd className="font-bold text-ink">
+                      {eventVenue ?? t.board.eventVenueTbd}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            ) : (
+              <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-line pt-5 text-sm text-ink-soft">
+                <span className="sr-only">{t.post.postedBy}</span>
+                <AuthorIdentity
+                  uid={authorUid}
+                  badges={authorBadges}
+                  locale={locale}
+                  linked
                 />
-              )}
-            </div>
+                {isRequest && (
+                  <StatusLabel
+                    status={isClosed ? "closed" : "approved"}
+                    label={
+                      isClosed
+                        ? t.post.closed
+                        : (post?.deadline ?? teaser?.deadline)
+                          ? `${t.post.deadline} ${post?.deadline ?? teaser?.deadline}`
+                          : t.post.openEnded
+                    }
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           <div className="mt-auto pt-8">

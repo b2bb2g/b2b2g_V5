@@ -66,6 +66,9 @@ export type PostTeaser = {
   closed_at: string | null;
   published_at: string | null;
   created_at: string;
+  event_start: string | null;
+  event_end: string | null;
+  event_venue: string | null;
   author_uid: number;
   author_name: string | null;
   author_company: string | null;
@@ -96,6 +99,9 @@ export type Post = {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  event_start: string | null;
+  event_end: string | null;
+  event_venue: string | null;
 };
 
 export type PostSpec = {
