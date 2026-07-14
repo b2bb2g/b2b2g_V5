@@ -83,6 +83,54 @@ function FieldLabel({ children }: { children: ReactNode }) {
   );
 }
 
+// Listing-card preview, shared by the desktop rail and the mobile sheet.
+function PreviewCard({
+  coverUrl,
+  title,
+  titlePlaceholder,
+  snippet,
+  snippetPlaceholder,
+  categoryName,
+}: {
+  coverUrl: string | null;
+  title: string;
+  titlePlaceholder: string;
+  snippet: string;
+  snippetPlaceholder: string;
+  categoryName: string | null;
+}) {
+  return (
+    <div className="overflow-hidden rounded-[1.35rem] border border-line/70 bg-white shadow-(--shadow-card)">
+      <div className="relative aspect-[4/3] bg-surface-sub">
+        {coverUrl ? (
+          <Image src={coverUrl} alt="" fill sizes="320px" className="object-cover" />
+        ) : (
+          <div className="flex h-full items-center justify-center text-ink-faint">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <circle cx="9" cy="9" r="2" />
+              <path d="m21 15-5-5L5 21" />
+            </svg>
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        {categoryName && (
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-primary">
+            {categoryName}
+          </p>
+        )}
+        <p className={`truncate text-sm font-bold ${title ? "text-ink" : "text-ink-faint"}`}>
+          {title || titlePlaceholder}
+        </p>
+        <p className="mt-1 line-clamp-2 text-xs leading-5 text-ink-faint">
+          {snippet || snippetPlaceholder}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 const inputCls =
   "w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus-visible:ring-4 focus-visible:ring-primary/10";
 
@@ -131,6 +179,7 @@ export function PostComposer({
   );
   const savedPostId = useRef<string | undefined>(initial?.postId);
   const [autoSavedAt, setAutoSavedAt] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const bodyText = stripHtml(bodyEn);
   const valid = titleEn.trim().length > 0 && bodyText.length > 0;
@@ -243,9 +292,14 @@ export function PostComposer({
   const showCategory = categories.length > 0 && boardType !== BOARD_TYPES.NOTICE;
   const showSpecs = boardType !== BOARD_TYPES.NOTICE;
   const previewCover = repImage ?? images[0] ?? null;
-  const previewTitle =
-    (locale === "ko" && titleKo ? titleKo : titleEn) || "";
+  const previewCoverUrl = previewCover ? postMediaUrl(previewCover) : null;
+  const previewTitle = (locale === "ko" && titleKo ? titleKo : titleEn) || "";
   const previewCategory = categories.find((c) => c.id === categoryId);
+  const previewCategoryName = previewCategory
+    ? locale === "ko"
+      ? previewCategory.name_ko
+      : previewCategory.name_en
+    : null;
 
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
@@ -550,47 +604,47 @@ export function PostComposer({
                 ))}
               </div>
             )}
+            {/* One-tap chips surface the common trade terms (MOQ, lead time,
+                material...) buyers look for, instead of hiding them in a select. */}
             <div className="flex flex-wrap gap-2">
-              <select
-                onChange={(e) => {
-                  const def = fieldPool.find((f) => f.id === e.target.value);
-                  if (def) {
-                    setSpecs([
-                      ...specs,
-                      {
-                        fieldDefId: def.id,
-                        nameEn: def.name_en,
-                        nameKo: def.name_ko,
-                        value: "",
-                      },
-                    ]);
-                    markDirty();
-                  }
-                  e.target.value = "";
-                }}
-                defaultValue=""
-                className="rounded-xl border border-line px-3 py-2 text-xs font-semibold text-ink-soft"
-              >
-                <option value="" disabled>
-                  {t.post.selectFromPool}
-                </option>
-                {fieldPool.map((f) => (
-                  <option key={f.id} value={f.id}>
+              {fieldPool
+                .filter((f) => !specs.some((s) => s.fieldDefId === f.id))
+                .map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => {
+                      setSpecs([
+                        ...specs,
+                        {
+                          fieldDefId: f.id,
+                          nameEn: f.name_en,
+                          nameKo: f.name_ko,
+                          value: "",
+                        },
+                      ]);
+                      markDirty();
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-primary/50 hover:text-primary-strong"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
                     {locale === "ko" ? f.name_ko : f.name_en}
-                  </option>
+                  </button>
                 ))}
-              </select>
               <button
                 type="button"
-                onClick={() =>
+                onClick={() => {
                   setSpecs([
                     ...specs,
                     { fieldDefId: null, nameEn: "", nameKo: null, value: "" },
-                  ])
-                }
-                className="inline-flex items-center gap-1.5 rounded-xl bg-surface-sub px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
+                  ]);
+                  markDirty();
+                }}
+                className="inline-flex items-center gap-1 rounded-full bg-surface-sub px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-primary-soft hover:text-primary-strong"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M12 5v14M5 12h14" />
                 </svg>
                 {t.post.customField}
@@ -609,6 +663,17 @@ export function PostComposer({
               <span className="text-ink-faint">{t.post.submitHint}</span>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => setPreviewOpen(true)}
+            className="mb-2 flex w-full items-center justify-center gap-2 rounded-xl border border-line bg-white py-2 text-xs font-semibold text-ink-soft xl:hidden"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            {t.post.livePreview}
+          </button>
           <div className="grid gap-2 sm:grid-cols-[auto_1fr_1.4fr]">
             <button
               type="button"
@@ -646,40 +711,56 @@ export function PostComposer({
         </div>
       </div>
 
-      {/* Live preview rail */}
-      <aside className="xl:sticky xl:top-24">
+      {/* Live preview: sticky rail on desktop, toggle sheet on mobile */}
+      <aside className="hidden xl:sticky xl:top-24 xl:block">
         <p className="mb-2 text-xs font-bold uppercase tracking-[.14em] text-ink-faint">
           {t.post.livePreview}
         </p>
-        <div className="overflow-hidden rounded-[1.35rem] border border-line/70 bg-white shadow-(--shadow-card)">
-          <div className="relative aspect-[4/3] bg-surface-sub">
-            {previewCover ? (
-              <Image src={postMediaUrl(previewCover)} alt="" fill sizes="320px" className="object-cover" />
-            ) : (
-              <div className="flex h-full items-center justify-center text-ink-faint">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="3" />
-                  <circle cx="9" cy="9" r="2" />
-                  <path d="m21 15-5-5L5 21" />
-                </svg>
-              </div>
-            )}
-          </div>
-          <div className="p-4">
-            {previewCategory && (
-              <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-primary">
-                {locale === "ko" ? previewCategory.name_ko : previewCategory.name_en}
+        <PreviewCard
+          coverUrl={previewCoverUrl}
+          title={previewTitle}
+          titlePlaceholder={t.post.titleEn}
+          snippet={bodyText}
+          snippetPlaceholder={t.post.previewPlaceholder}
+          categoryName={previewCategoryName}
+        />
+      </aside>
+
+      {previewOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end xl:hidden" role="dialog" aria-modal="true">
+          <button
+            type="button"
+            aria-label={t.common.cancel}
+            onClick={() => setPreviewOpen(false)}
+            className="absolute inset-0 bg-ink/40"
+          />
+          <div className="relative w-full rounded-t-[1.5rem] bg-surface p-4 shadow-(--shadow-float)">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-ink-faint">
+                {t.post.livePreview}
               </p>
-            )}
-            <p className={`truncate text-sm font-bold ${previewTitle ? "text-ink" : "text-ink-faint"}`}>
-              {previewTitle || t.post.titleEn}
-            </p>
-            <p className="mt-1 line-clamp-2 text-xs leading-5 text-ink-faint">
-              {bodyText || t.post.previewPlaceholder}
-            </p>
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(false)}
+                aria-label={t.common.cancel}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-faint hover:bg-surface-sub"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <PreviewCard
+              coverUrl={previewCoverUrl}
+              title={previewTitle}
+              titlePlaceholder={t.post.titleEn}
+              snippet={bodyText}
+              snippetPlaceholder={t.post.previewPlaceholder}
+              categoryName={previewCategoryName}
+            />
           </div>
         </div>
-      </aside>
+      )}
 
       <DiscardModal
         open={discardOpen}
