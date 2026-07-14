@@ -821,6 +821,8 @@ const ko: Dict = {
     rejectReason: "반려 사유",
     forward: "전달",
     feedback: "첨부할 피드백 (선택)",
+    confirmReturn: "반려 확정",
+    awaitingReview: "검수 대기",
     memberList: "회원 목록",
     uid: "UID",
     email: "이메일",

@@ -8,6 +8,8 @@ import { replyInquiry } from "@/app/actions/inquiries";
 import { INQUIRY_STATUS, MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { Inquiry, InquiryMessage } from "@/lib/types";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { InquiryReadMarker } from "@/components/inquiries/InquiryReadMarker";
+import { formatDateTime } from "@/lib/format";
 
 const TIMELINE: string[] = [
   INQUIRY_STATUS.SENT,
@@ -28,7 +30,7 @@ export default async function InquiryDetailPage(props: {
   const session = await getSession();
   if (!session.userId) redirect("/login");
 
-  const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
+  const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
   const { data: inquiryRow } = await supabase
     .from("inquiries")
     .select("*")
@@ -62,6 +64,7 @@ export default async function InquiryDetailPage(props: {
 
   return (
     <div className="space-y-5">
+      {isParticipant && <InquiryReadMarker inquiryId={inquiry.id} />}
       <PageHeader
         title={inquiry.subject}
         action={
@@ -106,10 +109,7 @@ export default async function InquiryDetailPage(props: {
                 <p className="text-xs font-bold text-ink-soft">
                   {mine ? t.inquiry.outbox : t.inquiry.inbox}
                   <span className="ml-2 font-normal text-ink-faint">
-                    {new Date(message.created_at)
-                      .toISOString()
-                      .slice(0, 16)
-                      .replace("T", " ")}
+                    {formatDateTime(message.created_at, locale)}
                   </span>
                 </p>
                 {mine && (

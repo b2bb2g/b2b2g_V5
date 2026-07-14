@@ -4,8 +4,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { reviewMessage } from "@/app/actions/admin/reviews";
 import { MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { InquiryMessage } from "@/lib/types";
-import { PendingButton } from "@/components/ui/PendingButton";
 import { Pagination } from "@/components/ui/Pagination";
+import { MessageReviewForm } from "@/components/admin/MessageReviewForm";
 
 const PAGE_SIZE = 20;
 
@@ -32,58 +32,49 @@ export default async function InquiryModerationPage(props: {
   })[];
 
   return (
-    <div className="space-y-3">
-      <h2 className="text-base font-bold">{t.admin.inquiryModeration}</h2>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <h2 className="text-base font-bold">{t.admin.inquiryModeration}</h2>
+        {(count ?? 0) > 0 && (
+          <span className="rounded-full bg-caution-soft px-2.5 py-0.5 text-xs font-bold text-caution">
+            {count} {t.admin.awaitingReview}
+          </span>
+        )}
+      </div>
       {messages.length === 0 ? (
         <EmptyState title={t.admin.noPending} />
       ) : (
-        messages.map((message) => (
-          <div key={message.id} className="rounded-card border border-line p-4">
-            <p className="text-xs font-semibold text-ink-faint">
-              {message.inquiries?.subject}
-              {" · "}
-              {message.profiles?.display_name}
-              {" · UID "}
-              {message.profiles?.uid}
-            </p>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
-              {message.body}
-            </p>
-            <form action={reviewMessage} className="mt-3 space-y-2">
-              <input type="hidden" name="messageId" value={message.id} />
-              <input
-                name="feedback"
-                placeholder={t.admin.feedback}
-                className="w-full rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
+        <div className="space-y-3">
+          {messages.map((message) => (
+            <article
+              key={message.id}
+              className="rounded-[1.25rem] border border-line bg-surface p-5 shadow-(--shadow-card)"
+            >
+              <p className="text-xs font-semibold text-ink-faint">
+                {message.inquiries?.subject}
+                {" · "}
+                {message.profiles?.display_name}
+                {" · UID "}
+                {message.profiles?.uid}
+              </p>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+                {message.body}
+              </p>
+              <MessageReviewForm
+                messageId={message.id}
+                action={reviewMessage}
+                labels={{
+                  feedback: t.admin.feedback,
+                  forward: t.admin.forward,
+                  return: t.admin.reject,
+                  reason: t.admin.rejectReason,
+                  cancel: t.common.cancel,
+                  confirmReturn: t.admin.confirmReturn,
+                }}
               />
-              <input
-                name="reason"
-                required
-                placeholder={t.admin.rejectReason}
-                className="w-full rounded-xl border border-line px-3 py-2 text-xs outline-none focus:border-primary"
-              />
-              <div className="flex gap-2">
-                <PendingButton
-                  type="submit"
-                  formNoValidate
-                  name="decision"
-                  value="forward"
-                  className="flex-1 rounded-xl bg-positive px-3 py-2.5 text-xs font-bold text-white"
-                >
-                  {t.admin.forward}
-                </PendingButton>
-                <PendingButton
-                  type="submit"
-                  name="decision"
-                  value="reject"
-                  className="flex-1 rounded-xl bg-negative px-3 py-2.5 text-xs font-bold text-white"
-                >
-                  {t.admin.reject}
-                </PendingButton>
-              </div>
-            </form>
-          </div>
-        ))
+            </article>
+          ))}
+        </div>
       )}
       <Pagination page={page} totalPages={Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))} basePath="/admin/inquiries" prevLabel={t.home.prev} nextLabel={t.home.next} />
     </div>

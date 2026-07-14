@@ -838,6 +838,8 @@ const en = {
     rejectReason: "Reason for returning",
     forward: "Forward",
     feedback: "Feedback to attach (optional)",
+    confirmReturn: "Confirm return",
+    awaitingReview: "awaiting review",
     memberList: "Member list",
     uid: "UID",
     email: "Email",

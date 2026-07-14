@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { NOTIFICATION_STATE } from "@/lib/constants";
 
 // Creates an inquiry thread plus its first message. The DB trigger moves the
 // thread into admin review; nothing reaches the recipient until forwarded.
@@ -37,6 +38,33 @@ export async function createInquiry(formData: FormData) {
 
   revalidatePath("/inquiries");
   redirect(`/inquiries/${inquiryId}?toast=sent`);
+}
+
+// Opening an inquiry counts as reading its delivered/returned notifications.
+// Triggered from the client (not during the server render) so link prefetching
+// never clears the badge before the member actually views the thread.
+export async function markInquiryRead(inquiryId: string) {
+  if (!inquiryId) return;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { count } = await supabase
+    .from("notifications")
+    .update({ state: NOTIFICATION_STATE.READ }, { count: "exact" })
+    .eq("profile_id", user.id)
+    .eq("state", NOTIFICATION_STATE.UNREAD)
+    .in("type", ["message_delivered", "message_rejected"])
+    .eq("payload->>inquiry_id", inquiryId);
+
+  // Nothing changed -> skip revalidation so a re-view doesn't refetch the shell.
+  if (!count) return;
+  // Badges live in the member-area layout (dashboard, inquiries, notifications).
+  revalidatePath("/inquiries", "layout");
+  revalidatePath("/notifications", "layout");
+  revalidatePath("/dashboard", "layout");
 }
 
 export async function replyInquiry(formData: FormData) {

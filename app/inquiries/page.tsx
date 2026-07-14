@@ -9,6 +9,7 @@ import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/Worksp
 import type { Inquiry } from "@/lib/types";
 import { Pagination } from "@/components/ui/Pagination";
 import { formatDate } from "@/lib/format";
+import { NOTIFICATION_STATE } from "@/lib/constants";
 
 const PAGE_SIZE = 20;
 
@@ -36,6 +37,20 @@ export default async function InquiriesPage(props: {
   const inquiries = (data ?? []) as Inquiry[];
   const stepLabels: Record<string, string> = t.inquiry.steps;
 
+  // Inquiries with unread delivered/returned notifications get an unread dot,
+  // so the list shows at a glance which threads have new content.
+  const { data: unreadRows } = await supabase
+    .from("notifications")
+    .select("payload")
+    .eq("profile_id", session.userId)
+    .eq("state", NOTIFICATION_STATE.UNREAD)
+    .in("type", ["message_delivered", "message_rejected"]);
+  const unreadInquiryIds = new Set(
+    (unreadRows ?? [])
+      .map((row) => (row.payload as { inquiry_id?: string }).inquiry_id)
+      .filter(Boolean),
+  );
+
   return (
     <div className="space-y-5">
       <PageHeader title={t.inquiry.title} subtitle={t.inquiry.stepHint} />
@@ -50,12 +65,17 @@ export default async function InquiriesPage(props: {
           <div className="divide-y divide-line">
             {inquiries.map((inquiry) => {
               const outgoing = inquiry.sender_id === session.userId;
+              const unread = unreadInquiryIds.has(inquiry.id);
               return (
                 <Link
                   key={inquiry.id}
                   href={`/inquiries/${inquiry.id}`}
                   className="group flex items-center gap-3 p-4 transition hover:bg-surface-sub/45 sm:px-5"
                 >
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full ${unread ? "bg-primary" : "bg-transparent"}`}
+                    aria-hidden="true"
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-bold uppercase tracking-wide text-ink-faint">
@@ -65,8 +85,11 @@ export default async function InquiriesPage(props: {
                         status={inquiry.status}
                         label={stepLabels[inquiry.status] ?? inquiry.status}
                       />
+                      {unread && <span className="sr-only">{t.notifications.title}</span>}
                     </div>
-                    <p className="mt-1 truncate text-sm font-bold">
+                    <p
+                      className={`mt-1 truncate text-sm ${unread ? "font-extrabold text-ink" : "font-bold"}`}
+                    >
                       {inquiry.subject}
                     </p>
                   </div>
