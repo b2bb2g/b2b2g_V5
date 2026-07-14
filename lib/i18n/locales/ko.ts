@@ -110,6 +110,11 @@ const ko: Dict = {
       "비즈니스 구매자를 위해 선별한 수출 준비 상품과 신뢰할 수 있는 파트너를 만나보세요.",
     requestHint:
       "진행 중인 소싱 기회를 확인하고 적합한 비즈니스 제안으로 응답하세요.",
+    faqHint: "기업들이 가장 많이 묻는 질문에 대한 답변이에요.",
+    faqSearch: "질문 검색",
+    faqEmpty: "검색 결과가 없어요.",
+    faqType: "도움말 센터",
+    faqCount: "개 질문",
     availableNow: "건 확인 가능",
     nextTitle: "찾는 상품이 따로 있으신가요?",
     nextBody:

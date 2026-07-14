@@ -10,7 +10,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
-import { stripRichText } from "@/lib/richtext";
+import { stripRichText, sanitizeRichText } from "@/lib/richtext";
+import { FaqAccordion } from "@/components/marketplace/FaqAccordion";
 import type { Metadata } from "next";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { BoardHero } from "@/components/marketplace/BoardHero";
@@ -84,6 +85,9 @@ export default async function BoardPage(props: {
   // type instead of falling back to the wrong layout/copy.
   const isNoticeBoard = menu.board_type === BOARD_TYPES.NOTICE;
   const isEventsBoard = menu.board_type === BOARD_TYPES.FLEXIBLE;
+  // FAQ is a purpose-built board: same notice data model, but presented as a
+  // searchable accordion rather than a notice list.
+  const isFaq = menu.slug === "faq";
   const typeLabel =
     (t.admin.boardTypes as Record<string, string>)[menu.board_type] ??
     menu.board_type;
@@ -98,27 +102,54 @@ export default async function BoardPage(props: {
   const latestNoticeThumb =
     isNoticeBoard && posts[0] ? repThumbnail(posts[0]) : null;
 
+  // Full answers for the accordion (the list query only returns teasers).
+  const faqItems = isFaq
+    ? (
+        (
+          await supabase
+            .from("posts")
+            .select("id, title_en, title_ko, body_en, body_ko")
+            .eq("menu_id", menu.id)
+            .eq("status", POST_STATUS.APPROVED)
+            .order("published_at", { ascending: false })
+        ).data ?? []
+      ).map((row) => {
+        const question =
+          locale === "ko" && row.title_ko ? row.title_ko : row.title_en;
+        const answerRaw =
+          locale === "ko" && row.body_ko ? row.body_ko : row.body_en;
+        return {
+          id: row.id as string,
+          question: question as string,
+          answer: sanitizeRichText(answerRaw ?? ""),
+          plain: stripRichText(answerRaw ?? ""),
+        };
+      })
+    : [];
+
   return (
     <div className="wide space-y-4">
       {/* Product/request boards always lead with the hero. Notice/events
           boards use a featured layout instead — but when they're empty (no
           featured post to show) the hero still gives the page its title and
           context. Creation lives on the dashboard only (UX policy). */}
-      {(!isNoticeBoard && !isEventsBoard) || posts.length === 0 ? (
+      {(!isNoticeBoard && !isEventsBoard) || isFaq || posts.length === 0 ? (
         <BoardHero
           eyebrow={t.board.eyebrow}
-          type={typeLabel}
+          type={isFaq ? t.board.faqType : typeLabel}
           title={title}
           count={posts.length}
-          countLabel={t.board.availableNow}
+          countLabel={isFaq ? t.board.faqCount : t.board.availableNow}
           description={
-            isNoticeBoard
-              ? t.board.noticeHint
-              : isEventsBoard
-                ? t.board.eventsHint
-                : isRequestBoard
-                  ? t.board.requestHint
-                  : t.board.browseHint
+            isFaq
+              ? t.board.faqHint
+              : isNoticeBoard
+                ? t.board.noticeHint
+                : isEventsBoard
+                  ? t.board.eventsHint
+                  : isRequestBoard
+                    ? t.board.requestHint
+                    : t.board.browseHint
           }
           image={boardImage}
         />
@@ -166,6 +197,13 @@ export default async function BoardPage(props: {
 
       {posts.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />
+      ) : isFaq ? (
+        <FaqAccordion
+          items={faqItems}
+          searchPlaceholder={t.board.faqSearch}
+          emptyLabel={t.board.faqEmpty}
+          clearLabel={t.common.clearFilter}
+        />
       ) : isNoticeBoard ? (
         <section className="space-y-6">
           <Link
@@ -573,17 +611,19 @@ export default async function BoardPage(props: {
         </div>
       )}
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        basePath={`/${menu.slug}`}
-        extraQuery={{
-          ...(activeCategory ? { category: activeCategory } : {}),
-          ...(authorUid ? { uid: String(authorUid) } : {}),
-        }}
-        prevLabel={t.home.prev}
-        nextLabel={t.home.next}
-      />
+      {!isFaq && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          basePath={`/${menu.slug}`}
+          extraQuery={{
+            ...(activeCategory ? { category: activeCategory } : {}),
+            ...(authorUid ? { uid: String(authorUid) } : {}),
+          }}
+          prevLabel={t.home.prev}
+          nextLabel={t.home.next}
+        />
+      )}
 
       {!isNoticeBoard &&
         !isEventsBoard &&

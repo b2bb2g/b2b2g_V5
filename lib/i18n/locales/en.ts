@@ -106,6 +106,11 @@ const en = {
       "Discover export-ready products and credible partners selected for business buyers.",
     requestHint:
       "Review active sourcing opportunities and respond with the right business proposal.",
+    faqHint: "Answers to the questions companies ask us most.",
+    faqSearch: "Search questions",
+    faqEmpty: "No questions match your search.",
+    faqType: "Help center",
+    faqCount: "questions",
     availableNow: "available now",
     nextTitle: "Looking for something specific?",
     nextBody:
