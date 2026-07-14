@@ -5,6 +5,7 @@ import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { formatDate } from "@/lib/format";
 
 // Coordinator home (DESIGN C9): direct referrals only — grandchildren are
 // never visible (PRD 16.4). Email access is the sanctioned RLS exception.
@@ -13,7 +14,7 @@ export default async function CoordinatorPage() {
   if (!session.userId) redirect("/login");
   if (!session.profile?.is_coordinator) redirect("/dashboard");
 
-  const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
+  const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
   const { data } = await supabase
     .from("profiles")
     .select(
@@ -63,7 +64,7 @@ export default async function CoordinatorPage() {
                   </p>
                 </div>
                 <span className="shrink-0 text-xs text-ink-faint">
-                  {new Date(member.created_at).toISOString().slice(0, 10)}
+                  {formatDate(member.created_at, locale)}
                 </span>
               </div>
             </Link>

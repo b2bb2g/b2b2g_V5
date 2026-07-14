@@ -8,6 +8,7 @@ import { StatusLabel } from "@/components/ui/StatusLabel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { WorkspacePageHeader } from "@/components/dashboard/WorkspacePageHeader";
+import { formatDate } from "@/lib/format";
 import { DashboardIcon } from "@/components/dashboard/DashboardCards";
 import { closeOwnPost, deleteOwnPost } from "@/app/actions/posts";
 import {
@@ -218,8 +219,7 @@ export default async function MyPostsPage(props: {
                       {title}
                     </h3>
                     <p className="mt-1 text-xs text-ink-faint">
-                      {t.dashboard.updated}{" "}
-                      {new Date(post.updated_at).toISOString().slice(0, 10)}
+                      {t.dashboard.updated} {formatDate(post.updated_at, locale)}
                     </p>
                     {post.status === POST_STATUS.REJECTED &&
                       post.reject_reason && (
