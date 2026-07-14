@@ -22,19 +22,25 @@ export default async function HomepageViewPage() {
 
   if (!certified) {
     return (
-      <div className="mx-auto max-w-lg space-y-4 py-8 text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight">
-          {t.homepage.title}
-        </h1>
-        <p className="text-sm leading-relaxed text-ink-soft">
-          {t.homepage.needCertified}
-        </p>
-        <Link
-          href="/dashboard/badges"
-          className="inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-        >
-          {t.dashboard.subCta}
-        </Link>
+      <div className="space-y-5">
+        <PageHeader title={t.homepage.title} description={t.homepage.overview} />
+        <div className="flex flex-col items-center gap-4 rounded-[1.5rem] border border-line/70 bg-white px-6 py-14 text-center shadow-(--shadow-card)">
+          <span
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary"
+            aria-hidden="true"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="14" height="11" x="5" y="11" rx="2" />
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+            </svg>
+          </span>
+          <p className="max-w-md text-sm leading-relaxed text-ink-soft">
+            {t.homepage.needCertified}
+          </p>
+          <Link href="/dashboard/badges" className="btn-primary btn-md">
+            {t.dashboard.subCta}
+          </Link>
+        </div>
       </div>
     );
   }
@@ -47,19 +53,25 @@ export default async function HomepageViewPage() {
 
   if (!homepage) {
     return (
-      <div className="mx-auto max-w-lg space-y-4 py-8 text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight">
-          {t.homepage.title}
-        </h1>
-        <p className="text-sm leading-relaxed text-ink-soft">
-          {t.homepage.slugHint}
-        </p>
-        <Link
-          href="/dashboard/homepage/edit"
-          className="inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-        >
-          {t.common.add}
-        </Link>
+      <div className="space-y-5">
+        <PageHeader title={t.homepage.title} description={t.homepage.overview} />
+        <div className="flex flex-col items-center gap-4 rounded-[1.5rem] border border-line/70 bg-white px-6 py-14 text-center shadow-(--shadow-card)">
+          <span
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary"
+            aria-hidden="true"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20" />
+            </svg>
+          </span>
+          <p className="max-w-md text-sm leading-relaxed text-ink-soft">
+            {t.homepage.slugHint}
+          </p>
+          <Link href="/dashboard/homepage/edit" className="btn-primary btn-md">
+            {t.common.add}
+          </Link>
+        </div>
       </div>
     );
   }
@@ -74,6 +86,7 @@ export default async function HomepageViewPage() {
     <div className="space-y-5">
       <PageHeader
         title={t.homepage.title}
+        description={t.homepage.overview}
         action={
           <Link href="/dashboard/homepage/edit" className="btn-primary btn-md">
             {t.common.edit}
@@ -81,7 +94,7 @@ export default async function HomepageViewPage() {
         }
       />
 
-      <div className="space-y-4 rounded-card border border-line p-4">
+      <div className="space-y-4 rounded-[1.5rem] border border-line/70 bg-white p-5 shadow-(--shadow-card) sm:p-6">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate text-sm font-semibold text-ink-soft">
             /c/{homepage.slug}

@@ -97,6 +97,12 @@ export default async function NotificationsPage(props: {
     { key: "archived", label: t.notifications.archived },
     { key: "trash", label: t.notifications.trash },
   ];
+  const emptyTitle =
+    view === NOTIFICATION_STATE.ARCHIVED
+      ? t.notifications.emptyArchived
+      : view === NOTIFICATION_STATE.TRASHED
+        ? t.notifications.emptyTrash
+        : t.notifications.empty;
 
   return (
     <div className="space-y-5">
@@ -139,7 +145,7 @@ export default async function NotificationsPage(props: {
       </nav>
 
       {notifications.length === 0 ? (
-        <EmptyState title={t.notifications.empty} />
+        <EmptyState title={emptyTitle} />
       ) : (
         <div className="overflow-hidden rounded-[1.5rem] border border-line/70 bg-white shadow-(--shadow-card)">
           <div className="divide-y divide-line">

@@ -510,6 +510,7 @@ const en = {
     gallery: "Company photos",
     certificates: "Certificates",
     title: "Mini homepage",
+    overview: "Your public company page. Share it at /c/your-address.",
     slug: "Homepage address",
     slugHint:
       "Lowercase letters, numbers and hyphens. Your page lives at /c/your-address.",
@@ -957,6 +958,8 @@ const en = {
     trash: "Trash",
     deleteForever: "Delete forever",
     empty: "No notifications",
+    emptyArchived: "No archived notifications",
+    emptyTrash: "Trash is empty",
     teamNotice: "Team notice",
     archived: "Archived",
     badgeApproved: "Badge approved",

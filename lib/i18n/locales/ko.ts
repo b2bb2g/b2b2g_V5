@@ -497,6 +497,7 @@ const ko: Dict = {
     gallery: "회사 전경 사진",
     certificates: "인증서",
     title: "미니 홈페이지",
+    overview: "회사를 소개하는 공개 페이지예요. /c/주소 로 공유할 수 있어요.",
     slug: "홈페이지 주소",
     slugHint:
       "영문 소문자, 숫자, 하이픈만 사용할 수 있어요. /c/주소 형태로 공개돼요.",
@@ -940,6 +941,8 @@ const ko: Dict = {
     trash: "휴지통",
     deleteForever: "완전 삭제",
     empty: "알림이 없어요",
+    emptyArchived: "보관된 알림이 없어요",
+    emptyTrash: "휴지통이 비어 있어요",
     teamNotice: "운영팀 알림",
     archived: "보관함",
     badgeApproved: "배지가 승인됐어요",
