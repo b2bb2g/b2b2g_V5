@@ -41,12 +41,12 @@ export function NavigationFeedback() {
 
   return (
     <div
-      className={`pointer-events-none fixed inset-x-0 top-0 z-[100] h-0.5 overflow-hidden transition-opacity ${pending ? "opacity-100" : "opacity-0"}`}
+      className={`pointer-events-none fixed inset-x-0 top-0 z-[100] h-1 overflow-hidden transition-opacity duration-200 ${pending ? "opacity-100" : "opacity-0"}`}
       role="progressbar"
       aria-label="Loading"
       aria-hidden={!pending}
     >
-      <span className="block h-full w-1/3 animate-navigation-progress bg-primary" />
+      <span className="block h-full w-2/5 animate-navigation-progress rounded-r-full bg-primary shadow-[0_0_12px_2px_rgba(27,100,218,.55)]" />
     </div>
   );
 }

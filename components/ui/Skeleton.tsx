@@ -41,6 +41,27 @@ export function DetailSkeleton() {
   );
 }
 
+// Loading fallback for member-area sub-pages: mirrors the WorkspacePageHeader
+// card + a content card so navigation shows an instant, on-brand skeleton
+// (dynamic routes without loading.tsx feel like "the app is not responding").
+export function WorkspacePageSkeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <div className="space-y-5">
+      <div className="rounded-[1.5rem] border border-line/70 bg-white px-5 py-5 shadow-(--shadow-card) sm:px-7 sm:py-6">
+        <Skeleton className="h-6 w-44" />
+        <Skeleton className="mt-2.5 h-4 w-72 max-w-full" />
+      </div>
+      <div className="rounded-[1.5rem] border border-line/70 bg-white p-4 shadow-(--shadow-card) sm:p-5">
+        <div className="space-y-3">
+          {Array.from({ length: rows }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full rounded-xl" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function EditSkeleton() {
   return (
     <div className="space-y-5">
