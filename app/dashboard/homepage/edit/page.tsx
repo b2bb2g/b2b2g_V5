@@ -23,7 +23,7 @@ export default async function HomepageEditPage() {
     .maybeSingle();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader
         title={t.homepage.title}
         subtitle={homepage ? t.common.edit : t.common.add}

@@ -395,6 +395,7 @@ const ko: Dict = {
     myBadges: "내 배지",
     noBadges: "아직 배지가 없어요",
     applyBadge: "배지 신청하기",
+    applyBadgeHint: "회사가 인증되었음을 파트너에게 보여주는 신뢰 배지를 신청하세요.",
     subscription: "구독",
     subActive: "이용 중",
     subExpiresOn: "만료일",
@@ -932,6 +933,7 @@ const ko: Dict = {
   },
   notifications: {
     title: "알림",
+    description: "게시물, 배지, 문의 관련 업데이트를 한곳에서 확인하세요.",
     markAllRead: "모두 읽음",
     archive: "보관",
     trash: "휴지통",

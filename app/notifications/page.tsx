@@ -98,9 +98,10 @@ export default async function NotificationsPage(props: {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader
         title={t.notifications.title}
+        description={t.notifications.description}
         action={
           view === "inbox" && notifications.length > 0 ? (
             <form action={markAllRead}>

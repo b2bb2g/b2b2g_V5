@@ -36,7 +36,7 @@ export default async function InquiriesPage(props: {
   const stepLabels: Record<string, string> = t.inquiry.steps;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader title={t.inquiry.title} subtitle={t.inquiry.stepHint} />
 
       {inquiries.length === 0 ? (

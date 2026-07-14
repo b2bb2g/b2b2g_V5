@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 
+// The single page header for every member-area surface (dashboard sub-pages,
+// inquiries, notifications). It carries the page's h1, so each page has exactly
+// one — the workspace hero on /dashboard is the only other h1 in the area.
 export function WorkspacePageHeader({
   eyebrow,
   title,
@@ -13,26 +16,27 @@ export function WorkspacePageHeader({
   subtitle?: string;
   action?: ReactNode;
 }) {
+  const detail = description ?? subtitle;
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 rounded-[1.35rem] border border-line bg-white px-5 py-4 shadow-[0_8px_28px_rgba(25,31,40,.045)] sm:px-6">
+    <header className="flex flex-col gap-4 rounded-[1.5rem] border border-line/70 bg-white px-5 py-5 shadow-(--shadow-card) sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6">
       <div className="min-w-0">
         {eyebrow && (
           <p className="text-xs font-bold uppercase tracking-[.15em] text-primary">
             {eyebrow}
           </p>
         )}
-        <h2
-          className={`${eyebrow ? "mt-1" : ""} type-workspace-title`}
-        >
+        <h1 className={`type-workspace-title ${eyebrow ? "mt-1.5" : ""}`}>
           {title}
-        </h2>
-        {(description || subtitle) && (
-          <p className="type-meta mt-1 text-ink-faint">
-            {description || subtitle}
+        </h1>
+        {detail && (
+          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-ink-soft">
+            {detail}
           </p>
         )}
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {action && (
+        <div className="flex shrink-0 flex-wrap items-center gap-2">{action}</div>
+      )}
     </header>
   );
 }

@@ -57,9 +57,8 @@ export default async function ProfileViewPage() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <WorkspacePageHeader
-        eyebrow={t.dashboard.commandCenter}
         title={t.profile.title}
         description={t.profile.overviewHint}
         action={

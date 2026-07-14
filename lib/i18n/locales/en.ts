@@ -400,6 +400,7 @@ const en = {
     myBadges: "My badges",
     noBadges: "No badges yet",
     applyBadge: "Apply for a badge",
+    applyBadgeHint: "Earn trust marks that show partners your company is verified.",
     subscription: "Subscription",
     subActive: "Active",
     subExpiresOn: "Expires on",
@@ -949,6 +950,7 @@ const en = {
   },
   notifications: {
     title: "Notifications",
+    description: "Updates on your posts, badges, and inquiries in one place.",
     markAllRead: "Mark all as read",
     archive: "Archive",
     trash: "Trash",

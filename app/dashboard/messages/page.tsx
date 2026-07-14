@@ -32,7 +32,7 @@ export default async function MemberMessagesPage() {
 
   if (!coordinator?.is_coordinator) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <PageHeader title={t.coordinator.directMessages} />
         <EmptyState title={t.coordinator.noMessages} />
       </div>
@@ -47,7 +47,7 @@ export default async function MemberMessagesPage() {
     .order("created_at");
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader
         title={t.coordinator.directMessages}
         subtitle={`${coordinator.display_name} · ${t.coordinator.messageHint}`}

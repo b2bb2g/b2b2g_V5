@@ -71,7 +71,7 @@ export default async function HomepageViewPage() {
       : homepage.intro_en;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader
         title={t.homepage.title}
         action={

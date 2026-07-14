@@ -32,7 +32,7 @@ export default async function CoordinatorPage() {
   }[];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader
         title={t.coordinator.title}
         subtitle={t.coordinator.referralsTitle}

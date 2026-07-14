@@ -59,7 +59,10 @@ export default async function BadgeApplicationPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={t.dashboard.applyBadge} />
+      <PageHeader
+        title={t.dashboard.applyBadge}
+        description={t.dashboard.applyBadgeHint}
+      />
 
       <div className="space-y-3">
         {((types as BadgeType[]) ?? []).map((type) => {

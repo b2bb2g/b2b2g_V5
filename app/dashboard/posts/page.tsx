@@ -89,9 +89,8 @@ export default async function MyPostsPage(props: {
   const statusLabels: Record<string, string> = t.post.status;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <WorkspacePageHeader
-        eyebrow={t.dashboard.commandCenter}
         title={t.dashboard.myPostsSummary}
         description={t.dashboard.postManagementHint}
         action={

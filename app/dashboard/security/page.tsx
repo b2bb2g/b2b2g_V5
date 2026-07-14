@@ -10,6 +10,7 @@ import {
   signOutOtherSessions,
 } from "@/app/actions/security";
 import { MfaPanel } from "@/components/security/MfaPanel";
+import { WorkspacePageHeader } from "@/components/dashboard/WorkspacePageHeader";
 
 export default async function SecurityPage(props: {
   searchParams: Promise<{ mfa?: string; next?: string }>;
@@ -83,6 +84,21 @@ export default async function SecurityPage(props: {
 
   return (
     <div className="space-y-5">
+      <WorkspacePageHeader
+        title={t.security.title}
+        description={t.security.description}
+        action={
+          <>
+            <form action={signOutOtherSessions}>
+              <PendingButton className="btn-secondary btn-md">{t.security.signOutOthers}</PendingButton>
+            </form>
+            <form action={signOutEverywhere}>
+              <PendingButton className="rounded-xl bg-negative-soft px-4 py-2.5 text-sm font-bold text-negative">{t.security.signOutAll}</PendingButton>
+            </form>
+          </>
+        }
+      />
+
       {mfaRequired && (
         <section className="overflow-hidden rounded-[1.5rem] bg-[#101923] px-5 py-6 text-white shadow-[0_18px_55px_rgba(16,25,35,.16)] sm:px-7 sm:py-8">
           <div className="flex items-start gap-4">
@@ -94,30 +110,14 @@ export default async function SecurityPage(props: {
             </span>
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[.16em] text-[#79b4ff]">{t.security.mfaGateEyebrow}</p>
-              <h1 className="mt-2 text-2xl font-extrabold tracking-[-.035em] sm:text-3xl">{t.security.mfaGateTitle}</h1>
+              <h2 className="mt-2 text-2xl font-extrabold tracking-[-.035em] sm:text-3xl">{t.security.mfaGateTitle}</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-white/65">{t.security.mfaGateDescription}</p>
             </div>
           </div>
         </section>
       )}
 
-      {mfaRequired && mfaPanel}
-
-      <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-7">
-        <p className="text-xs font-bold uppercase tracking-[.15em] text-primary">{t.security.eyebrow}</p>
-        <h2 className="mt-2 text-2xl font-extrabold">{t.security.title}</h2>
-        <p className="mt-2 text-sm leading-6 text-ink-soft">{t.security.description}</p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <form action={signOutOtherSessions}>
-            <PendingButton className="btn-secondary btn-md">{t.security.signOutOthers}</PendingButton>
-          </form>
-          <form action={signOutEverywhere}>
-            <PendingButton className="rounded-xl bg-negative-soft px-4 py-2.5 text-sm font-bold text-negative">{t.security.signOutAll}</PendingButton>
-          </form>
-        </div>
-      </section>
-
-      {!mfaRequired && mfaPanel}
+      {mfaPanel}
 
       <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-7">
         <h3 className="text-base font-extrabold">{t.security.devices}</h3>
