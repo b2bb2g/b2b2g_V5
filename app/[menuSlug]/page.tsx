@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getMenuBySlug, menuTitle } from "@/lib/data/menus";
@@ -177,9 +177,9 @@ export default async function BoardPage(props: {
                 <span className="text-xs font-bold uppercase tracking-[.18em] text-[#79b4ff]">
                   {t.board.noticeCenter}
                 </span>
-                <strong className="mt-3 block text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
+                <h1 className="mt-3 block text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
                   {title}
-                </strong>
+                </h1>
                 <span className="mt-4 block max-w-xl text-sm leading-7 text-white/65">
                   {t.board.noticeHint}
                 </span>
@@ -214,7 +214,7 @@ export default async function BoardPage(props: {
             </span>
             {latestNoticeThumb && (
               <span className="relative min-h-72 overflow-hidden bg-[#172331] lg:min-h-full">
-                <Image
+                <SafeImage
                   src={latestNoticeThumb}
                   alt=""
                   fill
@@ -259,7 +259,7 @@ export default async function BoardPage(props: {
                     </span>
                     {noticeThumb && (
                       <span className="relative block aspect-[3/2] overflow-hidden rounded-xl bg-surface-sub">
-                        <Image
+                        <SafeImage
                           src={noticeThumb}
                           alt=""
                           fill
@@ -297,9 +297,9 @@ export default async function BoardPage(props: {
                       {t.board.eventsEyebrow}
                     </span>
                     <span className="mt-3 flex flex-wrap items-end gap-3">
-                      <strong className="text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
+                      <h1 className="text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
                         {title}
-                      </strong>
+                      </h1>
                       <span className="mb-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/65">
                         {posts.length} {t.board.availableNow}
                       </span>
@@ -335,7 +335,7 @@ export default async function BoardPage(props: {
                 </span>
                 {featuredThumb && (
                   <span className="relative min-h-72 overflow-hidden bg-[#172331] lg:min-h-full">
-                    <Image
+                    <SafeImage
                       src={featuredThumb}
                       alt={featuredTitle}
                       fill
@@ -379,7 +379,7 @@ export default async function BoardPage(props: {
                   >
                     <span className="relative block aspect-[16/9] overflow-hidden bg-surface-sub">
                       {eventThumb ? (
-                        <Image
+                        <SafeImage
                           src={eventThumb}
                           alt={eventTitle}
                           fill
@@ -457,7 +457,7 @@ export default async function BoardPage(props: {
                     className="group relative min-h-[30rem] overflow-hidden rounded-[2rem] bg-[#101923] shadow-[0_20px_60px_rgba(25,31,40,.13)]"
                   >
                     {thumb ? (
-                      <Image
+                      <SafeImage
                         src={thumb}
                         alt={postTitle}
                         fill

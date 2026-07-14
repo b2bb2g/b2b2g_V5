@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { repThumbnail } from "@/lib/media";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
+import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 
@@ -29,7 +29,7 @@ export function ProductCard({
     >
       <div className="relative aspect-square overflow-hidden bg-surface-sub">
         {thumbnail ? (
-          <Image
+          <SafeImage
             src={thumbnail}
             alt={title}
             fill

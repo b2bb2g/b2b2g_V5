@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 // Detail-page media gallery (A3): hero + thumbnail strip open a fullscreen
 // lightbox with swipe, arrow keys and Escape. Pure presentation — only URLs
@@ -172,7 +173,7 @@ export function MediaGallery({
               }}
               className="group relative block aspect-square w-full cursor-zoom-in overflow-hidden rounded-[1.5rem] bg-surface-sub"
             >
-              <Image
+              <SafeImage
                 src={images[selected]}
                 alt={title}
                 fill
@@ -198,7 +199,7 @@ export function MediaGallery({
           }}
           className="relative block aspect-video w-full cursor-zoom-in overflow-hidden rounded-card bg-surface-sub"
         >
-          <Image
+          <SafeImage
             src={images[heroIndex]}
             alt={title}
             fill
