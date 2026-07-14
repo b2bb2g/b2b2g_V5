@@ -917,6 +917,11 @@ const en = {
     groupSystem: "System",
     grantCoordinator: "Grant coordinator",
     revokeCoordinator: "Revoke coordinator",
+    coordinatorRole: "Coordinator role",
+    coordinatorRoleHint:
+      "Coordinators can see and message the members they referred. Granting this opens the coordinator workspace for this member.",
+    coordinatorActive: "This member is a coordinator.",
+    coordinatorInactive: "This member is a regular member.",
     noReferrals: "No referral relationships yet.",
     memo: "Admin memo",
     memoHint: "Visible to admins only.",

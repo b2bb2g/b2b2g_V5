@@ -9,6 +9,7 @@ import {
   adminSendPasswordReset,
   saveMemberMemo,
   setCoordinatorMessageOverride,
+  setCoordinatorRole,
   setMemberStatus,
   withdrawMember,
 } from "@/app/actions/admin";
@@ -414,6 +415,45 @@ export default async function AdminMemberDetailPage(props: {
           </form>
         )}
       </div>
+
+      {/* Member permissions: grant/revoke the coordinator role from the
+          member record itself (mirrors the referral-tree control). */}
+      <form action={setCoordinatorRole} className="card space-y-3 p-4">
+        <div>
+          <p className="text-sm font-bold">{t.admin.coordinatorRole}</p>
+          <p className="mt-1 text-xs text-ink-faint">
+            {t.admin.coordinatorRoleHint}
+          </p>
+        </div>
+        <input type="hidden" name="profileId" value={member.id} />
+        <input
+          type="hidden"
+          name="enable"
+          value={(!member.is_coordinator).toString()}
+        />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs font-semibold text-ink-soft">
+            {member.is_coordinator
+              ? t.admin.coordinatorActive
+              : t.admin.coordinatorInactive}
+          </p>
+          <ConfirmSubmit
+            label={
+              member.is_coordinator
+                ? t.admin.revokeCoordinator
+                : t.admin.grantCoordinator
+            }
+            confirmTitle={t.common.confirmTitle}
+            confirmBody={t.common.doubleConfirm}
+            confirmLabel={t.common.confirm}
+            cancelLabel={t.common.cancel}
+            className={
+              member.is_coordinator ? "btn-danger btn-md" : "btn-secondary btn-md"
+            }
+            destructive={member.is_coordinator}
+          />
+        </div>
+      </form>
 
       {member.is_coordinator && (
         <form

@@ -900,6 +900,11 @@ const ko: Dict = {
     groupSystem: "시스템",
     grantCoordinator: "코디네이터 부여",
     revokeCoordinator: "코디네이터 해제",
+    coordinatorRole: "코디네이터 권한",
+    coordinatorRoleHint:
+      "코디네이터는 본인이 추천한 회원을 보고 메시지를 보낼 수 있어요. 부여하면 이 회원에게 코디네이터 작업 공간이 열립니다.",
+    coordinatorActive: "이 회원은 코디네이터예요.",
+    coordinatorInactive: "이 회원은 일반 회원이에요.",
     noReferrals: "아직 추천 관계가 없어요.",
     memo: "관리자 메모",
     memoHint: "관리자만 볼 수 있어요.",

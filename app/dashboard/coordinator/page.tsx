@@ -42,15 +42,15 @@ export default async function CoordinatorPage() {
       {referrals.length === 0 ? (
         <EmptyState title={t.coordinator.empty} />
       ) : (
-        <div className="space-y-2">
-          {referrals.map((member) => (
-            <Link
-              key={member.id}
-              href={`/dashboard/coordinator/${member.id}`}
-              className="block rounded-card border border-line p-4 hover:border-primary"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
+        <div className="overflow-hidden rounded-[1.5rem] border border-line/70 bg-white shadow-(--shadow-card)">
+          <div className="divide-y divide-line">
+            {referrals.map((member) => (
+              <Link
+                key={member.id}
+                href={`/dashboard/coordinator/${member.id}`}
+                className="group flex items-center gap-3 p-4 transition hover:bg-surface-sub/45 sm:px-5"
+              >
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold">
                     {member.display_name}
                     {member.company_name && (
@@ -63,12 +63,18 @@ export default async function CoordinatorPage() {
                     UID {member.uid} · {member.profile_contacts?.email}
                   </p>
                 </div>
-                <span className="shrink-0 text-xs text-ink-faint">
+                <time
+                  dateTime={member.created_at}
+                  className="hidden shrink-0 text-xs text-ink-faint sm:block"
+                >
                   {formatDate(member.created_at, locale)}
+                </time>
+                <span className="shrink-0 text-ink-faint transition group-hover:translate-x-1">
+                  →
                 </span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>
