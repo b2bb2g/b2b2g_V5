@@ -81,6 +81,11 @@ export default async function DashboardPage() {
     followers?: number;
   };
 
+  const formatDate = (value: string) =>
+    new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
+      new Date(value),
+    );
+
   const profile = session.profile;
   const profileBio =
     locale === "ko"
@@ -384,7 +389,7 @@ export default async function DashboardPage() {
                   dateTime={item.updated_at}
                   className="hidden text-xs text-ink-faint sm:block"
                 >
-                  {new Date(item.updated_at).toISOString().slice(0, 10)}
+                  {formatDate(item.updated_at)}
                 </time>
                 <span className="text-ink-faint transition group-hover:translate-x-1">
                   →
@@ -430,9 +435,7 @@ export default async function DashboardPage() {
                   </span>
                   <br />
                   {t.dashboard.subExpiresOn}{" "}
-                  {new Date(subscription.data.expires_at)
-                    .toISOString()
-                    .slice(0, 10)}
+                  {formatDate(subscription.data.expires_at)}
                 </p>
               ) : (
                 <p className="mt-2 text-sm text-ink-faint">
