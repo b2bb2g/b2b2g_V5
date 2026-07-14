@@ -53,6 +53,8 @@ const en = {
     inquiries: "Inquiries",
     profile: "Profile",
     security: "Security",
+    badgeUnread: "unread",
+    badgeInReview: "in review",
   },
   security: {
     eyebrow: "Account protection",

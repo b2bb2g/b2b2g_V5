@@ -10,10 +10,20 @@ export type AdminNavGroup = {
 
 // Admin console navigation: grouped sidebar on desktop (data-dense screens
 // are desktop-first, DESIGN section D), scrollable chip row on mobile.
-export function AdminNav({ groups }: { groups: AdminNavGroup[] }) {
+// `badgeLabel` names what every count badge means (a pending-review queue),
+// exposed as a tooltip + accessible name so the number is never ambiguous.
+export function AdminNav({
+  groups,
+  badgeLabel,
+}: {
+  groups: AdminNavGroup[];
+  badgeLabel: string;
+}) {
   const pathname = usePathname();
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+  const describe = (label: string, badge?: number) =>
+    badge ? `${label}, ${badge} ${badgeLabel}` : label;
 
   return (
     <>
@@ -25,13 +35,14 @@ export function AdminNav({ groups }: { groups: AdminNavGroup[] }) {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={describe(item.label, item.badge)}
               className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 isActive(item.href)
                   ? "bg-ink text-white"
                   : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
               }`}
             >
-              {item.label}{item.badge ? <span className="ml-1.5 rounded-full bg-negative px-1.5 py-0.5 text-[10px] font-extrabold text-white">{item.badge > 99 ? "99+" : item.badge}</span> : null}
+              {item.label}{item.badge ? <span title={badgeLabel} className="ml-1.5 rounded-full bg-negative px-1.5 py-0.5 text-[10px] font-extrabold text-white">{item.badge > 99 ? "99+" : item.badge}</span> : null}
             </Link>
           ))}
       </nav>
@@ -48,13 +59,14 @@ export function AdminNav({ groups }: { groups: AdminNavGroup[] }) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    aria-label={describe(item.label, item.badge)}
                     className={`relative block rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
                       isActive(item.href)
                         ? "bg-white/12 font-semibold text-white before:absolute before:bottom-2 before:left-0 before:top-2 before:w-0.5 before:rounded-full before:bg-[#75aaff]"
                         : "text-white/58 hover:bg-white/7 hover:text-white"
                     }`}
                   >
-                    <span className="flex items-center justify-between gap-2"><span>{item.label}</span>{item.badge ? <span className="min-w-5 rounded-full bg-negative px-1.5 py-0.5 text-center text-[10px] font-extrabold text-white">{item.badge > 99 ? "99+" : item.badge}</span> : null}</span>
+                    <span className="flex items-center justify-between gap-2"><span>{item.label}</span>{item.badge ? <span title={badgeLabel} className="min-w-5 rounded-full bg-negative px-1.5 py-0.5 text-center text-[10px] font-extrabold text-white">{item.badge > 99 ? "99+" : item.badge}</span> : null}</span>
                   </Link>
                 </li>
               ))}

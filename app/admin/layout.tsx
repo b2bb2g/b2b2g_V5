@@ -125,7 +125,7 @@ export default async function AdminLayout({
         </Link>
       </header>
       <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <AdminNav groups={groups} />
+        <AdminNav groups={groups} badgeLabel={t.admin.awaitingReview} />
         <div className="min-w-0">{children}</div>
       </div>
     </div>

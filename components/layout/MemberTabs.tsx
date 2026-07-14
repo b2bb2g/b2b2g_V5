@@ -8,7 +8,14 @@ import { usePathname } from "next/navigation";
 export function MemberTabs({
   items,
 }: {
-  items: { href: string; label: string; count?: number }[];
+  // `countLabel` names what a tab's count means (this area mixes "in review"
+  // and "unread"), surfaced as a tooltip + accessible name.
+  items: {
+    href: string;
+    label: string;
+    count?: number;
+    countLabel?: string;
+  }[];
 }) {
   const pathname = usePathname();
   const isActive = (href: string) =>
@@ -22,6 +29,11 @@ export function MemberTabs({
         <Link
           key={item.href}
           href={item.href}
+          aria-label={
+            item.count && item.countLabel
+              ? `${item.label}, ${item.count} ${item.countLabel}`
+              : undefined
+          }
           className={`flex items-center justify-between gap-2 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all lg:w-full ${
             isActive(item.href)
               ? "bg-[#101923] text-white shadow-sm"
@@ -31,6 +43,7 @@ export function MemberTabs({
           <span>{item.label}</span>
           {!!item.count && (
             <span
+              title={item.countLabel}
               className={`min-w-5 rounded-full px-1.5 py-0.5 text-center text-[10px] font-extrabold ${
                 isActive(item.href)
                   ? "bg-white/15 text-white"

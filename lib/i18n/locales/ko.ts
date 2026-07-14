@@ -57,6 +57,8 @@ const ko: Dict = {
     inquiries: "문의함",
     profile: "프로필",
     security: "로그인 보안",
+    badgeUnread: "안읽음",
+    badgeInReview: "검수 중",
   },
   security: {
     eyebrow: "계정 보호",

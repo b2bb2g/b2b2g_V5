@@ -137,6 +137,7 @@ export async function Header({
                   userId={session.userId}
                   initialCount={unread}
                   label={t.common.notifications}
+                  unreadLabel={t.nav.badgeUnread}
                 />
                 <AvatarMenu
                   name={`UID:${session.profile.uid}`}
