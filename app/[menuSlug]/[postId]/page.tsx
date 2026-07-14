@@ -1055,76 +1055,77 @@ export default async function PostDetailPage(props: {
           const evTruncated = !full && !!teaser?.body_truncated;
           return (
             <>
-              <section className="mx-auto w-full max-w-3xl scroll-mt-28 rounded-[1.75rem] border border-line/80 bg-white p-7 shadow-(--shadow-card) sm:p-10">
-                <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
-                  {t.board.aboutEvent}
-                </p>
-                {full ? (
-                  isRichText(evBody) ? (
-                    <div
-                      className="rich-content mt-5"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeRichText(evBody),
-                      }}
-                    />
-                  ) : (
-                    <div className="mt-5 whitespace-pre-wrap text-base leading-8 text-ink-soft">
-                      {evBody}
-                    </div>
-                  )
-                ) : (
-                  <div
-                    className={`mt-5 whitespace-pre-wrap text-base leading-8 text-ink-soft ${evTruncated ? "teaser-fade" : ""}`}
-                  >
-                    {stripRichText(evBody)}
-                  </div>
-                )}
-                {full && full.attachments.length > 0 && (
-                  <div className="mt-8 border-t border-line pt-7">
-                    <h2 className="text-sm font-extrabold uppercase tracking-[.1em] text-ink-faint">
-                      {t.post.attachments}
-                    </h2>
-                    <ul className="mt-4 overflow-hidden rounded-2xl border border-line">
-                      {full.attachments.map((a) => (
-                        <li
-                          key={a.id}
-                          className="border-b border-line last:border-b-0"
+              <section className="w-full overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
+                <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+                  <div className="mx-auto max-w-4xl">
+                    <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
+                      {t.board.aboutEvent}
+                    </p>
+                    {full ? (
+                      isRichText(evBody) ? (
+                        <div
+                          className="rich-content notice-content mt-6"
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeRichText(evBody),
+                          }}
+                        />
+                      ) : (
+                        <div className="mt-6 whitespace-pre-wrap text-base leading-8 text-ink-soft">
+                          {evBody}
+                        </div>
+                      )
+                    ) : (
+                      <div
+                        className={`mt-6 whitespace-pre-wrap text-base leading-8 text-ink-soft ${evTruncated ? "teaser-fade" : ""}`}
+                      >
+                        {stripRichText(evBody)}
+                      </div>
+                    )}
+                    {full && full.attachments.length > 0 && (
+                      <div className="mt-10 border-t border-line pt-8">
+                        <h2 className="text-base font-extrabold">
+                          {t.post.attachments}
+                        </h2>
+                        <ul className="mt-4 space-y-2">
+                          {full.attachments.map((a) => (
+                            <li key={a.id}>
+                              <Link
+                                href={`/api/attachments/${a.id}`}
+                                className="group flex items-center justify-between rounded-2xl bg-surface-sub px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft hover:text-primary-strong"
+                              >
+                                <span className="min-w-0 truncate">
+                                  {a.filename}
+                                </span>
+                                <span
+                                  aria-hidden="true"
+                                  className="ml-4 text-primary transition-transform group-hover:translate-y-0.5"
+                                >
+                                  ↓
+                                </span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {evTruncated && (
+                      <div className="mt-8 rounded-2xl bg-surface-sub p-6 text-center">
+                        <p className="text-base font-bold">
+                          {t.post.membersOnlyTitle}
+                        </p>
+                        <p className="mt-1 text-sm text-ink-soft">
+                          {t.post.membersOnlyBody}
+                        </p>
+                        <Link
+                          href="/signup"
+                          className="mt-4 inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
                         >
-                          <Link
-                            href={`/api/attachments/${a.id}`}
-                            className="group flex items-center justify-between gap-4 px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft/40 hover:text-primary-strong"
-                          >
-                            <span className="min-w-0 truncate">
-                              {a.filename}
-                            </span>
-                            <span
-                              aria-hidden="true"
-                              className="shrink-0 text-primary transition-transform group-hover:translate-y-0.5"
-                            >
-                              ↓
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+                          {t.common.signUp}
+                        </Link>
+                      </div>
+                    )}
                   </div>
-                )}
-                {evTruncated && (
-                  <div className="mt-6 rounded-2xl bg-surface-sub p-6 text-center">
-                    <p className="text-base font-bold">
-                      {t.post.membersOnlyTitle}
-                    </p>
-                    <p className="mt-1 text-sm text-ink-soft">
-                      {t.post.membersOnlyBody}
-                    </p>
-                    <Link
-                      href="/signup"
-                      className="mt-4 inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
-                    >
-                      {t.common.signUp}
-                    </Link>
-                  </div>
-                )}
+                </div>
               </section>
 
               {relatedEvents.length > 0 && (
