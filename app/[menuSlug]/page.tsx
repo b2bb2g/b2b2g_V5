@@ -277,43 +277,50 @@ export default async function BoardPage(props: {
                 {t.board.allNotices}
               </h2>
             </div>
-            <div className="overflow-hidden rounded-[1.75rem] border border-line/80 bg-white shadow-(--shadow-card)">
-              {posts.slice(1).map((post) => {
+            <ol className="overflow-hidden rounded-[1.75rem] border border-line/80 bg-white shadow-(--shadow-card)">
+              {posts.slice(1).map((post, index) => {
                 const noticeThumb = repThumbnail(post);
                 return (
-                  <Link
-                    key={post.id}
-                    href={`/${menu.slug}/${post.id}`}
-                    className={`group grid items-center gap-4 border-b border-line px-5 py-5 transition last:border-b-0 hover:bg-surface-sub sm:px-7 ${noticeThumb ? "grid-cols-[1fr_5rem_auto]" : "grid-cols-[1fr_auto]"}`}
-                  >
-                    <span className="min-w-0">
-                      <strong className="block line-clamp-1 text-sm font-extrabold group-hover:text-primary">
-                        {locale === "ko" && post.title_ko
-                          ? post.title_ko
-                          : post.title_en}
-                      </strong>
-                      <span className="mt-2 block text-xs text-ink-faint">
-                        {post.published_at?.slice(0, 10)}
+                  <li key={post.id}>
+                    <Link
+                      href={`/${menu.slug}/${post.id}`}
+                      className="group flex items-center gap-4 border-b border-line px-4 py-4 transition last:border-b-0 hover:bg-surface-sub sm:px-6"
+                    >
+                      <span
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-sub text-sm font-extrabold tabular-nums text-ink-faint transition-colors group-hover:bg-primary-soft group-hover:text-primary-strong"
+                        aria-hidden="true"
+                      >
+                        {String(index + 1).padStart(2, "0")}
                       </span>
-                    </span>
-                    {noticeThumb && (
-                      <span className="relative block aspect-[3/2] overflow-hidden rounded-xl bg-surface-sub">
-                        <SafeImage
-                          src={noticeThumb}
-                          alt=""
-                          fill
-                          sizes="80px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
+                      <span className="min-w-0 flex-1">
+                        <strong className="block truncate text-sm font-extrabold group-hover:text-primary">
+                          {locale === "ko" && post.title_ko
+                            ? post.title_ko
+                            : post.title_en}
+                        </strong>
+                        <span className="mt-1 block text-xs text-ink-faint">
+                          {post.published_at?.slice(0, 10)}
+                        </span>
                       </span>
-                    )}
-                    <span className="text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary">
-                      →
-                    </span>
-                  </Link>
+                      {noticeThumb && (
+                        <span className="relative hidden h-12 w-16 shrink-0 overflow-hidden rounded-lg bg-surface-sub sm:block">
+                          <SafeImage
+                            src={noticeThumb}
+                            alt=""
+                            fill
+                            sizes="64px"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        </span>
+                      )}
+                      <span className="shrink-0 text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary">
+                        →
+                      </span>
+                    </Link>
+                  </li>
                 );
               })}
-            </div>
+            </ol>
           </div>
         </section>
       ) : isEventsBoard ? (
