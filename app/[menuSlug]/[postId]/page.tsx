@@ -14,6 +14,7 @@ import { StatusLabel } from "@/components/ui/StatusLabel";
 import { MediaGallery } from "@/components/post/MediaGallery";
 import { RichContentViewer } from "@/components/post/RichContentViewer";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { isRichText, sanitizeRichText, stripRichText } from "@/lib/richtext";
 import {
@@ -153,6 +154,21 @@ export default async function PostDetailPage(props: {
     teaser?.created_at;
   const relatedProducts = isCommerceProduct
     ? await listRelatedPosts(menu.id, postId, 8)
+    : [];
+  // Other events for the detail footer, ordered live -> upcoming -> past.
+  const relatedEvents = isEvent
+    ? (await listRelatedPosts(menu.id, postId, 6))
+        .map((ev) => ({ ev, status: eventStatus(ev.event_start, ev.event_end) }))
+        .sort((a, b) => {
+          const rank = (s: EventStatus | null) =>
+            s === "ongoing" ? 0 : s === "upcoming" ? 1 : 2;
+          const r = rank(a.status) - rank(b.status);
+          if (r !== 0) return r;
+          const sa = a.ev.event_start ?? a.ev.event_end ?? "9999-12-31";
+          const sb = b.ev.event_start ?? b.ev.event_end ?? "9999-12-31";
+          return sa < sb ? -1 : sa > sb ? 1 : 0;
+        })
+        .slice(0, 3)
     : [];
   const schemaBody = stripRichText(
     locale === "ko"
@@ -969,7 +985,7 @@ export default async function PostDetailPage(props: {
         </header>
       </section>
 
-      {full && (full.specs.length > 0 || full.attachments.length > 0) && (
+      {!isEvent && full && (full.specs.length > 0 || full.attachments.length > 0) && (
         <nav
           aria-label={t.post.detailNavigation}
           className="scrollbar-none flex gap-2 overflow-x-auto rounded-2xl border border-line/80 bg-white p-2 shadow-(--shadow-card)"
@@ -999,40 +1015,239 @@ export default async function PostDetailPage(props: {
         </nav>
       )}
 
-      <div className="mx-auto w-full max-w-5xl">
-        <div className="min-w-0 space-y-5">
-          {full ? (
+      {isEvent ? (
+        (() => {
+          const pin = () => (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+              className="shrink-0"
+            >
+              <path d="M12 2c-3.9 0-7 3.1-7 7 0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
+            </svg>
+          );
+          const cal = () => (
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+              className="shrink-0"
+            >
+              <rect x="3" y="4.5" width="18" height="17" rx="2.5" />
+              <path d="M3 9.5h18M8 3v3M16 3v3" />
+            </svg>
+          );
+          const evBody = full
+            ? locale === "ko" && full.post.body_ko
+              ? full.post.body_ko
+              : full.post.body_en
+            : locale === "ko" && teaser?.body_teaser_ko
+              ? teaser.body_teaser_ko
+              : (teaser?.body_teaser_en ?? "");
+          const evTruncated = !full && !!teaser?.body_truncated;
+          return (
             <>
-              <section
-                id="overview"
-                className="scroll-mt-28 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-9"
-              >
+              <section className="mx-auto w-full max-w-3xl scroll-mt-28 rounded-[1.75rem] border border-line/80 bg-white p-7 shadow-(--shadow-card) sm:p-10">
                 <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
-                  {isEvent ? t.post.eventInformation : t.post.overview}
+                  {t.board.aboutEvent}
                 </p>
-                <div className="mt-5 max-w-[72ch]">
-                  {(() => {
-                    const body =
-                      locale === "ko" && full.post.body_ko
-                        ? full.post.body_ko
-                        : full.post.body_en;
-                    return isRichText(body) ? (
-                      <div
-                        className="rich-content"
-                        dangerouslySetInnerHTML={{
-                          __html: sanitizeRichText(body),
-                        }}
-                      />
-                    ) : (
-                      <div className="whitespace-pre-wrap text-[15px] leading-8 text-ink-soft sm:text-base">
-                        {body}
-                      </div>
-                    );
-                  })()}
-                </div>
+                {full ? (
+                  isRichText(evBody) ? (
+                    <div
+                      className="rich-content mt-5"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeRichText(evBody),
+                      }}
+                    />
+                  ) : (
+                    <div className="mt-5 whitespace-pre-wrap text-base leading-8 text-ink-soft">
+                      {evBody}
+                    </div>
+                  )
+                ) : (
+                  <div
+                    className={`mt-5 whitespace-pre-wrap text-base leading-8 text-ink-soft ${evTruncated ? "teaser-fade" : ""}`}
+                  >
+                    {stripRichText(evBody)}
+                  </div>
+                )}
+                {full && full.attachments.length > 0 && (
+                  <div className="mt-8 border-t border-line pt-7">
+                    <h2 className="text-sm font-extrabold uppercase tracking-[.1em] text-ink-faint">
+                      {t.post.attachments}
+                    </h2>
+                    <ul className="mt-4 overflow-hidden rounded-2xl border border-line">
+                      {full.attachments.map((a) => (
+                        <li
+                          key={a.id}
+                          className="border-b border-line last:border-b-0"
+                        >
+                          <Link
+                            href={`/api/attachments/${a.id}`}
+                            className="group flex items-center justify-between gap-4 px-4 py-3.5 text-sm font-bold text-ink transition hover:bg-primary-soft/40 hover:text-primary-strong"
+                          >
+                            <span className="min-w-0 truncate">
+                              {a.filename}
+                            </span>
+                            <span
+                              aria-hidden="true"
+                              className="shrink-0 text-primary transition-transform group-hover:translate-y-0.5"
+                            >
+                              ↓
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {evTruncated && (
+                  <div className="mt-6 rounded-2xl bg-surface-sub p-6 text-center">
+                    <p className="text-base font-bold">
+                      {t.post.membersOnlyTitle}
+                    </p>
+                    <p className="mt-1 text-sm text-ink-soft">
+                      {t.post.membersOnlyBody}
+                    </p>
+                    <Link
+                      href="/signup"
+                      className="mt-4 inline-block rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary-strong"
+                    >
+                      {t.common.signUp}
+                    </Link>
+                  </div>
+                )}
               </section>
 
-              {full.specs.length > 0 && (
+              {relatedEvents.length > 0 && (
+                <section className="pt-2">
+                  <div className="mb-5 flex items-end justify-between gap-4">
+                    <h2 className="text-xl font-extrabold tracking-[-.02em] sm:text-2xl">
+                      {t.board.moreEvents}
+                    </h2>
+                    <Link
+                      href={`/${menu.slug}`}
+                      className="shrink-0 text-sm font-bold text-primary hover:text-primary-strong"
+                    >
+                      {t.common.viewAll} →
+                    </Link>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {relatedEvents.map(({ ev, status }) => {
+                      const evTitle =
+                        locale === "ko" && ev.title_ko
+                          ? ev.title_ko
+                          : ev.title_en;
+                      const evThumb = repThumbnail(ev);
+                      const range = formatEventRange(
+                        ev.event_start,
+                        ev.event_end,
+                        locale,
+                      );
+                      const ended = status === "ended";
+                      return (
+                        <Link
+                          key={ev.id}
+                          href={`/${menu.slug}/${ev.id}`}
+                          className="card-hover group flex flex-col overflow-hidden"
+                        >
+                          <span className="relative block aspect-[16/10] overflow-hidden bg-surface-sub">
+                            {evThumb ? (
+                              <SafeImage
+                                src={evThumb}
+                                alt={evTitle}
+                                fill
+                                sizes="(max-width:640px) 100vw, 33vw"
+                                className={`object-cover transition-transform duration-700 group-hover:scale-105 ${ended ? "opacity-75 grayscale-[.4]" : ""}`}
+                              />
+                            ) : (
+                              <MediaPlaceholder />
+                            )}
+                            {status && (
+                              <span
+                                className={`absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow-sm backdrop-blur ${
+                                  status === "ongoing"
+                                    ? "text-positive"
+                                    : status === "upcoming"
+                                      ? "text-primary-strong"
+                                      : "text-ink-faint"
+                                }`}
+                              >
+                                {evStatusText[status]}
+                              </span>
+                            )}
+                          </span>
+                          <span className="flex min-w-0 flex-1 flex-col p-5">
+                            {range && (
+                              <span
+                                className={`flex items-center gap-1.5 text-xs font-bold ${ended ? "text-ink-faint" : "text-primary"}`}
+                              >
+                                {cal()}
+                                {range}
+                              </span>
+                            )}
+                            <strong className="mt-2 line-clamp-2 text-base font-extrabold leading-snug group-hover:text-primary">
+                              {evTitle}
+                            </strong>
+                            <span className="mt-2.5 flex items-center gap-1.5 text-sm text-ink-soft">
+                              {pin()}
+                              <span className="truncate">
+                                {ev.event_venue ?? t.board.eventVenueTbd}
+                              </span>
+                            </span>
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+            </>
+          );
+        })()
+      ) : (
+        <div className="mx-auto w-full max-w-5xl">
+          <div className="min-w-0 space-y-5">
+            {full ? (
+              <>
+                <section
+                  id="overview"
+                  className="scroll-mt-28 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-9"
+                >
+                  <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
+                    {t.post.overview}
+                  </p>
+                  <div className="mt-5 max-w-[72ch]">
+                    {(() => {
+                      const body =
+                        locale === "ko" && full.post.body_ko
+                          ? full.post.body_ko
+                          : full.post.body_en;
+                      return isRichText(body) ? (
+                        <div
+                          className="rich-content"
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeRichText(body),
+                          }}
+                        />
+                      ) : (
+                        <div className="whitespace-pre-wrap text-[15px] leading-8 text-ink-soft sm:text-base">
+                          {body}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </section>
+
+                {full.specs.length > 0 && (
                 <section
                   id="specifications"
                   className="scroll-mt-28 rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-9"
@@ -1121,8 +1336,9 @@ export default async function PostDetailPage(props: {
               </section>
             )
           )}
+          </div>
         </div>
-      </div>
+      )}
     </article>
   );
 }

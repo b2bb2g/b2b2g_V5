@@ -133,6 +133,8 @@ const en = {
     eventVenueTbd: "Venue to be announced",
     eventScheduleLabel: "Schedule",
     eventVenueLabel: "Venue",
+    aboutEvent: "About this event",
+    moreEvents: "More events",
     noticeCenter: "B2BB2G",
     latestNotice: "Latest notice",
     noticeDirectory: "Notice directory",

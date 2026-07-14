@@ -137,6 +137,8 @@ const ko: Dict = {
     eventVenueTbd: "장소 추후 공지",
     eventScheduleLabel: "일정",
     eventVenueLabel: "장소",
+    aboutEvent: "행사 소개",
+    moreEvents: "다른 행사",
     noticeCenter: "B2BB2G",
     latestNotice: "최신 공지",
     noticeDirectory: "공지 디렉터리",
