@@ -168,15 +168,14 @@ export async function Header({
                 </Link>
               </>
             )}
-            {!session.userId && (
-              <MobileMenu
-                items={menuItems}
-                searchLabel={t.common.search}
-                signInLabel={t.common.signIn}
-                signUpLabel={t.common.signUp}
-                menuLabel={t.nav.menu}
-              />
-            )}
+            <MobileMenu
+              items={menuItems}
+              searchLabel={t.common.search}
+              signInLabel={t.common.signIn}
+              signUpLabel={t.common.signUp}
+              menuLabel={t.nav.menu}
+              showAuth={!session.userId}
+            />
           </nav>
         </div>
       </div>

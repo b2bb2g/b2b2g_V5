@@ -10,12 +10,16 @@ export function MobileMenu({
   signInLabel,
   signUpLabel,
   menuLabel,
+  showAuth = true,
 }: {
   items: { id: string; slug: string; label: string }[];
   searchLabel: string;
-  signInLabel: string;
-  signUpLabel: string;
+  signInLabel?: string;
+  signUpLabel?: string;
   menuLabel: string;
+  // Signed-in members reach account actions through the avatar menu, so the
+  // mobile sheet only needs board links + search for them.
+  showAuth?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -47,11 +51,17 @@ export function MobileMenu({
               );
             })}
           </nav>
-          <div className="mt-3 grid grid-cols-2 gap-2 border-t border-line pt-4">
-            <Link href="/search" onClick={close} className="btn-secondary btn-md">{searchLabel}</Link>
-            <Link href="/login" onClick={close} className="btn-secondary btn-md">{signInLabel}</Link>
-            <Link href="/signup" onClick={close} className="btn-primary btn-md col-span-2">{signUpLabel}</Link>
-          </div>
+          {showAuth ? (
+            <div className="mt-3 grid grid-cols-2 gap-2 border-t border-line pt-4">
+              <Link href="/search" onClick={close} className="btn-secondary btn-md">{searchLabel}</Link>
+              <Link href="/login" onClick={close} className="btn-secondary btn-md">{signInLabel}</Link>
+              <Link href="/signup" onClick={close} className="btn-primary btn-md col-span-2">{signUpLabel}</Link>
+            </div>
+          ) : (
+            <div className="mt-3 border-t border-line pt-4">
+              <Link href="/search" onClick={close} className="btn-secondary btn-md w-full">{searchLabel}</Link>
+            </div>
+          )}
         </div>
       )}
     </div>
