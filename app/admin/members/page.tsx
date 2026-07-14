@@ -21,22 +21,25 @@ export default async function MembersPage(props: {
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const from = (page - 1) * PAGE_SIZE;
   const q = params.q?.trim().replace(/[%,()\\]/g, "");
+  let relationLookupError: { message: string } | null = null;
   let matchedEmailIds: string[] = [];
   if (q && !/^\d+$/.test(q)) {
-    const { data: contacts } = await supabase.from("profile_contacts").select("profile_id").ilike("email", `%${q}%`).limit(100);
+    const { data: contacts, error } = await supabase.from("profile_contacts").select("profile_id").ilike("email", `%${q}%`).limit(100);
+    relationLookupError = error;
     matchedEmailIds = (contacts ?? []).map((row) => row.profile_id);
   }
 
   let badgeProfileIds: string[] | null = null;
   if (params.badge) {
-    const { data: matches } = await supabase.from("member_badges").select("profile_id, badge_types!inner(code)").eq("badge_types.code", params.badge);
+    const { data: matches, error } = await supabase.from("member_badges").select("profile_id, badge_types!inner(code)").eq("badge_types.code", params.badge);
+    relationLookupError ??= error;
     badgeProfileIds = (matches ?? []).map((row) => row.profile_id);
   }
 
   let query = supabase
     .from("profiles")
     .select(
-      "id, uid, display_name, company_name, status, tier_id, is_admin, is_coordinator, created_at, profile_contacts(email, phone), member_tiers(name_en), member_badges(badge_types(code))",
+      "id, uid, display_name, company_name, status, tier_id, is_admin, is_coordinator, created_at, profile_contacts(email, phone), member_tiers(name_en), member_badges!member_badges_profile_id_fkey(badge_types(code))",
       { count: "exact" }
     )
     .order("created_at", { ascending: false })
@@ -57,11 +60,27 @@ export default async function MembersPage(props: {
   if (params.to) query = query.lte("created_at", `${params.to}T23:59:59Z`);
   if (badgeProfileIds) query = query.in("id", badgeProfileIds.length ? badgeProfileIds : ["00000000-0000-0000-0000-000000000000"]);
 
-  const [{ data, count }, { data: tiers }, { data: badgeTypes }] = await Promise.all([
+  const [
+    { data, count, error: membersError },
+    { data: tiers, error: tiersError },
+    { data: badgeTypes, error: badgeTypesError },
+  ] = await Promise.all([
     query,
     supabase.from("member_tiers").select("id, name_en").order("sort_order"),
     supabase.from("badge_types").select("code, name_en").eq("is_active", true).order("sort_order"),
   ]);
+  const loadError = relationLookupError ?? membersError ?? tiersError ?? badgeTypesError;
+  if (loadError) {
+    console.error("[admin/members] Failed to load member data", loadError);
+    return (
+      <div className="space-y-3">
+        <h2 className="text-base font-bold">{t.admin.memberList}</h2>
+        <p role="alert" className="rounded-xl bg-negative-soft px-4 py-3 text-sm font-semibold text-negative">
+          {t.admin.dataLoadFailed}
+        </p>
+      </div>
+    );
+  }
   const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   const members = (data ?? []) as unknown as {
     id: string;

@@ -31,7 +31,7 @@ export function MenuNav({
             href={href}
             className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
               active
-                ? "bg-ink text-white"
+                ? "bg-ink text-surface"
                 : "text-ink-soft hover:bg-surface-sub hover:text-ink"
             }`}
           >

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Header } from "@/components/layout/Header";
 import { BadgePill } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { Carousel } from "@/components/ui/Carousel";
@@ -135,7 +136,12 @@ export default async function Home() {
   ];
 
   return (
-    <div className="full-bleed overflow-hidden bg-white">
+    <>
+      {/* RouteChrome hides the layout header on "/"; render the shared header
+          here in its overlay tone. Must stay outside the overflow-hidden page
+          root or position:sticky stops working. */}
+      <Header variant="overlay" />
+      <div className="full-bleed overflow-hidden bg-white">
       <JsonLd
         data={[
           {
@@ -159,7 +165,7 @@ export default async function Home() {
         ]}
       />
 
-      <section className="relative min-h-[760px] overflow-hidden bg-[#0d151e] text-white">
+      <section className="relative min-h-[688px] overflow-hidden bg-[#0d151e] text-white">
         <Image
           src="/landing-v2/hero-global-collaboration.jpg"
           alt=""
@@ -169,72 +175,8 @@ export default async function Home() {
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(9,15,22,.98)_0%,rgba(9,15,22,.84)_35%,rgba(9,15,22,.2)_76%,rgba(9,15,22,.25)_100%)]" />
-        <div className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-[#0d151e]/45 backdrop-blur-xl">
-          <div className={`${container} flex h-20 items-center gap-8`}>
-            <Link href="/" className="flex items-center gap-2.5">
-              <span className="text-base font-extrabold">
-                {t.common.siteName}
-              </span>
-            </Link>
-            <nav
-              className="hidden flex-1 items-center justify-center gap-1 lg:flex"
-              aria-label={t.home.boardsTitle}
-            >
-              {menus.slice(0, 5).map((menu) => (
-                <Link
-                  key={menu.id}
-                  href={`/${menu.slug}`}
-                  className="rounded-full px-4 py-2 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
-                >
-                  {menuTitle(menu, locale)}
-                </Link>
-              ))}
-            </nav>
-            <div className="ml-auto flex items-center gap-2">
-              <Link
-                href="/search"
-                aria-label={t.common.search}
-                className="rounded-full p-2.5 text-white/70 transition hover:bg-white/10 hover:text-white"
-              >
-                <svg
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
-              </Link>
-              {session.userId ? (
-                <Link
-                  href="/dashboard"
-                  className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-ink"
-                >
-                  {t.common.dashboard}
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="hidden px-3 py-2 text-sm font-semibold text-white/70 sm:block"
-                  >
-                    {t.common.signIn}
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-ink"
-                  >
-                    {t.common.signUp}
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
         <div
-          className={`${container} relative flex min-h-[760px] items-center pb-20 pt-32`}
+          className={`${container} relative flex min-h-[688px] items-center pb-20 pt-20`}
         >
           <div className="animate-fade-up max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[.22em] text-[#6ea8ff]">
@@ -892,89 +834,7 @@ export default async function Home() {
         </Reveal>
       </section>
 
-      <footer className="bg-[#0d151e] text-white">
-        <div className={`${container} py-14 sm:py-20`}>
-          <div className="grid gap-12 border-b border-white/10 pb-14 lg:grid-cols-[1.5fr_1fr_1fr]">
-            <div>
-              <Link href="/" className="flex items-center gap-3">
-                <span className="text-lg font-extrabold">
-                  {t.common.siteName}
-                </span>
-              </Link>
-              <p className="mt-5 max-w-sm text-sm leading-7 text-white/60">
-                {t.footer.tagline}
-              </p>
-              <Link
-                href={session.userId ? "/dashboard" : "/signup"}
-                className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#76abff]"
-              >
-                {session.userId ? t.common.dashboard : t.home.startNow}
-                <Arrow />
-              </Link>
-            </div>
-            <nav aria-label={t.footer.marketplace}>
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-white/60">
-                {t.footer.marketplace}
-              </p>
-              <ul className="mt-5 space-y-3">
-                {menus.slice(0, 5).map((menu) => (
-                  <li key={menu.id}>
-                    <Link
-                      href={`/${menu.slug}`}
-                      className="text-sm text-white/62 transition hover:text-white"
-                    >
-                      {menuTitle(menu, locale)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-            <nav aria-label={t.footer.legal}>
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-white/60">
-                {t.footer.legal}
-              </p>
-              <ul className="mt-5 space-y-3">
-                <li>
-                  <Link
-                    href="/membership"
-                    className="text-sm text-white/62 hover:text-white"
-                  >
-                    {t.home.promoCta}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/legal/terms"
-                    className="text-sm text-white/62 hover:text-white"
-                  >
-                    {t.footer.terms}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/legal/privacy"
-                    className="text-sm text-white/62 hover:text-white"
-                  >
-                    {t.footer.privacy}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/legal/cookies"
-                    className="text-sm text-white/62 hover:text-white"
-                  >
-                    {t.footer.cookies}
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          </div>
-          <div className="flex flex-col gap-3 pt-7 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
-            <p>{t.footer.copyright}</p>
-            <p>Built for trusted global business</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </div>
+    </>
   );
 }

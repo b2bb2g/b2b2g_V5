@@ -763,6 +763,7 @@ const ko: Dict = {
     staffSaved: "직원 권한을 저장했어요.",
     staffEmpty: "아직 부여된 직원 권한이 없어요.",
     changesSaved: "변경사항을 저장했어요.",
+    dataLoadFailed: "현재 데이터를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.",
     staffRoles: {
       manager: "운영 매니저",
       reviewer: "콘텐츠 검수자",

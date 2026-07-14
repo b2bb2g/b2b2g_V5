@@ -57,6 +57,20 @@
     0 8px 18px rgb(25 31 40 / 0.07), 0 22px 55px rgb(25 31 40 / 0.12);
 }
 
+/* Dark chrome scope (landing overlay header): remaps the surface tokens so
+   every header child — MenuNav, LocaleMenu, MobileMenu, AvatarMenu — adapts
+   without tone props. Keep in sync with the @theme palette above. */
+.header-dark {
+  --color-ink: #ffffff;
+  --color-ink-soft: rgba(255, 255, 255, 0.72);
+  --color-ink-faint: rgba(255, 255, 255, 0.55);
+  --color-line: rgba(255, 255, 255, 0.14);
+  --color-surface: #101b27;
+  --color-surface-sub: rgba(255, 255, 255, 0.12);
+  --color-primary-soft: rgba(110, 168, 255, 0.22);
+  --color-primary-strong: #8ab4ff;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;

@@ -780,6 +780,7 @@ const en = {
     staffSaved: "Staff access was saved.",
     staffEmpty: "No staff access has been assigned yet.",
     changesSaved: "Changes were saved.",
+    dataLoadFailed: "We could not load the current data. Please refresh and try again.",
     staffRoles: {
       manager: "Operations manager",
       reviewer: "Content reviewer",

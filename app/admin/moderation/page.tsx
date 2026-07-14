@@ -19,12 +19,24 @@ export default async function ModerationPage(props: {
   ]);
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const from = (page - 1) * PAGE_SIZE;
-  const { data, count } = await supabase
+  const { data, count, error } = await supabase
     .from("posts")
-    .select("*, profiles(uid, display_name, company_name), menus(title_en, title_ko)", { count: "exact" })
+    .select("*, profiles!posts_author_id_fkey(uid, display_name, company_name), menus(title_en, title_ko)", { count: "exact" })
     .eq("status", POST_STATUS.PENDING)
     .order("created_at")
     .range(from, from + PAGE_SIZE - 1);
+
+  if (error) {
+    console.error("[admin/moderation] Failed to load moderation queue", error);
+    return (
+      <div className="space-y-3">
+        <h2 className="text-base font-bold">{t.admin.moderation}</h2>
+        <p role="alert" className="rounded-xl bg-negative-soft px-4 py-3 text-sm font-semibold text-negative">
+          {t.admin.dataLoadFailed}
+        </p>
+      </div>
+    );
+  }
 
   const posts = (data ?? []) as unknown as (Post & {
     profiles: { uid: number; display_name: string | null; company_name: string | null } | null;

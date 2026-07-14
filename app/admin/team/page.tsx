@@ -16,10 +16,21 @@ export default async function AdminTeamPage(props: {
     requireAdmin("team"),
     props.searchParams,
   ]);
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("admin_staff_assignments")
-    .select("profile_id, role, permissions, is_active, updated_at, profiles(uid, display_name, company_name)")
+    .select("profile_id, role, permissions, is_active, updated_at, profiles!admin_staff_assignments_profile_id_fkey(uid, display_name, company_name)")
     .order("updated_at", { ascending: false });
+  if (error) {
+    console.error("[admin/team] Failed to load staff assignments", error);
+    return (
+      <div className="space-y-3">
+        <h2 className="text-base font-bold">{t.admin.teamAccess}</h2>
+        <p role="alert" className="rounded-xl bg-negative-soft px-4 py-3 text-sm font-semibold text-negative">
+          {t.admin.dataLoadFailed}
+        </p>
+      </div>
+    );
+  }
   const staff = data ?? [];
 
   return (

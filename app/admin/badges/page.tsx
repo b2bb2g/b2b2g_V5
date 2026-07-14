@@ -24,16 +24,32 @@ export default async function BadgeAdminPage(props: {
   ]);
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const from = (page - 1) * PAGE_SIZE;
-  const [{ data, count }, { data: badgeTypes }, { data: assignments }] = await Promise.all([
+  const [
+    { data, count, error: applicationsError },
+    { data: badgeTypes, error: badgeTypesError },
+    { data: assignments, error: assignmentsError },
+  ] = await Promise.all([
     supabase
       .from("badge_applications")
-      .select("*, badge_types(name_en, name_ko), profiles(uid, display_name, company_name)", { count: "exact" })
+      .select("*, badge_types(name_en, name_ko), profiles!badge_applications_profile_id_fkey(uid, display_name, company_name)", { count: "exact" })
       .eq("status", "pending")
       .order("created_at")
       .range(from, from + PAGE_SIZE - 1),
     supabase.from("badge_types").select("*").order("sort_order"),
-    supabase.from("member_badges").select("id, profile_id, granted_at, badge_types(name_en, name_ko, code), profiles(uid, display_name, company_name)").order("granted_at", { ascending: false }).limit(20),
+    supabase.from("member_badges").select("id, profile_id, granted_at, badge_types(name_en, name_ko, code), profiles!member_badges_profile_id_fkey(uid, display_name, company_name)").order("granted_at", { ascending: false }).limit(20),
   ]);
+  const loadError = applicationsError ?? badgeTypesError ?? assignmentsError;
+  if (loadError) {
+    console.error("[admin/badges] Failed to load badge data", loadError);
+    return (
+      <div className="space-y-3">
+        <h2 className="text-base font-bold">{t.admin.badgeAdmin}</h2>
+        <p role="alert" className="rounded-xl bg-negative-soft px-4 py-3 text-sm font-semibold text-negative">
+          {t.admin.dataLoadFailed}
+        </p>
+      </div>
+    );
+  }
 
   const rows = (data ?? []) as unknown as {
     id: string;
