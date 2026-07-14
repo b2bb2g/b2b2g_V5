@@ -10,6 +10,8 @@ import type { Inquiry } from "@/lib/types";
 import { Pagination } from "@/components/ui/Pagination";
 import { formatDate } from "@/lib/format";
 import { NOTIFICATION_STATE } from "@/lib/constants";
+import { markAllInquiriesRead } from "@/app/actions/inquiries";
+import { PendingButton } from "@/components/ui/PendingButton";
 
 const PAGE_SIZE = 20;
 
@@ -53,7 +55,19 @@ export default async function InquiriesPage(props: {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={t.inquiry.title} subtitle={t.inquiry.stepHint} />
+      <PageHeader
+        title={t.inquiry.title}
+        subtitle={t.inquiry.stepHint}
+        action={
+          unreadInquiryIds.size > 0 ? (
+            <form action={markAllInquiriesRead}>
+              <PendingButton className="rounded-lg px-3 py-2 text-xs font-semibold text-primary hover:bg-primary-soft/60">
+                {t.notifications.markAllRead}
+              </PendingButton>
+            </form>
+          ) : undefined
+        }
+      />
 
       {inquiries.length === 0 ? (
         <EmptyState

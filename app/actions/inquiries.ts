@@ -67,6 +67,28 @@ export async function markInquiryRead(inquiryId: string) {
   revalidatePath("/dashboard", "layout");
 }
 
+// "Mark all as read" for the inquiries list: clears every unread
+// delivered/returned notification at once (parallels the notifications page).
+export async function markAllInquiriesRead() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { count } = await supabase
+    .from("notifications")
+    .update({ state: NOTIFICATION_STATE.READ }, { count: "exact" })
+    .eq("profile_id", user.id)
+    .eq("state", NOTIFICATION_STATE.UNREAD)
+    .in("type", ["message_delivered", "message_rejected"]);
+
+  if (!count) return;
+  revalidatePath("/inquiries", "layout");
+  revalidatePath("/notifications", "layout");
+  revalidatePath("/dashboard", "layout");
+}
+
 export async function replyInquiry(formData: FormData) {
   const inquiryId = String(formData.get("inquiryId") ?? "");
   const body = String(formData.get("body") ?? "").trim();

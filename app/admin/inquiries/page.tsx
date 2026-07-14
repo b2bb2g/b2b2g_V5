@@ -5,7 +5,7 @@ import { reviewMessage } from "@/app/actions/admin/reviews";
 import { MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { InquiryMessage } from "@/lib/types";
 import { Pagination } from "@/components/ui/Pagination";
-import { MessageReviewForm } from "@/components/admin/MessageReviewForm";
+import { ReviewDecisionForm } from "@/components/admin/ReviewDecisionForm";
 
 const PAGE_SIZE = 20;
 
@@ -60,17 +60,18 @@ export default async function InquiryModerationPage(props: {
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
                 {message.body}
               </p>
-              <MessageReviewForm
-                messageId={message.id}
+              <ReviewDecisionForm
                 action={reviewMessage}
-                labels={{
-                  feedback: t.admin.feedback,
-                  forward: t.admin.forward,
-                  return: t.admin.reject,
-                  reason: t.admin.rejectReason,
-                  cancel: t.common.cancel,
-                  confirmReturn: t.admin.confirmReturn,
-                }}
+                idField="messageId"
+                idValue={message.id}
+                approveValue="forward"
+                approveLabel={t.admin.forward}
+                rejectValue="reject"
+                rejectLabel={t.admin.reject}
+                confirmRejectLabel={t.admin.confirmReturn}
+                reasonPlaceholder={t.admin.rejectReason}
+                cancelLabel={t.common.cancel}
+                feedbackPlaceholder={t.admin.feedback}
               />
             </article>
           ))}
