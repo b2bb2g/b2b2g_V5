@@ -61,8 +61,9 @@ export default async function PostDetailPage(props: {
   if (!menu) notFound();
 
   const isMember = !!session.userId;
-  const isNotice =
-    menu.slug === "notices" && menu.board_type === BOARD_TYPES.NOTICE;
+  // Any notice-type board (notices, services, FAQ) reads as an article, not a
+  // product — full content is public and there is no media/inquiry column.
+  const isNotice = menu.board_type === BOARD_TYPES.NOTICE;
   const autoplay = settingBool(settings, SETTING_KEYS.VIDEO_AUTOPLAY, false);
 
   // Members read the full row through RLS; visitors only ever receive the
