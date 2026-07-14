@@ -107,7 +107,7 @@ export default async function BoardPage(props: {
           count={posts.length}
           countLabel={t.board.availableNow}
           description={
-            isNoticeBoard
+            menu.board_type === BOARD_TYPES.NOTICE
               ? t.board.noticeHint
               : isRequestBoard
                 ? t.board.requestHint
