@@ -104,17 +104,11 @@ export default async function PostDetailPage(props: {
       (post?.deadline ?? teaser?.deadline)! <
         new Date().toISOString().slice(0, 10));
   const isRequest = (post?.type ?? teaser?.type) === BOARD_TYPES.REQUEST;
-  const inquiryEligible = [
-    "commercial",
-    "industrial",
-    "epc",
-    "requests",
-    "events",
-  ].includes(menu.slug);
-  const isEvent = menu.slug === "events";
-  const isCommerceProduct = ["commercial", "industrial", "epc"].includes(
-    menu.slug,
-  );
+  // Keyed on board type, not slug, so new boards inherit the right behavior:
+  // notice boards are the only ones without the inquiry flow.
+  const inquiryEligible = menu.board_type !== BOARD_TYPES.NOTICE;
+  const isEvent = menu.board_type === BOARD_TYPES.FLEXIBLE;
+  const isCommerceProduct = menu.board_type === BOARD_TYPES.PRODUCT;
 
   const statusLabels: Record<string, string> = t.post.status;
   const authorUid = full?.author?.uid ?? teaser?.author_uid;

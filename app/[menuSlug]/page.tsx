@@ -80,8 +80,10 @@ export default async function BoardPage(props: {
   const isGallery =
     menu.board_type === BOARD_TYPES.PRODUCT ||
     menu.board_type === BOARD_TYPES.FLEXIBLE;
-  const isNoticeBoard = menu.slug === "notices";
-  const isEventsBoard = menu.slug === "events";
+  // Keyed on board type, not slug, so any board an admin adds behaves like its
+  // type instead of falling back to the wrong layout/copy.
+  const isNoticeBoard = menu.board_type === BOARD_TYPES.NOTICE;
+  const isEventsBoard = menu.board_type === BOARD_TYPES.FLEXIBLE;
   const typeLabel =
     (t.admin.boardTypes as Record<string, string>)[menu.board_type] ??
     menu.board_type;
@@ -98,8 +100,11 @@ export default async function BoardPage(props: {
 
   return (
     <div className="wide space-y-4">
-      {/* Creation lives on the dashboard and avatar menu only (UX policy). */}
-      {!isNoticeBoard && !isEventsBoard && (
+      {/* Product/request boards always lead with the hero. Notice/events
+          boards use a featured layout instead — but when they're empty (no
+          featured post to show) the hero still gives the page its title and
+          context. Creation lives on the dashboard only (UX policy). */}
+      {(!isNoticeBoard && !isEventsBoard) || posts.length === 0 ? (
         <BoardHero
           eyebrow={t.board.eyebrow}
           type={typeLabel}
@@ -107,15 +112,17 @@ export default async function BoardPage(props: {
           count={posts.length}
           countLabel={t.board.availableNow}
           description={
-            menu.board_type === BOARD_TYPES.NOTICE
+            isNoticeBoard
               ? t.board.noticeHint
-              : isRequestBoard
-                ? t.board.requestHint
-                : t.board.browseHint
+              : isEventsBoard
+                ? t.board.eventsHint
+                : isRequestBoard
+                  ? t.board.requestHint
+                  : t.board.browseHint
           }
           image={boardImage}
         />
-      )}
+      ) : null}
 
       {categoryNavVisible && (categories ?? []).length > 0 && (
         <nav className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4">
@@ -528,16 +535,23 @@ export default async function BoardPage(props: {
                       : post.title_en}
                   </p>
                   {isRequestBoard && (
-                    <StatusLabel
-                      status={closed ? "closed" : "approved"}
-                      label={
-                        closed
-                          ? t.post.closed
-                          : post.deadline
-                            ? `${t.post.deadline} ${post.deadline}`
-                            : t.post.openEnded
-                      }
-                    />
+                    <span className="flex shrink-0 items-center gap-1.5">
+                      <StatusLabel
+                        status={closed ? "closed" : "approved"}
+                        label={
+                          closed
+                            ? t.post.closed
+                            : post.deadline
+                              ? t.post.open
+                              : t.post.openEnded
+                        }
+                      />
+                      {!closed && post.deadline && (
+                        <span className="inline-flex items-center whitespace-nowrap rounded-md bg-caution-soft px-2 py-0.5 text-xs font-semibold text-caution">
+                          {t.post.deadline} {post.deadline}
+                        </span>
+                      )}
+                    </span>
                   )}
                 </div>
                 <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-soft">
