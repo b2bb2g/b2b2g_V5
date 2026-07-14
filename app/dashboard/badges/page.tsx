@@ -10,6 +10,7 @@ import { BadgeDocsUploader } from "@/components/badges/BadgeDocsUploader";
 import { BADGE_CODES, SUBSCRIPTION_STATUS } from "@/lib/constants";
 import type { BadgeType } from "@/lib/types";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { formatDate } from "@/lib/format";
 
 export default async function BadgeApplicationPage() {
   const session = await getSession();
@@ -64,7 +65,7 @@ export default async function BadgeApplicationPage() {
         description={t.dashboard.applyBadgeHint}
       />
 
-      <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         {((types as BadgeType[]) ?? []).map((type) => {
           const owned = ownedTypeIds.has(type.id);
           const pending = pendingTypeIds.has(type.id);
@@ -83,9 +84,12 @@ export default async function BadgeApplicationPage() {
               ? t.badges.certifiedHint
               : null;
           return (
-            <div key={type.id} className="rounded-card border border-line p-4">
+            <div
+              key={type.id}
+              className="flex flex-col rounded-[1.5rem] border border-line/70 bg-white p-5 shadow-(--shadow-card) sm:p-6"
+            >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-bold">
+                <p className="text-base font-extrabold">
                   {locale === "ko" ? type.name_ko : type.name_en}
                 </p>
                 {owned && (
@@ -150,31 +154,35 @@ export default async function BadgeApplicationPage() {
       </div>
 
       {(applications ?? []).length > 0 && (
-        <section className="space-y-2">
-          {(applications ?? []).map((a) => (
-            <div
-              key={a.id}
-              className="space-y-1 rounded-card border border-line px-4 py-3"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-semibold">
-                  {typeNameById.get(a.badge_type_id) ?? ""}
-                  <span className="ml-2 text-xs font-normal text-ink-faint">
-                    {new Date(a.created_at).toISOString().slice(0, 10)}
-                  </span>
-                </p>
-                <StatusLabel
-                  status={a.status}
-                  label={appStatusLabels[a.status] ?? a.status}
-                />
+        <section className="overflow-hidden rounded-[1.5rem] border border-line/70 bg-white shadow-(--shadow-card)">
+          <h2 className="border-b border-line px-5 py-4 text-sm font-extrabold sm:px-6">
+            {t.badges.applicationHistory}
+          </h2>
+          <div className="divide-y divide-line">
+            {(applications ?? []).map((a) => (
+              <div key={a.id} className="px-5 py-3.5 sm:px-6">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="min-w-0 text-sm font-semibold">
+                    <span className="truncate">
+                      {typeNameById.get(a.badge_type_id) ?? ""}
+                    </span>
+                    <span className="ml-2 text-xs font-normal text-ink-faint">
+                      {formatDate(a.created_at, locale)}
+                    </span>
+                  </p>
+                  <StatusLabel
+                    status={a.status}
+                    label={appStatusLabels[a.status] ?? a.status}
+                  />
+                </div>
+                {a.status === "rejected" && a.reject_reason && (
+                  <p className="mt-1 text-xs text-ink-soft">
+                    {t.badges.rejectedReason}: {a.reject_reason}
+                  </p>
+                )}
               </div>
-              {a.status === "rejected" && a.reject_reason && (
-                <p className="text-xs text-ink-soft">
-                  {t.badges.rejectedReason}: {a.reject_reason}
-                </p>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
       )}
     </div>

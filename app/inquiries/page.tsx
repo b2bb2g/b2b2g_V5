@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import type { Inquiry } from "@/lib/types";
 import { Pagination } from "@/components/ui/Pagination";
+import { formatDate } from "@/lib/format";
 
 const PAGE_SIZE = 20;
 
@@ -18,7 +19,7 @@ export default async function InquiriesPage(props: {
   const session = await getSession();
   if (!session.userId) redirect("/login");
 
-  const [{ t }, supabase, params] = await Promise.all([
+  const [{ t, locale }, supabase, params] = await Promise.all([
     getT(),
     createClient(),
     props.searchParams,
@@ -45,35 +46,43 @@ export default async function InquiriesPage(props: {
           hint={t.common.emptyListHint}
         />
       ) : (
-        <div className="space-y-2.5">
-          {inquiries.map((inquiry) => {
-            const outgoing = inquiry.sender_id === session.userId;
-            return (
-              <Link
-                key={inquiry.id}
-                href={`/inquiries/${inquiry.id}`}
-                className="block rounded-card border border-line p-4 hover:border-primary"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-ink-faint">
-                      {outgoing ? t.inquiry.outbox : t.inquiry.inbox}
-                    </p>
-                    <p className="mt-0.5 truncate text-sm font-bold">
+        <div className="overflow-hidden rounded-[1.5rem] border border-line/70 bg-white shadow-(--shadow-card)">
+          <div className="divide-y divide-line">
+            {inquiries.map((inquiry) => {
+              const outgoing = inquiry.sender_id === session.userId;
+              return (
+                <Link
+                  key={inquiry.id}
+                  href={`/inquiries/${inquiry.id}`}
+                  className="group flex items-center gap-3 p-4 transition hover:bg-surface-sub/45 sm:px-5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wide text-ink-faint">
+                        {outgoing ? t.inquiry.outbox : t.inquiry.inbox}
+                      </span>
+                      <StatusLabel
+                        status={inquiry.status}
+                        label={stepLabels[inquiry.status] ?? inquiry.status}
+                      />
+                    </div>
+                    <p className="mt-1 truncate text-sm font-bold">
                       {inquiry.subject}
                     </p>
                   </div>
-                  <StatusLabel
-                    status={inquiry.status}
-                    label={stepLabels[inquiry.status] ?? inquiry.status}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-ink-faint">
-                  {new Date(inquiry.updated_at).toISOString().slice(0, 10)}
-                </p>
-              </Link>
-            );
-          })}
+                  <time
+                    dateTime={inquiry.updated_at}
+                    className="hidden shrink-0 text-xs text-ink-faint sm:block"
+                  >
+                    {formatDate(inquiry.updated_at, locale)}
+                  </time>
+                  <span className="shrink-0 text-ink-faint transition group-hover:translate-x-1">
+                    →
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       )}
       <Pagination

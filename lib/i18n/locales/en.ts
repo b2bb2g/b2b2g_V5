@@ -465,6 +465,7 @@ const en = {
     companyInfoPlaceholder:
       "Company introduction, business registration number, main products",
     rejectedReason: "Reason",
+    applicationHistory: "Application history",
   },
   membership: {
     statusTitle: "My subscription",

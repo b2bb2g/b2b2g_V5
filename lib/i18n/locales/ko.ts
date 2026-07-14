@@ -455,6 +455,7 @@ const ko: Dict = {
     companyInfoPlaceholder: "회사 소개, 사업자등록번호, 주력 제품",
     rejectedReason: "사유",
     attachDocuments: "서류 첨부 (사업자등록증, 인증서 등)",
+    applicationHistory: "신청 이력",
   },
   membership: {
     statusTitle: "내 구독",

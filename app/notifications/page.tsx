@@ -10,6 +10,7 @@ import type { AppNotification } from "@/lib/types";
 import type { Dictionary } from "@/lib/i18n";
 import Link from "next/link";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { formatDateTime } from "@/lib/format";
 import { Pagination } from "@/components/ui/Pagination";
 
 const PAGE_SIZE = 30;
@@ -62,7 +63,7 @@ export default async function NotificationsPage(props: {
   const session = await getSession();
   if (!session.userId) redirect("/login");
 
-  const [{ t }, params, supabase] = await Promise.all([
+  const [{ t, locale }, params, supabase] = await Promise.all([
     getT(),
     props.searchParams,
     createClient(),
@@ -113,124 +114,133 @@ export default async function NotificationsPage(props: {
         }
       />
 
-      <nav className="flex gap-1">
-        {tabs.map((tab) => (
-          <Link
-            key={tab.key}
-            href={tab.key ? `/notifications?view=${tab.key}` : "/notifications"}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-semibold ${
-              (view === "inbox" && !tab.key) ||
-              (tab.key === "archived" &&
-                view === NOTIFICATION_STATE.ARCHIVED) ||
-              (tab.key === "trash" && view === NOTIFICATION_STATE.TRASHED)
-                ? "bg-primary-soft text-primary-strong"
-                : "bg-surface-sub text-ink-soft"
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
+      <nav className="flex w-fit gap-1 rounded-full bg-surface-sub p-1">
+        {tabs.map((tab) => {
+          const active =
+            (view === "inbox" && !tab.key) ||
+            (tab.key === "archived" && view === NOTIFICATION_STATE.ARCHIVED) ||
+            (tab.key === "trash" && view === NOTIFICATION_STATE.TRASHED);
+          return (
+            <Link
+              key={tab.key}
+              href={
+                tab.key ? `/notifications?view=${tab.key}` : "/notifications"
+              }
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                active
+                  ? "bg-[#101923] text-white shadow-sm"
+                  : "text-ink-soft hover:text-primary"
+              }`}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
       </nav>
 
       {notifications.length === 0 ? (
         <EmptyState title={t.notifications.empty} />
       ) : (
-        <div className="space-y-2">
-          {notifications.map((n) => (
-            <div
-              key={n.id}
-              className={`flex items-center justify-between gap-3 rounded-card border border-line p-3.5 ${
-                n.state === NOTIFICATION_STATE.UNREAD
-                  ? "bg-primary-soft/30"
-                  : ""
-              }`}
-            >
-              {notificationHref(n) ? (
-                <Link
-                  href={notificationHref(n)!}
-                  className="min-w-0 flex-1 rounded-lg focus-visible:outline-offset-4"
+        <div className="overflow-hidden rounded-[1.5rem] border border-line/70 bg-white shadow-(--shadow-card)">
+          <div className="divide-y divide-line">
+            {notifications.map((n) => {
+              const unread = n.state === NOTIFICATION_STATE.UNREAD;
+              const href = notificationHref(n);
+              const body = (
+                <>
+                  <span
+                    className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${unread ? "bg-primary" : "bg-transparent"}`}
+                    aria-hidden="true"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className={`block truncate text-sm ${unread ? "font-bold text-ink" : "font-semibold text-ink-soft"}`}
+                    >
+                      {renderNotification(t, n)}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-ink-faint">
+                      {formatDateTime(n.created_at, locale)}
+                    </span>
+                  </span>
+                </>
+              );
+              return (
+                <div
+                  key={n.id}
+                  className="flex items-start justify-between gap-3 p-4 transition hover:bg-surface-sub/45 sm:px-5"
                 >
-                  <p className="truncate text-sm font-semibold">
-                    {renderNotification(t, n)}
-                  </p>
-                  <p className="mt-0.5 text-xs text-ink-faint">
-                    {new Date(n.created_at)
-                      .toISOString()
-                      .slice(0, 16)
-                      .replace("T", " ")}
-                  </p>
-                </Link>
-              ) : (
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">
-                    {renderNotification(t, n)}
-                  </p>
-                  <p className="mt-0.5 text-xs text-ink-faint">
-                    {new Date(n.created_at)
-                      .toISOString()
-                      .slice(0, 16)
-                      .replace("T", " ")}
-                  </p>
-                </div>
-              )}
-              <form
-                action={setNotificationState}
-                className="flex shrink-0 flex-wrap justify-end gap-1 sm:flex-nowrap"
-              >
-                <input type="hidden" name="id" value={n.id} />
-                {view === "inbox" && (
-                  <>
-                    {n.state === NOTIFICATION_STATE.UNREAD && (
+                  {href ? (
+                    <Link
+                      href={href}
+                      className="flex min-w-0 flex-1 items-start gap-3 rounded-lg focus-visible:outline-offset-4"
+                    >
+                      {body}
+                    </Link>
+                  ) : (
+                    <div className="flex min-w-0 flex-1 items-start gap-3">
+                      {body}
+                    </div>
+                  )}
+                  <form
+                    action={setNotificationState}
+                    className="flex shrink-0 flex-wrap justify-end gap-1 sm:flex-nowrap"
+                  >
+                    <input type="hidden" name="id" value={n.id} />
+                    {view === "inbox" && (
+                      <>
+                        {unread && (
+                          <PendingButton
+                            type="submit"
+                            name="state"
+                            value={NOTIFICATION_STATE.READ}
+                            className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong"
+                          >
+                            {t.notifications.markRead}
+                          </PendingButton>
+                        )}
+                        <PendingButton
+                          type="submit"
+                          name="state"
+                          value={NOTIFICATION_STATE.ARCHIVED}
+                          className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong"
+                        >
+                          {t.notifications.archive}
+                        </PendingButton>
+                        <PendingButton
+                          type="submit"
+                          name="state"
+                          value={NOTIFICATION_STATE.TRASHED}
+                          className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong"
+                        >
+                          {t.notifications.trash}
+                        </PendingButton>
+                      </>
+                    )}
+                    {view === NOTIFICATION_STATE.ARCHIVED && (
                       <PendingButton
                         type="submit"
                         name="state"
                         value={NOTIFICATION_STATE.READ}
-                        className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft"
+                        className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong"
                       >
-                        {t.notifications.markRead}
+                        {t.notifications.restore}
                       </PendingButton>
                     )}
-                    <PendingButton
-                      type="submit"
-                      name="state"
-                      value={NOTIFICATION_STATE.ARCHIVED}
-                      className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft"
-                    >
-                      {t.notifications.archive}
-                    </PendingButton>
-                    <PendingButton
-                      type="submit"
-                      name="state"
-                      value={NOTIFICATION_STATE.TRASHED}
-                      className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft"
-                    >
-                      {t.notifications.trash}
-                    </PendingButton>
-                  </>
-                )}
-                {view === NOTIFICATION_STATE.ARCHIVED && (
-                  <PendingButton
-                    type="submit"
-                    name="state"
-                    value={NOTIFICATION_STATE.READ}
-                    className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft"
-                  >
-                    {t.notifications.restore}
-                  </PendingButton>
-                )}
-                {view === NOTIFICATION_STATE.TRASHED && (
-                  <PendingButton
-                    type="submit"
-                    name="state"
-                    value="delete"
-                    className="rounded-lg bg-negative-soft px-2.5 py-1.5 text-[11px] font-semibold text-negative"
-                  >
-                    {t.notifications.deleteForever}
-                  </PendingButton>
-                )}
-              </form>
-            </div>
-          ))}
+                    {view === NOTIFICATION_STATE.TRASHED && (
+                      <PendingButton
+                        type="submit"
+                        name="state"
+                        value="delete"
+                        className="rounded-lg bg-negative-soft px-2.5 py-1.5 text-[11px] font-semibold text-negative"
+                      >
+                        {t.notifications.deleteForever}
+                      </PendingButton>
+                    )}
+                  </form>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
       <Pagination
