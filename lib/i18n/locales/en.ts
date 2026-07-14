@@ -111,6 +111,7 @@ const en = {
     faqEmpty: "No questions match your search.",
     faqType: "Help center",
     faqCount: "questions",
+    faqAnswer: "Answer",
     availableNow: "available now",
     nextTitle: "Looking for something specific?",
     nextBody:

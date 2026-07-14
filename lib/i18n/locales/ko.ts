@@ -115,6 +115,7 @@ const ko: Dict = {
     faqEmpty: "검색 결과가 없어요.",
     faqType: "도움말 센터",
     faqCount: "개 질문",
+    faqAnswer: "답변",
     availableNow: "건 확인 가능",
     nextTitle: "찾는 상품이 따로 있으신가요?",
     nextBody:

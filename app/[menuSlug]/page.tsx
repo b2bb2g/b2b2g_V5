@@ -11,7 +11,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { stripRichText, sanitizeRichText } from "@/lib/richtext";
-import { FaqAccordion } from "@/components/marketplace/FaqAccordion";
+import { FaqExperience } from "@/components/marketplace/FaqExperience";
 import type { Metadata } from "next";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { BoardHero } from "@/components/marketplace/BoardHero";
@@ -198,11 +198,12 @@ export default async function BoardPage(props: {
       {posts.length === 0 ? (
         <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />
       ) : isFaq ? (
-        <FaqAccordion
+        <FaqExperience
           items={faqItems}
           searchPlaceholder={t.board.faqSearch}
           emptyLabel={t.board.faqEmpty}
           clearLabel={t.common.clearFilter}
+          answerLabel={t.board.faqAnswer}
         />
       ) : isNoticeBoard ? (
         <section className="space-y-6">
