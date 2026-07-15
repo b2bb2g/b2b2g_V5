@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
-import { BadgePill } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { Carousel } from "@/components/ui/Carousel";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -24,7 +23,7 @@ async function getStorefront(
   featuredSlots: number,
 ) {
   const supabase = await createClient();
-  const [products, requests, events, featured, companies] = await Promise.all([
+  const [products, requests, events, featured] = await Promise.all([
     supabase
       .from("public_posts")
       .select("*")
@@ -53,14 +52,6 @@ async function getStorefront(
       .eq("is_published", true)
       .order("updated_at", { ascending: false })
       .limit(featuredSlots),
-    supabase
-      .from("profiles")
-      .select(
-        "uid, display_name, company_name, avatar_url, created_at, member_badges(badge_types(code, name_en, name_ko))",
-      )
-      .not("company_name", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(6),
   ]);
   return {
     products: (products.data as PostTeaser[]) ?? [],
@@ -75,16 +66,6 @@ async function getStorefront(
         display_name: string | null;
         company_name: string | null;
       } | null;
-    }[],
-    companies: (companies.data ?? []) as unknown as {
-      uid: number;
-      display_name: string | null;
-      company_name: string | null;
-      avatar_url: string | null;
-      created_at: string;
-      member_badges: {
-        badge_types: { code: string; name_en: string; name_ko: string } | null;
-      }[];
     }[],
   };
 }
@@ -124,7 +105,7 @@ export default async function Home() {
     ),
     listFeed({ limit: 3 }),
   ]);
-  const { products, requests, events, featured, companies } = storefront;
+  const { products, requests, events, featured } = storefront;
   const menuSlugById = new Map<string, string>(
     menus.map((menu: Menu) => [menu.id, menu.slug]),
   );
@@ -569,89 +550,39 @@ export default async function Home() {
           </section>
         )}
 
-        {/* ── Closing: trusted companies + CTA ─────────────────── */}
-        <section className={`${container} py-20 sm:py-24`}>
-          {companies.length > 0 && (
+        {/* ── Closing CTA (visitors only) ──────────────────────── */}
+        {!session.userId && (
+          <section className={`${container} py-20 sm:py-24`}>
             <Reveal>
-              <div className="mb-12">
-                <p className="text-center text-xs font-bold uppercase tracking-[.16em] text-ink-faint">
-                  {t.home.newCompanies}
-                </p>
-                <div className="mt-6 flex flex-wrap justify-center gap-3">
-                  {companies.map((company) => {
-                    const name = `UID:${company.uid}`;
-                    const badge = company.member_badges
-                      .map((item) => item.badge_types)
-                      .find(Boolean);
-                    return (
+              <div className="relative overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_30px_90px_rgba(16,25,35,.2)]">
+                <div className="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-primary/35 blur-3xl" />
+                <div className="grid lg:grid-cols-[1.15fr_.85fr]">
+                  <div className="relative px-7 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+                    <p className="text-xs font-bold uppercase tracking-[.18em] text-[#79adff]">
+                      {t.home.eyebrow}
+                    </p>
+                    <h2 className="mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">
+                      {t.home.finalCtaTitle}
+                    </h2>
+                    <p className="mt-5 max-w-xl text-sm leading-7 text-white/65">
+                      {t.home.finalCtaBody}
+                    </p>
+                    <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
                       <Link
-                        key={company.uid}
-                        href={`/u/${company.uid}`}
-                        className="flex items-center gap-3 rounded-full border border-line bg-white py-2 pl-2 pr-4 transition hover:border-primary/40 hover:shadow-(--shadow-card)"
+                        href="/signup"
+                        className="btn btn-lg rounded-full bg-white px-7 text-ink hover:bg-white/90"
                       >
-                        {company.avatar_url ? (
-                          <Image
-                            src={postMediaUrl(company.avatar_url)}
-                            alt={name}
-                            width={36}
-                            height={36}
-                            className="h-9 w-9 rounded-full object-cover"
-                          />
-                        ) : (
-                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-sm font-extrabold text-primary">
-                            {name.slice(0, 1)}
-                          </span>
-                        )}
-                        <span className="max-w-40 truncate text-sm font-bold">
-                          {name}
-                        </span>
-                        {badge && (
-                          <BadgePill
-                            code={badge.code}
-                            label={
-                              locale === "ko" ? badge.name_ko : badge.name_en
-                            }
-                          />
-                        )}
+                        {t.common.signUp}
+                        <Arrow />
                       </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </Reveal>
-          )}
-          <Reveal>
-            <div className="relative overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_30px_90px_rgba(16,25,35,.2)]">
-              <div className="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-primary/35 blur-3xl" />
-              <div className="grid lg:grid-cols-[1.15fr_.85fr]">
-                <div className="relative px-7 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-                  <p className="text-xs font-bold uppercase tracking-[.18em] text-[#79adff]">
-                    {t.home.eyebrow}
-                  </p>
-                  <h2 className="mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">
-                    {session.userId ? t.home.promoTitle : t.home.finalCtaTitle}
-                  </h2>
-                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/65">
-                    {session.userId ? t.home.promoBody : t.home.finalCtaBody}
-                  </p>
-                  <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
-                    <Link
-                      href={session.userId ? "/membership" : "/signup"}
-                      className="btn btn-lg rounded-full bg-white px-7 text-ink hover:bg-white/90"
-                    >
-                      {session.userId ? t.home.promoCta : t.common.signUp}
-                      <Arrow />
-                    </Link>
-                    {!session.userId && (
                       <Link
                         href="/login"
                         className="btn btn-lg rounded-full border border-white/20 px-7 text-white hover:bg-white/10"
                       >
                         {t.common.signIn}
                       </Link>
-                    )}
+                    </div>
                   </div>
-                </div>
                 <div className="relative m-4 min-h-72 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/6 p-6 lg:m-5 lg:p-8">
                   <div className="absolute inset-0 [background:radial-gradient(circle_at_80%_15%,rgba(49,130,246,.35),transparent_35%)]" />
                   <div className="relative flex h-full flex-col justify-between">
@@ -686,6 +617,7 @@ export default async function Home() {
             </div>
           </Reveal>
         </section>
+        )}
       </div>
     </>
   );
