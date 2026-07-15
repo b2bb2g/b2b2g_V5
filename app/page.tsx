@@ -103,77 +103,6 @@ function Arrow() {
   );
 }
 
-// One recognizable glyph per board so the category grid reads at a glance.
-function BoardIcon({ slug }: { slug: string }) {
-  const p = {
-    className: "h-6 w-6",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 2,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-  };
-  if (slug.includes("commercial"))
-    return (
-      <svg {...p}>
-        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-        <path d="M3 6h18M16 10a4 4 0 0 1-8 0" />
-      </svg>
-    );
-  if (slug.includes("industrial"))
-    return (
-      <svg {...p}>
-        <path d="M2 20h20M4 20V9l5 4V9l5 4V4l6 3v13" />
-      </svg>
-    );
-  if (slug.includes("epc"))
-    return (
-      <svg {...p}>
-        <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" />
-      </svg>
-    );
-  if (slug.includes("request") || slug.includes("rfq") || slug.includes("itb"))
-    return (
-      <svg {...p}>
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <path d="M14 2v6h6M8 13h8M8 17h5" />
-      </svg>
-    );
-  if (slug.includes("event"))
-    return (
-      <svg {...p}>
-        <rect x="3" y="4.5" width="18" height="17" rx="2.5" />
-        <path d="M3 9.5h18M8 3v3M16 3v3" />
-      </svg>
-    );
-  if (slug.includes("service"))
-    return (
-      <svg {...p}>
-        <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.8-.7-.7-2.8z" />
-      </svg>
-    );
-  if (slug.includes("notice"))
-    return (
-      <svg {...p}>
-        <path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM16 9a4 4 0 0 1 0 6" />
-      </svg>
-    );
-  if (slug.includes("faq"))
-    return (
-      <svg {...p}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 1.7-2 2-2 3.5M12 17h.01" />
-      </svg>
-    );
-  return (
-    <svg {...p}>
-      <rect x="3" y="3" width="18" height="18" rx="3" />
-      <path d="M3 9h18" />
-    </svg>
-  );
-}
-
 export default async function Home() {
   const [{ t, locale }, menus, session, settings] = await Promise.all([
     getT(),
@@ -199,7 +128,6 @@ export default async function Home() {
   const menuSlugById = new Map<string, string>(
     menus.map((menu: Menu) => [menu.id, menu.slug]),
   );
-  const boardTypeLabels = t.admin.boardTypes as Record<string, string>;
   const container = "mx-auto w-full max-w-7xl px-5 sm:px-8";
   const steps = [
     { n: "01", title: t.home.step1Title, body: t.home.step1Body },
@@ -319,109 +247,6 @@ export default async function Home() {
                 ))}
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* ── Intent paths (overlap the hero) ──────────────────── */}
-        <section className="relative z-10 -mt-12">
-          <div className={`${container} grid gap-4 md:grid-cols-2`}>
-            {[
-              {
-                href: `/${firstProductBoard}`,
-                title: t.home.buyerPath,
-                body: t.home.buyerPathBody,
-                tone: "bg-primary-soft text-primary",
-                icon: (
-                  <path d="M3 7h18M5 7l1 13h12l1-13M9 11v5M15 11v5M8 7l1-3h6l1 3" />
-                ),
-              },
-              {
-                href: session.userId ? "/write/select" : "/signup",
-                title: t.home.supplierPath,
-                body: t.home.supplierPathBody,
-                tone: "bg-navy-soft text-navy",
-                icon: <path d="M4 20V10l8-6 8 6v10M9 20v-6h6v6" />,
-              },
-            ].map((path) => (
-              <Link
-                key={path.title}
-                href={path.href}
-                className="group flex items-center gap-4 rounded-[1.4rem] border border-line bg-white p-5 shadow-[0_18px_55px_rgba(25,31,40,.11)] transition hover:-translate-y-1 hover:border-primary/35 sm:p-6"
-              >
-                <span
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${path.tone}`}
-                >
-                  <svg
-                    className="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    {path.icon}
-                  </svg>
-                </span>
-                <span className="min-w-0 flex-1">
-                  <strong className="block text-base group-hover:text-primary">
-                    {path.title}
-                  </strong>
-                  <span className="mt-1 block text-sm text-ink-soft">
-                    {path.body}
-                  </span>
-                </span>
-                <span className="text-primary transition-transform group-hover:translate-x-1">
-                  <Arrow />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Categories ───────────────────────────────────────── */}
-        <section className={`${container} py-20 sm:py-24`}>
-          <Reveal>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-xl">
-                <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                  {t.home.eyebrowBrowse}
-                </p>
-                <h2 className="mt-3 text-3xl font-extrabold tracking-[-.035em] sm:text-4xl">
-                  {t.home.boardsTitle}
-                </h2>
-              </div>
-              <Link
-                href={`/${firstProductBoard}`}
-                className="flex items-center gap-2 text-sm font-bold text-primary"
-              >
-                {t.dashboard.viewAll}
-                <Arrow />
-              </Link>
-            </div>
-          </Reveal>
-          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {menus.map((menu, index) => (
-              <Reveal key={menu.id} delay={index * 35}>
-                <Link
-                  href={`/${menu.slug}`}
-                  className="group flex h-full items-center gap-4 rounded-[1.25rem] border border-line/80 bg-white p-5 shadow-(--shadow-card) transition hover:-translate-y-1 hover:border-primary/30"
-                >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-                    <BoardIcon slug={menu.slug} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <strong className="block text-base font-extrabold group-hover:text-primary">
-                      {menuTitle(menu, locale)}
-                    </strong>
-                    <span className="mt-0.5 block text-xs font-semibold text-ink-faint">
-                      {boardTypeLabels[menu.board_type] ?? menu.board_type}
-                    </span>
-                  </span>
-                  <span className="text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary">
-                    <Arrow />
-                  </span>
-                </Link>
-              </Reveal>
-            ))}
           </div>
         </section>
 
