@@ -236,26 +236,29 @@ export default async function Home() {
           <section className="bg-[#f6f8fa]">
             <div className={`${container} py-20 sm:py-24`}>
               <Reveal>
-                <div className="flex items-end justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                      {t.footer.marketplace}
-                    </p>
-                    <h2 className="mt-3 text-3xl font-extrabold tracking-[-.035em] sm:text-4xl">
-                      {t.home.newProducts}
-                    </h2>
-                  </div>
-                  <Link
-                    href={`/${firstProductBoard}`}
-                    className="flex shrink-0 items-center gap-2 text-sm font-bold text-primary"
-                  >
-                    {t.dashboard.viewAll}
-                    <Arrow />
-                  </Link>
-                </div>
-              </Reveal>
-              <div className="mt-10">
-                <Carousel prevLabel={t.home.prev} nextLabel={t.home.next}>
+                <Carousel
+                  prevLabel={t.home.prev}
+                  nextLabel={t.home.next}
+                  header={
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                        {t.footer.marketplace}
+                      </p>
+                      <h2 className="mt-3 text-3xl font-extrabold tracking-[-.035em] sm:text-4xl">
+                        {t.home.newProducts}
+                      </h2>
+                    </div>
+                  }
+                  action={
+                    <Link
+                      href={`/${firstProductBoard}`}
+                      className="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-strong"
+                    >
+                      {t.dashboard.viewAll}
+                      <Arrow />
+                    </Link>
+                  }
+                >
                   {products.map((post, index) => (
                     <div
                       key={post.id}
@@ -270,7 +273,7 @@ export default async function Home() {
                     </div>
                   ))}
                 </Carousel>
-              </div>
+              </Reveal>
             </div>
           </section>
         )}
