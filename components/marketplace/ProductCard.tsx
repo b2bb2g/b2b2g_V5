@@ -4,7 +4,6 @@ import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
-import { stripRichText } from "@/lib/richtext";
 
 // Frosted overlay chip colour by badge code (readable on any photo).
 const OVERLAY_BADGE: Record<string, string> = {
@@ -14,11 +13,11 @@ const OVERLAY_BADGE: Record<string, string> = {
   coordinator: "text-caution",
 };
 
-// Mobile-app gallery card: a rounded image tile that lifts on hover and
-// presses in on tap, with clean text below on the page surface (no heavy card
-// frame). Title is one line, the intro two, both ellipsised. `imageBadges`
-// floats the trust badges over the image (landing); `showAuthor` shows the
-// UID/badge row below. This is the shared landing card family.
+// Mobile-app gallery card: a rounded image tile that lifts on hover and presses
+// in on tap. `overlayTitle` (landing) turns the whole card into a poster — the
+// title sits over the image on a gradient with nothing below — while board
+// grids keep the title + author row beneath the tile. `imageBadges` floats the
+// trust badges on the image.
 export function ProductCard({
   post,
   href,
@@ -26,6 +25,7 @@ export function ProductCard({
   priority = false,
   showAuthor = true,
   imageBadges = false,
+  overlayTitle = false,
 }: {
   post: PostTeaser;
   href: string;
@@ -33,15 +33,11 @@ export function ProductCard({
   priority?: boolean;
   showAuthor?: boolean;
   imageBadges?: boolean;
+  overlayTitle?: boolean;
 }) {
   const thumbnail = repThumbnail(post);
   const title =
     locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
-  const intro = stripRichText(
-    locale === "ko" && post.body_teaser_ko
-      ? post.body_teaser_ko
-      : post.body_teaser_en,
-  );
 
   return (
     <Link
@@ -73,23 +69,33 @@ export function ProductCard({
             ))}
           </div>
         )}
-      </div>
-      <div className="flex flex-1 flex-col px-1 pt-3">
-        <p className="truncate text-sm font-bold text-ink transition-colors group-hover:text-primary">
-          {title}
-        </p>
-        <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-xs leading-5 text-ink-soft">
-          {intro}
-        </p>
-        {showAuthor && (
-          <AuthorIdentity
-            uid={post.author_uid}
-            badges={post.author_badges}
-            locale={locale}
-            className="mt-auto pt-2.5 text-xs font-semibold text-ink-faint"
-          />
+        {overlayTitle && (
+          <>
+            <div
+              className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/25 to-transparent"
+              aria-hidden="true"
+            />
+            <p className="absolute inset-x-0 bottom-0 line-clamp-2 p-4 text-sm font-bold leading-snug text-white">
+              {title}
+            </p>
+          </>
         )}
       </div>
+      {!overlayTitle && (
+        <div className="flex flex-1 flex-col px-1 pt-3">
+          <p className="line-clamp-2 min-h-[2.4rem] text-sm font-bold leading-snug text-ink transition-colors group-hover:text-primary">
+            {title}
+          </p>
+          {showAuthor && (
+            <AuthorIdentity
+              uid={post.author_uid}
+              badges={post.author_badges}
+              locale={locale}
+              className="mt-auto pt-2.5 text-xs font-semibold text-ink-faint"
+            />
+          )}
+        </div>
+      )}
     </Link>
   );
 }

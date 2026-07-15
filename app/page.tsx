@@ -275,8 +275,8 @@ export default async function Home() {
                         href={`/${menuSlugById.get(post.menu_id) ?? firstProductBoard}/${post.id}`}
                         locale={locale}
                         priority={index < 3}
-                        showAuthor={false}
                         imageBadges
+                        overlayTitle
                       />
                     </div>
                   ))}
