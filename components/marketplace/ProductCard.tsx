@@ -6,22 +6,33 @@ import type { PostTeaser } from "@/lib/types";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 import { stripRichText } from "@/lib/richtext";
 
+// Frosted overlay chip colour by badge code (readable on any photo).
+const OVERLAY_BADGE: Record<string, string> = {
+  manufacturer: "text-navy",
+  certified: "text-positive",
+  verified: "text-positive",
+  coordinator: "text-caution",
+};
+
 // Mobile-app gallery card: a rounded image tile that lifts on hover and
 // presses in on tap, with clean text below on the page surface (no heavy card
-// frame). Title reserves two lines and the author row is pinned to the bottom
-// so every tile keeps the same shape. This is the shared landing card family.
+// frame). Title is one line, the intro two, both ellipsised. `imageBadges`
+// floats the trust badges over the image (landing); `showAuthor` shows the
+// UID/badge row below. This is the shared landing card family.
 export function ProductCard({
   post,
   href,
   locale,
   priority = false,
   showAuthor = true,
+  imageBadges = false,
 }: {
   post: PostTeaser;
   href: string;
   locale: string;
   priority?: boolean;
   showAuthor?: boolean;
+  imageBadges?: boolean;
 }) {
   const thumbnail = repThumbnail(post);
   const title =
@@ -49,6 +60,18 @@ export function ProductCard({
           />
         ) : (
           <MediaPlaceholder />
+        )}
+        {imageBadges && post.author_badges.length > 0 && (
+          <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
+            {post.author_badges.map((badge) => (
+              <span
+                key={badge.code}
+                className={`inline-flex items-center rounded-full bg-white/95 px-2 py-1 text-[11px] font-bold shadow-sm backdrop-blur ${OVERLAY_BADGE[badge.code] ?? "text-ink-soft"}`}
+              >
+                {locale === "ko" ? badge.name_ko : badge.name_en}
+              </span>
+            ))}
+          </div>
         )}
       </div>
       <div className="flex flex-1 flex-col px-1 pt-3">
