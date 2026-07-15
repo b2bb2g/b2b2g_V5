@@ -61,9 +61,9 @@ export function ProductCard({
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col transition-transform duration-200 ease-out focus:outline-none active:scale-[.97]"
+      className="group flex h-full flex-col transition-transform duration-300 ease-out focus:outline-none hover:-translate-y-1 active:scale-[.97]"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-[1.4rem] bg-surface-sub shadow-[0_6px_20px_rgba(25,31,40,.10)] transition-shadow duration-300 group-hover:shadow-[0_16px_40px_rgba(25,31,40,.20)] group-focus-visible:ring-2 group-focus-visible:ring-primary group-focus-visible:ring-offset-2">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[1.4rem] bg-surface-sub shadow-[0_6px_18px_rgba(25,31,40,.09)] transition-shadow duration-300 group-hover:shadow-[0_14px_30px_rgba(25,31,40,.13)] group-focus-visible:ring-2 group-focus-visible:ring-primary group-focus-visible:ring-offset-2">
         {thumbnail ? (
           <SafeImage
             src={thumbnail}
