@@ -27,16 +27,22 @@ export function Carousel({
   }
 
   const arrowCls =
-    "hidden h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-soft shadow-(--shadow-card) transition-colors hover:border-primary/40 hover:bg-surface-sub hover:text-ink sm:flex";
+    "flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-soft shadow-(--shadow-card) transition-colors hover:border-primary/40 hover:bg-surface-sub hover:text-ink";
 
   return (
     <div>
       {(header || action) && (
         <div className="mb-6 flex items-end justify-between gap-4">
           <div className="min-w-0">{header}</div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-4">
             {action}
-            <div className="flex gap-2">
+            {action && (
+              <span
+                className="hidden h-5 w-px bg-line sm:block"
+                aria-hidden="true"
+              />
+            )}
+            <div className="hidden gap-2 sm:flex">
               <button
                 type="button"
                 onClick={() => scroll(-1)}

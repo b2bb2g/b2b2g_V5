@@ -259,10 +259,9 @@ export default async function Home() {
                   action={
                     <Link
                       href={`/${firstProductBoard}`}
-                      className="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-strong"
+                      className="text-sm font-bold text-primary hover:text-primary-strong"
                     >
                       {t.dashboard.viewAll}
-                      <Arrow />
                     </Link>
                   }
                 >
