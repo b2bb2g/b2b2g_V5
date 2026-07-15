@@ -29,9 +29,9 @@ export function ProductCard({
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col transition-transform duration-200 ease-out active:scale-[.97]"
+      className="group flex h-full flex-col transition-transform duration-200 ease-out focus:outline-none active:scale-[.97]"
     >
-      <div className="relative aspect-square overflow-hidden rounded-[1.4rem] bg-surface-sub ring-1 ring-line/60 transition-shadow duration-300 group-hover:shadow-[0_18px_45px_rgba(25,31,40,.16)]">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[1.4rem] bg-surface-sub ring-1 ring-line/60 transition-shadow duration-300 group-hover:shadow-[0_18px_45px_rgba(25,31,40,.16)] group-focus-visible:ring-2 group-focus-visible:ring-primary">
         {thumbnail ? (
           <SafeImage
             src={thumbnail}
