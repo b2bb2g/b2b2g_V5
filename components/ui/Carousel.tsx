@@ -81,9 +81,12 @@ export function Carousel({
           </div>
         </div>
       )}
+      {/* Horizontal alignment matches every other section (no desktop bleed);
+          the -my-6/py-6 pair gives the cards' hover lift and shadow room to
+          breathe without adding height or shifting the layout. */}
       <div
         ref={track}
-        className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 py-6 sm:-mx-6 sm:px-6"
+        className="scrollbar-none -mx-4 -my-6 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 py-6 sm:mx-0 sm:px-0"
       >
         {children}
       </div>
