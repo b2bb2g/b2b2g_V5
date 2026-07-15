@@ -10,11 +10,11 @@ import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { postMediaUrl, repThumbnail, videoEmbedUrl } from "@/lib/media";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 import { ProductCard } from "@/components/marketplace/ProductCard";
+import { EventCard } from "@/components/marketplace/EventCard";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { MediaGallery } from "@/components/post/MediaGallery";
 import { RichContentViewer } from "@/components/post/RichContentViewer";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
-import { SafeImage } from "@/components/ui/SafeImage";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
 import { isRichText, sanitizeRichText, stripRichText } from "@/lib/richtext";
 import {
@@ -1013,34 +1013,6 @@ export default async function PostDetailPage(props: {
 
       {isEvent ? (
         (() => {
-          const pin = () => (
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-              className="shrink-0"
-            >
-              <path d="M12 2c-3.9 0-7 3.1-7 7 0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
-            </svg>
-          );
-          const cal = () => (
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-              className="shrink-0"
-            >
-              <rect x="3" y="4.5" width="18" height="17" rx="2.5" />
-              <path d="M3 9.5h18M8 3v3M16 3v3" />
-            </svg>
-          );
           const evBody = full
             ? locale === "ko" && full.post.body_ko
               ? full.post.body_ko
@@ -1138,72 +1110,20 @@ export default async function PostDetailPage(props: {
                     </Link>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {relatedEvents.map(({ ev, status }) => {
-                      const evTitle =
-                        locale === "ko" && ev.title_ko
-                          ? ev.title_ko
-                          : ev.title_en;
-                      const evThumb = repThumbnail(ev);
-                      const range = formatEventRange(
-                        ev.event_start,
-                        ev.event_end,
-                        locale,
-                      );
-                      const ended = status === "ended";
-                      return (
-                        <Link
-                          key={ev.id}
-                          href={`/${menu.slug}/${ev.id}`}
-                          className="card-hover group flex flex-col overflow-hidden"
-                        >
-                          <span className="relative block aspect-[16/10] overflow-hidden bg-surface-sub">
-                            {evThumb ? (
-                              <SafeImage
-                                src={evThumb}
-                                alt={evTitle}
-                                fill
-                                sizes="(max-width:640px) 100vw, 33vw"
-                                className={`object-cover transition-transform duration-700 group-hover:scale-105 ${ended ? "opacity-75 grayscale-[.4]" : ""}`}
-                              />
-                            ) : (
-                              <MediaPlaceholder />
-                            )}
-                            {status && (
-                              <span
-                                className={`absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow-sm backdrop-blur ${
-                                  status === "ongoing"
-                                    ? "text-positive"
-                                    : status === "upcoming"
-                                      ? "text-primary-strong"
-                                      : "text-ink-faint"
-                                }`}
-                              >
-                                {evStatusText[status]}
-                              </span>
-                            )}
-                          </span>
-                          <span className="flex min-w-0 flex-1 flex-col p-5">
-                            {range && (
-                              <span
-                                className={`flex items-center gap-1.5 text-xs font-bold ${ended ? "text-ink-faint" : "text-primary"}`}
-                              >
-                                {cal()}
-                                {range}
-                              </span>
-                            )}
-                            <strong className="mt-2 line-clamp-2 text-base font-extrabold leading-snug group-hover:text-primary">
-                              {evTitle}
-                            </strong>
-                            <span className="mt-2.5 flex items-center gap-1.5 text-sm text-ink-soft">
-                              {pin()}
-                              <span className="truncate">
-                                {ev.event_venue ?? t.board.eventVenueTbd}
-                              </span>
-                            </span>
-                          </span>
-                        </Link>
-                      );
-                    })}
+                    {relatedEvents.map(({ ev }) => (
+                      <EventCard
+                        key={ev.id}
+                        post={ev}
+                        href={`/${menu.slug}/${ev.id}`}
+                        locale={locale}
+                        labels={{
+                          ongoing: t.board.eventNowOn,
+                          upcoming: t.board.eventUpcomingLabel,
+                          ended: t.board.eventEnded,
+                          venueTbd: t.board.eventVenueTbd,
+                        }}
+                      />
+                    ))}
                   </div>
                 </section>
               )}

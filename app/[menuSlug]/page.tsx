@@ -14,6 +14,7 @@ import { stripRichText, sanitizeRichText } from "@/lib/richtext";
 import { FaqExperience } from "@/components/marketplace/FaqExperience";
 import type { Metadata } from "next";
 import { ProductCard } from "@/components/marketplace/ProductCard";
+import { EventCard } from "@/components/marketplace/EventCard";
 import { BoardHero } from "@/components/marketplace/BoardHero";
 import { repThumbnail } from "@/lib/media";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
@@ -364,11 +365,9 @@ export default async function BoardPage(props: {
             upcoming: t.board.eventUpcomingLabel,
             ended: t.board.eventEnded,
           };
-          // Frosted status pill sits on the card image; colour by state.
-          const cardPill: Record<EventStatus, string> = {
-            ongoing: "text-positive",
-            upcoming: "text-primary-strong",
-            ended: "text-ink-faint",
+          const cardLabels = {
+            ...statusText,
+            venueTbd: t.board.eventVenueTbd,
           };
 
           const withMeta = posts.map((post) => ({
@@ -421,90 +420,6 @@ export default async function BoardPage(props: {
           const past = rest
             .filter((e) => e.status === "ended")
             .sort((a, b) => (endKey(a.post) > endKey(b.post) ? -1 : 1));
-
-          const renderCard = (
-            {
-              post,
-              status,
-            }: {
-              post: (typeof posts)[number];
-              status: EventStatus | null;
-            },
-            index: number,
-          ) => {
-            const range = formatEventRange(
-              post.event_start,
-              post.event_end,
-              locale,
-            );
-            const countdown =
-              status === "upcoming" && post.event_start
-                ? eventCountdown(post.event_start)
-                : null;
-            const cardTitle =
-              locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
-            const thumb = repThumbnail(post);
-            const ended = status === "ended";
-            return (
-              <Link
-                key={post.id}
-                href={`/${menu.slug}/${post.id}`}
-                className="card-hover group flex flex-col overflow-hidden"
-              >
-                <span className="relative block aspect-[16/10] overflow-hidden bg-surface-sub">
-                  {thumb ? (
-                    <SafeImage
-                      src={thumb}
-                      alt={cardTitle}
-                      fill
-                      priority={index < 3}
-                      sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
-                      className={`object-cover transition-transform duration-700 group-hover:scale-105 ${ended ? "opacity-75 grayscale-[.4]" : ""}`}
-                    />
-                  ) : (
-                    <MediaPlaceholder />
-                  )}
-                  {status && (
-                    <span
-                      className={`absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold shadow-sm backdrop-blur ${cardPill[status]}`}
-                    >
-                      {status === "ongoing" && (
-                        <span className="relative flex h-1.5 w-1.5">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-positive opacity-70" />
-                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-positive" />
-                        </span>
-                      )}
-                      {statusText[status]}
-                    </span>
-                  )}
-                  {countdown && (
-                    <span className="absolute right-3 top-3 rounded-full bg-[#101923]/80 px-2 py-1 text-[11px] font-bold tabular-nums text-white backdrop-blur">
-                      {countdown}
-                    </span>
-                  )}
-                </span>
-                <span className="flex min-w-0 flex-1 flex-col p-5">
-                  {range && (
-                    <span
-                      className={`flex items-center gap-1.5 text-xs font-bold ${ended ? "text-ink-faint" : "text-primary"}`}
-                    >
-                      {cal()}
-                      {range}
-                    </span>
-                  )}
-                  <strong className="mt-2 line-clamp-2 text-base font-extrabold leading-snug group-hover:text-primary">
-                    {cardTitle}
-                  </strong>
-                  <span className="mt-2.5 flex items-center gap-1.5 text-sm text-ink-soft">
-                    {pin()}
-                    <span className="truncate">
-                      {post.event_venue ?? t.board.eventVenueTbd}
-                    </span>
-                  </span>
-                </span>
-              </Link>
-            );
-          };
 
           return (
             <section className="space-y-8">
@@ -624,7 +539,16 @@ export default async function BoardPage(props: {
                         </span>
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {liveUpcoming.map(renderCard)}
+                        {liveUpcoming.map(({ post }, i) => (
+                          <EventCard
+                            key={post.id}
+                            post={post}
+                            href={`/${menu.slug}/${post.id}`}
+                            locale={locale}
+                            labels={cardLabels}
+                            priority={i < 3}
+                          />
+                        ))}
                       </div>
                     </div>
                   )}
@@ -639,7 +563,15 @@ export default async function BoardPage(props: {
                         </span>
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {past.map(renderCard)}
+                        {past.map(({ post }) => (
+                          <EventCard
+                            key={post.id}
+                            post={post}
+                            href={`/${menu.slug}/${post.id}`}
+                            locale={locale}
+                            labels={cardLabels}
+                          />
+                        ))}
                       </div>
                     </div>
                   )}

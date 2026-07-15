@@ -5,12 +5,13 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Carousel } from "@/components/ui/Carousel";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ProductCard } from "@/components/marketplace/ProductCard";
+import { EventCard } from "@/components/marketplace/EventCard";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
-import { postMediaUrl, repThumbnail } from "@/lib/media";
+import { postMediaUrl } from "@/lib/media";
 import { stripRichText } from "@/lib/richtext";
 import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
 import type { Menu, PostTeaser } from "@/lib/types";
@@ -120,6 +121,12 @@ export default async function Home() {
     { title: t.home.value2Title, body: t.home.value2Body },
     { title: t.home.value3Title, body: t.home.value3Body },
   ];
+  const eventCardLabels = {
+    ongoing: t.board.eventNowOn,
+    upcoming: t.board.eventUpcomingLabel,
+    ended: t.board.eventEnded,
+    venueTbd: t.board.eventVenueTbd,
+  };
 
   return (
     <>
@@ -413,45 +420,17 @@ export default async function Home() {
                     </div>
                   </Reveal>
                   <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                    {events.map((post, i) => {
-                      const title =
-                        locale === "ko" && post.title_ko
-                          ? post.title_ko
-                          : post.title_en;
-                      const thumb = repThumbnail(post);
-                      return (
-                        <Reveal key={post.id} delay={i * 70}>
-                          <Link
-                            href={`/${eventsMenu.slug}/${post.id}`}
-                            className="card-hover group block overflow-hidden"
-                          >
-                            <div className="relative aspect-[4/3] bg-surface-sub">
-                              {thumb && (
-                                <Image
-                                  src={thumb}
-                                  alt={title}
-                                  fill
-                                  sizes="(max-width:640px) 100vw, 25vw"
-                                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                              )}
-                            </div>
-                            <div className="p-4">
-                              <p className="line-clamp-2 text-sm font-extrabold group-hover:text-primary">
-                                {title}
-                              </p>
-                              <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                                {stripRichText(
-                                  locale === "ko" && post.body_teaser_ko
-                                    ? post.body_teaser_ko
-                                    : post.body_teaser_en,
-                                )}
-                              </p>
-                            </div>
-                          </Link>
-                        </Reveal>
-                      );
-                    })}
+                    {events.map((post, i) => (
+                      <Reveal key={post.id} delay={i * 70}>
+                        <EventCard
+                          post={post}
+                          href={`/${eventsMenu.slug}/${post.id}`}
+                          locale={locale}
+                          labels={eventCardLabels}
+                          priority={i < 2}
+                        />
+                      </Reveal>
+                    ))}
                   </div>
                 </div>
               )}
