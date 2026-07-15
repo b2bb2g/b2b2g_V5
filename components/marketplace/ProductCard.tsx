@@ -5,19 +5,38 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 
-// Frosted overlay chip colour by badge code (readable on any photo).
+// Solid, high-contrast overlay badges so trust reads at a glance on any photo.
 const OVERLAY_BADGE: Record<string, string> = {
-  manufacturer: "text-navy",
-  certified: "text-positive",
-  verified: "text-positive",
-  coordinator: "text-caution",
+  manufacturer: "bg-navy text-white",
+  certified: "bg-positive text-white",
+  verified: "bg-positive text-white",
+  coordinator: "bg-caution text-white",
 };
+const CHECK_BADGE = new Set(["certified", "verified"]);
+
+function Check() {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <path d="m20 6-11 11-5-5" />
+    </svg>
+  );
+}
 
 // Mobile-app gallery card: a rounded image tile that lifts on hover and presses
-// in on tap. `overlayTitle` (landing) turns the whole card into a poster — the
-// title sits over the image on a gradient with nothing below — while board
-// grids keep the title + author row beneath the tile. `imageBadges` floats the
-// trust badges on the image.
+// in on tap. `overlayTitle` (landing) makes it a poster — the title sits over
+// the image on a bottom gradient, always anchored to the bottom so one- and
+// two-line titles stay level. `imageBadges` floats the trust badges on top.
 export function ProductCard({
   post,
   href,
@@ -44,7 +63,7 @@ export function ProductCard({
       href={href}
       className="group flex h-full flex-col transition-transform duration-200 ease-out focus:outline-none active:scale-[.97]"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-[1.4rem] bg-surface-sub ring-1 ring-line/60 transition-shadow duration-300 group-hover:shadow-[0_18px_45px_rgba(25,31,40,.16)] group-focus-visible:ring-2 group-focus-visible:ring-primary">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[1.4rem] bg-surface-sub shadow-[0_6px_20px_rgba(25,31,40,.10)] transition-shadow duration-300 group-hover:shadow-[0_16px_40px_rgba(25,31,40,.20)] group-focus-visible:ring-2 group-focus-visible:ring-primary group-focus-visible:ring-offset-2">
         {thumbnail ? (
           <SafeImage
             src={thumbnail}
@@ -58,12 +77,13 @@ export function ProductCard({
           <MediaPlaceholder />
         )}
         {imageBadges && post.author_badges.length > 0 && (
-          <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
+          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
             {post.author_badges.map((badge) => (
               <span
                 key={badge.code}
-                className={`inline-flex items-center rounded-full bg-white/95 px-2 py-1 text-[11px] font-bold shadow-sm backdrop-blur ${OVERLAY_BADGE[badge.code] ?? "text-ink-soft"}`}
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-[0_2px_8px_rgba(0,0,0,.28)] ${OVERLAY_BADGE[badge.code] ?? "bg-white/95 text-ink"}`}
               >
+                {CHECK_BADGE.has(badge.code) && <Check />}
                 {locale === "ko" ? badge.name_ko : badge.name_en}
               </span>
             ))}
@@ -72,10 +92,10 @@ export function ProductCard({
         {overlayTitle && (
           <>
             <div
-              className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/25 to-transparent"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/90 via-black/35 to-transparent"
               aria-hidden="true"
             />
-            <p className="absolute inset-x-0 bottom-0 line-clamp-2 p-4 text-sm font-bold leading-snug text-white">
+            <p className="absolute inset-x-0 bottom-0 line-clamp-2 px-4 pb-4 text-[15px] font-bold leading-snug text-white [text-shadow:0_1px_3px_rgba(0,0,0,.45)]">
               {title}
             </p>
           </>
