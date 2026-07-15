@@ -217,7 +217,7 @@ export default async function Home() {
                 ))}
               </div>
               <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3">
-                {[t.home.stat1, t.home.stat2, t.home.stat3].map((item) => (
+                {[t.home.stat2, t.home.stat3].map((item) => (
                   <span
                     key={item}
                     className="flex items-center gap-2 text-xs font-semibold text-white/58"
