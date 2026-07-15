@@ -5,6 +5,10 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 
+// Mobile-app gallery card: a rounded image tile that lifts on hover and
+// presses in on tap, with clean text below on the page surface (no heavy card
+// frame). Title reserves two lines and the author row is pinned to the bottom
+// so every tile keeps the same shape. This is the shared landing card family.
 export function ProductCard({
   post,
   href,
@@ -25,33 +29,24 @@ export function ProductCard({
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-[0_10px_35px_rgba(25,31,40,.06)] ring-1 ring-line/70 transition duration-300 hover:-translate-y-1.5 hover:shadow-(--shadow-float) hover:ring-primary/30"
+      className="group flex h-full flex-col transition-transform duration-200 ease-out active:scale-[.97]"
     >
-      <div className="relative aspect-square overflow-hidden bg-surface-sub">
+      <div className="relative aspect-square overflow-hidden rounded-[1.4rem] bg-surface-sub ring-1 ring-line/60 transition-shadow duration-300 group-hover:shadow-[0_18px_45px_rgba(25,31,40,.16)]">
         {thumbnail ? (
           <SafeImage
             src={thumbnail}
             alt={title}
             fill
             priority={priority}
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+            sizes="(max-width: 640px) 60vw, (max-width: 1024px) 33vw, 22vw"
+            className="object-cover transition-transform duration-[650ms] ease-out group-hover:scale-[1.06]"
           />
         ) : (
           <MediaPlaceholder />
         )}
-        <span
-          className="absolute right-3 top-3 flex h-8 w-8 translate-y-1 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm backdrop-blur transition-all group-hover:translate-y-0 group-hover:opacity-100"
-          aria-hidden="true"
-        >
-          →
-        </span>
       </div>
-      {/* Flex column with a reserved two-line title and a bottom-pinned author
-          row so cards stay the same shape whatever the title length or whether
-          the seller carries trust badges. */}
-      <div className="flex flex-1 flex-col p-4">
-        <p className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold leading-snug">
+      <div className="flex flex-1 flex-col px-1 pt-3">
+        <p className="line-clamp-2 min-h-[2.4rem] text-sm font-bold leading-snug text-ink transition-colors group-hover:text-primary">
           {title}
         </p>
         {showAuthor && (
@@ -59,7 +54,7 @@ export function ProductCard({
             uid={post.author_uid}
             badges={post.author_badges}
             locale={locale}
-            className="mt-auto pt-3 text-xs font-semibold text-ink-faint"
+            className="mt-auto pt-2.5 text-xs font-semibold text-ink-faint"
           />
         )}
       </div>
