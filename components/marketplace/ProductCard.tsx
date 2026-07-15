@@ -4,6 +4,7 @@ import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
+import { stripRichText } from "@/lib/richtext";
 
 // Mobile-app gallery card: a rounded image tile that lifts on hover and
 // presses in on tap, with clean text below on the page surface (no heavy card
@@ -25,6 +26,11 @@ export function ProductCard({
   const thumbnail = repThumbnail(post);
   const title =
     locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
+  const intro = stripRichText(
+    locale === "ko" && post.body_teaser_ko
+      ? post.body_teaser_ko
+      : post.body_teaser_en,
+  );
 
   return (
     <Link
@@ -46,8 +52,11 @@ export function ProductCard({
         )}
       </div>
       <div className="flex flex-1 flex-col px-1 pt-3">
-        <p className="line-clamp-2 min-h-[2.4rem] text-sm font-bold leading-snug text-ink transition-colors group-hover:text-primary">
+        <p className="truncate text-sm font-bold text-ink transition-colors group-hover:text-primary">
           {title}
+        </p>
+        <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-xs leading-5 text-ink-soft">
+          {intro}
         </p>
         {showAuthor && (
           <AuthorIdentity
