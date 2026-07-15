@@ -4,59 +4,79 @@ import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
+import { BadgePill } from "@/components/ui/Badge";
+import { stripRichText } from "@/lib/richtext";
 
-// Solid, high-contrast overlay badges so trust reads at a glance on any photo.
-const OVERLAY_BADGE: Record<string, string> = {
-  manufacturer: "bg-navy text-white",
-  certified: "bg-positive text-white",
-  verified: "bg-positive text-white",
-  coordinator: "bg-caution text-white",
-};
-const CHECK_BADGE = new Set(["certified", "verified"]);
-
-function Check() {
-  return (
-    <svg
-      width="11"
-      height="11"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      <path d="m20 6-11 11-5-5" />
-    </svg>
-  );
-}
-
-// Mobile-app gallery card: a rounded image tile that lifts on hover and presses
-// in on tap. `overlayTitle` (landing) makes it a poster — the title sits over
-// the image on a bottom gradient, always anchored to the bottom so one- and
-// two-line titles stay level. `imageBadges` floats the trust badges on top.
+// Two layouts share the trust data:
+//  - `feature` (landing): an Apple-store style white card — badges, a title
+//    and a one-line intro at the top, product image beneath.
+//  - default (board grids): image tile with the title + author row below.
 export function ProductCard({
   post,
   href,
   locale,
   priority = false,
   showAuthor = true,
-  imageBadges = false,
-  overlayTitle = false,
+  feature = false,
 }: {
   post: PostTeaser;
   href: string;
   locale: string;
   priority?: boolean;
   showAuthor?: boolean;
-  imageBadges?: boolean;
-  overlayTitle?: boolean;
+  feature?: boolean;
 }) {
   const thumbnail = repThumbnail(post);
   const title =
     locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
+  const intro = stripRichText(
+    locale === "ko" && post.body_teaser_ko
+      ? post.body_teaser_ko
+      : post.body_teaser_en,
+  );
+
+  if (feature) {
+    return (
+      <Link
+        href={href}
+        className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-[0_4px_22px_rgba(25,31,40,.06)] transition-[transform,box-shadow] duration-300 ease-out focus:outline-none hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(25,31,40,.13)] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[.99]"
+      >
+        <div className="px-6 pt-6">
+          {post.author_badges.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {post.author_badges.map((badge) => (
+                <BadgePill
+                  key={badge.code}
+                  code={badge.code}
+                  label={locale === "ko" ? badge.name_ko : badge.name_en}
+                />
+              ))}
+            </div>
+          )}
+          <h3 className="line-clamp-2 text-xl font-bold leading-tight tracking-[-.02em] text-ink">
+            {title}
+          </h3>
+          {intro && (
+            <p className="mt-1.5 line-clamp-1 text-sm text-ink-soft">{intro}</p>
+          )}
+        </div>
+        <div className="relative mt-5 min-h-[13rem] w-full flex-1">
+          {thumbnail ? (
+            <SafeImage
+              src={thumbnail}
+              alt={title}
+              fill
+              priority={priority}
+              sizes="(max-width: 640px) 70vw, (max-width: 1024px) 40vw, 24vw"
+              className="object-cover transition-transform duration-[650ms] ease-out group-hover:scale-[1.04]"
+            />
+          ) : (
+            <MediaPlaceholder />
+          )}
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <Link
@@ -76,46 +96,20 @@ export function ProductCard({
         ) : (
           <MediaPlaceholder />
         )}
-        {imageBadges && post.author_badges.length > 0 && (
-          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-            {post.author_badges.map((badge) => (
-              <span
-                key={badge.code}
-                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-[0_2px_8px_rgba(0,0,0,.28)] ${OVERLAY_BADGE[badge.code] ?? "bg-white/95 text-ink"}`}
-              >
-                {CHECK_BADGE.has(badge.code) && <Check />}
-                {locale === "ko" ? badge.name_ko : badge.name_en}
-              </span>
-            ))}
-          </div>
-        )}
-        {overlayTitle && (
-          <>
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/90 via-black/35 to-transparent"
-              aria-hidden="true"
-            />
-            <p className="absolute inset-x-0 bottom-0 line-clamp-2 px-4 pb-4 text-[15px] font-bold leading-snug text-white [text-shadow:0_1px_3px_rgba(0,0,0,.45)]">
-              {title}
-            </p>
-          </>
+      </div>
+      <div className="flex flex-1 flex-col px-1 pt-3">
+        <p className="line-clamp-2 min-h-[2.4rem] text-sm font-bold leading-snug text-ink transition-colors group-hover:text-primary">
+          {title}
+        </p>
+        {showAuthor && (
+          <AuthorIdentity
+            uid={post.author_uid}
+            badges={post.author_badges}
+            locale={locale}
+            className="mt-auto pt-2.5 text-xs font-semibold text-ink-faint"
+          />
         )}
       </div>
-      {!overlayTitle && (
-        <div className="flex flex-1 flex-col px-1 pt-3">
-          <p className="line-clamp-2 min-h-[2.4rem] text-sm font-bold leading-snug text-ink transition-colors group-hover:text-primary">
-            {title}
-          </p>
-          {showAuthor && (
-            <AuthorIdentity
-              uid={post.author_uid}
-              badges={post.author_badges}
-              locale={locale}
-              className="mt-auto pt-2.5 text-xs font-semibold text-ink-faint"
-            />
-          )}
-        </div>
-      )}
     </Link>
   );
 }
