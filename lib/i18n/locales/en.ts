@@ -112,7 +112,40 @@ const en = {
     faqType: "Help center",
     faqCount: "questions",
     faqAnswer: "Answer",
+    faqQuestions: "All questions",
+    faqDirectory: "Find the answer you need",
+    faqHelpTitle: "Still need help?",
+    faqHelpBody:
+      "Explore B2BB2G support services for account, verification and marketplace guidance.",
+    faqHelpAction: "Explore support services",
     availableNow: "available now",
+    recommendedProducts: "Recommended products",
+    recommendedProductsHint:
+      "Start with trusted listings that combine clear product information, visual detail and established member credibility.",
+    viewAllProducts: "View all products",
+    newCollection: "Recently added",
+    newProducts: "New products",
+    newProductsHint:
+      "Review the newest products and capabilities added by marketplace members.",
+    productDirectory: "Product directory",
+    allProducts: "All products",
+    allProductsHint:
+      "Compare the complete collection and open any listing for specifications and a direct inquiry.",
+    liveSourcing: "Live sourcing",
+    activeRequests: "Active sourcing requests",
+    activeRequestsHint:
+      "Check requirements, deadlines and supporting images before opening a request.",
+    serviceCenter: "Business services",
+    servicesHint:
+      "Explore practical services that help companies trade, verify, communicate and grow across borders.",
+    featuredService: "Featured service",
+    serviceDirectory: "Explore all services",
+    servicesDirectoryHint:
+      "Choose the support your business needs and review the full service details.",
+    eventDirectoryHint:
+      "Compare schedules, venues and event status before planning your participation.",
+    pastEventsHint:
+      "Review completed exhibitions and programs for reference and future planning.",
     nextTitle: "Looking for something specific?",
     nextBody:
       "Search the full marketplace or join free to start a direct sourcing conversation.",
@@ -153,22 +186,18 @@ const en = {
   },
   home: {
     eyebrow: "Global B2B · B2G marketplace",
-    heroTitle: "The trusted bridge between buyers and suppliers",
+    heroTitle: "Global trade, built on trust.",
     heroSubtitle:
-      "From industrial equipment to consumer brands — discover products, request quotes, and grow with verified partners around the world.",
+      "Discover verified products, respond to live sourcing needs, and move business forward in one trusted network.",
     browseBoards: "Browse products",
     browseRequests: "View sourcing requests",
-    searchPlaceholder: "What product or material are you sourcing?",
-    searchAction: "Search marketplace",
     buyerPath: "I am sourcing products",
     buyerPathBody: "Compare suppliers and request a tailored quote.",
     supplierPath: "I am growing sales",
     supplierPathBody: "Showcase products and meet active buyers.",
-    proofLabel: "Built for credible cross-border business",
     eyebrowBrowse: "Browse the marketplace",
     eyebrowShowcase: "Company showcase",
     eyebrowRequests: "Live opportunities",
-    boardsTitle: "Shop by category",
     valueTitle: "Why companies trade here",
     value1Title: "Verified partners",
     value1Body:
@@ -181,6 +210,24 @@ const en = {
       "Manufacturer and certified badges show partner credibility at a glance.",
     featured: "Featured companies",
     newProducts: "New arrivals",
+    newProductsBody:
+      "Explore newly listed products, project capabilities and verified supply opportunities.",
+    commercialRailTagline:
+      "Consumer-ready products and export opportunities for global buyers.",
+    commercialRailTitle: "Made for global markets.",
+    commercialRailBody:
+      "Discover beauty, lifestyle and everyday products prepared for cross-border growth.",
+    industrialRailTagline:
+      "Production-ready equipment, components and manufacturing capability.",
+    industrialRailTitle: "Engineered to perform.",
+    industrialRailBody:
+      "Explore proven machinery, precision parts and suppliers ready for demanding operations.",
+    epcRailTagline:
+      "Projects, technology and delivery partners for energy and infrastructure.",
+    epcRailTitle: "Delivered end to end.",
+    epcRailBody:
+      "Find project briefs and specialist capabilities across engineering, procurement and delivery.",
+    exploreCollection: "Explore the collection",
     latestRequests: "Latest sourcing requests",
     eventsTitle: "Events and exhibitions",
     feedTitle: "What members are building now",
@@ -202,11 +249,9 @@ const en = {
     step3Body:
       "Build trust with badges and turn first deals into lasting partnerships.",
     finalCtaTitle: "Start trading globally today",
-    finalCtaBody: "Join with one email and meet your next business partner.",
+    finalCtaBody:
+      "Explore the marketplace freely, then join through a trusted invitation to start verified business conversations.",
     startNow: "Get started",
-    stat1: "Every message reviewed before delivery",
-    stat2: "Manufacturer & Verified trust badges",
-    stat3: "Invitation-only business network",
     mockProduct: "Industrial pump PX-2100",
     mockCompany: "Verified manufacturer in Korea",
     prev: "Previous",
@@ -323,6 +368,22 @@ const en = {
     openEnded: "Open until filled",
     open: "Open",
     closed: "Closed",
+    sourcingRequest: "Sourcing request",
+    openForResponses: "Open for supplier responses",
+    closedForResponses: "Responses closed",
+    requestOverview: "What the buyer needs",
+    requestRequirements: "Requirements",
+    requestFiles: "Supporting files",
+    respondTitle: "Can you supply this request?",
+    respondBody:
+      "Review the requested quantity, specifications and delivery terms, then send a clear proposal.",
+    responseDeadline: "Response deadline",
+    beforeResponding: "Before you respond",
+    responseCheckQuantity: "Confirm quantities and required specifications",
+    responseCheckTiming: "Include lead time and delivery conditions",
+    responseCheckPlatform: "Keep the proposal connected to this request",
+    moreRequests: "More sourcing requests",
+    requestBrief: "Buyer sourcing brief",
     closeRequest: "Close request",
     membersOnlyTitle: "Members can see everything",
     membersOnlyBody:
@@ -775,6 +836,7 @@ const en = {
     overview: "Overview",
     actionQueue: "Items that need an operations decision now",
     queueHealthy: "All review queues are within the 24-hour target.",
+    queueCountsUnavailable: "Some review counts could not be loaded. Open each queue to verify its current items.",
     oldestWaiting: "Oldest waiting",
     withinSla: "Within target",
     overdue: "Over target",

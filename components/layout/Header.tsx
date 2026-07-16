@@ -81,15 +81,13 @@ export async function Header({
 
   return (
     <header
-      className={`site-header sticky top-0 z-40 border-b ${
+      className={`site-header full-bleed sticky top-0 z-40 border-b ${
         variant === "overlay"
-          ? // full-bleed: the landing renders this inside <main>, opting out
-            // of the page container rule (main > :where(*)).
-            "header-dark full-bleed border-white/10 bg-[#0d151e]/88 backdrop-blur-xl"
+          ? "header-dark border-white/10 bg-[#0d151e]/88 backdrop-blur-xl"
           : "border-line/70 bg-white/82 backdrop-blur-2xl"
       }`}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="site-shell">
         <div className="flex h-[4.5rem] items-center gap-7">
           <Link
             href="/"

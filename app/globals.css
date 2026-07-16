@@ -90,16 +90,198 @@ body:has(.auth-shell) > main {
   display: flex;
 }
 
+/* Page layout grids.
+   - Reading surfaces retain a calm 48rem measure.
+   - Wide subpages, member/admin workspaces, shared site chrome and the landing
+     Store surface use one 85.5vw line (capped at 105rem).
+   - Product shelves remain full bleed and independently scrollable. */
+:root {
+  --page-reading-max: 48rem;
+  --page-wide-max: 105rem;
+  --page-gutter-inline: 1rem;
+  --page-gutter-total: 2rem;
+  /* Shared content alignment: header, landing copy and footer stay on a
+     centered 85.5vw line until 1680px, while card rails remain full bleed. */
+  --store-shell-max: 105rem;
+  --store-shell-width: min(85.5vw, var(--store-shell-max));
+  --store-shelf-inset: calc((100vw - var(--store-shell-width)) / 2);
+}
+
+.site-shell {
+  margin-inline: auto;
+  width: var(--store-shell-width);
+  max-width: var(--store-shell-max);
+}
+
+.store-shell {
+  margin-inline: auto;
+  width: var(--store-shell-width);
+  max-width: var(--store-shell-max);
+}
+
+.store-shelf-track {
+  padding-inline: var(--store-shelf-inset);
+  scroll-padding-inline: var(--store-shelf-inset);
+}
+
+/* Landing card family. Apple Store breakpoints are intentionally explicit:
+   mobile <=734px, tablet 735-1068px, desktop >=1069px. */
+.store-card-featured,
+.store-card-collection-lead,
+.store-card-collection-item,
+.store-card-process,
+.store-card-showcase,
+.store-card-calendar,
+.store-card-network {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+.store-card-featured {
+  width: min(82vw, 22rem);
+  height: 29rem;
+}
+
+.store-card-collection-lead {
+  width: min(88vw, 24rem);
+  height: 29rem;
+}
+
+.store-card-collection-item {
+  width: min(74vw, 19rem);
+  height: 29rem;
+}
+
+.store-card-process {
+  width: min(82vw, 30rem);
+  height: 31.25rem;
+}
+
+.store-card-showcase,
+.store-card-network {
+  width: min(82vw, 22rem);
+  height: 29rem;
+}
+
+.store-card-calendar {
+  width: min(82vw, 30rem);
+  height: 29rem;
+}
+
+/* Network cards preserve their full-bleed media and action rail, while the
+   authored header and copy use the same 28px content inset as the rest of the
+   landing card family. */
+.store-card-network > article > header,
+.store-card-network [data-feed-text] {
+  padding-inline: 1.75rem;
+}
+
+.store-card-network > article > header {
+  padding-top: 1.75rem;
+}
+
+/* Shared landing-card behavior. This is the same restrained scale, shadow,
+   easing and active feedback used by the New arrivals ProductCard. */
+.store-card-interactive {
+  scale: 1;
+  overflow: clip;
+  isolation: isolate;
+  border-radius: 1.5rem;
+  background-clip: padding-box;
+  box-shadow: 2px 4px 12px rgb(0 0 0 / 8%);
+  transition-property: scale, box-shadow;
+  transition-duration: 500ms;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .store-card-interactive:hover {
+    scale: 1.01;
+    box-shadow: 2px 6px 18px rgb(0 0 0 / 15%);
+  }
+}
+
+.store-card-interactive:active {
+  scale: 0.995;
+}
+
+.store-card-interactive:focus-visible,
+.store-card-interactive:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (min-width: 735px) {
+  .store-card-featured,
+  .store-card-collection-lead,
+  .store-card-showcase,
+  .store-card-network {
+    width: 25rem;
+    height: 31.25rem;
+  }
+
+  .store-card-collection-item {
+    width: 19.5625rem;
+    height: 31.25rem;
+  }
+
+  .store-card-process,
+  .store-card-calendar {
+    width: 30rem;
+    height: 31.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-card-interactive {
+    transition: none;
+  }
+
+  .store-card-interactive:hover,
+  .store-card-interactive:active {
+    scale: 1;
+  }
+}
+
 /* Page container system: every page root is auto-contained; opt out with
-   .full-bleed (landing) or widen with .wide (lists, admin console). */
+   .full-bleed (landing) or widen with .wide (lists, admin console).
+
+   Keep the wide selector intentionally more specific than the responsive
+   generic-page rule below. Otherwise the desktop media query resets wide
+   pages to the 48rem reading measure. */
 main > :where(*) {
   margin-inline: auto;
   width: 100%;
-  max-width: 48rem;
-  padding: 1.25rem 1rem 3rem;
+  max-width: calc(var(--page-reading-max) + var(--page-gutter-total));
+  padding: 1.25rem var(--page-gutter-inline) 3rem;
 }
-main > :where(.wide) {
-  max-width: 80rem;
+main > .wide {
+  /* The outer box includes responsive page padding so the inner content edges
+     align exactly with the shared 85.5vw header/footer shell. */
+  width: min(100%, calc(var(--store-shell-width) + var(--page-gutter-total)));
+  max-width: calc(var(--page-wide-max) + var(--page-gutter-total));
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --page-gutter-inline: 2rem;
+    --page-gutter-total: 4rem;
+  }
+  main > :where(*) {
+    max-width: calc(var(--page-reading-max) + var(--page-gutter-total));
+    padding-inline: var(--page-gutter-inline);
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --page-gutter-inline: 2.5rem;
+    --page-gutter-total: 5rem;
+  }
+  main > :where(*) {
+    max-width: calc(var(--page-reading-max) + var(--page-gutter-total));
+    padding-inline: var(--page-gutter-inline);
+  }
 }
 main > :where(.full-bleed) {
   max-width: none;

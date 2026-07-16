@@ -42,17 +42,25 @@ export default async function AdminLayout({
   }
 
   const { t } = await getT();
-  const [
-    { count: pendingPosts },
-    { count: pendingMessages },
-    { count: pendingBadges },
-    { count: pendingReports },
-  ] = await Promise.all([
+  const [pendingPostsResult, pendingMessagesResult, pendingBadgesResult, pendingReportsResult] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("inquiry_messages").select("id", { count: "exact", head: true }).eq("review_status", "pending"),
     supabase.from("badge_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("member_feed_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
   ]);
+  const queueCountError = [
+    pendingPostsResult.error,
+    pendingMessagesResult.error,
+    pendingBadgesResult.error,
+    pendingReportsResult.error,
+  ].find(Boolean);
+  if (queueCountError) {
+    console.error("[admin] review queue counts unavailable", queueCountError);
+  }
+  const pendingPosts = pendingPostsResult.error ? undefined : pendingPostsResult.count ?? 0;
+  const pendingMessages = pendingMessagesResult.error ? undefined : pendingMessagesResult.count ?? 0;
+  const pendingBadges = pendingBadgesResult.error ? undefined : pendingBadgesResult.count ?? 0;
+  const pendingReports = pendingReportsResult.error ? undefined : pendingReportsResult.count ?? 0;
 
   const can = (permission: string) => isOwner || permissions.has(permission);
   const groups: AdminNavGroup[] = [
@@ -61,14 +69,14 @@ export default async function AdminLayout({
       items: [
         ...(can("overview") ? [{ href: "/admin", label: t.admin.overview }] : []),
         ...(can("review") ? [
-        { href: "/admin/moderation", label: t.admin.moderation, badge: pendingPosts ?? 0 },
-        { href: "/admin/feed", label: t.admin.feedSafety, badge: pendingReports ?? 0 },
-        { href: "/admin/inquiries", label: t.admin.inquiryModeration, badge: pendingMessages ?? 0 },
+        { href: "/admin/moderation", label: t.admin.moderation, badge: pendingPosts },
+        { href: "/admin/feed", label: t.admin.feedSafety, badge: pendingReports },
+        { href: "/admin/inquiries", label: t.admin.inquiryModeration, badge: pendingMessages },
         {
           href: "/admin/coordinator-messages",
           label: t.admin.coordinatorMessages,
         },
-        { href: "/admin/badges", label: t.admin.badgeAdmin, badge: pendingBadges ?? 0 },
+        { href: "/admin/badges", label: t.admin.badgeAdmin, badge: pendingBadges },
         ] : []),
       ],
     },
@@ -126,7 +134,14 @@ export default async function AdminLayout({
       </header>
       <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
         <AdminNav groups={groups} badgeLabel={t.admin.awaitingReview} />
-        <div className="min-w-0">{children}</div>
+        <div className="min-w-0 space-y-4">
+          {queueCountError ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900" role="status">
+              {t.admin.queueCountsUnavailable}
+            </div>
+          ) : null}
+          {children}
+        </div>
       </div>
     </div>
   );

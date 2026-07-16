@@ -6,16 +6,117 @@ import { expect, test } from "@playwright/test";
 test("landing renders the storefront sections", async ({ page }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /trusted bridge/i })
+    page.getByRole("heading", { name: /global trade, built on trust/i })
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "New arrivals" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Latest sourcing requests" }),
+  ).toBeVisible();
+  await expect(
+    page.locator(".store-card-featured").filter({ hasText: "Sourcing request" }).first(),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Industrial" }).first()).toBeVisible();
   await expect(page.getByText("Events and exhibitions")).toBeVisible();
+  await expect(
+    page.getByText("Built for credible cross-border business")
+  ).toHaveCount(0);
+  await expect(
+    page.getByPlaceholder("What product or material are you sourcing?")
+  ).toHaveCount(0);
 });
 
-test("board page shows its header and type", async ({ page }) => {
+test("product board separates recommendations, new items and the full directory", async ({
+  page,
+}) => {
   await page.goto("/industrial");
-  await expect(page.getByRole("heading", { name: "Industrial" })).toBeVisible();
-  await expect(page.getByText("Product board").first()).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Recommended products", level: 1 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "New products", level: 2 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "All products", level: 2 }),
+  ).toBeVisible();
+  const directoryCard = page
+    .locator("#all-products .store-card-directory")
+    .first();
+  await expect(directoryCard).toBeVisible();
+  const directoryCardBox = await directoryCard.boundingBox();
+  expect(Math.round(directoryCardBox?.width ?? 0)).toBe(400);
+  expect(Math.round(directoryCardBox?.height ?? 0)).toBe(500);
+});
+
+test("request cards support no-image posts without empty dead space", async ({
+  page,
+}) => {
+  await page.goto("/requests");
+  await expect(
+    page.getByRole("heading", { name: "Active sourcing requests" }),
+  ).toBeVisible();
+  await expect(page.getByText("RFQ · ITB").first()).toBeVisible();
+  await expect(page.getByText(/UID:\d{6}/).first()).toBeVisible();
+});
+
+test("request detail uses the compact no-media brief and response flow", async ({
+  page,
+}) => {
+  await page.goto(
+    "/requests/684de749-e099-4b2c-9df7-93a60f4b8bf0",
+  );
+
+  await expect(
+    page.getByRole("heading", {
+      name: "RFQ: 10,000 pcs Cotton T-Shirts (GOTS certified)",
+    }),
+  ).toBeVisible();
+  await expect(page.locator("[data-request-no-media]")).toBeVisible();
+  await expect(page.locator("[data-request-media]")).toHaveCount(0);
+  await expect(
+    page.getByText("Open for supplier responses").first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Send inquiry" }).first(),
+  ).toBeVisible();
+});
+
+test("events prioritize schedule and venue without exposing authors", async ({
+  page,
+}) => {
+  await page.goto("/events");
+  await expect(page.getByRole("heading", { name: "Featured event" })).toBeVisible();
+  await expect(page.getByText(/Upcoming|Ongoing|Ended/).first()).toBeVisible();
+  await expect(page.getByText(/UID:\d{6}/)).toHaveCount(0);
+  await expect(page.getByText(/Published by/i)).toHaveCount(0);
+});
+
+test("notices hide authors and keep the update hierarchy", async ({ page }) => {
+  await page.goto("/notices");
+  await expect(page.getByRole("heading", { name: "Latest notice" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "All updates" })).toBeVisible();
+  await expect(page.getByText(/UID:\d{6}/)).toHaveCount(0);
+  await expect(page.getByText(/Published by/i)).toHaveCount(0);
+});
+
+test("faq opens with a real question and answer", async ({ page }) => {
+  await page.goto("/faq");
+  await expect(
+    page.getByRole("heading", { name: "Find the answer you need" }),
+  ).toBeVisible();
+  const firstQuestion = page
+    .locator("[data-faq-index] button[aria-expanded]")
+    .first();
+  await expect(firstQuestion).toBeVisible();
+  await expect(firstQuestion).toHaveAttribute("aria-expanded", "true");
+
+  const search = page.getByRole("searchbox", { name: "Search questions" });
+  await search.fill("What do the trust badges mean?");
+  await expect(
+    page.locator("[data-faq-index] button[aria-expanded]"),
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("heading", { name: "What do the trust badges mean?" }),
+  ).toBeVisible();
 });
 
 test("protected areas redirect anonymous visitors to login", async ({ page }) => {

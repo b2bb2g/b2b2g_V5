@@ -11,6 +11,7 @@ import { postMediaUrl, repThumbnail, videoEmbedUrl } from "@/lib/media";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EventCard } from "@/components/marketplace/EventCard";
+import { RequestDetail } from "@/components/marketplace/RequestDetail";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { MediaGallery } from "@/components/post/MediaGallery";
 import { RichContentViewer } from "@/components/post/RichContentViewer";
@@ -155,6 +156,9 @@ export default async function PostDetailPage(props: {
   const relatedProducts = isCommerceProduct
     ? await listRelatedPosts(menu.id, postId, 8)
     : [];
+  const relatedRequests = isRequest
+    ? await listRelatedPosts(menu.id, postId, 4)
+    : [];
   // Other events for the detail footer, ordered live -> upcoming -> past.
   const relatedEvents = isEvent
     ? (await listRelatedPosts(menu.id, postId, 6))
@@ -188,6 +192,34 @@ export default async function PostDetailPage(props: {
     ...(publishedAt ? { datePublished: publishedAt } : {}),
     author: { "@type": "Organization", name: `UID:${authorUid}` },
   };
+
+  if (isRequest) {
+    return (
+      <>
+        <JsonLd data={schemaData} />
+        <RequestDetail
+          menuSlug={menu.slug}
+          sectionTitle={sectionTitle}
+          postId={postId}
+          title={title ?? ""}
+          full={full}
+          teaser={teaser}
+          isOwn={isOwn}
+          isMember={isMember}
+          isClosed={isClosed}
+          authorUid={authorUid}
+          authorBadges={authorBadges}
+          inquiryPath={inquiryPath}
+          statusLabels={statusLabels}
+          galleryImages={galleryImages}
+          heroIndex={heroIndex}
+          embed={embed}
+          videoIsHero={videoIsHero}
+          relatedRequests={relatedRequests}
+        />
+      </>
+    );
+  }
 
   if (isNotice && full) {
     const body =

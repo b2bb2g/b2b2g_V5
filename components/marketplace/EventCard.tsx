@@ -62,11 +62,25 @@ function Cal() {
   );
 }
 
-// The single event-card design used on the landing, the /events board and the
-// detail "more events" rail. Shares the ProductCard frame (rounding, ring,
-// soft shadow, hover lift) so products and events read as one card family;
-// only the content differs — status, schedule and venue instead of UID/badges.
-export function EventCard({
+function Arrow() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+export function EventSpotlightCard({
   post,
   href,
   locale,
@@ -85,7 +99,107 @@ export function EventCard({
     status === "upcoming" && post.event_start
       ? eventCountdown(post.event_start)
       : null;
-  const title = locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
+  const title =
+    locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
+  const thumb = repThumbnail(post);
+  const ended = status === "ended";
+  const statusText: Record<EventStatus, string> = {
+    ongoing: labels.ongoing,
+    upcoming: labels.upcoming,
+    ended: labels.ended,
+  };
+
+  return (
+    <Link
+      href={href}
+      className="store-card-interactive group grid min-h-[28rem] overflow-hidden rounded-[1.75rem] bg-[#101923] text-white focus:outline-none md:grid-cols-[minmax(0,.82fr)_minmax(0,1.18fr)]"
+    >
+      <div className="order-2 flex min-h-[19rem] flex-col p-7 sm:p-9 md:order-1 md:min-h-0 md:p-11">
+        <div className="flex min-h-7 flex-wrap items-center gap-2">
+          {status && (
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/16 bg-white/10 px-3 py-1.5 text-xs font-bold backdrop-blur-md">
+              {status === "ongoing" && (
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7df5b2] opacity-70" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#7df5b2]" />
+                </span>
+              )}
+              {statusText[status]}
+            </span>
+          )}
+          {countdown && (
+            <span className="rounded-full border border-white/16 bg-white/10 px-3 py-1.5 text-xs font-bold tabular-nums backdrop-blur-md">
+              {countdown}
+            </span>
+          )}
+        </div>
+        <strong className="mt-6 max-w-xl text-3xl font-semibold leading-[1.05] tracking-[-.04em] sm:text-4xl lg:text-5xl">
+          {title}
+        </strong>
+        <div className="mt-auto space-y-3 pt-10 text-white/78">
+          {range && (
+            <span className="flex items-center gap-2 text-sm font-semibold text-white">
+              <Cal />
+              {range}
+            </span>
+          )}
+          <span className="flex items-center gap-2 text-sm">
+            <Pin />
+            <span>{post.event_venue ?? labels.venueTbd}</span>
+          </span>
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#101923] transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:translate-x-1">
+            <Arrow />
+          </span>
+        </div>
+      </div>
+      <div className="relative order-1 min-h-[18rem] overflow-hidden bg-surface-sub md:order-2 md:min-h-full">
+        {thumb ? (
+          <SafeImage
+            src={thumb}
+            alt={title}
+            fill
+            priority={priority}
+            sizes="(max-width: 734px) 100vw, 58vw"
+            className={`object-cover transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:scale-[1.025] ${
+              ended ? "opacity-75 grayscale-[.4]" : ""
+            }`}
+          />
+        ) : (
+          <MediaPlaceholder />
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-transparent md:bg-gradient-to-r md:from-[#101923]/18 md:via-transparent md:to-transparent" />
+      </div>
+    </Link>
+  );
+}
+
+// The single event-card design used on the landing, the /events board and the
+// detail "more events" rail. Shares the ProductCard frame (rounding, ring,
+// soft shadow, hover lift) so products and events read as one card family;
+// only the content differs — status, schedule and venue instead of UID/badges.
+export function EventCard({
+  post,
+  href,
+  locale,
+  labels,
+  priority = false,
+  feature = false,
+}: {
+  post: EventCardPost;
+  href: string;
+  locale: Locale;
+  labels: EventCardLabels;
+  priority?: boolean;
+  feature?: boolean;
+}) {
+  const status = eventStatus(post.event_start, post.event_end);
+  const range = formatEventRange(post.event_start, post.event_end, locale);
+  const countdown =
+    status === "upcoming" && post.event_start
+      ? eventCountdown(post.event_start)
+      : null;
+  const title =
+    locale === "ko" && post.title_ko ? post.title_ko : post.title_en;
   const thumb = repThumbnail(post);
   const ended = status === "ended";
   const statusText: Record<EventStatus, string> = {
@@ -98,6 +212,58 @@ export function EventCard({
     upcoming: "text-primary-strong",
     ended: "text-ink-faint",
   };
+
+  if (feature) {
+    return (
+      <Link
+        href={href}
+        className="store-card-interactive group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-[#111827] text-white focus:outline-none"
+      >
+        {thumb ? (
+          <SafeImage
+            src={thumb}
+            alt={title}
+            fill
+            priority={priority}
+            sizes="(max-width: 734px) 82vw, 480px"
+            className={`object-cover ${ended ? "opacity-75 grayscale-[.4]" : ""}`}
+          />
+        ) : (
+          <MediaPlaceholder />
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/62 via-black/12 to-black/72" />
+        <div className="relative flex h-full flex-col p-7">
+          <div className="flex min-h-5 items-center justify-between gap-3">
+            <span className="text-xs font-bold uppercase tracking-[.14em] text-white/72">
+              {status ? statusText[status] : "\u00a0"}
+            </span>
+            {countdown && (
+              <span className="rounded-full border border-white/20 bg-black/30 px-2.5 py-1 text-[11px] font-bold tabular-nums backdrop-blur-md">
+                {countdown}
+              </span>
+            )}
+          </div>
+          <strong className="mt-4 line-clamp-2 max-w-sm text-3xl font-semibold leading-[1.08] tracking-[-.035em]">
+            {title}
+          </strong>
+          <div className="mt-auto min-h-[4.625rem] rounded-2xl border border-white/20 bg-black/30 p-4 backdrop-blur-md">
+            {range && (
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
+                <Cal />
+                {range}
+              </span>
+            )}
+            <span className="mt-1.5 flex items-center gap-1.5 text-xs leading-5 text-white/72">
+              <Pin />
+              <span className="truncate">
+                {post.event_venue ?? labels.venueTbd}
+              </span>
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <Link
@@ -150,7 +316,9 @@ export function EventCard({
         </strong>
         <span className="mt-auto flex items-center gap-1.5 pt-3 text-xs text-ink-soft">
           <Pin />
-          <span className="truncate">{post.event_venue ?? labels.venueTbd}</span>
+          <span className="truncate">
+            {post.event_venue ?? labels.venueTbd}
+          </span>
         </span>
       </div>
     </Link>

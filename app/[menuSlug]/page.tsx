@@ -1,30 +1,136 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { SafeImage } from "@/components/ui/SafeImage";
 import { notFound } from "next/navigation";
-import { getT } from "@/lib/i18n/server";
-import { getMenuBySlug, menuTitle } from "@/lib/data/menus";
-import { listPostsForMenu } from "@/lib/data/posts";
-import { createClient } from "@/lib/supabase/server";
-import { getPublicSettings, settingBool } from "@/lib/data/settings";
+import type { ReactNode } from "react";
+import {
+  EditorialFeatureCard,
+  EditorialListCard,
+  RequestBoardCard,
+} from "@/components/marketplace/BoardContentCards";
+import { BoardSectionHeading } from "@/components/marketplace/BoardSectionHeading";
+import { CollectionLeadCard } from "@/components/marketplace/CollectionLeadCard";
+import {
+  EventCard,
+  EventSpotlightCard,
+} from "@/components/marketplace/EventCard";
+import { FaqExperience } from "@/components/marketplace/FaqExperience";
+import { ProductCard } from "@/components/marketplace/ProductCard";
+import { Carousel } from "@/components/ui/Carousel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
-import { StatusLabel } from "@/components/ui/StatusLabel";
-import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
-import { stripRichText, sanitizeRichText } from "@/lib/richtext";
-import { FaqExperience } from "@/components/marketplace/FaqExperience";
-import type { Metadata } from "next";
-import { ProductCard } from "@/components/marketplace/ProductCard";
-import { EventCard } from "@/components/marketplace/EventCard";
-import { BoardHero } from "@/components/marketplace/BoardHero";
-import { repThumbnail } from "@/lib/media";
-import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
-import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
+import { Reveal } from "@/components/ui/Reveal";
+import {
+  BOARD_TYPES,
+  SETTING_KEYS,
+  type Locale,
+} from "@/lib/constants";
+import { getMenuBySlug, menuTitle } from "@/lib/data/menus";
+import {
+  listPostHighlights,
+  listPostsForMenu,
+} from "@/lib/data/posts";
+import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import {
   eventStatus,
-  eventCountdown,
-  formatEventRange,
   type EventStatus,
 } from "@/lib/events";
+import { getT } from "@/lib/i18n/server";
+import { sanitizeRichText, stripRichText } from "@/lib/richtext";
+import { createClient } from "@/lib/supabase/server";
+import type { Menu, PostTeaser } from "@/lib/types";
+
+const RECOMMENDED_COLLECTION_IMAGES: Record<string, string> = {
+  commercial: "/landing-v2/market-rail-commercial.jpg",
+  industrial: "/landing-v2/market-rail-industrial.jpg",
+  epc: "/landing-v2/market-rail-epc.jpg",
+};
+
+const NEW_COLLECTION_IMAGES: Record<string, string> = {
+  commercial: "/landing-v2/consumer-export-brand.jpg",
+  industrial: "/landing-v2/precision-manufacturing.jpg",
+  epc: "/generated/epc/solar-bess-commissioning.jpg",
+};
+
+function Arrow() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function TextLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex min-h-11 items-center gap-2 rounded-full px-1 text-sm font-semibold text-primary transition-colors hover:text-primary-strong"
+    >
+      {children}
+      <Arrow />
+    </Link>
+  );
+}
+
+function recommendationScore(post: PostTeaser) {
+  return (
+    post.author_badges.length * 5 +
+    (post.rep_image_path || post.rep_video_url ? 3 : 0) +
+    (post.body_truncated ? 1 : 0)
+  );
+}
+
+function CategoryNav({
+  menu,
+  categories,
+  activeCategory,
+  locale,
+  allLabel,
+}: {
+  menu: Menu;
+  categories: { id: string; name_en: string; name_ko: string }[];
+  activeCategory: string;
+  locale: Locale;
+  allLabel: string;
+}) {
+  if (categories.length === 0) return null;
+  return (
+    <nav className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <Link
+        href={`/${menu.slug}`}
+        className={`inline-flex min-h-10 items-center whitespace-nowrap rounded-full px-4 text-sm font-semibold transition-colors ${
+          !activeCategory
+            ? "bg-ink text-white"
+            : "bg-white text-ink-soft shadow-sm hover:text-primary"
+        }`}
+      >
+        {allLabel}
+      </Link>
+      {categories.map((category) => (
+        <Link
+          key={category.id}
+          href={`/${menu.slug}?category=${category.id}`}
+          className={`inline-flex min-h-10 items-center whitespace-nowrap rounded-full px-4 text-sm font-semibold transition-colors ${
+            activeCategory === category.id
+              ? "bg-ink text-white"
+              : "bg-white text-ink-soft shadow-sm hover:text-primary"
+          }`}
+        >
+          {locale === "ko" ? category.name_ko : category.name_en}
+        </Link>
+      ))}
+    </nav>
+  );
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ menuSlug: string }>;
@@ -32,16 +138,25 @@ export async function generateMetadata(props: {
   const { menuSlug } = await props.params;
   const menu = await getMenuBySlug(menuSlug);
   if (!menu) return {};
-  const { locale } = await getT();
+  const { locale, t } = await getT();
   const title = menuTitle(menu, locale);
+  const description =
+    menu.board_type === BOARD_TYPES.REQUEST
+      ? t.board.requestHint
+      : menu.slug === "events"
+        ? t.board.eventsHint
+        : menu.slug === "notices"
+          ? t.board.noticeHint
+          : menu.slug === "faq"
+            ? t.board.faqHint
+            : menu.slug === "services"
+              ? t.board.servicesHint
+              : t.board.browseHint;
   return {
     title,
-    description: `${title} B2B marketplace products and sourcing opportunities`,
+    description,
     alternates: { canonical: `/${menuSlug}` },
-    openGraph: {
-      title,
-      description: `${title} B2B marketplace products and sourcing opportunities`,
-    },
+    openGraph: { title, description },
   };
 }
 
@@ -49,15 +164,15 @@ export default async function BoardPage(props: {
   params: Promise<{ menuSlug: string }>;
   searchParams: Promise<{ category?: string; page?: string; uid?: string }>;
 }) {
-  const [{ menuSlug }, query] = await Promise.all([
+  const [{ menuSlug }, query, { t, locale }, settings] = await Promise.all([
     props.params,
     props.searchParams,
+    getT(),
+    getPublicSettings(),
   ]);
   const menu = await getMenuBySlug(menuSlug);
   if (!menu || !menu.is_visible) notFound();
 
-  // Category navigation is admin-switched (PRD 6.6): hidden until enabled.
-  const settings = await getPublicSettings();
   const categoryNavVisible = settingBool(
     settings,
     SETTING_KEYS.CATEGORY_NAV_VISIBLE,
@@ -66,12 +181,17 @@ export default async function BoardPage(props: {
   const activeCategory = categoryNavVisible ? (query.category ?? "") : "";
   const page = Math.max(1, Number.parseInt(query.page ?? "1", 10) || 1);
   const authorUid = Number.parseInt(query.uid ?? "", 10) || undefined;
-
   const supabase = await createClient();
-  const [{ t, locale }, { posts, totalPages }, { data: categories }] =
+
+  const [{ posts, totalPages }, highlights, { data: categoryRows }] =
     await Promise.all([
-      getT(),
       listPostsForMenu(menu.id, activeCategory || undefined, page, authorUid),
+      listPostHighlights(
+        menu.id,
+        activeCategory || undefined,
+        authorUid,
+        12,
+      ),
       categoryNavVisible
         ? supabase
             .from("categories")
@@ -82,49 +202,49 @@ export default async function BoardPage(props: {
         : Promise.resolve({ data: [] }),
     ]);
 
-  // Menu names always display in English (user policy).
+  const categories =
+    (categoryRows as
+      | { id: string; name_en: string; name_ko: string }[]
+      | null) ?? [];
   const title = menuTitle(menu, locale);
-  const isRequestBoard = menu.board_type === BOARD_TYPES.REQUEST;
-  const isGallery =
-    menu.board_type === BOARD_TYPES.PRODUCT ||
-    menu.board_type === BOARD_TYPES.FLEXIBLE;
-  // Keyed on board type, not slug, so any board an admin adds behaves like its
-  // type instead of falling back to the wrong layout/copy.
-  const isNoticeBoard = menu.board_type === BOARD_TYPES.NOTICE;
-  const isEventsBoard = menu.board_type === BOARD_TYPES.FLEXIBLE;
-  // FAQ is a purpose-built board: same notice data model, but presented as a
-  // searchable accordion rather than a notice list.
+  const isProduct = menu.board_type === BOARD_TYPES.PRODUCT;
+  const isRequest = menu.board_type === BOARD_TYPES.REQUEST;
+  const isEvents = menu.slug === "events";
+  const isServices = menu.slug === "services";
   const isFaq = menu.slug === "faq";
-  const typeLabel =
-    (t.admin.boardTypes as Record<string, string>)[menu.board_type] ??
-    menu.board_type;
-  const boardImage =
-    menu.slug === "commercial"
-      ? "/landing-v2/consumer-export-brand.jpg"
-      : menu.slug === "industrial"
-        ? "/landing-v2/precision-manufacturing.jpg"
-        : isGallery
-          ? "/landing-v2/hero-global-collaboration.jpg"
-          : undefined;
-  const latestNoticeThumb =
-    isNoticeBoard && posts[0] ? repThumbnail(posts[0]) : null;
+  const recommendedProducts = [...highlights]
+    .sort((a, b) => {
+      const score = recommendationScore(b) - recommendationScore(a);
+      if (score !== 0) return score;
+      return (b.published_at ?? "").localeCompare(a.published_at ?? "");
+    })
+    .slice(0, 4);
+  const newProducts = highlights.slice(0, 6);
+  const cardLabels = {
+    ongoing: t.board.eventNowOn,
+    upcoming: t.board.eventUpcomingLabel,
+    ended: t.board.eventEnded,
+    venueTbd: t.board.eventVenueTbd,
+  };
 
-  // Full answers for the accordion (the list query only returns teasers).
   const faqItems = isFaq
     ? (
         (
           await supabase
-            .from("posts")
-            .select("id, title_en, title_ko, body_en, body_ko")
+            .from("public_posts")
+            .select(
+              "id, title_en, title_ko, body_teaser_en, body_teaser_ko",
+            )
             .eq("menu_id", menu.id)
-            .eq("status", POST_STATUS.APPROVED)
             .order("published_at", { ascending: false })
         ).data ?? []
       ).map((row) => {
         const question =
           locale === "ko" && row.title_ko ? row.title_ko : row.title_en;
         const answerRaw =
-          locale === "ko" && row.body_ko ? row.body_ko : row.body_en;
+          locale === "ko" && row.body_teaser_ko
+            ? row.body_teaser_ko
+            : row.body_teaser_en;
         return {
           id: row.id as string,
           question: question as string,
@@ -135,632 +255,580 @@ export default async function BoardPage(props: {
     : [];
 
   return (
-    <div className="wide space-y-4">
-      {/* Product/request boards always lead with the hero. Notice/events
-          boards use a featured layout instead — but when they're empty (no
-          featured post to show) the hero still gives the page its title and
-          context. Creation lives on the dashboard only (UX policy). */}
-      {(!isNoticeBoard && !isEventsBoard) || isFaq || posts.length === 0 ? (
-        <BoardHero
-          eyebrow={t.board.eyebrow}
-          type={isFaq ? t.board.faqType : typeLabel}
-          title={title}
-          count={posts.length}
-          countLabel={isFaq ? t.board.faqCount : t.board.availableNow}
-          description={
-            isFaq
-              ? t.board.faqHint
-              : isNoticeBoard
-                ? t.board.noticeHint
-                : isEventsBoard
-                  ? t.board.eventsHint
-                  : isRequestBoard
-                    ? t.board.requestHint
-                    : t.board.browseHint
-          }
-          image={boardImage}
-        />
-      ) : null}
-
-      {categoryNavVisible && (categories ?? []).length > 0 && (
-        <nav className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4">
-          <Link
-            href={`/${menu.slug}`}
-            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-              !activeCategory
-                ? "bg-ink text-white"
-                : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
-            }`}
-          >
-            {t.common.all}
-          </Link>
-          {(categories ?? []).map((category) => (
-            <Link
-              key={category.id}
-              href={`/${menu.slug}?category=${category.id}`}
-              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-                activeCategory === category.id
-                  ? "bg-ink text-white"
-                  : "bg-surface-sub text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
-              }`}
-            >
-              {locale === "ko" ? category.name_ko : category.name_en}
-            </Link>
-          ))}
-        </nav>
-      )}
-
+    <div className="full-bleed overflow-hidden bg-[#f5f5f7]">
       {authorUid && (
-        <div className="flex items-center justify-between rounded-2xl border border-primary/15 bg-primary-soft/60 px-4 py-3 text-sm">
-          <span className="font-bold text-primary-strong">UID:{authorUid}</span>
-          <Link
-            href={`/${menu.slug}`}
-            className="font-semibold text-ink-soft hover:text-ink"
-          >
-            {t.common.clearFilter}
-          </Link>
-        </div>
+        <section className="bg-white py-8">
+          <div className="store-shell flex items-center justify-between rounded-2xl border border-primary/15 bg-primary-soft px-5 py-3 text-sm">
+            <span className="font-bold text-primary-strong">
+              UID:{authorUid}
+            </span>
+            <Link
+              href={`/${menu.slug}`}
+              className="font-semibold text-ink-soft hover:text-ink"
+            >
+              {t.common.clearFilter}
+            </Link>
+          </div>
+        </section>
       )}
 
-      {posts.length === 0 ? (
-        <EmptyState title={t.common.emptyList} hint={t.common.emptyListHint} />
-      ) : isFaq ? (
-        <FaqExperience
-          items={faqItems}
-          searchPlaceholder={t.board.faqSearch}
-          emptyLabel={t.board.faqEmpty}
-          clearLabel={t.common.clearFilter}
-          answerLabel={t.board.faqAnswer}
+      {posts.length === 0 && !isFaq ? (
+        <EmptyBoard
+          eyebrow={title}
+          title={
+            isServices
+              ? t.board.serviceDirectory
+              : isRequest
+                ? t.board.activeRequests
+                : isEvents
+                  ? t.board.eventLiveGroup
+                  : isProduct
+                    ? t.board.allProducts
+                    : t.board.allNotices
+          }
+          body={
+            isServices
+              ? t.board.servicesDirectoryHint
+              : isRequest
+                ? t.board.activeRequestsHint
+                : isEvents
+                  ? t.board.eventDirectoryHint
+                  : isProduct
+                    ? t.board.allProductsHint
+                    : t.board.noticeHint
+          }
+          emptyTitle={t.common.emptyList}
+          emptyHint={t.common.emptyListHint}
         />
-      ) : isNoticeBoard ? (
-        <section className="space-y-6">
-          <Link
-            href={`/${menu.slug}/${posts[0].id}`}
-            className={`group relative grid min-h-80 overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_24px_70px_rgba(16,25,35,.2)] ${latestNoticeThumb ? "lg:grid-cols-[.9fr_1.1fr]" : "grid-cols-1"}`}
-          >
-            <span className="relative z-10 flex min-w-0 flex-col justify-between p-7 sm:p-10 lg:p-12">
-              <span>
-                <span className="text-xs font-bold uppercase tracking-[.18em] text-[#79b4ff]">
-                  {t.board.noticeCenter}
-                </span>
-                <h1 className="mt-3 block text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
-                  {title}
-                </h1>
-                <span className="mt-4 block max-w-xl text-sm leading-7 text-white/65">
-                  {t.board.noticeHint}
-                </span>
-              </span>
-              <span className="mt-10 border-t border-white/15 pt-6">
-                <span className="flex items-center gap-3 text-xs font-bold text-white/50">
-                  <span className="uppercase tracking-[.14em] text-[#79b4ff]">
-                    {t.board.latestNotice}
-                  </span>
-                  <span>{posts[0].published_at?.slice(0, 10)}</span>
-                </span>
-                <span className="mt-3 flex items-end justify-between gap-5">
-                  <span className="min-w-0">
-                    <span className="block text-xl font-extrabold leading-snug sm:text-2xl">
-                      {locale === "ko" && posts[0].title_ko
-                        ? posts[0].title_ko
-                        : posts[0].title_en}
-                    </span>
-                    <span className="mt-2 block max-h-12 overflow-hidden text-sm leading-6 text-white/55">
-                      {stripRichText(
-                        locale === "ko" && posts[0].body_teaser_ko
-                          ? posts[0].body_teaser_ko
-                          : posts[0].body_teaser_en,
-                      )}
-                    </span>
-                  </span>
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </span>
-              </span>
-            </span>
-            {latestNoticeThumb && (
-              <span className="relative min-h-72 overflow-hidden bg-[#172331] lg:min-h-full">
-                <SafeImage
-                  src={latestNoticeThumb}
-                  alt=""
-                  fill
-                  priority
-                  sizes="(max-width:1024px) 100vw, 55vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+      ) : isProduct ? (
+        <>
+          <section className="bg-white pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
+            <div className="store-shell">
+              <Reveal>
+                <BoardSectionHeading
+                  eyebrow={title}
+                  title={t.board.recommendedProducts}
+                  body={t.board.recommendedProductsHint}
+                  level="h1"
+                  action={
+                    <TextLink href="#all-products">
+                      {t.board.viewAllProducts}
+                    </TextLink>
+                  }
                 />
-                <span
-                  className="absolute inset-0 bg-linear-to-r from-[#101923] via-[#101923]/20 to-transparent max-lg:bg-linear-to-t max-lg:from-[#101923]/25 max-lg:to-transparent"
-                  aria-hidden="true"
-                />
-              </span>
-            )}
-          </Link>
-          <div>
-            <div className="mb-5">
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
-                {t.board.noticeDirectory}
-              </p>
-              <h2 className="mt-2 text-2xl font-extrabold tracking-[-.035em]">
-                {t.board.allNotices}
-              </h2>
-            </div>
-            <ol className="overflow-hidden rounded-[1.75rem] border border-line/80 bg-white shadow-(--shadow-card)">
-              {posts.slice(1).map((post, index) => {
-                const noticeThumb = repThumbnail(post);
-                return (
-                  <li key={post.id}>
-                    <Link
-                      href={`/${menu.slug}/${post.id}`}
-                      className="group flex items-center gap-4 border-b border-line px-4 py-4 transition last:border-b-0 hover:bg-surface-sub sm:px-6"
-                    >
-                      <span
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-sub text-sm font-extrabold tabular-nums text-ink-faint transition-colors group-hover:bg-primary-soft group-hover:text-primary-strong"
-                        aria-hidden="true"
-                      >
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <strong className="block truncate text-sm font-extrabold group-hover:text-primary">
-                          {locale === "ko" && post.title_ko
-                            ? post.title_ko
-                            : post.title_en}
-                        </strong>
-                        <span className="mt-1 block text-xs text-ink-faint">
-                          {post.published_at?.slice(0, 10)}
-                        </span>
-                      </span>
-                      {noticeThumb && (
-                        <span className="relative hidden h-12 w-16 shrink-0 overflow-hidden rounded-lg bg-surface-sub sm:block">
-                          <SafeImage
-                            src={noticeThumb}
-                            alt=""
-                            fill
-                            sizes="64px"
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </span>
-                      )}
-                      <span className="shrink-0 text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary">
-                        →
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-        </section>
-      ) : isEventsBoard ? (
-        (() => {
-          const pin = () => (
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-              className="shrink-0"
-            >
-              <path d="M12 2c-3.9 0-7 3.1-7 7 0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
-            </svg>
-          );
-          const cal = () => (
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-              className="shrink-0"
-            >
-              <rect x="3" y="4.5" width="18" height="17" rx="2.5" />
-              <path d="M3 9.5h18M8 3v3M16 3v3" />
-            </svg>
-          );
-          const statusText: Record<EventStatus, string> = {
-            ongoing: t.board.eventNowOn,
-            upcoming: t.board.eventUpcomingLabel,
-            ended: t.board.eventEnded,
-          };
-          const cardLabels = {
-            ...statusText,
-            venueTbd: t.board.eventVenueTbd,
-          };
-
-          const withMeta = posts.map((post) => ({
-            post,
-            status: eventStatus(post.event_start, post.event_end),
-          }));
-          const startKey = (p: (typeof posts)[number]) =>
-            p.event_start ?? p.event_end ?? "9999-12-31";
-          const endKey = (p: (typeof posts)[number]) =>
-            p.event_end ?? p.event_start ?? "0000-01-01";
-          const groupRank = (s: EventStatus | null) =>
-            s === "ongoing" ? 0 : s === "upcoming" ? 1 : 2;
-
-          // Featured: the live event, else the soonest upcoming, else newest.
-          const featuredEntry =
-            withMeta.find((e) => e.status === "ongoing") ??
-            withMeta
-              .filter((e) => e.status === "upcoming")
-              .sort((a, b) =>
-                startKey(a.post) < startKey(b.post) ? -1 : 1,
-              )[0] ??
-            withMeta[0];
-          const featured = featuredEntry.post;
-          const featuredTitle =
-            locale === "ko" && featured.title_ko
-              ? featured.title_ko
-              : featured.title_en;
-          const featuredThumb = repThumbnail(featured);
-          const featuredStatus = featuredEntry.status;
-          const featuredRange = formatEventRange(
-            featured.event_start,
-            featured.event_end,
-            locale,
-          );
-          const featuredCountdown =
-            featuredStatus === "upcoming" && featured.event_start
-              ? eventCountdown(featured.event_start)
-              : null;
-
-          // The featured event owns the hero; the grid shows everything else so
-          // the same poster image never appears twice, side by side.
-          const rest = withMeta.filter((e) => e.post.id !== featured.id);
-          const liveUpcoming = rest
-            .filter((e) => e.status !== "ended")
-            .sort((a, b) => {
-              const r = groupRank(a.status) - groupRank(b.status);
-              if (r !== 0) return r;
-              return startKey(a.post) < startKey(b.post) ? -1 : 1;
-            });
-          const past = rest
-            .filter((e) => e.status === "ended")
-            .sort((a, b) => (endKey(a.post) > endKey(b.post) ? -1 : 1));
-
-          return (
-            <section className="space-y-8">
-              <Link
-                href={`/${menu.slug}/${featured.id}`}
-                className={`group relative grid min-h-80 overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_24px_70px_rgba(16,25,35,.2)] ${featuredThumb ? "lg:grid-cols-[.9fr_1.1fr]" : "grid-cols-1"}`}
-              >
-                <span className="relative z-10 flex min-w-0 flex-col justify-between p-7 sm:p-10 lg:p-12">
-                  <span>
-                    <span className="text-xs font-bold uppercase tracking-[.18em] text-[#79b4ff]">
-                      {t.board.eventsEyebrow}
-                    </span>
-                    <span className="mt-3 flex flex-wrap items-end gap-3">
-                      <h1 className="text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
-                        {title}
-                      </h1>
-                      <span className="mb-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/65">
-                        {posts.length} {t.board.availableNow}
-                      </span>
-                    </span>
-                    <span className="mt-4 block max-w-xl text-sm leading-7 text-white/65">
-                      {t.board.eventsHint}
-                    </span>
-                  </span>
-                  <span className="mt-10 border-t border-white/15 pt-6">
-                    <span className="flex flex-wrap items-center gap-2.5 text-xs font-bold">
-                      <span className="uppercase tracking-[.14em] text-[#79b4ff]">
-                        {t.board.featuredEvent}
-                      </span>
-                      {featuredStatus && (
-                        <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] ${
-                            featuredStatus === "ongoing"
-                              ? "bg-positive/20 text-[#7ee0a8]"
-                              : featuredStatus === "upcoming"
-                                ? "bg-white/15 text-white"
-                                : "bg-white/10 text-white/55"
-                          }`}
-                        >
-                          {featuredStatus === "ongoing" && (
-                            <span className="relative flex h-1.5 w-1.5">
-                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7ee0a8] opacity-70" />
-                              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#7ee0a8]" />
-                            </span>
-                          )}
-                          {statusText[featuredStatus]}
-                        </span>
-                      )}
-                      {featuredCountdown && (
-                        <span className="rounded-full bg-white/15 px-2 py-1 text-[11px] tabular-nums text-white">
-                          {featuredCountdown}
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-3 flex items-end justify-between gap-5">
-                      <span className="min-w-0">
-                        <span className="block text-xl font-extrabold leading-snug sm:text-2xl">
-                          {featuredTitle}
-                        </span>
-                        <span className="mt-3 flex flex-col gap-1.5 text-sm text-white/70">
-                          <span className="flex items-center gap-2">
-                            {pin()}
-                            {featured.event_venue ?? t.board.eventVenueTbd}
-                          </span>
-                          {featuredRange && (
-                            <span className="flex items-center gap-2">
-                              {cal()}
-                              {featuredRange}
-                            </span>
-                          )}
-                        </span>
-                      </span>
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
-                        →
-                      </span>
-                    </span>
-                  </span>
-                </span>
-                {featuredThumb && (
-                  <span className="relative min-h-72 overflow-hidden bg-[#172331] lg:min-h-full">
-                    <SafeImage
-                      src={featuredThumb}
-                      alt={featuredTitle}
-                      fill
-                      priority
-                      sizes="(max-width:1024px) 100vw, 55vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+              </Reveal>
+              <div className="mt-8 sm:mt-10">
+                <Carousel
+                  prevLabel={t.home.prev}
+                  nextLabel={t.home.next}
+                  edgeToEdge
+                >
+                  <div className="store-card-collection-lead">
+                    <CollectionLeadCard
+                      href="#all-products"
+                      image={
+                        RECOMMENDED_COLLECTION_IMAGES[menu.slug] ??
+                        "/landing-v2/hero-global-collaboration.jpg"
+                      }
+                      eyebrow={title}
+                      title={t.board.recommendedProducts}
+                      body={t.board.recommendedProductsHint}
+                      actionLabel={t.board.viewAllProducts}
                     />
-                    <span
-                      className="absolute inset-0 bg-linear-to-r from-[#101923] via-[#101923]/20 to-transparent max-lg:bg-linear-to-t max-lg:from-[#101923]/25 max-lg:to-transparent"
-                      aria-hidden="true"
-                    />
-                  </span>
-                )}
-              </Link>
-
-              <div className="space-y-6">
-                <div>
-                  <div className="mb-4 flex items-end justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
-                        {t.board.eventDirectory}
-                      </p>
-                      <h2 className="mt-1.5 text-2xl font-extrabold tracking-[-.035em]">
-                        {t.board.exploreEvents}
-                      </h2>
-                    </div>
                   </div>
-                  {liveUpcoming.length > 0 && (
-                    <div>
-                      <div className="mb-3 flex items-center gap-2.5">
-                        <h3 className="text-sm font-extrabold tracking-[-.01em]">
-                          {t.board.eventLiveGroup}
-                        </h3>
-                        <span className="rounded-full bg-surface-sub px-2 py-0.5 text-xs font-bold tabular-nums text-ink-faint">
-                          {liveUpcoming.length}
-                        </span>
-                      </div>
-                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {liveUpcoming.map(({ post }, i) => (
-                          <EventCard
-                            key={post.id}
-                            post={post}
-                            href={`/${menu.slug}/${post.id}`}
-                            locale={locale}
-                            labels={cardLabels}
-                            priority={i < 3}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {past.length > 0 && (
-                    <div className="mt-8">
-                      <div className="mb-3 flex items-center gap-2.5">
-                        <h3 className="text-sm font-extrabold tracking-[-.01em] text-ink-soft">
-                          {t.board.eventPastGroup}
-                        </h3>
-                        <span className="rounded-full bg-surface-sub px-2 py-0.5 text-xs font-bold tabular-nums text-ink-faint">
-                          {past.length}
-                        </span>
-                      </div>
-                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {past.map(({ post }) => (
-                          <EventCard
-                            key={post.id}
-                            post={post}
-                            href={`/${menu.slug}/${post.id}`}
-                            locale={locale}
-                            labels={cardLabels}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </section>
-          );
-        })()
-      ) : isGallery ? (
-        <section className="pt-4">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
-                {t.board.curatedCollection}
-              </p>
-              <h2 className="mt-2 text-2xl font-extrabold tracking-[-.035em]">
-                {t.board.picks}
-              </h2>
-            </div>
-            <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-ink-soft shadow-sm">
-              {posts.length} {t.board.availableNow}
-            </span>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-[1.35fr_.65fr]">
-            {posts[0] &&
-              (() => {
-                const post = posts[0];
-                const thumb = repThumbnail(post);
-                const postTitle =
-                  locale === "ko" && post.title_ko
-                    ? post.title_ko
-                    : post.title_en;
-                return (
-                  <Link
-                    href={`/${menu.slug}/${post.id}`}
-                    className="group relative min-h-[30rem] overflow-hidden rounded-[2rem] bg-[#101923] shadow-[0_20px_60px_rgba(25,31,40,.13)]"
-                  >
-                    {thumb ? (
-                      <SafeImage
-                        src={thumb}
-                        alt={postTitle}
-                        fill
-                        priority
-                        sizes="(max-width:1024px) 100vw, 66vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <MediaPlaceholder />
-                    )}
-                    <span className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/5 to-transparent" />
-                    <span className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-9">
-                      <span className="text-xs font-bold uppercase tracking-[.16em] text-[#83b6ff]">
-                        {t.board.featuredProduct}
-                      </span>
-                      <strong className="mt-3 block max-w-2xl text-2xl font-extrabold leading-tight sm:text-4xl">
-                        {postTitle}
-                      </strong>
-                      <AuthorIdentity
-                        uid={post.author_uid}
-                        badges={post.author_badges}
+                  {recommendedProducts.map((post, index) => (
+                    <div key={post.id} className="store-card-collection-item">
+                      <ProductCard
+                        post={post}
+                        href={`/${menu.slug}/${post.id}`}
                         locale={locale}
-                        className="mt-3 text-sm text-white/60"
+                        priority={index < 3}
+                        feature
+                        compactFeature
                       />
-                      <span className="mt-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
-                        →
-                      </span>
-                    </span>
-                  </Link>
-                );
-              })()}
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
-              {posts.slice(1, 3).map((post, index) => (
-                <ProductCard
-                  key={post.id}
-                  post={post}
-                  href={`/${menu.slug}/${post.id}`}
-                  locale={locale}
-                  priority={index < 1}
-                />
-              ))}
+                    </div>
+                  ))}
+                </Carousel>
+              </div>
             </div>
-          </div>
-          {posts.length > 3 && (
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-              {posts.slice(3).map((post) => (
-                <ProductCard
-                  key={post.id}
-                  post={post}
-                  href={`/${menu.slug}/${post.id}`}
-                  locale={locale}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-      ) : (
-        <div className="space-y-2.5">
-          {posts.map((post) => {
-            const closed =
-              post.status === POST_STATUS.CLOSED ||
-              (isRequestBoard &&
-                post.deadline &&
-                post.deadline < new Date().toISOString().slice(0, 10));
-            return (
-              <Link
-                key={post.id}
-                href={`/${menu.slug}/${post.id}`}
-                className="card-hover block p-4"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm font-bold leading-snug">
-                    {locale === "ko" && post.title_ko
-                      ? post.title_ko
-                      : post.title_en}
-                  </p>
-                  {isRequestBoard && (
-                    <span className="flex shrink-0 items-center gap-1.5">
-                      <StatusLabel
-                        status={closed ? "closed" : "approved"}
-                        label={
-                          closed
-                            ? t.post.closed
-                            : post.deadline
-                              ? t.post.open
-                              : t.post.openEnded
-                        }
-                      />
-                      {!closed && post.deadline && (
-                        <span className="inline-flex items-center whitespace-nowrap rounded-md bg-caution-soft px-2 py-0.5 text-xs font-semibold text-caution">
-                          {t.post.deadline} {post.deadline}
-                        </span>
-                      )}
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                  {stripRichText(
-                    locale === "ko" && post.body_teaser_ko
-                      ? post.body_teaser_ko
-                      : post.body_teaser_en,
-                  )}
-                </p>
-                <AuthorIdentity
-                  uid={post.author_uid}
-                  badges={post.author_badges}
-                  locale={locale}
-                  className="mt-2 text-xs text-ink-faint"
-                />
-              </Link>
-            );
-          })}
-        </div>
-      )}
+          </section>
 
-      {!isFaq && (
-        <Pagination
+          <section className="bg-[#f5f5f7] py-16 sm:py-20 lg:py-24">
+            <div className="store-shell">
+              <Reveal>
+                <BoardSectionHeading
+                  eyebrow={t.board.newCollection}
+                  title={t.board.newProducts}
+                  body={t.board.newProductsHint}
+                />
+              </Reveal>
+              <div className="mt-8 sm:mt-10">
+                <Carousel
+                  prevLabel={t.home.prev}
+                  nextLabel={t.home.next}
+                  edgeToEdge
+                >
+                  <div className="store-card-collection-lead">
+                    <CollectionLeadCard
+                      href="#all-products"
+                      image={
+                        NEW_COLLECTION_IMAGES[menu.slug] ??
+                        "/landing-v2/hero-global-collaboration.jpg"
+                      }
+                      eyebrow={title}
+                      title={t.board.newProducts}
+                      body={t.board.newProductsHint}
+                      actionLabel={t.board.viewAllProducts}
+                    />
+                  </div>
+                  {newProducts.map((post, index) => (
+                    <div key={post.id} className="store-card-collection-item">
+                      <ProductCard
+                        post={post}
+                        href={`/${menu.slug}/${post.id}`}
+                        locale={locale}
+                        priority={index < 3}
+                        feature
+                        compactFeature
+                      />
+                    </div>
+                  ))}
+                </Carousel>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="all-products"
+            className="scroll-mt-24 bg-white py-16 sm:py-20 lg:py-24"
+          >
+            <div className="store-shell">
+              <Reveal>
+                <BoardSectionHeading
+                  eyebrow={t.board.productDirectory}
+                  title={t.board.allProducts}
+                  body={t.board.allProductsHint}
+                />
+              </Reveal>
+              {categoryNavVisible && (
+                <div className="mt-8">
+                  <CategoryNav
+                    menu={menu}
+                    categories={categories}
+                    activeCategory={activeCategory}
+                    locale={locale}
+                    allLabel={t.common.all}
+                  />
+                </div>
+              )}
+              <div
+                className="mt-8 flex flex-wrap items-stretch gap-y-8 sm:mt-10"
+                style={{ columnGap: "clamp(0.5rem, 0.7vw, 1rem)" }}
+              >
+                {posts.map((post, index) => (
+                  <div
+                    key={post.id}
+                    className="store-card-directory"
+                    style={{
+                      width: "min(100%, 25rem)",
+                      height: "31.25rem",
+                      flex: "0 0 min(100%, 25rem)",
+                    }}
+                  >
+                    <ProductCard
+                      post={post}
+                      href={`/${menu.slug}/${post.id}`}
+                      locale={locale}
+                      priority={index < 4}
+                      feature
+                    />
+                  </div>
+                ))}
+              </div>
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                basePath={`/${menu.slug}`}
+                extraQuery={{
+                  ...(activeCategory ? { category: activeCategory } : {}),
+                  ...(authorUid ? { uid: String(authorUid) } : {}),
+                }}
+                prevLabel={t.home.prev}
+                nextLabel={t.home.next}
+              />
+            </div>
+          </section>
+        </>
+      ) : isRequest ? (
+        <section className="bg-white pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
+          <div className="store-shell">
+            <Reveal>
+              <BoardSectionHeading
+                eyebrow={title}
+                title={t.board.activeRequests}
+                body={t.board.activeRequestsHint}
+                level="h1"
+              />
+            </Reveal>
+            {categoryNavVisible && (
+              <div className="mt-8">
+                <CategoryNav
+                  menu={menu}
+                  categories={categories}
+                  activeCategory={activeCategory}
+                  locale={locale}
+                  allLabel={t.common.all}
+                />
+              </div>
+            )}
+            <div className="mt-8 grid gap-5 sm:mt-10 lg:grid-cols-2">
+              {posts.map((post) => (
+                <RequestBoardCard
+                  key={post.id}
+                  post={post}
+                  href={`/${menu.slug}/${post.id}`}
+                  locale={locale}
+                  openLabel={t.post.open}
+                  closedLabel={t.post.closed}
+                  openEndedLabel={t.post.openEnded}
+                  deadlineLabel={t.post.deadline}
+                />
+              ))}
+            </div>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              basePath={`/${menu.slug}`}
+              extraQuery={{
+                ...(activeCategory ? { category: activeCategory } : {}),
+                ...(authorUid ? { uid: String(authorUid) } : {}),
+              }}
+              prevLabel={t.home.prev}
+              nextLabel={t.home.next}
+            />
+          </div>
+        </section>
+      ) : isEvents ? (
+        <EventsBoard
+          menu={menu}
+          posts={posts}
+          locale={locale}
+          labels={cardLabels}
+          t={t}
           page={page}
           totalPages={totalPages}
-          basePath={`/${menu.slug}`}
-          extraQuery={{
-            ...(activeCategory ? { category: activeCategory } : {}),
-            ...(authorUid ? { uid: String(authorUid) } : {}),
-          }}
+        />
+      ) : isFaq ? (
+        <section className="bg-white pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
+          <div className="store-shell">
+            <Reveal>
+              <BoardSectionHeading
+                eyebrow={title}
+                title={t.board.faqDirectory}
+                body={t.board.faqHint}
+                level="h1"
+              />
+            </Reveal>
+            <div className="mt-8 sm:mt-10">
+              <FaqExperience
+                items={faqItems}
+                searchPlaceholder={t.board.faqSearch}
+                emptyLabel={t.board.faqEmpty}
+                clearLabel={t.common.clearFilter}
+                answerLabel={t.board.faqAnswer}
+                questionsLabel={t.board.faqQuestions}
+                questionCountLabel={t.board.faqCount}
+                helpTitle={t.board.faqHelpTitle}
+                helpBody={t.board.faqHelpBody}
+                helpActionLabel={t.board.faqHelpAction}
+                helpHref="/services"
+              />
+            </div>
+          </div>
+        </section>
+      ) : isServices ? (
+        <EditorialBoard
+          menu={menu}
+          posts={posts}
+          locale={locale}
+          eyebrow={title}
+          featureTitle={t.board.featuredService}
+          featureBody={t.board.servicesHint}
+          directoryTitle={t.board.serviceDirectory}
+          directoryBody={t.board.servicesDirectoryHint}
+          showDate={false}
+          page={page}
+          totalPages={totalPages}
+          prevLabel={t.home.prev}
+          nextLabel={t.home.next}
+        />
+      ) : (
+        <EditorialBoard
+          menu={menu}
+          posts={posts}
+          locale={locale}
+          eyebrow={title}
+          featureTitle={t.board.latestNotice}
+          featureBody={t.board.noticeHint}
+          directoryTitle={t.board.allNotices}
+          directoryBody={t.board.noticeHint}
+          showDate
+          page={page}
+          totalPages={totalPages}
           prevLabel={t.home.prev}
           nextLabel={t.home.next}
         />
       )}
-
-      {!isNoticeBoard &&
-        !isEventsBoard &&
-        posts.length > 0 &&
-        posts.length < 8 && (
-          <section className="mt-8 flex flex-col items-start justify-between gap-5 rounded-[1.5rem] bg-primary-soft px-6 py-7 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="text-lg font-extrabold">{t.board.nextTitle}</h2>
-              <p className="mt-1 max-w-xl text-sm text-ink-soft">
-                {t.board.nextBody}
-              </p>
-            </div>
-            <div className="flex shrink-0 gap-2">
-              <Link href="/search" className="btn-secondary btn-md">
-                {t.common.search}
-              </Link>
-              <Link href="/signup" className="btn-primary btn-md">
-                {t.common.signUp}
-              </Link>
-            </div>
-          </section>
-        )}
     </div>
+  );
+}
+
+function EditorialBoard({
+  menu,
+  posts,
+  locale,
+  eyebrow,
+  featureTitle,
+  featureBody,
+  directoryTitle,
+  directoryBody,
+  showDate,
+  page,
+  totalPages,
+  prevLabel,
+  nextLabel,
+}: {
+  menu: Menu;
+  posts: PostTeaser[];
+  locale: Locale;
+  eyebrow: string;
+  featureTitle: string;
+  featureBody: string;
+  directoryTitle: string;
+  directoryBody: string;
+  showDate: boolean;
+  page: number;
+  totalPages: number;
+  prevLabel: string;
+  nextLabel: string;
+}) {
+  return (
+    <>
+      <section className="bg-white pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
+        <div className="store-shell">
+          <Reveal>
+            <BoardSectionHeading
+              eyebrow={eyebrow}
+              title={featureTitle}
+              level="h1"
+              body={featureBody}
+            />
+          </Reveal>
+          <div className="mt-8 sm:mt-10">
+            <EditorialFeatureCard
+              post={posts[0]}
+              href={`/${menu.slug}/${posts[0].id}`}
+              locale={locale}
+              eyebrow={eyebrow}
+              showDate={showDate}
+            />
+          </div>
+        </div>
+      </section>
+      <section className="bg-[#f5f5f7] py-16 sm:py-20 lg:py-24">
+        <div className="store-shell">
+          <Reveal>
+            <BoardSectionHeading
+              eyebrow={eyebrow}
+              title={directoryTitle}
+              body={directoryBody}
+            />
+          </Reveal>
+          <div className="mt-8 grid gap-5 sm:mt-10 lg:grid-cols-2">
+            {posts.slice(1).map((post) => (
+              <EditorialListCard
+                key={post.id}
+                post={post}
+                href={`/${menu.slug}/${post.id}`}
+                locale={locale}
+                showDate={showDate}
+              />
+            ))}
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            basePath={`/${menu.slug}`}
+            prevLabel={prevLabel}
+            nextLabel={nextLabel}
+          />
+        </div>
+      </section>
+    </>
+  );
+}
+
+function EmptyBoard({
+  eyebrow,
+  title,
+  body,
+  emptyTitle,
+  emptyHint,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  emptyTitle: string;
+  emptyHint: string;
+}) {
+  return (
+    <section className="bg-white pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
+      <div className="store-shell">
+        <Reveal>
+          <BoardSectionHeading
+            eyebrow={eyebrow}
+            title={title}
+            body={body}
+            level="h1"
+          />
+        </Reveal>
+        <div className="mt-8 rounded-[1.75rem] border border-line/70 bg-[#f5f5f7] px-6 py-14 shadow-[0_16px_50px_rgba(25,31,40,.05)] sm:mt-10 sm:px-10 sm:py-20">
+          <EmptyState title={emptyTitle} hint={emptyHint} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function EventsBoard({
+  menu,
+  posts,
+  locale,
+  labels,
+  t,
+  page,
+  totalPages,
+}: {
+  menu: Menu;
+  posts: PostTeaser[];
+  locale: Locale;
+  labels: {
+    ongoing: string;
+    upcoming: string;
+    ended: string;
+    venueTbd: string;
+  };
+  t: Awaited<ReturnType<typeof getT>>["t"];
+  page: number;
+  totalPages: number;
+}) {
+  const rank = (status: EventStatus | null) =>
+    status === "ongoing" ? 0 : status === "upcoming" ? 1 : 2;
+  const entries = posts
+    .map((post) => ({
+      post,
+      status: eventStatus(post.event_start, post.event_end),
+    }))
+    .sort((a, b) => {
+      const statusRank = rank(a.status) - rank(b.status);
+      if (statusRank !== 0) return statusRank;
+      return (a.post.event_start ?? "").localeCompare(
+        b.post.event_start ?? "",
+      );
+    });
+  const featured = entries[0];
+  const upcoming = entries.filter(
+    (entry) =>
+      entry.post.id !== featured.post.id && entry.status !== "ended",
+  );
+  const past = entries.filter((entry) => entry.status === "ended");
+
+  return (
+    <>
+      <section className="bg-white pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
+        <div className="store-shell">
+          <Reveal>
+            <BoardSectionHeading
+              eyebrow={menuTitle(menu, locale)}
+              title={t.board.featuredEvent}
+              body={t.board.eventsHint}
+              level="h1"
+              action={
+                <TextLink href={`/${menu.slug}/${featured.post.id}`}>
+                  {t.common.seeMore}
+                </TextLink>
+              }
+            />
+          </Reveal>
+          <div className="mt-8 sm:mt-10">
+            <EventSpotlightCard
+              post={featured.post}
+              href={`/${menu.slug}/${featured.post.id}`}
+              locale={locale}
+              labels={labels}
+              priority
+            />
+          </div>
+        </div>
+      </section>
+
+      {upcoming.length > 0 && (
+        <section className="bg-[#f5f5f7] py-16 sm:py-20 lg:py-24">
+          <div className="store-shell">
+            <Reveal>
+              <BoardSectionHeading
+                eyebrow={t.board.eventDirectory}
+                title={t.board.eventLiveGroup}
+                body={t.board.eventDirectoryHint}
+              />
+            </Reveal>
+            <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+              {upcoming.map(({ post }, index) => (
+                <EventCard
+                  key={post.id}
+                  post={post}
+                  href={`/${menu.slug}/${post.id}`}
+                  locale={locale}
+                  labels={labels}
+                  priority={index < 3}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {past.length > 0 && (
+        <section className="bg-white py-16 sm:py-20 lg:py-24">
+          <div className="store-shell">
+            <Reveal>
+              <BoardSectionHeading
+                eyebrow={t.board.eventDirectory}
+                title={t.board.eventPastGroup}
+                body={t.board.pastEventsHint}
+              />
+            </Reveal>
+            <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+              {past.map(({ post }) => (
+                <EventCard
+                  key={post.id}
+                  post={post}
+                  href={`/${menu.slug}/${post.id}`}
+                  locale={locale}
+                  labels={labels}
+                />
+              ))}
+            </div>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              basePath={`/${menu.slug}`}
+              prevLabel={t.home.prev}
+              nextLabel={t.home.next}
+            />
+          </div>
+        </section>
+      )}
+    </>
   );
 }

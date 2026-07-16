@@ -1,3 +1,4 @@
+import { Suspense, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
@@ -6,54 +7,89 @@ import { Carousel } from "@/components/ui/Carousel";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EventCard } from "@/components/marketplace/EventCard";
+import { CollectionLeadCard } from "@/components/marketplace/CollectionLeadCard";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
 import { postMediaUrl } from "@/lib/media";
-import { stripRichText } from "@/lib/richtext";
 import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
 import type { Menu, PostTeaser } from "@/lib/types";
 import { listFeed } from "@/lib/data/feed";
 import { FeedCard } from "@/components/feed/FeedCard";
 import { getFeedCardLabels } from "@/lib/i18n/feed";
+import { LandingPageSkeleton } from "@/components/landing/LandingPageSkeleton";
+import { OpportunityCard } from "@/components/landing/OpportunityCard";
+
+const MARKET_IMAGES = [
+  "/landing-v2/market-rail-commercial.jpg",
+  "/landing-v2/market-rail-industrial.jpg",
+  "/landing-v2/market-rail-epc.jpg",
+];
+
+// Landing card family. Desktop dimensions and the shared 28px content inset
+// are intentionally fixed so every rail keeps one predictable visual rhythm.
+const LANDING_CARD_FAMILY = {
+  featured: "store-card-featured",
+  collectionLead: "store-card-collection-lead",
+  collectionItem: "store-card-collection-item",
+  process: "store-card-process",
+  opportunity: "store-card-featured",
+  showcase: "store-card-showcase",
+  calendar: "store-card-calendar",
+  network: "store-card-network",
+} as const;
 
 async function getStorefront(
   eventsMenuId: string | null,
   featuredSlots: number,
+  marketMenuIds: string[],
 ) {
   const supabase = await createClient();
-  const [products, requests, events, featured] = await Promise.all([
-    supabase
-      .from("public_posts")
-      .select("*")
-      .eq("type", BOARD_TYPES.PRODUCT)
-      .order("published_at", { ascending: false })
-      .limit(8),
-    supabase
-      .from("public_posts")
-      .select("*")
-      .eq("type", BOARD_TYPES.REQUEST)
-      .order("published_at", { ascending: false })
-      .limit(4),
-    eventsMenuId
-      ? supabase
-          .from("public_posts")
-          .select("*")
-          .eq("menu_id", eventsMenuId)
-          .order("published_at", { ascending: false })
-          .limit(2)
-      : Promise.resolve({ data: [] }),
-    supabase
-      .from("mini_homepages")
-      .select(
-        "slug, cover_image_path, intro_en, intro_ko, profiles(display_name, company_name)",
-      )
-      .eq("is_published", true)
-      .order("updated_at", { ascending: false })
-      .limit(featuredSlots),
-  ]);
+  const [products, requests, events, featured, marketRailEntries] =
+    await Promise.all([
+      supabase
+        .from("public_posts")
+        .select("*")
+        .eq("type", BOARD_TYPES.PRODUCT)
+        .order("published_at", { ascending: false })
+        .limit(8),
+      supabase
+        .from("public_posts")
+        .select("*")
+        .eq("type", BOARD_TYPES.REQUEST)
+        .order("published_at", { ascending: false })
+        .limit(4),
+      eventsMenuId
+        ? supabase
+            .from("public_posts")
+            .select("*")
+            .eq("menu_id", eventsMenuId)
+            .order("published_at", { ascending: false })
+            .limit(2)
+        : Promise.resolve({ data: [] }),
+      supabase
+        .from("mini_homepages")
+        .select(
+          "slug, cover_image_path, intro_en, intro_ko, profiles(display_name, company_name)",
+        )
+        .eq("is_published", true)
+        .order("updated_at", { ascending: false })
+        .limit(featuredSlots),
+      Promise.all(
+        marketMenuIds.map(async (menuId) => {
+          const { data } = await supabase
+            .from("public_posts")
+            .select("*")
+            .eq("menu_id", menuId)
+            .order("published_at", { ascending: false })
+            .limit(6);
+          return [menuId, (data as PostTeaser[]) ?? []] as const;
+        }),
+      ),
+    ]);
+
   return {
     products: (products.data as PostTeaser[]) ?? [],
     requests: (requests.data as PostTeaser[]) ?? [],
@@ -68,24 +104,74 @@ async function getStorefront(
         company_name: string | null;
       } | null;
     }[],
+    marketPostsByMenu: Object.fromEntries(marketRailEntries) as Record<
+      string,
+      PostTeaser[]
+    >,
   };
 }
 
-function Arrow() {
+function Arrow({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-4 w-4"
+      className={className}
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
     >
       <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   );
 }
 
-export default async function Home() {
+function SectionHeading({
+  eyebrow,
+  title,
+  body,
+  action,
+}: {
+  eyebrow: string;
+  title: string;
+  body?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex items-end justify-between gap-6">
+      <div className="min-w-0 max-w-5xl">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
+          {eyebrow}
+        </p>
+        <h2 className="mt-3 text-[2rem] font-semibold leading-[1.08] tracking-[-.035em] text-ink sm:text-[2.5rem] lg:text-5xl">
+          {title}
+        </h2>
+        {body && (
+          <p className="mt-4 text-base leading-7 text-ink-soft sm:text-lg sm:leading-8 lg:whitespace-nowrap">
+            {body}
+          </p>
+        )}
+      </div>
+      {action && <div className="hidden shrink-0 sm:block">{action}</div>}
+    </div>
+  );
+}
+
+function TextLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex min-h-11 items-center gap-2 rounded-full px-1 text-sm font-semibold text-primary transition-colors hover:text-primary-strong"
+    >
+      {children}
+      <Arrow />
+    </Link>
+  );
+}
+
+async function LandingContent() {
   const [{ t, locale }, menus, session, settings] = await Promise.all([
     getT(),
     getVisibleMenus(),
@@ -99,18 +185,23 @@ export default async function Home() {
   const firstProductBoard =
     menus.find((menu) => menu.board_type === BOARD_TYPES.PRODUCT)?.slug ??
     "industrial";
+  const marketRailMenus = ["commercial", "industrial", "epc"]
+    .map((slug) => menus.find((menu) => menu.slug === slug))
+    .filter((menu): menu is Menu => Boolean(menu));
   const [storefront, feedItems] = await Promise.all([
     getStorefront(
       eventsMenu?.id ?? null,
       settingNumber(settings, SETTING_KEYS.FEATURED_SLOTS, 6),
+      marketRailMenus.map((menu) => menu.id),
     ),
-    listFeed({ limit: 3 }),
+    listFeed({ limit: 8 }),
   ]);
-  const { products, requests, events, featured } = storefront;
+  const { products, requests, events, featured, marketPostsByMenu } =
+    storefront;
   const menuSlugById = new Map<string, string>(
     menus.map((menu: Menu) => [menu.id, menu.slug]),
   );
-  const container = "mx-auto w-full max-w-7xl px-5 sm:px-8";
+  const container = "store-shell";
   const steps = [
     { n: "01", title: t.home.step1Title, body: t.home.step1Body },
     { n: "02", title: t.home.step2Title, body: t.home.step2Body },
@@ -127,13 +218,33 @@ export default async function Home() {
     ended: t.board.eventEnded,
     venueTbd: t.board.eventVenueTbd,
   };
+  const marketRailCopy: Record<
+    string,
+    { tagline: string; title: string; body: string; image: string }
+  > = {
+    commercial: {
+      tagline: t.home.commercialRailTagline,
+      title: t.home.commercialRailTitle,
+      body: t.home.commercialRailBody,
+      image: MARKET_IMAGES[0],
+    },
+    industrial: {
+      tagline: t.home.industrialRailTagline,
+      title: t.home.industrialRailTitle,
+      body: t.home.industrialRailBody,
+      image: MARKET_IMAGES[1],
+    },
+    epc: {
+      tagline: t.home.epcRailTagline,
+      title: t.home.epcRailTitle,
+      body: t.home.epcRailBody,
+      image: MARKET_IMAGES[2],
+    },
+  };
 
   return (
     <>
-      {/* RouteChrome hides the layout header on "/"; render the shared header
-          here in its overlay tone. Must stay outside the overflow-hidden page
-          root or position:sticky stops working. */}
-      <Header variant="overlay" />
+      <Header />
       <div className="full-bleed overflow-hidden bg-white">
         <JsonLd
           data={[
@@ -158,118 +269,81 @@ export default async function Home() {
           ]}
         />
 
-        {/* ── Hero ─────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden bg-[#0b1220] text-white">
-          <Image
-            src="/landing-v2/hero-global-collaboration.jpg"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(104deg,rgba(8,13,20,.97)_0%,rgba(8,13,20,.9)_36%,rgba(8,13,20,.45)_72%,rgba(8,13,20,.6)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(49,110,246,.28),transparent_46%)]" />
-          <div
-            className={`${container} relative flex min-h-[42rem] flex-col justify-center pb-24 pt-32 sm:min-h-[46rem] lg:min-h-[48rem]`}
-          >
-            <div className="animate-fade-up max-w-3xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[.16em] text-white/80 backdrop-blur">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6ea8ff] opacity-70" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#6ea8ff]" />
-                </span>
-                {t.home.eyebrow}
-              </span>
-              <h1 className="mt-6 text-[2.7rem] font-extrabold leading-[1.03] tracking-[-.05em] sm:text-6xl lg:text-[4.6rem]">
-                {t.home.heroTitle}
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-7 text-white/70 sm:text-lg">
-                {t.home.heroSubtitle}
-              </p>
-              <form
-                action="/search"
-                className="mt-9 flex max-w-xl items-center rounded-2xl border border-white/10 bg-white p-2 shadow-[0_20px_60px_rgba(0,0,0,.35)]"
-              >
-                <svg
-                  className="ml-3 h-5 w-5 shrink-0 text-ink-faint"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
-                <input
-                  name="q"
-                  type="search"
-                  aria-label={t.home.searchPlaceholder}
-                  placeholder={t.home.searchPlaceholder}
-                  className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-ink-faint"
+        <section className="bg-[#f5f5f7] py-6 sm:py-10 lg:py-12">
+          <div className={container}>
+            <Reveal>
+              <div className="relative min-h-[34rem] overflow-hidden rounded-[2rem] bg-[#07111f] text-white shadow-[0_28px_80px_rgba(7,17,31,.18)] sm:min-h-[38rem] lg:min-h-[42rem] lg:rounded-[2.5rem]">
+                <Image
+                  src="/landing-v2/hero-global-collaboration.jpg"
+                  alt=""
+                  fill
+                  priority
+                  sizes="85.5vw"
+                  className="object-cover object-[64%_center]"
                 />
-                <button className="btn-primary btn-md shrink-0" type="submit">
-                  {t.home.searchAction}
-                </button>
-              </form>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {menus.slice(0, 6).map((menu) => (
-                  <Link
-                    key={menu.id}
-                    href={`/${menu.slug}`}
-                    className="rounded-full border border-white/15 bg-white/6 px-3.5 py-1.5 text-xs font-semibold text-white/75 backdrop-blur transition hover:border-white/40 hover:bg-white/12 hover:text-white"
-                  >
-                    {menuTitle(menu, locale)}
-                  </Link>
-                ))}
+                <div
+                  className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,12,22,.98)_0%,rgba(5,12,22,.91)_30%,rgba(5,12,22,.48)_57%,rgba(5,12,22,.12)_100%)] max-lg:bg-[linear-gradient(180deg,rgba(5,12,22,.25)_0%,rgba(5,12,22,.6)_45%,rgba(5,12,22,.98)_100%)]"
+                  aria-hidden="true"
+                />
+                <div className="relative flex min-h-[34rem] items-end p-7 sm:min-h-[38rem] sm:p-11 lg:min-h-[42rem] lg:items-center lg:p-16 xl:p-[4.5rem]">
+                  <div className="max-w-[43rem]">
+                    <p className="text-xs font-bold uppercase tracking-[.17em] text-[#78b5ff]">
+                      {t.home.eyebrow}
+                    </p>
+                    <h1 className="mt-5 max-w-[11ch] text-[3.25rem] font-semibold leading-[.94] tracking-[-.055em] text-white sm:text-[4.4rem] lg:text-[5.25rem]">
+                      {t.home.heroTitle}
+                    </h1>
+                    <p className="mt-6 max-w-[39rem] text-base leading-7 text-white/74 sm:text-lg sm:leading-8">
+                      {t.home.heroSubtitle}
+                    </p>
+                    <div className="mt-8 flex flex-wrap items-center gap-3">
+                      <Link
+                        href={`/${firstProductBoard}`}
+                        className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-white/90"
+                      >
+                        {t.home.browseBoards}
+                        <Arrow />
+                      </Link>
+                      {requestsMenu && (
+                        <Link
+                          href={`/${requestsMenu.slug}`}
+                          className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/28 bg-white/8 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/14"
+                        >
+                          {t.home.browseRequests}
+                          <Arrow />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3">
-                {[t.home.stat2, t.home.stat3].map((item) => (
-                  <span
-                    key={item}
-                    className="flex items-center gap-2 text-xs font-semibold text-white/58"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#6ea8ff]" />
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
+            </Reveal>
           </div>
         </section>
 
-        {/* ── New arrivals ─────────────────────────────────────── */}
         {products.length > 0 && (
-          <section className="bg-[#f6f8fa]">
-            <div className={`${container} py-20 sm:py-24`}>
+          <section className="bg-[#f5f5f7] py-20 sm:py-28 lg:py-32">
+            <div className={container}>
               <Reveal>
+                <SectionHeading
+                  eyebrow={t.home.eyebrowBrowse}
+                  title={t.home.newProducts}
+                  body={t.home.newProductsBody}
+                  action={
+                    <TextLink href={`/${firstProductBoard}`}>
+                      {t.dashboard.viewAll}
+                    </TextLink>
+                  }
+                />
+              </Reveal>
+              <div className="mt-10 lg:mt-12">
                 <Carousel
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
-                  header={
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                        {t.footer.marketplace}
-                      </p>
-                      <h2 className="mt-3 text-3xl font-extrabold tracking-[-.035em] sm:text-4xl">
-                        {t.home.newProducts}
-                      </h2>
-                    </div>
-                  }
-                  action={
-                    <Link
-                      href={`/${firstProductBoard}`}
-                      className="text-sm font-bold text-primary hover:text-primary-strong"
-                    >
-                      {t.dashboard.viewAll}
-                    </Link>
-                  }
+                  edgeToEdge
                 >
                   {products.map((post, index) => (
-                    <div
-                      key={post.id}
-                      className="w-[72vw] max-w-72 shrink-0 snap-start sm:w-64 lg:w-72"
-                    >
+                    <div key={post.id} className={LANDING_CARD_FAMILY.featured}>
                       <ProductCard
                         post={post}
                         href={`/${menuSlugById.get(post.menu_id) ?? firstProductBoard}/${post.id}`}
@@ -280,84 +354,217 @@ export default async function Home() {
                     </div>
                   ))}
                 </Carousel>
-              </Reveal>
+              </div>
+              <div className="mt-7 sm:hidden">
+                <TextLink href={`/${firstProductBoard}`}>
+                  {t.dashboard.viewAll}
+                </TextLink>
+              </div>
+
+              <div className="mt-20 space-y-20 sm:mt-28 sm:space-y-28">
+                {marketRailMenus.map((menu) => {
+                  const copy = marketRailCopy[menu.slug];
+                  const menuPosts = marketPostsByMenu[menu.id] ?? [];
+                  if (!copy || menuPosts.length === 0) return null;
+                  const title = menuTitle(menu, locale);
+
+                  return (
+                    <div key={menu.id}>
+                      <Reveal>
+                        <SectionHeading
+                          eyebrow={title}
+                          title={copy.title}
+                          body={copy.tagline}
+                          action={
+                            <TextLink href={`/${menu.slug}`}>
+                              {t.dashboard.viewAll}
+                            </TextLink>
+                          }
+                        />
+                      </Reveal>
+
+                      <div className="mt-10 sm:mt-12">
+                        <Carousel
+                          prevLabel={t.home.prev}
+                          nextLabel={t.home.next}
+                          edgeToEdge
+                        >
+                          <div className={LANDING_CARD_FAMILY.collectionLead}>
+                            <CollectionLeadCard
+                              href={`/${menu.slug}`}
+                              image={copy.image}
+                              eyebrow={title}
+                              title={copy.title}
+                              body={copy.body}
+                              actionLabel={t.home.exploreCollection}
+                            />
+                          </div>
+                          {menuPosts.map((post) => (
+                            <div
+                              key={post.id}
+                              className={LANDING_CARD_FAMILY.collectionItem}
+                            >
+                              <ProductCard
+                                post={post}
+                                href={`/${menu.slug}/${post.id}`}
+                                locale={locale}
+                                feature
+                                compactFeature
+                              />
+                            </div>
+                          ))}
+                        </Carousel>
+                      </div>
+                      <div className="mt-5 sm:hidden">
+                        <TextLink href={`/${menu.slug}`}>
+                          {t.dashboard.viewAll}
+                        </TextLink>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </section>
         )}
 
-        {/* ── How it works + trust values ──────────────────────── */}
-        <section className={`${container} py-20 sm:py-24`}>
-          <Reveal>
-            <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                {t.home.howItWorksTitle}
-              </p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-[-.04em] sm:text-5xl">
-                {t.home.valueTitle}
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-ink-soft">
-                {t.home.heroSubtitle}
-              </p>
-            </div>
-          </Reveal>
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
-            {steps.map((step, i) => (
-              <Reveal key={step.title} delay={i * 70}>
-                <div className="group h-full rounded-[1.5rem] border border-line/80 bg-white p-7 shadow-(--shadow-card) transition hover:-translate-y-1 hover:shadow-(--shadow-float)">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-sm font-extrabold text-white">
-                      {step.n}
-                    </span>
-                    {i < steps.length - 1 && (
-                      <span className="h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent" />
-                    )}
-                  </div>
-                  <h3 className="mt-6 text-lg font-extrabold">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-ink-soft">
-                    {step.body}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-          <div className="mt-4 grid gap-4 rounded-[1.5rem] border border-line/70 bg-surface-sub/50 p-5 sm:grid-cols-3 sm:p-7">
-            {values.map((value, i) => (
-              <Reveal key={value.title} delay={i * 60}>
-                <div className="flex gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-positive-soft text-[11px] font-black text-positive"
+        <section className="bg-white py-20 sm:py-28 lg:py-32">
+          <div className={container}>
+            <Reveal>
+              <SectionHeading
+                eyebrow={t.home.howItWorksTitle}
+                title={t.home.valueTitle}
+              />
+            </Reveal>
+            <div className="mt-10 sm:mt-12">
+              <Carousel
+                prevLabel={t.home.prev}
+                nextLabel={t.home.next}
+                edgeToEdge
+              >
+                {steps.map((step, index) => (
+                  <Reveal
+                    key={step.title}
+                    delay={index * 70}
+                    className={LANDING_CARD_FAMILY.process}
                   >
-                    ✓
-                  </span>
-                  <div>
-                    <h3 className="text-sm font-extrabold">{value.title}</h3>
-                    <p className="mt-1 text-xs leading-6 text-ink-soft">
-                      {value.body}
-                    </p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
+                    <article className="store-card-interactive group relative flex h-full w-full flex-col overflow-hidden rounded-[1.5rem] bg-[#111827] text-white">
+                      <Image
+                        src={MARKET_IMAGES[index % MARKET_IMAGES.length]}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1024px) 82vw, 30rem"
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/62 via-black/12 to-black/68" />
+                      <div className="relative flex h-full flex-col p-7">
+                        <span className="text-xs font-bold tracking-[.14em] text-white/68">
+                          {step.n}
+                        </span>
+                        <h3 className="mt-4 max-w-xs text-3xl font-semibold leading-[1.08] tracking-[-.035em]">
+                          {step.title}
+                        </h3>
+                        <p className="mt-3 max-w-sm text-sm leading-6 text-white/78 sm:text-base sm:leading-7">
+                          {step.body}
+                        </p>
+                        <div className="mt-auto rounded-2xl border border-white/15 bg-black/22 p-4 backdrop-blur-md">
+                          <p className="text-sm font-semibold">
+                            {values[index].title}
+                          </p>
+                          <p className="mt-1.5 text-xs leading-5 text-white/70">
+                            {values[index].body}
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                  </Reveal>
+                ))}
+              </Carousel>
+            </div>
           </div>
         </section>
 
-        {/* ── Featured companies + Events ──────────────────────── */}
-        {(featured.length > 0 || events.length > 0) && (
-          <section className="bg-[#f6f8fa]">
-            <div className={`${container} grid gap-12 py-20 sm:py-24 lg:grid-cols-2`}>
+        {requestsMenu && requests.length > 0 && (
+          <section className="bg-[#f5f5f7] py-20 sm:py-28 lg:py-32">
+            <div className={container}>
+              <Reveal>
+                <SectionHeading
+                  eyebrow={t.home.eyebrowRequests}
+                  title={t.home.latestRequests}
+                  body={t.home.step2Body}
+                  action={
+                    <TextLink href={`/${requestsMenu.slug}`}>
+                      {t.dashboard.viewAll}
+                    </TextLink>
+                  }
+                />
+              </Reveal>
+              <div className="mt-10 sm:mt-12">
+                <Carousel
+                  prevLabel={t.home.prev}
+                  nextLabel={t.home.next}
+                  edgeToEdge
+                >
+                  <div className={LANDING_CARD_FAMILY.collectionLead}>
+                    <CollectionLeadCard
+                      href={`/${requestsMenu.slug}`}
+                      image="/landing-v2/precision-manufacturing.jpg"
+                      eyebrow={t.home.eyebrowRequests}
+                      title={t.home.step2Title}
+                      body={t.home.value2Body}
+                      actionLabel={t.dashboard.viewAll}
+                    />
+                  </div>
+                  {requests.map((post, index) => (
+                    <Reveal
+                      key={post.id}
+                      delay={index * 55}
+                      className={LANDING_CARD_FAMILY.opportunity}
+                    >
+                      <OpportunityCard
+                        post={post}
+                        href={`/${requestsMenu.slug}/${post.id}`}
+                        locale={locale}
+                        labels={{
+                          open: t.post.open,
+                          closed: t.post.closed,
+                          openEnded: t.post.openEnded,
+                          deadline: t.post.deadline,
+                          sourcingRequest: t.post.sourcingRequest,
+                        }}
+                      />
+                    </Reveal>
+                  ))}
+                </Carousel>
+              </div>
+              <div className="mt-7 sm:hidden">
+                <TextLink href={`/${requestsMenu.slug}`}>
+                  {t.dashboard.viewAll}
+                </TextLink>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {(featured.length > 0 || (events.length > 0 && eventsMenu)) && (
+          <section className="bg-white py-20 sm:py-28 lg:py-32">
+            <div className={container}>
+              <Reveal>
+                <SectionHeading
+                  eyebrow={t.home.eyebrowShowcase}
+                  title={t.home.featured}
+                  body={t.home.promoBody}
+                />
+              </Reveal>
+
               {featured.length > 0 && (
-                <div>
-                  <Reveal>
-                    <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                      {t.home.eyebrowShowcase}
-                    </p>
-                    <h2 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
-                      {t.home.featured}
-                    </h2>
-                  </Reveal>
-                  <div className="mt-8 space-y-3">
-                    {featured.slice(0, 3).map((company, i) => {
+                <div className="mt-10 sm:mt-12">
+                  <Carousel
+                    prevLabel={t.home.prev}
+                    nextLabel={t.home.next}
+                    edgeToEdge
+                  >
+                    {featured.slice(0, 6).map((company, index) => {
                       const name =
                         company.profiles?.company_name ??
                         company.profiles?.display_name ??
@@ -367,70 +574,85 @@ export default async function Home() {
                           ? company.intro_ko
                           : company.intro_en;
                       return (
-                        <Reveal key={company.slug} delay={i * 60}>
+                        <Reveal
+                          key={company.slug}
+                          delay={(index % 3) * 55}
+                          className={LANDING_CARD_FAMILY.showcase}
+                        >
                           <Link
                             href={`/c/${company.slug}`}
-                            className="group flex gap-4 rounded-2xl border border-line/80 bg-white p-3 transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-(--shadow-card)"
+                            className="store-card-interactive group relative flex h-full w-full flex-col overflow-hidden rounded-[1.5rem] bg-[#111827] text-white focus:outline-none"
                           >
-                            <div className="relative h-24 w-28 shrink-0 overflow-hidden rounded-xl bg-surface-sub">
-                              {company.cover_image_path && (
-                                <Image
-                                  src={postMediaUrl(company.cover_image_path)}
-                                  alt={name}
-                                  fill
-                                  sizes="112px"
-                                  className="object-cover transition-transform group-hover:scale-105"
-                                />
-                              )}
-                            </div>
-                            <div className="min-w-0 py-2">
-                              <p className="truncate text-base font-extrabold group-hover:text-primary">
+                            <Image
+                              src={
+                                company.cover_image_path
+                                  ? postMediaUrl(company.cover_image_path)
+                                  : MARKET_IMAGES[index % MARKET_IMAGES.length]
+                              }
+                              alt={name}
+                              fill
+                              sizes="(max-width: 734px) 82vw, 400px"
+                              className="object-cover"
+                            />
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/12 to-black/72" />
+                            <div className="relative flex h-full flex-col p-7">
+                              <p className="text-xs font-bold uppercase tracking-[.14em] text-white/68">
+                                {t.home.eyebrowShowcase}
+                              </p>
+                              <h3 className="mt-4 line-clamp-2 max-w-xs text-3xl font-semibold leading-[1.08] tracking-[-.035em] text-white">
                                 {name}
-                              </p>
-                              <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink-soft">
-                                {intro}
-                              </p>
+                              </h3>
+                              <div className="mt-auto flex min-h-[4.625rem] items-center rounded-2xl border border-white/20 bg-black/30 p-4 backdrop-blur-md">
+                                <p className="line-clamp-2 text-xs leading-5 text-white/80">
+                                  {intro}
+                                </p>
+                              </div>
                             </div>
                           </Link>
                         </Reveal>
                       );
                     })}
-                  </div>
+                  </Carousel>
                 </div>
               )}
+
               {events.length > 0 && eventsMenu && (
-                <div>
+                <div className="mt-20 border-t border-line/80 pt-14 sm:mt-24 sm:pt-16">
                   <Reveal>
-                    <div className="flex items-end justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                          {t.board.eventsEyebrow}
-                        </p>
-                        <h2 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
-                          {t.home.eventsTitle}
-                        </h2>
-                      </div>
-                      <Link
-                        href={`/${eventsMenu.slug}`}
-                        className="flex shrink-0 items-center gap-2 text-sm font-bold text-primary"
-                      >
-                        {t.dashboard.viewAll}
-                        <Arrow />
-                      </Link>
-                    </div>
+                    <SectionHeading
+                      eyebrow={t.board.eventsEyebrow}
+                      title={t.home.eventsTitle}
+                      body={t.board.eventsHint}
+                      action={
+                        <TextLink href={`/${eventsMenu.slug}`}>
+                          {t.dashboard.viewAll}
+                        </TextLink>
+                      }
+                    />
                   </Reveal>
-                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                    {events.map((post, i) => (
-                      <Reveal key={post.id} delay={i * 70}>
-                        <EventCard
-                          post={post}
-                          href={`/${eventsMenu.slug}/${post.id}`}
-                          locale={locale}
-                          labels={eventCardLabels}
-                          priority={i < 2}
-                        />
-                      </Reveal>
-                    ))}
+                  <div className="mt-10">
+                    <Carousel
+                      prevLabel={t.home.prev}
+                      nextLabel={t.home.next}
+                      edgeToEdge
+                    >
+                      {events.map((post, index) => (
+                        <Reveal
+                          key={post.id}
+                          delay={index * 70}
+                          className={LANDING_CARD_FAMILY.calendar}
+                        >
+                          <EventCard
+                            post={post}
+                            href={`/${eventsMenu.slug}/${post.id}`}
+                            locale={locale}
+                            labels={eventCardLabels}
+                            priority={index < 2}
+                            feature
+                          />
+                        </Reveal>
+                      ))}
+                    </Carousel>
                   </div>
                 </div>
               )}
@@ -438,169 +660,93 @@ export default async function Home() {
           </section>
         )}
 
-        {/* ── B2BB2G Network (kept as-is) ──────────────────────── */}
         {feedItems.length > 0 && (
-          <section className="bg-[#f4f7fb] py-24">
+          <section className="bg-[#f5f5f7] py-20 sm:py-28 lg:py-32">
             <div className={container}>
-              <div className="flex items-end justify-between gap-5">
-                <Reveal>
-                  <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
-                    {t.feed.title}
-                  </p>
-                  <h2 className="mt-3 text-3xl font-extrabold tracking-tight">
-                    {t.home.feedTitle}
-                  </h2>
-                  <p className="mt-3 max-w-xl text-sm leading-7 text-ink-soft">
-                    {t.home.feedBody}
-                  </p>
-                </Reveal>
-                <Link href="/feed" className="btn-secondary btn-md shrink-0">
-                  {t.dashboard.viewAll} →
-                </Link>
-              </div>
-              <div className="mt-8 grid gap-4 lg:grid-cols-3">
-                {feedItems.map((item) => (
-                  <FeedCard
-                    key={item.id}
-                    item={item}
-                    viewerId={session.userId}
-                    returnTo="/"
-                    compact
-                    labels={getFeedCardLabels(t, locale)}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── Live sourcing requests ───────────────────────────── */}
-        {requestsMenu && requests.length > 0 && (
-          <section className="bg-[#0b1220] text-white">
-            <div
-              className={`${container} grid gap-12 py-20 sm:py-24 lg:grid-cols-[.7fr_1.3fr]`}
-            >
               <Reveal>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[.18em] text-[#6ea8ff]">
-                    {t.home.eyebrowRequests}
-                  </p>
-                  <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                    {t.home.latestRequests}
-                  </h2>
-                  <p className="mt-4 max-w-sm text-sm leading-7 text-white/55">
-                    {t.home.step2Body}
-                  </p>
-                  <Link
-                    href={`/${requestsMenu.slug}`}
-                    className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#79adff]"
-                  >
-                    {t.dashboard.viewAll}
-                    <Arrow />
-                  </Link>
-                </div>
+                <SectionHeading
+                  eyebrow={t.feed.title}
+                  title={t.home.feedTitle}
+                  body={t.home.feedBody}
+                  action={
+                    <TextLink href="/feed">{t.dashboard.viewAll}</TextLink>
+                  }
+                />
               </Reveal>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {requests.map((post, i) => (
-                  <Reveal key={post.id} delay={(i % 2) * 60}>
-                    <Link
-                      href={`/${requestsMenu.slug}/${post.id}`}
-                      className="block h-full rounded-2xl border border-white/10 bg-white/6 p-5 transition hover:-translate-y-1 hover:bg-white/10"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="line-clamp-2 text-sm font-extrabold">
-                          {locale === "ko" && post.title_ko
-                            ? post.title_ko
-                            : post.title_en}
-                        </p>
-                        <span className="shrink-0 rounded-full bg-[#1b64da]/25 px-2.5 py-1 text-[10px] font-bold text-[#86b5ff]">
-                          {t.post.open}
-                        </span>
-                      </div>
-                      <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-white/52">
-                        {stripRichText(
-                          locale === "ko" && post.body_teaser_ko
-                            ? post.body_teaser_ko
-                            : post.body_teaser_en,
-                        )}
-                      </p>
-                    </Link>
-                  </Reveal>
-                ))}
+              <div className="mt-10 lg:mt-12">
+                <Carousel
+                  prevLabel={t.home.prev}
+                  nextLabel={t.home.next}
+                  edgeToEdge
+                >
+                  {feedItems.map((item) => (
+                    <div key={item.id} className={LANDING_CARD_FAMILY.network}>
+                      <FeedCard
+                        item={item}
+                        viewerId={session.userId}
+                        returnTo="/"
+                        compact
+                        className="store-card-interactive flex h-full flex-col"
+                        labels={getFeedCardLabels(t, locale)}
+                      />
+                    </div>
+                  ))}
+                </Carousel>
+              </div>
+              <div className="mt-7 sm:hidden">
+                <TextLink href="/feed">{t.dashboard.viewAll}</TextLink>
               </div>
             </div>
           </section>
         )}
 
-        {/* ── Closing CTA (visitors only) ──────────────────────── */}
         {!session.userId && (
-          <section className={`${container} py-20 sm:py-24`}>
-            <Reveal>
-              <div className="relative overflow-hidden rounded-[2rem] bg-[#101923] text-white shadow-[0_30px_90px_rgba(16,25,35,.2)]">
-                <div className="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-primary/35 blur-3xl" />
-                <div className="grid lg:grid-cols-[1.15fr_.85fr]">
-                  <div className="relative px-7 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-                    <p className="text-xs font-bold uppercase tracking-[.18em] text-[#79adff]">
+          <section className="bg-white py-20 sm:py-28 lg:py-32">
+            <div className={container}>
+              <Reveal>
+                <div className="relative overflow-hidden rounded-[2rem] bg-[#0a58ca] px-6 py-16 text-center text-white shadow-[0_22px_70px_rgba(10,88,202,.24)] sm:px-12 sm:py-20 lg:rounded-[2.5rem] lg:py-24">
+                  <div className="absolute -right-24 -top-36 h-96 w-96 rounded-full border-[4rem] border-white/8" />
+                  <div className="absolute -bottom-44 -left-20 h-96 w-96 rounded-full border-[4rem] border-white/6" />
+                  <div className="relative mx-auto max-w-4xl">
+                    <p className="text-sm font-semibold text-white/72">
                       {t.home.eyebrow}
                     </p>
-                    <h2 className="mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">
+                    <h2 className="mt-4 text-4xl font-semibold leading-[1.04] tracking-[-.045em] sm:text-6xl lg:text-7xl">
                       {t.home.finalCtaTitle}
                     </h2>
-                    <p className="mt-5 max-w-xl text-sm leading-7 text-white/65">
+                    <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/76 sm:text-lg sm:leading-8">
                       {t.home.finalCtaBody}
                     </p>
-                    <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                       <Link
-                        href="/signup"
-                        className="btn btn-lg rounded-full bg-white px-7 text-ink hover:bg-white/90"
+                        href={`/${firstProductBoard}`}
+                        className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-primary transition hover:bg-white/92"
                       >
-                        {t.common.signUp}
+                        {t.home.browseBoards}
                         <Arrow />
                       </Link>
                       <Link
                         href="/login"
-                        className="btn btn-lg rounded-full border border-white/20 px-7 text-white hover:bg-white/10"
+                        className="inline-flex min-h-12 items-center rounded-full border border-white/28 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                       >
                         {t.common.signIn}
                       </Link>
                     </div>
                   </div>
-                <div className="relative m-4 min-h-72 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/6 p-6 lg:m-5 lg:p-8">
-                  <div className="absolute inset-0 [background:radial-gradient(circle_at_80%_15%,rgba(49,130,246,.35),transparent_35%)]" />
-                  <div className="relative flex h-full flex-col justify-between">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-[.16em] text-white/45">
-                        {t.home.howItWorksTitle}
-                      </span>
-                      <span className="h-2 w-2 animate-pulse rounded-full bg-[#72e3b2]" />
-                    </div>
-                    <div className="space-y-3">
-                      {steps.map((step, index) => (
-                        <div
-                          key={step.title}
-                          className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/7 p-3 backdrop-blur"
-                        >
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-[10px] font-extrabold text-[#8ab9ff]">
-                            {step.n}
-                          </span>
-                          <span className="text-sm font-bold">{step.title}</span>
-                          {index < steps.length - 1 && (
-                            <span className="ml-auto text-white/25">↓</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-xs leading-5 text-white/40">
-                      {t.home.proofLabel}
-                    </p>
-                  </div>
                 </div>
-              </div>
+              </Reveal>
             </div>
-          </Reveal>
-        </section>
+          </section>
         )}
       </div>
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<LandingPageSkeleton />}>
+      <LandingContent />
+    </Suspense>
   );
 }

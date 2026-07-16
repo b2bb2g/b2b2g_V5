@@ -28,6 +28,25 @@ export async function listPostsForMenu(
   };
 }
 
+export async function listPostHighlights(
+  menuId: string,
+  categoryId?: string,
+  authorUid?: number,
+  limit = 12,
+): Promise<PostTeaser[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("public_posts")
+    .select("*")
+    .eq("menu_id", menuId)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (categoryId) query = query.eq("category_id", categoryId);
+  if (authorUid) query = query.eq("author_uid", authorUid);
+  const { data } = await query;
+  return (data as PostTeaser[]) ?? [];
+}
+
 export async function getPostTeaser(
   postId: string,
 ): Promise<PostTeaser | null> {

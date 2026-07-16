@@ -38,7 +38,7 @@ export async function Footer() {
 
   return (
     <footer className="site-footer mt-auto bg-[#0b1220] text-white">
-      <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
+      <div className="site-shell">
         <div className="grid gap-10 border-b border-white/10 py-12 sm:py-16 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div className="max-w-xs">
             <Link href="/" className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export async function Footer() {
 
         <div className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-white/50">{t.footer.copyright}</p>
-          <p className="text-xs font-semibold uppercase tracking-[.16em] text-white/35">
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-white/60">
             {t.home.eyebrow}
           </p>
         </div>

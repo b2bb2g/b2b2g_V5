@@ -79,12 +79,14 @@ export function FeedCard({
   labels,
   compact = false,
   detail = false,
+  className = "",
 }: {
   item: FeedItem;
   viewerId: string | null;
   returnTo: string;
   compact?: boolean;
   detail?: boolean;
+  className?: string;
   labels: FeedLabels;
 }) {
   const isOwn = viewerId === item.authorId;
@@ -95,7 +97,7 @@ export function FeedCard({
   return (
     <article
       data-feed-post-id={item.id}
-      className={`overflow-hidden rounded-[1.35rem] border border-line/90 bg-white shadow-[0_8px_30px_rgba(25,31,40,.055)] ${compact ? "self-start" : ""}`}
+      className={`overflow-hidden rounded-[1.5rem] border border-line/90 bg-white shadow-[0_8px_30px_rgba(25,31,40,.055)] ${compact ? "self-start" : ""} ${className}`}
     >
       <header className="flex items-start justify-between gap-3 px-5 pb-3 pt-5 sm:px-6">
         <Link

@@ -116,7 +116,40 @@ const ko: Dict = {
     faqType: "도움말 센터",
     faqCount: "개 질문",
     faqAnswer: "답변",
+    faqQuestions: "전체 질문",
+    faqDirectory: "필요한 답변을 찾아보세요",
+    faqHelpTitle: "추가 도움이 필요하신가요?",
+    faqHelpBody:
+      "계정과 인증, 마켓플레이스 이용에 필요한 B2BB2G 지원 서비스를 확인하세요.",
+    faqHelpAction: "지원 서비스 둘러보기",
     availableNow: "건 확인 가능",
+    recommendedProducts: "추천 상품",
+    recommendedProductsHint:
+      "명확한 상품 정보와 이미지, 회원 신뢰 정보를 고루 갖춘 상품부터 살펴보세요.",
+    viewAllProducts: "전체 상품 보기",
+    newCollection: "새로 등록됨",
+    newProducts: "새 상품",
+    newProductsHint:
+      "마켓플레이스 회원이 최근 등록한 상품과 공급 역량을 확인하세요.",
+    productDirectory: "상품 디렉터리",
+    allProducts: "전체 상품",
+    allProductsHint:
+      "전체 품목을 비교하고 상세 페이지에서 사양을 확인하거나 바로 문의하세요.",
+    liveSourcing: "실시간 소싱",
+    activeRequests: "진행 중인 구매 요청",
+    activeRequestsHint:
+      "요청 조건과 마감일, 첨부 이미지를 확인한 뒤 상세 내용을 열어보세요.",
+    serviceCenter: "비즈니스 서비스",
+    servicesHint:
+      "기업의 해외 거래와 검증, 커뮤니케이션, 성장을 돕는 실무 서비스를 살펴보세요.",
+    featuredService: "추천 서비스",
+    serviceDirectory: "전체 서비스 둘러보기",
+    servicesDirectoryHint:
+      "비즈니스에 필요한 지원을 선택하고 서비스 상세 내용을 확인하세요.",
+    eventDirectoryHint:
+      "참여를 계획하기 전에 행사 일정과 장소, 진행 상태를 한눈에 비교하세요.",
+    pastEventsHint:
+      "종료된 전시회와 프로그램을 향후 행사 계획의 참고 자료로 살펴보세요.",
     nextTitle: "찾는 상품이 따로 있으신가요?",
     nextBody:
       "전체 마켓을 검색하거나 무료 가입 후 직접 소싱 대화를 시작하세요.",
@@ -157,22 +190,18 @@ const ko: Dict = {
   },
   home: {
     eyebrow: "글로벌 B2B · B2G 마켓플레이스",
-    heroTitle: "구매자와 공급자를 잇는 신뢰의 다리",
+    heroTitle: "신뢰로 연결되는 글로벌 거래.",
     heroSubtitle:
-      "산업 설비부터 소비재 브랜드까지. 상품을 발견하고, 견적을 받고, 검증된 파트너와 함께 성장하세요.",
+      "검증된 상품을 발견하고 실시간 구매요청에 응답하며, 하나의 신뢰 네트워크에서 비즈니스를 이어가세요.",
     browseBoards: "상품 둘러보기",
     browseRequests: "구매요청 보기",
-    searchPlaceholder: "어떤 상품이나 소재를 찾고 계신가요?",
-    searchAction: "마켓 검색",
     buyerPath: "상품을 찾고 있어요",
     buyerPathBody: "공급사를 비교하고 맞춤 견적을 요청하세요.",
     supplierPath: "판로를 넓히고 싶어요",
     supplierPathBody: "상품을 알리고 실제 구매자를 만나세요.",
-    proofLabel: "신뢰할 수 있는 글로벌 비즈니스를 위해 설계했어요",
     eyebrowBrowse: "마켓플레이스 둘러보기",
     eyebrowShowcase: "기업 쇼케이스",
     eyebrowRequests: "실시간 기회",
-    boardsTitle: "카테고리별 둘러보기",
     valueTitle: "여기서 거래하는 이유",
     value1Title: "검증된 파트너",
     value1Body: "모든 기업은 신뢰할 수 있는 프로필을 갖춘 뒤 거래를 시작해요.",
@@ -183,6 +212,24 @@ const ko: Dict = {
     value3Body: "제조사·인증 배지로 파트너의 신뢰도를 한눈에 확인해요.",
     featured: "추천 기업",
     newProducts: "새로 올라온 상품",
+    newProductsBody:
+      "새롭게 등록된 상품과 프로젝트 역량, 검증된 공급 기회를 살펴보세요.",
+    commercialRailTagline:
+      "글로벌 바이어를 위한 소비재 상품과 수출 기회를 만나보세요.",
+    commercialRailTitle: "세계 시장을 위한 상품.",
+    commercialRailBody:
+      "뷰티·라이프스타일·생활 소비재 중 해외 성장에 준비된 상품을 발견하세요.",
+    industrialRailTagline:
+      "생산 현장에 바로 연결할 설비와 부품, 제조 역량을 살펴보세요.",
+    industrialRailTitle: "성능을 위해 설계했어요.",
+    industrialRailBody:
+      "검증된 장비와 정밀 부품, 까다로운 생산 요건에 대응하는 공급사를 만나보세요.",
+    epcRailTagline:
+      "에너지·인프라 프로젝트와 기술, 수행 파트너를 한곳에서 확인하세요.",
+    epcRailTitle: "전 과정을 수행해요.",
+    epcRailBody:
+      "엔지니어링·조달·시공 전반의 프로젝트 브리프와 전문 역량을 탐색하세요.",
+    exploreCollection: "컬렉션 둘러보기",
     latestRequests: "최신 구매요청",
     eventsTitle: "이벤트 & 전시",
     feedTitle: "지금 회원들이 만드는 비즈니스",
@@ -202,11 +249,9 @@ const ko: Dict = {
     step3Body:
       "배지로 신뢰를 쌓고, 첫 거래를 오래가는 파트너십으로 이어가세요.",
     finalCtaTitle: "글로벌 거래, 오늘 시작하세요",
-    finalCtaBody: "이메일 하나로 가입하고 새로운 비즈니스 파트너를 만나보세요.",
+    finalCtaBody:
+      "마켓플레이스를 자유롭게 둘러보고, 신뢰할 수 있는 초대를 통해 가입해 검수되는 비즈니스 대화를 시작하세요.",
     startNow: "시작하기",
-    stat1: "모든 메시지는 전달 전 운영팀 검수",
-    stat2: "Manufacturer·Verified 신뢰 배지",
-    stat3: "초대 기반 신뢰 네트워크",
     mockProduct: "산업용 펌프 PX-2100",
     mockCompany: "검증된 한국 제조사",
     prev: "이전",
@@ -320,6 +365,22 @@ const ko: Dict = {
     openEnded: "상시 모집",
     open: "진행 중",
     closed: "마감",
+    sourcingRequest: "구매 요청",
+    openForResponses: "공급 제안 접수 중",
+    closedForResponses: "제안 접수 마감",
+    requestOverview: "구매자가 찾는 조건",
+    requestRequirements: "요청 조건",
+    requestFiles: "참고 자료",
+    respondTitle: "이 요청에 공급할 수 있나요?",
+    respondBody:
+      "요청 수량과 사양, 납품 조건을 확인한 뒤 구체적인 제안을 보내세요.",
+    responseDeadline: "제안 마감일",
+    beforeResponding: "제안 전 확인사항",
+    responseCheckQuantity: "요청 수량과 필수 사양 확인",
+    responseCheckTiming: "납기와 배송 조건을 제안에 포함",
+    responseCheckPlatform: "이 요청과 연결된 문의 흐름 유지",
+    moreRequests: "다른 구매 요청",
+    requestBrief: "구매 요청서",
     closeRequest: "요청 마감",
     membersOnlyTitle: "회원은 전체 내용을 볼 수 있어요",
     membersOnlyBody:
@@ -757,6 +818,7 @@ const ko: Dict = {
     overview: "현황",
     actionQueue: "지금 운영 판단이 필요한 항목",
     queueHealthy: "모든 검수 항목이 24시간 목표 안에 있어요.",
+    queueCountsUnavailable: "일부 검수 대기 수를 불러오지 못했어요. 각 검수 메뉴에서 실제 항목을 확인해 주세요.",
     oldestWaiting: "최장 대기",
     withinSla: "목표 이내",
     overdue: "목표 초과",

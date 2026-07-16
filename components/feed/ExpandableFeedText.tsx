@@ -60,6 +60,7 @@ export function ExpandableFeedText({
 
   return (
     <div
+      data-feed-text
       className={`px-5 pb-4 text-[15px] leading-7 text-ink sm:px-6 ${variant === "compact" ? "min-h-[4.5rem]" : ""}`}
     >
       <div className="relative">
