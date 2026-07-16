@@ -278,24 +278,24 @@ async function LandingContent() {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover object-bottom"
+                className="origin-bottom scale-[1.55] object-contain object-bottom sm:scale-[1.18] lg:scale-100 lg:object-cover xl:object-top"
               />
               <div
                 className="absolute inset-0 bg-[linear-gradient(180deg,rgba(246,251,255,.5)_0%,rgba(238,247,255,.1)_36%,rgba(231,243,255,0)_58%)]"
                 aria-hidden="true"
               />
-              <div className="relative z-10 flex min-h-[42rem] flex-col items-center px-5 pt-14 text-center sm:min-h-[48rem] sm:px-8 sm:pt-16 lg:min-h-[min(54rem,calc(100svh-4.5rem))] lg:pt-20">
-                <div className="flex max-w-[58rem] flex-col items-center">
+              <div className="relative z-10 flex min-h-[42rem] flex-col items-center px-5 pt-14 text-center sm:min-h-[48rem] sm:px-8 sm:pt-16 lg:min-h-[min(54rem,calc(100svh-4.5rem))] lg:pt-16">
+                <div className="flex max-w-[62rem] flex-col items-center">
                   <p className="text-xs font-bold uppercase tracking-[.17em] text-[#1769e0]">
                     {t.home.eyebrow}
                   </p>
-                  <h1 className="mt-4 max-w-[14ch] text-[3rem] font-semibold leading-[.98] tracking-[-.052em] text-[#1d1d1f] sm:text-[4rem] lg:text-[4.75rem]">
+                  <h1 className="mt-4 max-w-[15ch] text-balance text-[3rem] font-semibold leading-[.98] tracking-[-.052em] text-[#1d1d1f] sm:max-w-[18ch] sm:text-[4rem] lg:max-w-none lg:whitespace-nowrap lg:text-[clamp(4rem,5.2vw,4.75rem)]">
                     {t.home.heroTitle}
                   </h1>
-                  <p className="mt-5 max-w-[48rem] text-base leading-7 text-[#3f4650] sm:text-xl sm:leading-8">
+                  <p className="mt-5 max-w-[48rem] text-balance text-base leading-7 text-[#3f4650] sm:text-xl sm:leading-8 lg:max-w-none lg:whitespace-nowrap">
                     {t.home.heroSubtitle}
                   </p>
-                  <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+                  <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                     <Link
                       href={`/${firstProductBoard}`}
                       className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-strong"

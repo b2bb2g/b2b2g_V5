@@ -22,10 +22,9 @@ export function LandingPageSkeleton() {
       </div>
 
       <section className="border-b-[12px] border-white bg-[#edf6ff]">
-        <div className="flex min-h-[42rem] flex-col items-center px-5 pt-14 text-center sm:min-h-[48rem] sm:px-8 sm:pt-16 lg:min-h-[min(54rem,calc(100svh-4.5rem))] lg:pt-20">
+        <div className="flex min-h-[42rem] flex-col items-center px-5 pt-14 text-center sm:min-h-[48rem] sm:px-8 sm:pt-16 lg:min-h-[min(54rem,calc(100svh-4.5rem))] lg:pt-16">
           <Skeleton className="h-4 w-44 bg-[#1769e0]/12" />
-          <Skeleton className="mt-5 h-14 w-[min(84vw,820px)] bg-black/8 sm:h-20" />
-          <Skeleton className="mt-3 h-14 w-[min(72vw,700px)] bg-black/8 sm:h-20" />
+          <Skeleton className="mt-5 h-14 w-[min(84vw,980px)] bg-black/8 sm:h-20" />
           <Skeleton className="mt-6 h-6 w-[min(76vw,660px)] bg-black/8" />
           <div className="mt-8 flex gap-3">
             <Skeleton className="h-12 w-36 rounded-full bg-[#1769e0]/14" />
