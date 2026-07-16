@@ -1,94 +1,274 @@
+import Image from "next/image";
+import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Pagination } from "@/components/ui/Pagination";
-import { ClearableInput } from "@/components/ui/TextField";
+import { BoardSectionHeading } from "@/components/marketplace/BoardSectionHeading";
+import { Carousel } from "@/components/ui/Carousel";
+import { ProductCard } from "@/components/marketplace/ProductCard";
+import { SearchExperience } from "@/components/search/SearchExperience";
+import {
+  normalizeSearchScope,
+  sanitizeSearchQuery,
+  SEARCH_PAGE_SIZE,
+} from "@/lib/search";
+import { searchPublicPosts } from "@/lib/data/public-search";
+import { BOARD_TYPES } from "@/lib/constants";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
-import { ProductCard } from "@/components/marketplace/ProductCard";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT();
   return { title: t.search.title, robots: { index: false, follow: true } };
 }
 
-// Unified search (A11): public posts only, so results match exactly what a
-// visitor is allowed to see (teaser view; no locked data leaks).
+async function getSearchDiscovery() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("public_posts")
+    .select("*")
+    .eq("type", BOARD_TYPES.PRODUCT)
+    .order("published_at", { ascending: false })
+    .limit(20);
+  const products = (data as PostTeaser[]) ?? [];
+  const trustScore = (post: PostTeaser) =>
+    post.author_badges.reduce(
+      (score, badge) =>
+        score +
+        (badge.code === "certified" ? 2 : badge.code === "manufacturer" ? 1 : 0),
+      0,
+    );
+  const recommended = [...products]
+    .sort((a, b) => trustScore(b) - trustScore(a))
+    .slice(0, 6);
+  const recommendedIds = new Set(recommended.map((post) => post.id));
+  const distinctLatest = products
+    .filter((post) => !recommendedIds.has(post.id))
+    .slice(0, 8);
+
+  return {
+    recommended,
+    latest: distinctLatest.length > 0 ? distinctLatest : products.slice(0, 8),
+  };
+}
+
+function Arrow() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 export default async function SearchPage(props: {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; type?: string }>;
 }) {
-  const [{ t, locale }, params, menus] = await Promise.all([
+  const [{ t, locale }, params, menus, discovery] = await Promise.all([
     getT(),
     props.searchParams,
     getVisibleMenus(),
+    getSearchDiscovery(),
   ]);
+  const initialQuery = sanitizeSearchQuery(params.q ?? "");
+  const initialScope = normalizeSearchScope(params.type);
+  const initialResult = await searchPublicPosts({
+    query: initialQuery,
+    scope: initialScope,
+    pageSize: SEARCH_PAGE_SIZE,
+  });
+  const menuSlugs = Object.fromEntries(
+    menus.map((menu) => [menu.id, menu.slug]),
+  );
+  const firstProductBoard =
+    menus.find((menu) => menu.board_type === BOARD_TYPES.PRODUCT)?.slug ??
+    "commercial";
+  const requestsSlug =
+    menus.find((menu) => menu.board_type === BOARD_TYPES.REQUEST)?.slug ??
+    "requests";
+  const servicesSlug =
+    menus.find((menu) => menu.slug === "services")?.slug ?? "services";
 
-  const raw = (params.q ?? "").trim().slice(0, 80);
-  // Strip characters that would break the PostgREST or() filter grammar.
-  const q = raw.replace(/[,()%\\]/g, " ").replace(/\s+/g, " ").trim();
-
-  const PAGE_SIZE = 24;
-  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
-  let results: PostTeaser[] = [];
-  let totalPages = 1;
-  if (q) {
-    const supabase = await createClient();
-    const pattern = `%${q}%`;
-    const from = (page - 1) * PAGE_SIZE;
-    const { data, count } = await supabase
-      .from("public_posts")
-      .select("*", { count: "exact" })
-      .or(
-        `title_en.ilike.${pattern},title_ko.ilike.${pattern},body_teaser_en.ilike.${pattern},body_teaser_ko.ilike.${pattern}`
-      )
-      .order("published_at", { ascending: false })
-      .range(from, from + PAGE_SIZE - 1);
-    results = (data as PostTeaser[]) ?? [];
-    totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
-  }
-
-  const menuSlugById = new Map(menus.map((menu) => [menu.id, menu.slug]));
+  const searchLabels = {
+    placeholder: t.search.placeholder,
+    popular: t.search.popular,
+    all: t.search.all,
+    products: t.search.products,
+    requests: t.search.requests,
+    minChars: t.search.minChars,
+    searching: t.search.searching,
+    results: t.search.results,
+    resultsFor: t.search.resultsFor,
+    resultCount: t.search.resultCount,
+    loadMore: t.search.loadMore,
+    error: t.search.error,
+    noResults: t.search.noResults,
+    noResultsHint: t.search.noResultsHint,
+    clear: t.common.clearInput,
+    search: t.common.search,
+    open: t.post.open,
+    closed: t.post.closed,
+    openEnded: t.post.openEnded,
+    deadline: t.post.deadline,
+    sourcingRequest: t.post.sourcingRequest,
+    eventNowOn: t.board.eventNowOn,
+    eventUpcoming: t.board.eventUpcomingLabel,
+    eventEnded: t.board.eventEnded,
+    eventVenueTbd: t.board.eventVenueTbd,
+  };
 
   return (
-    <div className="wide space-y-5">
-      <PageHeader title={t.search.title} subtitle={t.search.hint} />
-
-      <form action="/search" method="get" className="flex gap-2">
-        <div className="min-w-0 flex-1">
-          <ClearableInput
-            type="search"
-            name="q"
-            defaultValue={raw}
-            placeholder={t.search.placeholder}
-            clearLabel={t.common.clearInput}
+    <article className="full-bleed bg-white">
+      <section className="bg-[linear-gradient(180deg,#eef5ff_0%,#f5f5f7_58%,#f5f5f7_100%)] py-16 sm:py-20 lg:py-24">
+        <div className="store-shell">
+          <BoardSectionHeading
+            eyebrow={t.search.eyebrow}
+            title={t.search.heroTitle}
+            body={t.search.heroBody}
+            level="h1"
           />
-        </div>
-        <button type="submit" className="btn-primary btn-md shrink-0">
-          {t.common.search}
-        </button>
-      </form>
-
-      {q &&
-        (results.length === 0 ? (
-          <EmptyState title={t.search.noResults} hint={t.search.noResultsHint} />
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-            {results.map((post) => <ProductCard key={post.id} post={post} href={`/${menuSlugById.get(post.menu_id) ?? "industrial"}/${post.id}`} locale={locale} />)}
+          <div className="mt-9 sm:mt-11">
+            <SearchExperience
+              initialQuery={initialQuery}
+              initialScope={initialScope}
+              initialResult={initialResult}
+              menuSlugs={menuSlugs}
+              locale={locale}
+              labels={searchLabels}
+            />
           </div>
-        ))}
+        </div>
+      </section>
 
-      {q && (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          basePath="/search"
-          extraQuery={{ q: raw }}
-          prevLabel={t.home.prev}
-          nextLabel={t.home.next}
-        />
+      {discovery.recommended.length > 0 && (
+        <section className="bg-white py-20 sm:py-24 lg:py-28">
+          <div className="store-shell">
+            <BoardSectionHeading
+              eyebrow={t.search.recommendedEyebrow}
+              title={t.search.recommendedTitle}
+              body={t.search.recommendedBody}
+              action={
+                <Link
+                  href={`/${firstProductBoard}`}
+                  className="inline-flex items-center gap-2 text-sm font-bold text-primary transition hover:text-primary-strong"
+                >
+                  {t.dashboard.viewAll}
+                  <Arrow />
+                </Link>
+              }
+            />
+            <div className="mt-10 lg:mt-12">
+              <Carousel
+                prevLabel={t.home.prev}
+                nextLabel={t.home.next}
+                edgeToEdge
+              >
+                {discovery.recommended.map((post, index) => (
+                  <div key={post.id} className="store-card-featured">
+                    <ProductCard
+                      post={post}
+                      href={`/${menuSlugs[post.menu_id] ?? firstProductBoard}/${post.id}`}
+                      locale={locale}
+                      priority={index < 3}
+                      feature
+                    />
+                  </div>
+                ))}
+              </Carousel>
+            </div>
+          </div>
+        </section>
       )}
-    </div>
+
+      <section className="bg-[#f5f5f7] py-20 sm:py-24 lg:py-28">
+        <div className="store-shell">
+          <div className="relative overflow-hidden rounded-[2rem] bg-[#101923] px-7 py-14 text-white shadow-[0_24px_70px_rgba(16,25,35,.18)] sm:px-12 sm:py-16 lg:min-h-[25rem] lg:px-16 lg:py-20">
+            <Image
+              src="/landing-v2/precision-manufacturing.jpg"
+              alt=""
+              fill
+              sizes="85.5vw"
+              className="object-cover opacity-[.42]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#07111f] via-[#07111f]/88 to-[#07111f]/28" />
+            <div className="relative max-w-2xl">
+              <p className="text-xs font-bold uppercase tracking-[.18em] text-[#79b4ff]">
+                {t.search.bannerEyebrow}
+              </p>
+              <h2 className="mt-5 text-[2.25rem] font-semibold leading-[1.04] tracking-[-.045em] sm:text-5xl lg:text-[3.5rem]">
+                {t.search.bannerTitle}
+              </h2>
+              <p className="mt-5 max-w-xl text-base leading-8 text-white/68 sm:text-lg">
+                {t.search.bannerBody}
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href={`/${requestsSlug}`}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-white transition hover:bg-primary-strong"
+                >
+                  {t.search.bannerPrimary}
+                  <Arrow />
+                </Link>
+                <Link
+                  href={`/${servicesSlug}`}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/24 bg-white/10 px-6 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white/16"
+                >
+                  {t.search.bannerSecondary}
+                  <Arrow />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {discovery.latest.length > 0 && (
+        <section className="bg-white py-20 sm:py-24 lg:py-28">
+          <div className="store-shell">
+            <BoardSectionHeading
+              eyebrow={t.search.latestEyebrow}
+              title={t.search.latestTitle}
+              body={t.search.latestBody}
+              action={
+                <Link
+                  href={`/${firstProductBoard}`}
+                  className="inline-flex items-center gap-2 text-sm font-bold text-primary transition hover:text-primary-strong"
+                >
+                  {t.dashboard.viewAll}
+                  <Arrow />
+                </Link>
+              }
+            />
+            <div className="mt-10 lg:mt-12">
+              <Carousel
+                prevLabel={t.home.prev}
+                nextLabel={t.home.next}
+                edgeToEdge
+              >
+                {discovery.latest.map((post, index) => (
+                  <div key={post.id} className="store-card-featured">
+                    <ProductCard
+                      post={post}
+                      href={`/${menuSlugs[post.menu_id] ?? firstProductBoard}/${post.id}`}
+                      locale={locale}
+                      priority={index < 3}
+                      feature
+                    />
+                  </div>
+                ))}
+              </Carousel>
+            </div>
+          </div>
+        </section>
+      )}
+    </article>
   );
 }
