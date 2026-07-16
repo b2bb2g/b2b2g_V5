@@ -21,17 +21,16 @@ export function LandingPageSkeleton() {
         </div>
       </div>
 
-      <section className="pb-10 pt-16 sm:pt-20 lg:pt-24">
-        <div className="store-shell flex flex-col items-center text-center">
-          <Skeleton className="h-4 w-44" />
-          <Skeleton className="mt-5 h-14 w-[min(84vw,820px)] sm:h-20" />
-          <Skeleton className="mt-3 h-14 w-[min(72vw,700px)] sm:h-20" />
-          <Skeleton className="mt-7 h-6 w-[min(76vw,660px)]" />
-          <div className="mt-8 flex gap-5">
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-5 w-40" />
+      <section className="border-b-[12px] border-white bg-[#edf6ff]">
+        <div className="flex min-h-[42rem] flex-col items-center px-5 pt-14 text-center sm:min-h-[48rem] sm:px-8 sm:pt-16 lg:min-h-[min(54rem,calc(100svh-4.5rem))] lg:pt-20">
+          <Skeleton className="h-4 w-44 bg-[#1769e0]/12" />
+          <Skeleton className="mt-5 h-14 w-[min(84vw,820px)] bg-black/8 sm:h-20" />
+          <Skeleton className="mt-3 h-14 w-[min(72vw,700px)] bg-black/8 sm:h-20" />
+          <Skeleton className="mt-6 h-6 w-[min(76vw,660px)] bg-black/8" />
+          <div className="mt-8 flex gap-3">
+            <Skeleton className="h-12 w-36 rounded-full bg-[#1769e0]/14" />
+            <Skeleton className="h-12 w-44 rounded-full bg-black/8" />
           </div>
-          <Skeleton className="mt-12 aspect-[4/3] w-full rounded-[1.75rem] sm:aspect-[16/9] lg:aspect-[2.15/1] lg:rounded-[2.25rem]" />
         </div>
       </section>
 

@@ -269,56 +269,54 @@ async function LandingContent() {
           ]}
         />
 
-        <section className="bg-[#f5f5f7] py-6 sm:py-10 lg:py-12">
-          <div className={container}>
-            <Reveal>
-              <div className="relative min-h-[34rem] overflow-hidden rounded-[2rem] bg-[#07111f] text-white shadow-[0_28px_80px_rgba(7,17,31,.18)] sm:min-h-[38rem] lg:min-h-[42rem] lg:rounded-[2.5rem]">
-                <Image
-                  src="/landing-v2/hero-global-collaboration.jpg"
-                  alt=""
-                  fill
-                  priority
-                  sizes="85.5vw"
-                  className="object-cover object-[64%_center]"
-                />
-                <div
-                  className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,12,22,.98)_0%,rgba(5,12,22,.91)_30%,rgba(5,12,22,.48)_57%,rgba(5,12,22,.12)_100%)] max-lg:bg-[linear-gradient(180deg,rgba(5,12,22,.25)_0%,rgba(5,12,22,.6)_45%,rgba(5,12,22,.98)_100%)]"
-                  aria-hidden="true"
-                />
-                <div className="relative flex min-h-[34rem] items-end p-7 sm:min-h-[38rem] sm:p-11 lg:min-h-[42rem] lg:items-center lg:p-16 xl:p-[4.5rem]">
-                  <div className="max-w-[43rem]">
-                    <p className="text-xs font-bold uppercase tracking-[.17em] text-[#78b5ff]">
-                      {t.home.eyebrow}
-                    </p>
-                    <h1 className="mt-5 max-w-[11ch] text-[3.25rem] font-semibold leading-[.94] tracking-[-.055em] text-white sm:text-[4.4rem] lg:text-[5.25rem]">
-                      {t.home.heroTitle}
-                    </h1>
-                    <p className="mt-6 max-w-[39rem] text-base leading-7 text-white/74 sm:text-lg sm:leading-8">
-                      {t.home.heroSubtitle}
-                    </p>
-                    <div className="mt-8 flex flex-wrap items-center gap-3">
+        <section className="border-b-[12px] border-white bg-[#edf6ff]">
+          <Reveal className="h-full">
+            <div className="relative isolate min-h-[42rem] overflow-hidden bg-[#edf6ff] text-[#1d1d1f] sm:min-h-[48rem] lg:min-h-[min(54rem,calc(100svh-4.5rem))]">
+              <Image
+                src="/landing-v2/hero-trade-network-v3.png"
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-bottom"
+              />
+              <div
+                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(246,251,255,.5)_0%,rgba(238,247,255,.1)_36%,rgba(231,243,255,0)_58%)]"
+                aria-hidden="true"
+              />
+              <div className="relative z-10 flex min-h-[42rem] flex-col items-center px-5 pt-14 text-center sm:min-h-[48rem] sm:px-8 sm:pt-16 lg:min-h-[min(54rem,calc(100svh-4.5rem))] lg:pt-20">
+                <div className="flex max-w-[58rem] flex-col items-center">
+                  <p className="text-xs font-bold uppercase tracking-[.17em] text-[#1769e0]">
+                    {t.home.eyebrow}
+                  </p>
+                  <h1 className="mt-4 max-w-[14ch] text-[3rem] font-semibold leading-[.98] tracking-[-.052em] text-[#1d1d1f] sm:text-[4rem] lg:text-[4.75rem]">
+                    {t.home.heroTitle}
+                  </h1>
+                  <p className="mt-5 max-w-[48rem] text-base leading-7 text-[#3f4650] sm:text-xl sm:leading-8">
+                    {t.home.heroSubtitle}
+                  </p>
+                  <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+                    <Link
+                      href={`/${firstProductBoard}`}
+                      className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-strong"
+                    >
+                      {t.home.browseBoards}
+                      <Arrow />
+                    </Link>
+                    {requestsMenu && (
                       <Link
-                        href={`/${firstProductBoard}`}
-                        className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-white/90"
+                        href={`/${requestsMenu.slug}`}
+                        className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[#1769e0] bg-white/72 px-6 py-3 text-sm font-semibold text-[#1769e0] backdrop-blur-md transition-colors hover:bg-white"
                       >
-                        {t.home.browseBoards}
+                        {t.home.browseRequests}
                         <Arrow />
                       </Link>
-                      {requestsMenu && (
-                        <Link
-                          href={`/${requestsMenu.slug}`}
-                          className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/28 bg-white/8 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/14"
-                        >
-                          {t.home.browseRequests}
-                          <Arrow />
-                        </Link>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </section>
 
         {products.length > 0 && (
