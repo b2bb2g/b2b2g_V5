@@ -653,6 +653,18 @@ const en = {
     publicMember: "Public marketplace member",
     publicMemberHint:
       "This UID identifies a marketplace member. Use the platform inquiry flow to start a reviewed business conversation.",
+    networkEyebrow: "B2BB2G network",
+    profileOverview: "Marketplace profile",
+    profileOverviewHint:
+      "Review this member’s public introduction, trust badges and marketplace activity before starting a conversation.",
+    businessConversation: "Start a business conversation",
+    businessConversationHint:
+      "Send requirements through B2BB2G. The inquiry stays connected to this member and is reviewed before delivery.",
+    protectedContact: "Contact details remain private",
+    latestUpdatesHint:
+      "Follow recent capabilities, project progress and business updates shared with the network.",
+    activityHint:
+      "Explore this member’s published marketplace activity by business area.",
     viewCompanyPage: "View company page",
     memberActivity: "Member activity",
     latestUpdates: "Latest updates",

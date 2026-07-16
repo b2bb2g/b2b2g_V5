@@ -638,6 +638,18 @@ const ko: Dict = {
     publicMember: "공개 마켓플레이스 회원",
     publicMemberHint:
       "이 UID는 마켓플레이스 회원을 식별합니다. 검수되는 플랫폼 문의 흐름으로 비즈니스 대화를 시작하세요.",
+    networkEyebrow: "B2BB2G 네트워크",
+    profileOverview: "마켓플레이스 프로필",
+    profileOverviewHint:
+      "대화를 시작하기 전에 회원의 공개 소개와 신뢰 배지, 마켓플레이스 활동을 확인하세요.",
+    businessConversation: "비즈니스 대화 시작하기",
+    businessConversationHint:
+      "B2BB2G를 통해 필요한 조건을 보내세요. 문의는 이 회원과 연결되며 전달 전에 검수됩니다.",
+    protectedContact: "연락처 정보는 공개되지 않아요",
+    latestUpdatesHint:
+      "네트워크에 공유된 최근 역량과 프로젝트 진행 상황, 비즈니스 소식을 확인하세요.",
+    activityHint:
+      "이 회원이 공개한 마켓플레이스 활동을 비즈니스 영역별로 살펴보세요.",
     viewCompanyPage: "회사 페이지 보기",
     memberActivity: "회원 활동",
     latestUpdates: "최근 소식",

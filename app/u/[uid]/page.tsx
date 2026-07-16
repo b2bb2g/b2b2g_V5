@@ -8,13 +8,16 @@ import { createClient } from "@/lib/supabase/server";
 import { BadgePill } from "@/components/ui/Badge";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { stripRichText } from "@/lib/richtext-text";
-import { BOARD_TYPES, POST_STATUS } from "@/lib/constants";
+import { BOARD_TYPES } from "@/lib/constants";
 import { postMediaUrl } from "@/lib/media";
 import { listFeed } from "@/lib/data/feed";
 import { FeedCard } from "@/components/feed/FeedCard";
 import { getFeedCardLabels } from "@/lib/i18n/feed";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
+import { BoardSectionHeading } from "@/components/marketplace/BoardSectionHeading";
+import { Carousel } from "@/components/ui/Carousel";
+import { OpportunityCard } from "@/components/landing/OpportunityCard";
+import { EventCard } from "@/components/marketplace/EventCard";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
 
@@ -109,7 +112,6 @@ export default async function PublicProfilePage(props: {
       ? (profile.bio_ko ?? profile.bio_en ?? profile.bio)
       : (profile.bio_en ?? profile.bio);
   const isOwn = session.userId === profile.id;
-  const menuSlugById = new Map(menus.map((menu) => [menu.id, menu.slug]));
   const sections = menus
     .filter((menu) => menu.slug !== "notices")
     .map((menu) => ({
@@ -117,249 +119,327 @@ export default async function PublicProfilePage(props: {
       posts: posts.filter((post) => post.menu_id === menu.id),
     }))
     .filter((section) => section.posts.length > 0);
+  const inquiryHref = session.userId
+    ? `/inquiries/new?to=${profile.id}`
+    : `/login?next=/inquiries/new?to=${profile.id}`;
+  const eventCardLabels = {
+    ongoing: t.board.eventNowOn,
+    upcoming: t.board.eventUpcomingLabel,
+    ended: t.board.eventEnded,
+    venueTbd: t.board.eventVenueTbd,
+  };
+  const opportunityLabels = {
+    open: t.post.open,
+    closed: t.post.closed,
+    openEnded: t.post.openEnded,
+    deadline: t.post.deadline,
+    sourcingRequest: t.post.sourcingRequest,
+  };
 
   return (
-    <article className="wide space-y-10">
-      <header className="relative min-h-72 overflow-hidden rounded-[2rem] bg-[#101923] p-7 text-white shadow-[0_24px_70px_rgba(16,25,35,.2)] sm:p-10 lg:p-12">
-        <span
-          className="absolute -right-24 -top-28 h-80 w-80 rounded-full border-[52px] border-primary/15"
-          aria-hidden="true"
-        />
-        <span
-          className="absolute -bottom-32 right-28 h-64 w-64 rounded-full bg-primary/10 blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="relative max-w-3xl">
-          <p className="text-xs font-bold uppercase tracking-[.18em] text-[#79b4ff]">
-            {t.profile.publicMember}
-          </p>
-          <div className="mt-4 flex items-center gap-4 sm:gap-5">
-            {profile.avatar_url ? (
-              <Image
-                src={postMediaUrl(profile.avatar_url)}
-                alt=""
-                width={88}
-                height={88}
-                priority
-                className="h-20 w-20 shrink-0 rounded-full object-cover ring-4 ring-white/10 sm:h-22 sm:w-22"
-              />
-            ) : (
-              <DefaultAvatar className="h-20 w-20 ring-4 ring-white/10 sm:h-22 sm:w-22" />
-            )}
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-3xl font-extrabold tracking-[-.04em] sm:text-4xl">
-                  {name}
-                </h1>
-                {badges.map((badge) => (
-                  <BadgePill
-                    key={badge.code}
-                    code={badge.code}
-                    label={locale === "ko" ? badge.name_ko : badge.name_en}
-                  />
-                ))}
-              </div>
-              <p className="mt-3 text-sm text-white/50">
-                {t.admin.joined}{" "}
-                {new Date(profile.created_at).toISOString().slice(0, 10)}
-              </p>
-            </div>
-          </div>
+    <article className="full-bleed bg-white">
+      <section className="px-4 py-8 sm:px-0 sm:py-12 lg:py-16">
+        <div className="store-shell">
+          <header className="overflow-hidden rounded-[2rem] bg-white shadow-[0_24px_80px_rgba(25,31,40,.1)] ring-1 ring-black/[.04]">
+            <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,.65fr)]">
+              <div className="relative overflow-hidden p-7 sm:p-10 lg:p-12">
+                <span
+                  className="absolute -left-28 -top-32 h-72 w-72 rounded-full bg-[#ddecff] blur-3xl"
+                  aria-hidden="true"
+                />
+                <span
+                  className="absolute -bottom-32 right-12 h-64 w-64 rounded-full bg-[#e7f7ee] blur-3xl"
+                  aria-hidden="true"
+                />
+                <div className="relative">
+                  <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
+                    {t.profile.networkEyebrow}
+                  </p>
+                  <div className="mt-6 flex items-center gap-4 sm:gap-6">
+                    {profile.avatar_url ? (
+                      <Image
+                        src={postMediaUrl(profile.avatar_url)}
+                        alt=""
+                        width={112}
+                        height={112}
+                        priority
+                        className="h-24 w-24 shrink-0 rounded-full object-cover shadow-[0_12px_30px_rgba(25,31,40,.12)] ring-4 ring-white sm:h-28 sm:w-28"
+                      />
+                    ) : (
+                      <DefaultAvatar className="h-24 w-24 shrink-0 shadow-[0_12px_30px_rgba(25,31,40,.12)] ring-4 ring-white sm:h-28 sm:w-28" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-ink-faint">
+                        {t.profile.profileOverview}
+                      </p>
+                      <h1 className="mt-1 text-[2rem] font-semibold leading-none tracking-[-.045em] text-ink sm:text-[2.75rem]">
+                        {name}
+                      </h1>
+                      {badges.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-1.5">
+                          {badges.map((badge) => (
+                            <BadgePill
+                              key={badge.code}
+                              code={badge.code}
+                              label={
+                                locale === "ko"
+                                  ? badge.name_ko
+                                  : badge.name_en
+                              }
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-          <div className="mt-8 border-t border-white/15 pt-6">
-            <p className="max-w-2xl whitespace-pre-wrap text-sm leading-7 text-white/65">
-              {publicBio || t.profile.publicMemberHint}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {!isOwn ? (
-                <Link
-                  href={
-                    session.userId
-                      ? `/inquiries/new?to=${profile.id}`
-                      : `/login?next=/inquiries/new?to=${profile.id}`
-                  }
-                  className="btn-primary btn-lg"
+                  <p className="mt-8 max-w-3xl whitespace-pre-wrap text-base leading-8 text-ink-soft sm:text-lg">
+                    {publicBio || t.profile.publicMemberHint}
+                  </p>
+
+                  {sections.length > 0 && (
+                    <nav
+                      aria-label={t.profile.memberActivity}
+                      className="scrollbar-none -mx-2 mt-7 flex gap-2 overflow-x-auto px-2"
+                    >
+                      {sections.map(({ menu }) => (
+                        <a
+                          key={menu.id}
+                          href={`#activity-${menu.slug}`}
+                          className="shrink-0 rounded-full border border-line bg-white/80 px-4 py-2 text-xs font-bold text-ink-soft shadow-sm backdrop-blur transition hover:border-primary/35 hover:text-primary"
+                        >
+                          {locale === "ko" ? menu.title_ko : menu.title_en}
+                        </a>
+                      ))}
+                    </nav>
+                  )}
+                </div>
+              </div>
+
+              <aside className="relative flex min-h-80 flex-col overflow-hidden bg-[#101923] p-7 text-white sm:p-10 lg:p-12">
+                <span
+                  className="absolute -right-24 -top-28 h-72 w-72 rounded-full border-[48px] border-primary/18"
+                  aria-hidden="true"
+                />
+                <span
+                  className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-white shadow-[0_12px_28px_rgba(34,108,224,.3)]"
+                  aria-hidden="true"
                 >
-                  {t.post.inquire}
-                </Link>
-              ) : (
-                <Link href="/dashboard" className="btn-primary btn-lg">
-                  {t.common.dashboard}
-                </Link>
-              )}
-              {isOwn && (
-                <Link
-                  href="/dashboard/profile/edit"
-                  className="inline-flex items-center justify-center rounded-xl bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/15"
-                >
-                  {t.common.edit}
-                </Link>
-              )}
-              {homepageSlug && (
-                <Link
-                  href={`/c/${homepageSlug}`}
-                  className="inline-flex items-center justify-center rounded-xl bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/15"
-                >
-                  {t.profile.viewCompanyPage}
-                </Link>
-              )}
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M7 4h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-5l-4 3v-3H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+                    <path d="M8.5 8.5h7M8.5 12h4.5" />
+                  </svg>
+                </span>
+                <div className="relative mt-8">
+                  <h2 className="max-w-sm text-3xl font-semibold leading-[1.08] tracking-[-.04em]">
+                    {t.profile.businessConversation}
+                  </h2>
+                  <p className="mt-4 max-w-md text-sm leading-7 text-white/62">
+                    {t.profile.businessConversationHint}
+                  </p>
+                  <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-[#8bc0ff]">
+                    <span
+                      className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/25"
+                      aria-hidden="true"
+                    >
+                      ✓
+                    </span>
+                    {t.profile.protectedContact}
+                  </p>
+                </div>
+                <div className="relative mt-auto flex flex-col gap-2 pt-9">
+                  {!isOwn ? (
+                    <Link href={inquiryHref} className="btn-primary btn-lg w-full">
+                      {t.post.inquire}
+                    </Link>
+                  ) : (
+                    <Link href="/dashboard" className="btn-primary btn-lg w-full">
+                      {t.common.dashboard}
+                    </Link>
+                  )}
+                  {isOwn && (
+                    <Link
+                      href="/dashboard/profile/edit"
+                      className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white/10 px-5 text-sm font-bold text-white transition hover:bg-white/16"
+                    >
+                      {t.common.edit}
+                    </Link>
+                  )}
+                  {homepageSlug && (
+                    <Link
+                      href={`/c/${homepageSlug}`}
+                      className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white/10 px-5 text-sm font-bold text-white transition hover:bg-white/16"
+                    >
+                      {t.profile.viewCompanyPage}
+                    </Link>
+                  )}
+                </div>
+              </aside>
             </div>
-          </div>
+          </header>
         </div>
-      </header>
+      </section>
 
       {(feedItems.length > 0 || isOwn) && (
-        <section>
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
-                {t.feed.title}
-              </p>
-              <h2 className="mt-2 text-2xl font-extrabold tracking-[-.035em]">
-                {t.profile.latestUpdates}
-              </h2>
-            </div>
-            <Link
-              href="/feed"
-              className="text-sm font-bold text-primary hover:text-primary-strong"
-            >
-              {isOwn ? t.feed.publish : t.dashboard.viewAll} →
-            </Link>
-          </div>
-          {feedItems.length > 0 ? (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {feedItems.slice(0, 4).map((item) => (
-                <FeedCard
-                  key={item.id}
-                  item={item}
-                  viewerId={session.userId}
-                  returnTo={`/u/${profile.uid}`}
-                  compact
-                  labels={getFeedCardLabels(t, locale)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-[1.5rem] border border-dashed border-line bg-white p-6 text-center">
-              <p className="text-sm font-bold">{t.feed.empty}</p>
-              <Link href="/feed" className="btn-primary btn-md mt-4">
-                {t.feed.publish}
-              </Link>
-            </div>
-          )}
-        </section>
-      )}
-
-      {sections.length > 1 && (
-        <nav
-          aria-label={t.profile.memberActivity}
-          className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4"
-        >
-          {sections.map(({ menu }) => (
-            <a
-              key={menu.id}
-              href={`#activity-${menu.slug}`}
-              className="shrink-0 rounded-full border border-line bg-white px-4 py-2 text-sm font-bold text-ink-soft shadow-sm transition hover:border-primary/30 hover:text-primary"
-            >
-              {menu.title_en}
-            </a>
-          ))}
-        </nav>
-      )}
-
-      {sections.length > 0 ? (
-        <div className="space-y-12">
-          {sections.map(({ menu, posts: menuPosts }) => (
-            <section
-              key={menu.id}
-              id={`activity-${menu.slug}`}
-              className="scroll-mt-24"
-            >
-              <div className="mb-5 flex items-end justify-between gap-4">
-                <h2 className="text-2xl font-extrabold tracking-[-.035em]">
-                  {menu.title_en}
-                </h2>
+        <section className="bg-[#f5f5f7] py-20 sm:py-24 lg:py-28">
+          <div className="store-shell">
+            <BoardSectionHeading
+              eyebrow={t.feed.title}
+              title={t.profile.latestUpdates}
+              body={t.profile.latestUpdatesHint}
+              action={
                 <Link
-                  href={`/${menu.slug}?uid=${profile.uid}`}
-                  className="shrink-0 text-sm font-bold text-primary transition hover:text-primary-strong"
+                  href="/feed"
+                  className="text-sm font-bold text-primary transition hover:text-primary-strong"
                 >
-                  {t.dashboard.viewAll} →
+                  {isOwn ? t.feed.publish : t.dashboard.viewAll} →
                 </Link>
-              </div>
-
-              {menu.board_type === BOARD_TYPES.REQUEST ? (
-                <div className="overflow-hidden rounded-[1.5rem] border border-line/80 bg-white shadow-(--shadow-card)">
-                  {menuPosts.slice(0, 4).map((post) => {
-                    const closed =
-                      post.status === POST_STATUS.CLOSED ||
-                      (!!post.deadline &&
-                        post.deadline < new Date().toISOString().slice(0, 10));
-                    return (
-                      <Link
-                        key={post.id}
-                        href={`/${menu.slug}/${post.id}`}
-                        className="group grid items-center gap-4 border-b border-line px-5 py-5 transition last:border-b-0 hover:bg-surface-sub sm:grid-cols-[1fr_auto] sm:px-7"
-                      >
-                        <span className="min-w-0">
-                          <strong className="block text-sm font-extrabold leading-snug group-hover:text-primary sm:text-base">
-                            {locale === "ko" && post.title_ko
-                              ? post.title_ko
-                              : post.title_en}
-                          </strong>
-                          <span className="mt-2 block line-clamp-1 text-xs leading-5 text-ink-soft">
-                            {stripRichText(
-                              locale === "ko" && post.body_teaser_ko
-                                ? post.body_teaser_ko
-                                : post.body_teaser_en,
-                            )}
-                          </span>
-                        </span>
-                        <span className="flex items-center justify-between gap-3 text-xs font-semibold sm:justify-end">
-                          <span
-                            className={`rounded-full px-2.5 py-1 ${closed ? "bg-surface-sub text-ink-faint" : "bg-positive-soft text-positive"}`}
-                          >
-                            {closed ? t.post.closed : t.post.open}
-                          </span>
-                          <span className="text-ink-faint">
-                            {post.deadline
-                              ? `${t.post.deadline} ${post.deadline}`
-                              : t.post.openEnded}
-                          </span>
-                          <span className="text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary">
-                            →
-                          </span>
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="scrollbar-none -mx-4 flex snap-x gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] sm:gap-4 sm:overflow-visible sm:px-0">
-                  {menuPosts.slice(0, 4).map((post, index) => (
-                    <div
-                      key={post.id}
-                      className="w-[76vw] max-w-72 shrink-0 snap-start sm:w-auto sm:max-w-none"
-                    >
-                      <ProductCard
-                        post={post}
-                        href={`/${menuSlugById.get(post.menu_id) ?? "industrial"}/${post.id}`}
-                        locale={locale}
-                        priority={index < 4}
-                        showAuthor={false}
+              }
+            />
+            {feedItems.length > 0 ? (
+              <div className="mt-10 lg:mt-12">
+                <Carousel
+                  prevLabel={t.home.prev}
+                  nextLabel={t.home.next}
+                  edgeToEdge
+                >
+                  {feedItems.slice(0, 6).map((item) => (
+                    <div key={item.id} className="store-card-network">
+                      <FeedCard
+                        item={item}
+                        viewerId={session.userId}
+                        returnTo={`/u/${profile.uid}`}
+                        compact
+                        className="store-card-interactive flex h-full flex-col"
+                        labels={getFeedCardLabels(t, locale)}
                       />
                     </div>
                   ))}
+                </Carousel>
+              </div>
+            ) : (
+              <div className="mt-10 rounded-[1.75rem] border border-dashed border-line bg-white p-8 text-center">
+                <p className="text-sm font-bold">{t.feed.empty}</p>
+                <Link href="/feed" className="btn-primary btn-md mt-4">
+                  {t.feed.publish}
+                </Link>
+              </div>
+            )}
+            <div className="mt-7 sm:hidden">
+              <Link href="/feed" className="text-sm font-bold text-primary">
+                {isOwn ? t.feed.publish : t.dashboard.viewAll} →
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {sections.length > 0 ? (
+        sections.map(({ menu, posts: menuPosts }, sectionIndex) => {
+          const isEventSection = menu.slug === "events";
+          const cardClass =
+            menu.board_type === BOARD_TYPES.REQUEST
+              ? "store-card-featured"
+              : isEventSection
+                ? "store-card-calendar"
+                : "store-card-collection-item";
+
+          return (
+            <section
+              key={menu.id}
+              id={`activity-${menu.slug}`}
+              className={`scroll-mt-24 py-20 sm:py-24 lg:py-28 ${
+                sectionIndex % 2 === 0 ? "bg-white" : "bg-[#f5f5f7]"
+              }`}
+            >
+              <div className="store-shell">
+                <BoardSectionHeading
+                  eyebrow={t.profile.memberActivity}
+                  title={locale === "ko" ? menu.title_ko : menu.title_en}
+                  body={t.profile.activityHint}
+                  action={
+                    <Link
+                      href={`/${menu.slug}?uid=${profile.uid}`}
+                      className="text-sm font-bold text-primary transition hover:text-primary-strong"
+                    >
+                      {t.dashboard.viewAll} →
+                    </Link>
+                  }
+                />
+                <div className="mt-10 lg:mt-12">
+                  <Carousel
+                    prevLabel={t.home.prev}
+                    nextLabel={t.home.next}
+                    edgeToEdge
+                  >
+                    {menuPosts.slice(0, 8).map((post, index) => (
+                      <div key={post.id} className={cardClass}>
+                        {menu.board_type === BOARD_TYPES.REQUEST ? (
+                          <OpportunityCard
+                            post={post}
+                            href={`/${menu.slug}/${post.id}`}
+                            locale={locale}
+                            labels={opportunityLabels}
+                          />
+                        ) : isEventSection ? (
+                          <EventCard
+                            post={post}
+                            href={`/${menu.slug}/${post.id}`}
+                            locale={locale}
+                            labels={eventCardLabels}
+                            priority={index < 2}
+                            feature
+                          />
+                        ) : (
+                          <ProductCard
+                            post={post}
+                            href={`/${menu.slug}/${post.id}`}
+                            locale={locale}
+                            priority={index < 3}
+                            showAuthor={false}
+                            feature
+                            compactFeature
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </Carousel>
                 </div>
-              )}
+                <div className="mt-7 sm:hidden">
+                  <Link
+                    href={`/${menu.slug}?uid=${profile.uid}`}
+                    className="text-sm font-bold text-primary"
+                  >
+                    {t.dashboard.viewAll} →
+                  </Link>
+                </div>
+              </div>
             </section>
-          ))}
-        </div>
+          );
+        })
       ) : (
-        <section>
-          <EmptyState
-            title={t.common.emptyList}
-            hint={t.common.emptyListHint}
-          />
+        <section className="bg-[#f5f5f7] py-20 sm:py-24 lg:py-28">
+          <div className="store-shell">
+            <BoardSectionHeading
+              eyebrow={t.profile.memberActivity}
+              title={t.profile.profileOverview}
+              body={t.profile.activityHint}
+            />
+            <div className="mt-10">
+              <EmptyState
+                title={t.common.emptyList}
+                hint={t.common.emptyListHint}
+              />
+            </div>
+          </div>
         </section>
       )}
     </article>
