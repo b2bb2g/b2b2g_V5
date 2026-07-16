@@ -1,4 +1,5 @@
 import DOMPurify from "isomorphic-dompurify";
+export { isRichText, stripRichText } from "@/lib/richtext-text";
 
 // Rich text pipeline: the editor stores HTML; every render path sanitizes
 // with a fixed allowlist so no script/style ever reaches the page.
@@ -62,22 +63,4 @@ export function sanitizeRichText(html: string): string {
     ALLOWED_ATTR,
     ALLOW_DATA_ATTR: false,
   });
-}
-
-// Legacy posts are plain text; new posts start with an HTML tag.
-export function isRichText(body: string): boolean {
-  return body.trimStart().startsWith("<");
-}
-
-// For teasers, meta descriptions and search snippets.
-export function stripRichText(body: string): string {
-  if (!isRichText(body)) return body;
-  return body
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\s+/g, " ")
-    .trim();
 }

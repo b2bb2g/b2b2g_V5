@@ -4,7 +4,7 @@ import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
-import { stripRichText } from "@/lib/richtext";
+import { stripRichText } from "@/lib/richtext-text";
 
 const FEATURE_BADGE_STYLES: Record<string, string> = {
   manufacturer: "border-[#5bd6ff] bg-[#c8f4ff] text-[#07506f]",

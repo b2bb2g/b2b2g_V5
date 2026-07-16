@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { BadgePill } from "@/components/ui/Badge";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { stripRichText } from "@/lib/richtext";
+import { stripRichText } from "@/lib/richtext-text";
 import { BOARD_TYPES, POST_STATUS } from "@/lib/constants";
 import { postMediaUrl } from "@/lib/media";
 import { listFeed } from "@/lib/data/feed";

@@ -3,7 +3,7 @@ import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { POST_STATUS, type Locale } from "@/lib/constants";
 import { repThumbnail } from "@/lib/media";
-import { stripRichText } from "@/lib/richtext";
+import { stripRichText } from "@/lib/richtext-text";
 import type { PostTeaser } from "@/lib/types";
 
 function Arrow() {
