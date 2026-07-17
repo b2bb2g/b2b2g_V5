@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 
 // Global two-step confirmation pattern (PRD 14): every action button asks
@@ -8,11 +8,20 @@ import { useFormStatus } from "react-dom";
 function PendingButton({
   className,
   children,
+  onSettled,
 }: {
   className: string;
   children: ReactNode;
+  onSettled: () => void;
 }) {
   const { pending } = useFormStatus();
+  const wasPending = useRef(false);
+  // Most actions revalidate in place instead of navigating, so the dialog
+  // must close itself once the submission settles.
+  useEffect(() => {
+    if (wasPending.current && !pending) onSettled();
+    wasPending.current = pending;
+  }, [pending, onSettled]);
   return (
     <button type="submit" disabled={pending} className={className}>
       {pending ? (
@@ -53,7 +62,12 @@ export function ConfirmSubmit({
         {label}
       </button>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setOpen(false);
+          }}
+        >
           <div className="w-full max-w-sm rounded-card bg-surface p-5 shadow-xl">
             <p className="text-base font-bold">{confirmTitle}</p>
             <p className="mt-1 text-sm text-ink-soft">{confirmBody}</p>
@@ -66,6 +80,7 @@ export function ConfirmSubmit({
                 {cancelLabel}
               </button>
               <PendingButton
+                onSettled={() => setOpen(false)}
                 className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-white ${
                   destructive ? "bg-negative" : "bg-primary hover:bg-primary-strong"
                 }`}
