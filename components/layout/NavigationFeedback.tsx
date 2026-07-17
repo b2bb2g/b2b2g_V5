@@ -8,9 +8,11 @@ export function NavigationFeedback() {
   const searchParams = useSearchParams();
   const [pending, setPending] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const failsafe = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
+    if (failsafe.current) clearTimeout(failsafe.current);
     timer.current = setTimeout(() => setPending(false), 0);
   }, [pathname, searchParams]);
 
@@ -18,6 +20,10 @@ export function NavigationFeedback() {
     function start() {
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => setPending(true), 100);
+      // A navigation that never lands (failed fetch, blocked action) must not
+      // leave the bar animating forever.
+      if (failsafe.current) clearTimeout(failsafe.current);
+      failsafe.current = setTimeout(() => setPending(false), 15000);
     }
     function click(event: MouseEvent) {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -36,6 +42,7 @@ export function NavigationFeedback() {
       document.removeEventListener("click", click, true);
       document.removeEventListener("submit", submit, true);
       if (timer.current) clearTimeout(timer.current);
+      if (failsafe.current) clearTimeout(failsafe.current);
     };
   }, []);
 

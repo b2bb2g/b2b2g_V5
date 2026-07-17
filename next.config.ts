@@ -18,7 +18,9 @@ const contentSecurityPolicy = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'self'",
-  "upgrade-insecure-requests",
+  // Dev runs plain HTTP on dev.b2bb2g.com:3000; upgrading would break every
+  // script load and form POST there (no TLS on that host).
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
 const nextConfig: NextConfig = {

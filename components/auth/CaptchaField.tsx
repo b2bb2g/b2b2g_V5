@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync, useFormStatus } from "react-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
@@ -22,6 +22,18 @@ export function CaptchaSubmit({
   const [token, setToken] = useState("");
   const [verifying, setVerifying] = useState(false);
   const { pending } = useFormStatus();
+  const wasPending = useRef(false);
+
+  // hCaptcha tokens are single-use: once a submission round-trips (e.g. a
+  // wrong-password error), the held token is spent. Reset the widget so the
+  // next attempt verifies fresh instead of failing captcha forever.
+  useEffect(() => {
+    if (wasPending.current && !pending) {
+      captchaRef.current?.resetCaptcha();
+      setToken("");
+    }
+    wasPending.current = pending;
+  }, [pending]);
 
   return (
     <>
@@ -34,6 +46,10 @@ export function CaptchaSubmit({
             size="invisible"
             onVerify={setToken}
             onExpire={() => setToken("")}
+            onError={() => {
+              setToken("");
+              setVerifying(false);
+            }}
           />
         </>
       )}
