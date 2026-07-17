@@ -619,6 +619,28 @@ main > :where(*) {
     /* Override Tailwind's bottom-4 utility while the consent/PWA banner is visible. */
     bottom: calc(7.5rem + env(safe-area-inset-bottom)) !important;
   }
+
+  body.has-global-banner:has(.cookie-consent-banner),
+  body:has(.cookie-consent-banner) {
+    padding-bottom: 12rem;
+  }
+
+  body.has-global-banner:has(.cookie-consent-banner) .mobile-sticky-action,
+  body:has(.cookie-consent-banner) .mobile-sticky-action {
+    bottom: calc(12.5rem + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+@media (max-width: 639px) {
+  body.has-global-banner:has(.cookie-consent-banner),
+  body:has(.cookie-consent-banner) {
+    padding-bottom: 15rem;
+  }
+
+  body.has-global-banner:has(.cookie-consent-banner) .mobile-sticky-action,
+  body:has(.cookie-consent-banner) .mobile-sticky-action {
+    bottom: calc(15.5rem + env(safe-area-inset-bottom)) !important;
+  }
 }
 
 /* Horizontal-scroll rows (dynamic menus, media strips) without a scrollbar. */

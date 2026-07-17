@@ -1141,6 +1141,7 @@ const ko: Dict = {
     essentialLabel: "필수 쿠키 (항상 사용)",
     analyticsLabel: "분석 쿠키",
     essentialOnly: "필수만 허용",
+    policyLink: "쿠키 정책 보기",
   },
   pwa: {
     installTitle: "앱처럼 사용해 보세요",

@@ -5,6 +5,7 @@
    the browser; a one-shot state sync after mount is the standard pattern to
    avoid SSR hydration mismatches. */
 
+import Link from "next/link";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { COOKIE_CONSENT_KEY } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
@@ -120,29 +121,52 @@ export function GlobalBanners({
   if (showCookie) {
     return (
       <div
-        className="global-banner fixed inset-x-0 bottom-0 z-50 p-2 sm:p-3"
+        className="global-banner cookie-consent-banner pointer-events-none fixed inset-x-0 bottom-0 z-50 px-3 pb-3 sm:px-5 sm:pb-5"
         role="region"
         aria-live="polite"
+        aria-labelledby="cookie-banner-title"
+        aria-describedby="cookie-banner-description"
       >
-        <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-2.5 shadow-lg sm:flex sm:items-center sm:gap-4 sm:px-4 sm:py-3">
-          <p className="line-clamp-2 flex-1 text-xs leading-5 text-ink-soft">
-            {cookieMessage || cookie.message}
-          </p>
-          <div className="mt-2 flex shrink-0 gap-2 sm:mt-0">
-            <button
-              type="button"
-              onClick={() => saveConsent(false)}
-              className="flex-1 rounded-xl bg-surface-sub px-3 py-1.5 text-xs font-semibold text-ink-soft sm:px-4 sm:py-2"
-            >
-              {cookie.essentialOnly}
-            </button>
-            <button
-              type="button"
-              onClick={() => saveConsent(true)}
-              className="flex-1 rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-white sm:px-4 sm:py-2"
-            >
-              {cookie.acceptAll}
-            </button>
+        <div className="pointer-events-auto mx-auto w-full max-w-[720px] rounded-[24px] border border-line bg-surface p-5 shadow-[0_24px_64px_rgba(15,23,42,0.18)] sm:p-6">
+          <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_264px] sm:items-end">
+            <div className="min-w-0">
+              <p
+                id="cookie-banner-title"
+                className="flex items-center gap-2 text-sm font-bold text-ink"
+              >
+                <span aria-hidden="true" className="size-2 rounded-full bg-primary" />
+                {cookie.preferencesTitle}
+              </p>
+              <p
+                id="cookie-banner-description"
+                className="mt-2 text-sm leading-6 text-ink-soft"
+              >
+                {cookieMessage || cookie.message}
+              </p>
+              <Link
+                href="/legal/cookies"
+                className="mt-2 inline-flex items-center gap-1 rounded-sm text-xs font-semibold text-primary transition-colors hover:text-primary-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                {cookie.policyLink}
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => saveConsent(false)}
+                className="h-11 whitespace-nowrap rounded-full bg-surface-sub px-4 text-sm font-semibold text-ink-soft transition-colors hover:bg-primary-soft hover:text-primary-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                {cookie.essentialOnly}
+              </button>
+              <button
+                type="button"
+                onClick={() => saveConsent(true)}
+                className="h-11 whitespace-nowrap rounded-full bg-primary px-4 text-sm font-bold text-white transition-colors hover:bg-primary-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                {cookie.acceptAll}
+              </button>
+            </div>
           </div>
         </div>
       </div>

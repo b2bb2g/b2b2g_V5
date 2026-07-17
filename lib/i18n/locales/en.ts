@@ -1160,6 +1160,7 @@ const en = {
     essentialLabel: "Essential cookies (always on)",
     analyticsLabel: "Analytics cookies",
     essentialOnly: "Essential only",
+    policyLink: "View cookie policy",
   },
   pwa: {
     installTitle: "Use it like an app",
