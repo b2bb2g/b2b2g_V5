@@ -3,7 +3,7 @@ import { repThumbnail } from "@/lib/media";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
-import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
+import { BadgePill } from "@/components/ui/Badge";
 import { stripRichText } from "@/lib/richtext-text";
 
 const FEATURE_BADGE_STYLES: Record<string, string> = {
@@ -115,13 +115,18 @@ export function ProductCard({
         <p className="line-clamp-2 min-h-[2.4rem] text-sm font-bold leading-snug text-ink transition-colors group-hover:text-primary">
           {title}
         </p>
-        {showAuthor && (
-          <AuthorIdentity
-            uid={post.author_uid}
-            badges={post.author_badges}
-            locale={locale}
-            className="mt-auto pt-2.5 text-xs font-semibold text-ink-faint"
-          />
+        {/* No author identity on list cards; trust badges alone signal
+            credibility when the author has earned them. */}
+        {showAuthor && post.author_badges.length > 0 && (
+          <span className="mt-auto flex flex-wrap gap-1 pt-2.5">
+            {post.author_badges.map((badge) => (
+              <BadgePill
+                key={badge.code}
+                code={badge.code}
+                label={locale === "ko" ? badge.name_ko : badge.name_en}
+              />
+            ))}
+          </span>
         )}
       </div>
     </Link>

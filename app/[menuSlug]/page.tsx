@@ -45,12 +45,6 @@ const RECOMMENDED_COLLECTION_IMAGES: Record<string, string> = {
   epc: "/landing-v2/market-rail-epc.jpg",
 };
 
-const NEW_COLLECTION_IMAGES: Record<string, string> = {
-  commercial: "/landing-v2/consumer-export-brand.jpg",
-  industrial: "/landing-v2/precision-manufacturing.jpg",
-  epc: "/generated/epc/solar-bess-commissioning.jpg",
-};
-
 function Arrow() {
   return (
     <svg
@@ -322,6 +316,7 @@ export default async function BoardPage(props: {
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
                   edgeToEdge
+                  autoPlayMs={4000}
                 >
                   <div className="store-card-collection-lead">
                     <CollectionLeadCard
@@ -368,28 +363,16 @@ export default async function BoardPage(props: {
                   nextLabel={t.home.next}
                   edgeToEdge
                 >
-                  <div className="store-card-collection-lead">
-                    <CollectionLeadCard
-                      href="#all-products"
-                      image={
-                        NEW_COLLECTION_IMAGES[menu.slug] ??
-                        "/landing-v2/hero-global-collaboration.jpg"
-                      }
-                      eyebrow={title}
-                      title={t.board.newProducts}
-                      body={t.board.newProductsHint}
-                      actionLabel={t.board.viewAllProducts}
-                    />
-                  </div>
                   {newProducts.map((post, index) => (
-                    <div key={post.id} className="store-card-collection-item">
+                    <div
+                      key={post.id}
+                      className="w-40 shrink-0 snap-start sm:w-56"
+                    >
                       <ProductCard
                         post={post}
                         href={`/${menu.slug}/${post.id}`}
                         locale={locale}
                         priority={index < 3}
-                        feature
-                        compactFeature
                       />
                     </div>
                   ))}

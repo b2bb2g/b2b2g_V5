@@ -22,6 +22,7 @@ export function Carousel({
   header,
   action,
   edgeToEdge = false,
+  autoPlayMs,
 }: {
   children: ReactNode;
   prevLabel: string;
@@ -29,10 +30,60 @@ export function Carousel({
   header?: ReactNode;
   action?: ReactNode;
   edgeToEdge?: boolean;
+  /** Advance one card on this interval; pauses on hover/touch/focus and off-screen. */
+  autoPlayMs?: number;
 }) {
   const track = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
+
+  useEffect(() => {
+    const el = track.current;
+    if (!autoPlayMs || !el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let paused = false;
+    let onScreen = true;
+    const pause = () => {
+      paused = true;
+    };
+    const resume = () => {
+      paused = false;
+    };
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry?.isIntersecting ?? true;
+    });
+    io.observe(el);
+    el.addEventListener("pointerenter", pause);
+    el.addEventListener("pointerdown", pause);
+    el.addEventListener("pointerleave", resume);
+    el.addEventListener("focusin", pause);
+    el.addEventListener("focusout", resume);
+    const timer = window.setInterval(() => {
+      if (paused || !onScreen || document.hidden) return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (el.scrollLeft >= maxScroll - EDGE_TOLERANCE) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+        return;
+      }
+      const cards = el.children;
+      const step =
+        cards.length > 1
+          ? (cards[1] as HTMLElement).offsetLeft -
+            (cards[0] as HTMLElement).offsetLeft
+          : el.clientWidth * 0.8;
+      el.scrollBy({ left: step, behavior: "smooth" });
+    }, autoPlayMs);
+    return () => {
+      window.clearInterval(timer);
+      io.disconnect();
+      el.removeEventListener("pointerenter", pause);
+      el.removeEventListener("pointerdown", pause);
+      el.removeEventListener("pointerleave", resume);
+      el.removeEventListener("focusin", pause);
+      el.removeEventListener("focusout", resume);
+    };
+  }, [autoPlayMs]);
 
   const update = useCallback(() => {
     const el = track.current;
