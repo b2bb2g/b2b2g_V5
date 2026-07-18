@@ -9,6 +9,11 @@ import Link from "next/link";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { COOKIE_CONSENT_KEY } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
+import {
+  ensureSubscribed,
+  pushSupported,
+  subscribeCurrentDevice,
+} from "@/lib/push-client";
 
 // Cookie consent + PWA install banners (PRD 18.1/18.4).
 // Priority rule: the cookie banner always goes first; the install banner
@@ -16,6 +21,7 @@ import type { Dictionary } from "@/lib/i18n";
 // full-screen interrupts.
 const CONSENT_KEY = COOKIE_CONSENT_KEY;
 const PWA_DISMISS_KEY = "pwa-banner-dismissed-at";
+const PUSH_DISMISS_KEY = "push-banner-dismissed-at";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -25,15 +31,19 @@ type BeforeInstallPromptEvent = Event & {
 export function GlobalBanners({
   cookie,
   pwa,
+  push,
   pwaEnabled,
   redisplayDays,
   cookieMessage,
+  signedIn = false,
 }: {
   cookie: Dictionary["cookie"];
   pwa: Dictionary["pwa"];
+  push: { title: string; body: string; enable: string; later: string };
   pwaEnabled: boolean;
   redisplayDays: number;
   cookieMessage?: string;
+  signedIn?: boolean;
 }) {
   const [consentDone, setConsentDone] = useState(true);
   const [pwaDismissed, setPwaDismissed] = useState(true);
@@ -42,6 +52,7 @@ export function GlobalBanners({
   const [isInApp, setIsInApp] = useState(false);
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
+  const [pushOffer, setPushOffer] = useState(false);
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -69,8 +80,40 @@ export function GlobalBanners({
       setInstallPrompt(e as BeforeInstallPromptEvent);
     };
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, [redisplayDays]);
+
+    // Push: silently refresh an already-granted device, and offer the rest.
+    if (signedIn && pushSupported()) {
+      if (Notification.permission === "granted") {
+        void ensureSubscribed();
+      } else if (Notification.permission === "default") {
+        const pushDismissedAt = Number(
+          localStorage.getItem(PUSH_DISMISS_KEY) ?? 0,
+        );
+        setPushOffer(
+          !(
+            pushDismissedAt > 0 &&
+            Date.now() - pushDismissedAt < redisplayDays * 86400_000
+          ),
+        );
+      }
+    }
+    // A fresh install is the strongest signal of app intent: re-offer push.
+    const installed = () => {
+      localStorage.removeItem(PUSH_DISMISS_KEY);
+      if (
+        signedIn &&
+        pushSupported() &&
+        Notification.permission === "default"
+      ) {
+        setPushOffer(true);
+      }
+    };
+    window.addEventListener("appinstalled", installed);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installed);
+    };
+  }, [redisplayDays, signedIn]);
 
   function saveConsent(all: boolean) {
     localStorage.setItem(
@@ -105,16 +148,28 @@ export function GlobalBanners({
     !pwaDismissed &&
     !isStandalone &&
     (isIos || !!installPrompt);
+  const showPush = !isInApp && consentDone && !showPwa && pushOffer;
+
+  function dismissPush() {
+    localStorage.setItem(PUSH_DISMISS_KEY, String(Date.now()));
+    setPushOffer(false);
+  }
+
+  async function enablePush() {
+    setPushOffer(false);
+    const result = await subscribeCurrentDevice();
+    if (result !== "on") localStorage.setItem(PUSH_DISMISS_KEY, String(Date.now()));
+  }
 
   useLayoutEffect(() => {
-    const visible = showCookie || showPwa;
+    const visible = showCookie || showPwa || showPush;
     document.body.classList.add("global-banner-ready");
     document.body.classList.toggle("has-global-banner", visible);
     return () => {
       document.body.classList.remove("global-banner-ready");
       document.body.classList.remove("has-global-banner");
     };
-  }, [showCookie, showPwa]);
+  }, [showCookie, showPwa, showPush]);
 
   if (isInApp) return null;
 
@@ -167,6 +222,39 @@ export function GlobalBanners({
                 {cookie.acceptAll}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showPush) {
+    return (
+      <div
+        className="global-banner fixed inset-x-0 bottom-0 z-50 p-3"
+        role="region"
+        aria-live="polite"
+      >
+        <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-4 shadow-lg">
+          <p className="text-sm font-bold">{push.title}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">
+            {push.body}
+          </p>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={dismissPush}
+              className="flex-1 rounded-xl bg-surface-sub px-3 py-2.5 text-xs font-semibold text-ink-soft"
+            >
+              {push.later}
+            </button>
+            <button
+              type="button"
+              onClick={enablePush}
+              className="flex-1 rounded-xl bg-primary px-3 py-2.5 text-xs font-bold text-white"
+            >
+              {push.enable}
+            </button>
           </div>
         </div>
       </div>

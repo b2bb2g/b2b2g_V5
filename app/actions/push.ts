@@ -48,3 +48,23 @@ export async function removePushSubscription(endpoint: string) {
     .eq("endpoint", String(endpoint ?? ""));
   return { ok: !error };
 }
+
+const PUSH_CATEGORIES = ["posts", "messages", "badges", "social", "membership"];
+
+// Muted categories skip the web push; in-app notifications are unaffected.
+export async function savePushPreferences(muted: string[]) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+
+  const cleaned = Array.isArray(muted)
+    ? muted.filter((item) => PUSH_CATEGORIES.includes(String(item)))
+    : [];
+  const { error } = await supabase
+    .from("profiles")
+    .update({ push_muted_types: cleaned })
+    .eq("id", user.id);
+  return { ok: !error };
+}

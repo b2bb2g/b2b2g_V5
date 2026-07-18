@@ -24,6 +24,15 @@ const PUSH_TEXT: Record<string, string> = {
   admin_notice: "Notice from the operations team",
 };
 
+function pushCategory(type: string): string | null {
+  if (type.startsWith("post_")) return "posts";
+  if (type.startsWith("message_")) return "messages";
+  if (type.startsWith("badge_")) return "badges";
+  if (type.startsWith("feed_")) return "social";
+  if (type === "subscription_expiring") return "membership";
+  return null;
+}
+
 function pushUrl(type: string, payload: Record<string, unknown>): string {
   if (typeof payload.feed_post_id === "string")
     return `/feed/${payload.feed_post_id}`;
@@ -68,6 +77,18 @@ export async function POST(request: NextRequest) {
   if (!notification) return NextResponse.json({ ok: false });
   if (Date.now() - new Date(notification.created_at).getTime() > MAX_AGE_MS) {
     return NextResponse.json({ ok: false, reason: "stale" });
+  }
+
+  const category = pushCategory(notification.type);
+  if (category) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("push_muted_types")
+      .eq("id", notification.profile_id)
+      .maybeSingle();
+    if ((profile?.push_muted_types ?? []).includes(category)) {
+      return NextResponse.json({ ok: true, muted: true });
+    }
   }
 
   const { data: subscriptions } = await supabase

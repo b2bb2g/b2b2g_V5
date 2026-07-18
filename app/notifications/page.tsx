@@ -94,7 +94,15 @@ export default async function NotificationsPage(props: {
       ? query.in("state", [NOTIFICATION_STATE.UNREAD, NOTIFICATION_STATE.READ])
       : query.eq("state", view);
 
-  const { data, count } = await query;
+  const [{ data, count }, { data: prefs }] = await Promise.all([
+    query,
+    supabase
+      .from("profiles")
+      .select("push_muted_types")
+      .eq("id", session.userId)
+      .maybeSingle(),
+  ]);
+  const mutedCategories: string[] = prefs?.push_muted_types ?? [];
   const notifications = (data ?? []) as AppNotification[];
 
   const tabs = [
@@ -126,12 +134,21 @@ export default async function NotificationsPage(props: {
       />
 
       <PushToggle
+        initialMuted={mutedCategories}
         labels={{
           title: t.notifications.pushTitle,
           body: t.notifications.pushBody,
           enable: t.notifications.pushEnable,
           disable: t.notifications.pushDisable,
           denied: t.notifications.pushDenied,
+          categories: t.notifications.pushCategories,
+          categoryLabels: {
+            posts: t.notifications.pushCatPosts,
+            messages: t.notifications.pushCatMessages,
+            badges: t.notifications.pushCatBadges,
+            social: t.notifications.pushCatSocial,
+            membership: t.notifications.pushCatMembership,
+          },
         }}
       />
 

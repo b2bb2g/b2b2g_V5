@@ -19,6 +19,7 @@ import { Toaster } from "@/components/ui/Toaster";
 import { NavigationFeedback } from "@/components/layout/NavigationFeedback";
 import { RouteChrome } from "@/components/layout/RouteChrome";
 import { getT } from "@/lib/i18n/server";
+import { getSession } from "@/lib/data/session";
 import {
   getPublicSettings,
   settingBool,
@@ -88,10 +89,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [{ t, locale }, settings] = await Promise.all([
+  const [{ t, locale }, settings, session] = await Promise.all([
     getT(),
     getPublicSettings(),
+    getSession(),
   ]);
+
   return (
     <html lang={locale} className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
@@ -132,6 +135,13 @@ export default async function RootLayout({
           <GlobalBanners
             cookie={t.cookie}
             pwa={t.pwa}
+            signedIn={Boolean(session.userId)}
+            push={{
+              title: t.notifications.pushTitle,
+              body: t.notifications.pushBody,
+              enable: t.notifications.pushEnable,
+              later: t.notifications.pushLater,
+            }}
             cookieMessage={settingString(
               settings,
               locale === "ko"
