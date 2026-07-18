@@ -4,9 +4,12 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import { setLocale } from "@/app/actions/locale";
+import { signOut } from "@/app/actions/auth";
 import { LOCALES, LOCALE_LABELS, type Locale } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 
 // Slide-in navigation drawer for phone and tablet. Rendered through a portal:
 // the sticky header's backdrop-blur creates a containing block that would trap
@@ -23,6 +26,7 @@ export function MobileMenu({
   menuLabel,
   closeLabel,
   showAuth = true,
+  account,
 }: {
   items: { id: string; slug: string; label: string }[];
   locale: Locale;
@@ -32,9 +36,16 @@ export function MobileMenu({
   signUpLabel?: string;
   menuLabel: string;
   closeLabel: string;
-  // Signed-in members reach account actions through the avatar menu, so the
-  // drawer only needs board links, search and language for them.
   showAuth?: boolean;
+  // Signed in: the drawer is the single account entry point on phone and
+  // tablet — profile card, account menu and sign-out all live here.
+  account?: {
+    uid: number;
+    avatarUrl: string | null;
+    subtitle: string;
+    items: { href: string; label: string }[];
+    signOutLabel: string;
+  };
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -44,6 +55,12 @@ export function MobileMenu({
     () => false,
   );
   const close = () => setOpen(false);
+
+  // Any navigation (including the sign-out redirect) dismisses the drawer.
+  useEffect(() => {
+    const timer = setTimeout(() => setOpen(false), 0);
+    return () => clearTimeout(timer);
+  }, [pathname]);
 
   // Lock page scroll while the drawer is open; Escape closes it.
   useEffect(() => {
@@ -94,6 +111,39 @@ export function MobileMenu({
           </button>
         </div>
 
+        {account && (
+          <div className="px-4 pb-3">
+            <Link
+              href="/dashboard"
+              onClick={close}
+              className="flex items-center gap-3 rounded-2xl bg-surface-sub px-3.5 py-3 transition-colors hover:bg-line/50"
+            >
+              {account.avatarUrl ? (
+                <Image
+                  src={account.avatarUrl}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 shrink-0 rounded-full border border-line object-cover"
+                />
+              ) : (
+                <DefaultAvatar className="h-10 w-10 shrink-0" />
+              )}
+              <span className="min-w-0 flex-1">
+                <strong className="block truncate text-[15px] font-extrabold text-ink">
+                  UID:{account.uid}
+                </strong>
+                <span className="block truncate text-xs text-ink-faint">
+                  {account.subtitle}
+                </span>
+              </span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 text-ink-faint/60">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </Link>
+          </div>
+        )}
+
         <div className="px-4 pb-3">
           <Link
             href="/search"
@@ -134,6 +184,21 @@ export function MobileMenu({
               );
             })}
           </ul>
+          {account && account.items.length > 0 && (
+            <ul className="mt-3 space-y-0.5 border-t border-line pt-3">
+              {account.items.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={close}
+                    className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub hover:text-ink"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </nav>
 
         <div className="shrink-0 border-t border-line px-5 py-3">
@@ -175,6 +240,12 @@ export function MobileMenu({
                 {signInLabel}
               </Link>
             </div>
+          ) : account ? (
+            <form action={signOut}>
+              <PendingButton className="flex w-full items-center justify-center rounded-xl bg-surface-sub py-2.5 text-sm font-bold text-negative transition-colors hover:bg-negative-soft">
+                {account.signOutLabel}
+              </PendingButton>
+            </form>
           ) : null}
         </div>
       </aside>

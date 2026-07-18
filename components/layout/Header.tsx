@@ -137,6 +137,7 @@ export async function Header({
                   label={t.common.notifications}
                   unreadLabel={t.nav.badgeUnread}
                 />
+                <div className="hidden lg:block">
                 <AvatarMenu
                   name={`UID:${session.profile.uid}`}
                   uid={session.profile.uid}
@@ -150,6 +151,7 @@ export async function Header({
                   copyLabel={t.common.copy}
                   copiedLabel={t.common.copied}
                 />
+                </div>
               </>
             ) : (
               <>
@@ -177,6 +179,19 @@ export async function Header({
               menuLabel={t.nav.menu}
               closeLabel={t.common.close}
               showAuth={!session.userId}
+              account={
+                session.userId && session.profile
+                  ? {
+                      uid: session.profile.uid,
+                      avatarUrl: session.profile.avatar_url
+                        ? postMediaUrl(session.profile.avatar_url)
+                        : null,
+                      subtitle: t.common.dashboard,
+                      items: dropdown,
+                      signOutLabel: t.common.signOut,
+                    }
+                  : undefined
+              }
             />
           </nav>
         </div>
