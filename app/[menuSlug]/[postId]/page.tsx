@@ -13,6 +13,7 @@ import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EventCard } from "@/components/marketplace/EventCard";
 import { RequestDetail } from "@/components/marketplace/RequestDetail";
 import { StatusLabel } from "@/components/ui/StatusLabel";
+import { SectionTabs } from "@/components/marketplace/SectionTabs";
 import { MediaGallery } from "@/components/post/MediaGallery";
 import { RichContentViewer } from "@/components/post/RichContentViewer";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
@@ -602,41 +603,21 @@ export default async function PostDetailPage(props: {
             </header>
         </section>
 
-        <nav
-          aria-label={t.post.detailNavigation}
-          className="scrollbar-none sticky top-[4.5rem] z-20 -mx-1 flex overflow-x-auto border-b border-line bg-[#f7f8fa]/95 px-1 pt-1 backdrop-blur"
-        >
-          <a
-            href="#product-overview"
-            className="shrink-0 border-b-2 border-ink px-4 py-3.5 text-sm font-extrabold text-ink sm:px-5 sm:py-4"
-          >
-            {t.post.productInformation}
-          </a>
-          {full && full.specs.length > 0 && (
-            <a
-              href="#product-specifications"
-              className="shrink-0 border-b-2 border-transparent px-4 py-3.5 text-sm font-bold text-ink-faint transition hover:text-ink sm:px-5 sm:py-4"
-            >
-              {t.post.specs}
-            </a>
-          )}
-          {full && full.attachments.length > 0 && (
-            <a
-              href="#product-attachments"
-              className="shrink-0 border-b-2 border-transparent px-4 py-3.5 text-sm font-bold text-ink-faint transition hover:text-ink sm:px-5 sm:py-4"
-            >
-              {t.post.attachments}
-            </a>
-          )}
-          {relatedProducts.length > 0 && (
-            <a
-              href="#related-products"
-              className="shrink-0 border-b-2 border-transparent px-4 py-3.5 text-sm font-bold text-ink-faint transition hover:text-ink sm:px-5 sm:py-4"
-            >
-              {t.post.relatedProducts}
-            </a>
-          )}
-        </nav>
+        <SectionTabs
+          ariaLabel={t.post.detailNavigation}
+          items={[
+            { id: "product-overview", label: t.post.productInformation },
+            ...(full && full.specs.length > 0
+              ? [{ id: "product-specifications", label: t.post.specs }]
+              : []),
+            ...(full && full.attachments.length > 0
+              ? [{ id: "product-attachments", label: t.post.attachments }]
+              : []),
+            ...(relatedProducts.length > 0
+              ? [{ id: "related-products", label: t.post.relatedProducts }]
+              : []),
+          ]}
+        />
 
         {full ? (
           <section
@@ -773,7 +754,7 @@ export default async function PostDetailPage(props: {
                 {t.common.viewAll} →
               </Link>
             </div>
-            <div className="scrollbar-none -mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-6 sm:gap-4">
+            <div className="scrollbar-none -mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-6 scroll-px-4 sm:gap-4">
               {relatedProducts.map((related) => (
                 <div
                   key={related.id}
