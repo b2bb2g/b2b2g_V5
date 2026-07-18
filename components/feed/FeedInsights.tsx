@@ -44,14 +44,25 @@ export function FeedInsights({
   useEffect(() => {
     if (!signedIn) return;
     let cancelled = false;
-    const timer = setTimeout(async () => {
-      await recordFeedView(postId);
+    const refresh = async () => {
       const result = await listFeedEngagement(postId);
       if (!cancelled && result) setData(result);
+    };
+    const timer = setTimeout(async () => {
+      await recordFeedView(postId);
+      await refresh();
     }, 400);
+    // Like/unlike anywhere on this post refreshes the counters live.
+    const onChanged = (event: Event) => {
+      const changed = (event as CustomEvent<{ postId?: string }>).detail
+        ?.postId;
+      if (changed === postId) void refresh();
+    };
+    window.addEventListener("b2bb2g:feed-engagement-changed", onChanged);
     return () => {
       cancelled = true;
       clearTimeout(timer);
+      window.removeEventListener("b2bb2g:feed-engagement-changed", onChanged);
     };
   }, [postId, signedIn]);
 

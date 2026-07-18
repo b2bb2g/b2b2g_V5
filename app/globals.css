@@ -585,6 +585,13 @@ main > :where(*) {
   outline-offset: 2px;
 }
 
+/* Inputs whose wrapper carries the focus treatment: the global focus ring
+   would double-outline them (utilities lose to unlayered rules). */
+.plain-input:focus,
+.plain-input:focus-visible {
+  outline: none;
+}
+
 .skip-link {
   position: fixed;
   left: 1rem;

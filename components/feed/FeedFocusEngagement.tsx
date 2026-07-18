@@ -42,6 +42,7 @@ export type FeedFocusLabels = {
   viewedBy: string;
   views: string;
   close: string;
+  cancel: string;
   signInToComment: string;
   noComments: string;
   deleteComment: string;
@@ -126,7 +127,16 @@ export function FeedFocusEngagement({
     <section className="mt-6 border-t border-line/80" aria-label={labels.comments}>
       <div className="grid grid-cols-4 border-b border-line/80 px-2 py-1 text-ink-soft">
         {data.viewerId ? (
-          <form action={toggleFeedLike}>
+          <form
+            action={async (formData: FormData) => {
+              await toggleFeedLike(formData);
+              window.dispatchEvent(
+                new CustomEvent("b2bb2g:feed-engagement-changed", {
+                  detail: { postId },
+                }),
+              );
+            }}
+          >
             <input type="hidden" name="postId" value={postId} />
             <input type="hidden" name="returnTo" value={data.returnTo} />
             <PendingButton
@@ -300,6 +310,7 @@ export function FeedFocusEngagement({
                 delete: labels.deleteComment,
                 justNow: labels.justNow,
                 close: labels.close,
+                cancel: labels.cancel,
                 comments: labels.comments,
                 placeholder: labels.commentPlaceholder,
                 submit: labels.writeComment,

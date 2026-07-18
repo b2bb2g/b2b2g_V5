@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { deleteFeedComment, toggleFeedCommentLike } from "@/app/actions/feed";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
@@ -19,6 +19,7 @@ export type CommentListLabels = {
   like: string;
   reply: string;
   moreReplies: string;
+  cancel: string;
   delete: string;
   justNow: string;
   close: string;
@@ -41,6 +42,7 @@ function CommentRow({
   labels,
   onOpenThread,
   onOpenImage,
+  onOpenMenu,
   onChanged,
   inThread = false,
 }: {
@@ -53,9 +55,16 @@ function CommentRow({
   labels: CommentListLabels;
   onOpenThread?: (id: string) => void;
   onOpenImage?: (path: string) => void;
+  onOpenMenu?: (comment: FeedComment) => void;
   onChanged?: () => void;
   inThread?: boolean;
 }) {
+  const isOwn = viewerId === comment.authorId;
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelPress = () => {
+    if (pressTimer.current) clearTimeout(pressTimer.current);
+    pressTimer.current = null;
+  };
   return (
     <article className="flex items-start gap-2.5">
       <Link href={`/u/${comment.authorUid}`} className="shrink-0">
@@ -72,7 +81,24 @@ function CommentRow({
         )}
       </Link>
       <div className="min-w-0 flex-1">
-        <div className="rounded-2xl bg-surface-sub px-3.5 py-2.5">
+        <div
+          className="rounded-2xl bg-surface-sub px-3.5 py-2.5"
+          onPointerDown={() => {
+            // Instagram-style long press opens the comment actions.
+            if (!isOwn || !onOpenMenu) return;
+            cancelPress();
+            pressTimer.current = setTimeout(() => onOpenMenu(comment), 550);
+          }}
+          onPointerUp={cancelPress}
+          onPointerMove={cancelPress}
+          onPointerCancel={cancelPress}
+          onContextMenu={(event) => {
+            if (isOwn && onOpenMenu) {
+              event.preventDefault();
+              onOpenMenu(comment);
+            }
+          }}
+        >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <Link
@@ -89,24 +115,20 @@ function CommentRow({
                 className="text-[11px] text-ink-faint"
               />
             </div>
-            {viewerId === comment.authorId && (
-              <form
-                action={async (formData: FormData) => {
-                  await deleteFeedComment(formData);
-                  onChanged?.();
-                }}
+            {isOwn && onOpenMenu && (
+              <button
+                type="button"
+                aria-label={labels.delete}
+                aria-haspopup="menu"
+                onClick={() => onOpenMenu(comment)}
+                className="flex h-7 w-7 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-white hover:text-ink"
               >
-                <input type="hidden" name="commentId" value={comment.id} />
-                <input type="hidden" name="postId" value={postId} />
-                <input type="hidden" name="returnTo" value={returnTo} />
-                <PendingButton
-                  aria-label={labels.delete}
-                  title={labels.delete}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-base text-ink-faint hover:bg-white hover:text-negative"
-                >
-                  ×
-                </PendingButton>
-              </form>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="5" cy="12" r="1.8" />
+                  <circle cx="12" cy="12" r="1.8" />
+                  <circle cx="19" cy="12" r="1.8" />
+                </svg>
+              </button>
             )}
           </div>
           {comment.body.trim() && (
@@ -202,6 +224,7 @@ export function CommentList({
 }) {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [menuComment, setMenuComment] = useState<FeedComment | null>(null);
   // Ancestors animate transforms (page-enter), which traps fixed overlays;
   // portaling to <body> keeps the sheets viewport-sized.
   const mounted = useSyncExternalStore(
@@ -243,6 +266,7 @@ export function CommentList({
                 labels={labels}
                 onOpenThread={setThreadId}
                 onOpenImage={setLightbox}
+                onOpenMenu={setMenuComment}
                 onChanged={onChanged}
               />
               {shown.length > 0 && (
@@ -258,6 +282,7 @@ export function CommentList({
                       renderedAt={renderedAt}
                       labels={labels}
                       onOpenImage={setLightbox}
+                      onOpenMenu={setMenuComment}
                       onChanged={onChanged}
                       inThread
                     />
@@ -314,6 +339,7 @@ export function CommentList({
                 renderedAt={renderedAt}
                 labels={labels}
                 onOpenImage={setLightbox}
+                onOpenMenu={setMenuComment}
                 onChanged={onChanged}
                 inThread
               />
@@ -330,6 +356,7 @@ export function CommentList({
                       renderedAt={renderedAt}
                       labels={labels}
                       onOpenImage={setLightbox}
+                      onOpenMenu={setMenuComment}
                       onChanged={onChanged}
                       inThread
                     />
@@ -357,6 +384,44 @@ export function CommentList({
                 />
               </div>
             )}
+          </div>
+        </div>,
+        document.body,
+      )}
+
+      {mounted && menuComment && createPortal(
+        <div
+          className="fixed inset-0 z-[245] flex items-end justify-center bg-ink/45 backdrop-blur-[2px] sm:items-center sm:p-4"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setMenuComment(null);
+          }}
+        >
+          <div
+            role="menu"
+            aria-label={labels.delete}
+            className="w-full rounded-t-[1.5rem] bg-white p-3 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:max-w-xs sm:rounded-[1.5rem]"
+          >
+            <form
+              action={async (formData: FormData) => {
+                await deleteFeedComment(formData);
+                setMenuComment(null);
+                onChanged?.();
+              }}
+            >
+              <input type="hidden" name="commentId" value={menuComment.id} />
+              <input type="hidden" name="postId" value={postId} />
+              <input type="hidden" name="returnTo" value={returnTo} />
+              <PendingButton className="flex w-full items-center justify-center rounded-xl py-3 text-sm font-extrabold text-negative transition-colors hover:bg-negative-soft">
+                {labels.delete}
+              </PendingButton>
+            </form>
+            <button
+              type="button"
+              onClick={() => setMenuComment(null)}
+              className="mt-1 w-full rounded-xl py-3 text-sm font-bold text-ink-soft transition-colors hover:bg-surface-sub"
+            >
+              {labels.cancel}
+            </button>
           </div>
         </div>,
         document.body,

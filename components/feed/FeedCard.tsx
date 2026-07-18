@@ -284,6 +284,7 @@ export function FeedCard({
           viewedBy: labels.viewedBy,
           views: labels.views,
           close: labels.close,
+          cancel: labels.cancel,
           signInToComment: labels.signInToComment,
           noComments: labels.noComments,
           deleteComment: labels.deleteComment,
@@ -295,7 +296,16 @@ export function FeedCard({
 
       <footer className={`grid grid-cols-4 border-t border-line/70 px-2 py-1.5 text-ink-soft sm:px-3 ${compact ? "mt-auto" : ""}`}>
         {viewerId ? (
-          <form action={toggleFeedLike}>
+          <form
+            action={async (formData: FormData) => {
+              await toggleFeedLike(formData);
+              window.dispatchEvent(
+                new CustomEvent("b2bb2g:feed-engagement-changed", {
+                  detail: { postId: item.id },
+                }),
+              );
+            }}
+          >
             <input type="hidden" name="postId" value={item.id} />
             <input type="hidden" name="returnTo" value={returnTo} />
             <PendingButton

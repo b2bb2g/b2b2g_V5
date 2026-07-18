@@ -106,7 +106,7 @@ export function CommentComposer({
       />
 
       <div className="flex items-end gap-2">
-        <div className="min-w-0 flex-1 rounded-2xl border border-line bg-surface-sub transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary-soft">
+        <div className="min-w-0 flex-1 rounded-2xl border border-line bg-surface-sub transition focus-within:border-primary/50">
           <textarea
             ref={textarea}
             name="body"
@@ -117,7 +117,7 @@ export function CommentComposer({
             value={body}
             onChange={(event) => setBody(event.target.value)}
             placeholder={labels.placeholder}
-            className="min-h-11 w-full resize-y bg-transparent px-4 pt-3 text-sm leading-6 outline-none focus-visible:outline-none"
+            className="plain-input min-h-11 w-full resize-y bg-transparent px-4 pt-3 text-sm leading-6"
           />
           {mediaPath && (
             <div className="relative mx-3 mb-3 mt-1 inline-block">
@@ -181,24 +181,24 @@ export function CommentComposer({
               </svg>
             </button>
           </div>
+          {emojiOpen && (
+            <div className="grid grid-cols-8 gap-0.5 border-t border-line/70 px-2 py-2">
+              {EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => insertEmoji(emoji)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-base transition-colors hover:bg-white"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <CommentSubmitButton label={labels.submit} />
       </div>
 
-      {emojiOpen && (
-        <div className="absolute bottom-full left-0 z-20 mb-2 grid w-64 grid-cols-8 gap-0.5 rounded-2xl border border-line bg-white p-2 shadow-(--shadow-float)">
-          {EMOJIS.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              onClick={() => insertEmoji(emoji)}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-base transition-colors hover:bg-surface-sub"
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
-      )}
       {error && (
         <p role="alert" className="mt-1.5 text-xs font-bold text-negative">
           {error}

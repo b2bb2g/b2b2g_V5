@@ -74,6 +74,7 @@ export default async function FeedDetailPage({
           reply: t.feed.reply,
           moreReplies: t.feed.moreReplies,
           close: t.common.close,
+          cancel: t.common.cancel,
           addImage: t.feed.addPhotos,
           addEmoji: t.feed.addEmoji,
           removeImage: t.feed.removeImage,
