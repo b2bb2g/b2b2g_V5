@@ -8,6 +8,7 @@ import {
   toggleMemberFollow,
 } from "@/app/actions/feed";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { FeedCommentTrigger } from "@/components/feed/FeedCommentTrigger";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { ShareButton } from "@/components/feed/ShareButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
@@ -153,6 +154,7 @@ export function FeedCard({
                 <input type="hidden" name="targetId" value={item.authorId} />
                 <input type="hidden" name="returnTo" value={returnTo} />
                 <PendingButton
+                  pendingLabel=""
                   title={item.followingAuthor ? labels.following : labels.follow}
                   className={
                     item.followingAuthor
@@ -319,15 +321,23 @@ export function FeedCard({
             <span className="sr-only">{labels.like}</span>
           </Link>
         )}
-        <Link
-          href={`${sharePath}#comments`}
-          title={labels.comment}
-          className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub"
-        >
-          <CommentIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
-          {item.commentCount > 0 && <span>{item.commentCount}</span>}
-          <span className="sr-only">{labels.comment}</span>
-        </Link>
+        {detail ? (
+          <Link
+            href={`${sharePath}#comments`}
+            title={labels.comment}
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub"
+          >
+            <CommentIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
+            {item.commentCount > 0 && <span>{item.commentCount}</span>}
+            <span className="sr-only">{labels.comment}</span>
+          </Link>
+        ) : (
+          <FeedCommentTrigger
+            postId={item.id}
+            count={item.commentCount}
+            label={labels.comment}
+          />
+        )}
         {viewerId ? (
           <form action={toggleFeedRepost}>
             <input type="hidden" name="postId" value={item.id} />

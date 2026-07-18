@@ -117,7 +117,7 @@ export function CommentComposer({
             value={body}
             onChange={(event) => setBody(event.target.value)}
             placeholder={labels.placeholder}
-            className="min-h-11 w-full resize-y bg-transparent px-4 pt-3 text-sm leading-6 outline-none"
+            className="min-h-11 w-full resize-y bg-transparent px-4 pt-3 text-sm leading-6 outline-none focus-visible:outline-none"
           />
           {mediaPath && (
             <div className="relative mx-3 mb-3 mt-1 inline-block">

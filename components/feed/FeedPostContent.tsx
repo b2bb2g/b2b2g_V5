@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ExpandableFeedText } from "@/components/feed/ExpandableFeedText";
 import {
   FeedMediaGrid,
@@ -40,8 +40,24 @@ export function FeedPostContent({
 }) {
   const [textExpanded, setTextExpanded] = useState(false);
   const [focusOpen, setFocusOpen] = useState(false);
+  const [focusIndex, setFocusIndex] = useState(0);
   const openerRef = useRef<HTMLButtonElement | null>(null);
   const variant = detail ? "detail" : compact ? "compact" : "stream";
+
+  // Comment buttons on stream cards ask this post's dialog to open.
+  useEffect(() => {
+    if (detail) return;
+    const onOpen = (event: Event) => {
+      const requested = (event as CustomEvent<{ postId?: string }>).detail
+        ?.postId;
+      if (requested === postId) {
+        openerRef.current = null;
+        setFocusOpen(true);
+      }
+    };
+    window.addEventListener("b2bb2g:open-feed-post", onOpen);
+    return () => window.removeEventListener("b2bb2g:open-feed-post", onOpen);
+  }, [detail, postId]);
 
   const closeFocus = () => {
     setFocusOpen(false);
@@ -68,6 +84,15 @@ export function FeedPostContent({
       <FeedMediaGrid
         paths={paths}
         body={body}
+        onMediaClick={
+          detail
+            ? undefined
+            : (index) => {
+                openerRef.current = null;
+                setFocusIndex(index);
+                setFocusOpen(true);
+              }
+        }
         authorUid={authorUid}
         avatarPath={avatarPath}
         createdAt={createdAt}
@@ -76,6 +101,8 @@ export function FeedPostContent({
       />
       {!detail && focusOpen && (
         <FeedPostFocusDialog
+          key={focusIndex}
+          initialIndex={focusIndex}
           open={focusOpen}
           onClose={closeFocus}
           postId={postId}

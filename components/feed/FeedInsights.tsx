@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { listFeedEngagement, recordFeedView } from "@/app/actions/feed";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { postMediaUrl } from "@/lib/media";
@@ -27,6 +28,18 @@ export function FeedInsights({
     viewers: Identity[];
   } | null>(null);
   const [open, setOpen] = useState<"likers" | "viewers" | null>(null);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  async function openSheet(kind: "likers" | "viewers") {
+    setOpen(kind);
+    // Counts drift as members like/unlike; refresh whenever the sheet opens.
+    const fresh = await listFeedEngagement(postId);
+    if (fresh) setData(fresh);
+  }
 
   useEffect(() => {
     if (!signedIn) return;
@@ -53,28 +66,32 @@ export function FeedInsights({
       <div className="flex items-center gap-2 text-xs font-bold text-ink-faint">
         <button
           type="button"
-          onClick={() => setOpen("likers")}
+          onClick={() => void openSheet("likers")}
+          title={labels.likedBy}
           className="flex min-h-8 items-center gap-1.5 rounded-full bg-surface-sub px-3 transition-colors hover:bg-line/60"
         >
           <LikeIcon className="h-3.5 w-3.5 fill-none stroke-current stroke-[2]" />
+          <span className="sr-only">{labels.likedBy}</span>
           {data.likers.length}
         </button>
         <button
           type="button"
-          onClick={() => setOpen("viewers")}
+          onClick={() => void openSheet("viewers")}
+          title={labels.viewedBy}
           className="flex min-h-8 items-center gap-1.5 rounded-full bg-surface-sub px-3 transition-colors hover:bg-line/60"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
-          {labels.views} {data.viewers.length}
+          <span className="sr-only">{labels.viewedBy}</span>
+          {data.viewers.length}
         </button>
       </div>
 
-      {sheet && (
+      {mounted && sheet && createPortal(
         <div
-          className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/45 backdrop-blur-[2px] sm:items-center sm:p-4"
+          className="fixed inset-0 z-[240] flex items-end justify-center bg-ink/45 backdrop-blur-[2px] sm:items-center sm:p-4"
           onClick={(event) => {
             if (event.target === event.currentTarget) setOpen(null);
           }}
@@ -125,7 +142,8 @@ export function FeedInsights({
               ))}
             </ul>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

@@ -30,9 +30,11 @@ export function FeedPostFocusDialog({
   renderedAt,
   engagement,
   labels,
+  initialIndex = 0,
 }: {
   open: boolean;
   onClose: () => void;
+  initialIndex?: number;
   postId: string;
   body: string;
   paths: string[];
@@ -44,7 +46,7 @@ export function FeedPostFocusDialog({
   labels: FeedMediaLabels &
     FeedFocusLabels & { follow: string; following: string };
 }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [dragY, setDragY] = useState(0);
   const dragStart = useRef<number | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -240,6 +242,7 @@ export function FeedPostFocusDialog({
                       value={engagement.returnTo}
                     />
                     <PendingButton
+                      pendingLabel=""
                       title={
                         engagement.followingAuthor
                           ? labels.following

@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { createPortal } from "react-dom";
+import { useState, useSyncExternalStore } from "react";
 import { deleteFeedComment, toggleFeedCommentLike } from "@/app/actions/feed";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
@@ -146,11 +147,13 @@ function CommentRow({
               <input type="hidden" name="postId" value={postId} />
               <input type="hidden" name="returnTo" value={returnTo} />
               <PendingButton
+                pendingLabel=""
                 aria-pressed={comment.likedByViewer}
+                title={labels.like}
                 className={`flex min-h-8 items-center gap-1 rounded-full px-2 transition-colors hover:bg-surface-sub ${comment.likedByViewer ? "text-primary" : ""}`}
               >
                 <LikeIcon className="h-4 w-4 fill-none stroke-current stroke-[1.9]" />
-                {labels.like}
+                <span className="sr-only">{labels.like}</span>
                 {comment.likeCount > 0 && <span>{comment.likeCount}</span>}
               </PendingButton>
             </form>
@@ -199,6 +202,13 @@ export function CommentList({
 }) {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
+  // Ancestors animate transforms (page-enter), which traps fixed overlays;
+  // portaling to <body> keeps the sheets viewport-sized.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const topLevel = comments.filter((comment) => !comment.parentId);
   const repliesByParent = new Map<string, FeedComment[]>();
   for (const comment of comments) {
@@ -268,9 +278,9 @@ export function CommentList({
         })}
       </div>
 
-      {thread && (
+      {mounted && thread && createPortal(
         <div
-          className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/45 backdrop-blur-[2px] sm:items-center sm:p-4"
+          className="fixed inset-0 z-[240] flex items-end justify-center bg-ink/45 backdrop-blur-[2px] sm:items-center sm:p-4"
           onClick={(event) => {
             if (event.target === event.currentTarget) setThreadId(null);
           }}
@@ -348,12 +358,13 @@ export function CommentList({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
-      {lightbox && (
+      {mounted && lightbox && createPortal(
         <div
-          className="fixed inset-0 z-[90] flex flex-col bg-black/92"
+          className="fixed inset-0 z-[250] flex flex-col bg-black/92"
           onClick={(event) => {
             if (event.target === event.currentTarget) setLightbox(null);
           }}
@@ -373,7 +384,8 @@ export function CommentList({
           <div className="min-h-0 flex-1 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <ZoomableImage src={postMediaUrl(lightbox)} alt="" onDismiss={() => setLightbox(null)} />
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

@@ -32,6 +32,7 @@ export function FeedMediaGrid({
   createdAt,
   renderedAt,
   labels,
+  onMediaClick,
 }: {
   paths: string[];
   body: string;
@@ -40,6 +41,7 @@ export function FeedMediaGrid({
   createdAt: string;
   renderedAt: string;
   labels: FeedMediaLabels;
+  onMediaClick?: (index: number) => void;
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [postOpen, setPostOpen] = useState(false);
@@ -161,6 +163,10 @@ export function FeedMediaGrid({
               key={`${path}-${index}`}
               aria-label={`${labels.openImage} ${index + 1} / ${paths.length}`}
               onClick={(event) => {
+                if (onMediaClick) {
+                  onMediaClick(index);
+                  return;
+                }
                 openerRef.current = event.currentTarget;
                 setOpenIndex(index);
               }}

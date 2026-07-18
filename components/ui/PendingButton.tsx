@@ -28,7 +28,7 @@ export function PendingButton({
           aria-hidden="true"
         />
       )}
-      {pending && pendingLabel ? pendingLabel : children}
+      {pending && pendingLabel !== undefined ? pendingLabel : children}
     </button>
   );
 }
