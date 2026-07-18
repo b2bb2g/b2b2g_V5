@@ -184,13 +184,25 @@ export default async function PostDetailPage(props: {
     .slice(0, 300);
   const schemaData = {
     "@context": "https://schema.org",
-    "@type": isCommerceProduct ? "Product" : "Article",
-    ...(isCommerceProduct ? { name: title } : { headline: title }),
+    "@type": isCommerceProduct ? "Product" : isEvent ? "Event" : "Article",
+    ...(isCommerceProduct || isEvent ? { name: title } : { headline: title }),
     description: schemaBody,
     url: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/${menu.slug}/${postId}`,
     ...(repImage ? { image: postMediaUrl(repImage) } : {}),
     ...(publishedAt ? { datePublished: publishedAt } : {}),
-    author: { "@type": "Organization", name: `UID:${authorUid}` },
+    // Event rich results need schedule and place; fall back gracefully when
+    // the organizer has not announced them yet.
+    ...(isEvent
+      ? {
+          ...(eventStart ? { startDate: eventStart } : {}),
+          ...(eventEnd ? { endDate: eventEnd } : {}),
+          eventStatus: "https://schema.org/EventScheduled",
+          ...(eventVenue
+            ? { location: { "@type": "Place", name: eventVenue } }
+            : {}),
+          organizer: { "@type": "Organization", name: "B2BB2G" },
+        }
+      : { author: { "@type": "Organization", name: `UID:${authorUid}` } }),
   };
 
   if (isRequest) {

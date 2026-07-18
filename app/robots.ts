@@ -12,6 +12,12 @@ const BASE_DISALLOW = [
   "/write",
   "/reset",
   "/api",
+  // Auth and utility surfaces: no search value, waste crawl budget.
+  "/auth",
+  "/login",
+  "/signup",
+  "/verify",
+  "/search",
 ];
 
 export default async function robots(): Promise<MetadataRoute.Robots> {

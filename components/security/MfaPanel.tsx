@@ -184,7 +184,13 @@ export function MfaPanel({
             <span className="sr-only">{labels.code}</span>
             <input autoFocus={required} value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder={labels.code} className="field tracking-[.25em]" />
           </label>
-          <button type="submit" disabled={busy || code.length !== 6} className="btn-primary btn-md disabled:opacity-60">{labels.verify}</button>
+          <button type="submit" disabled={busy || code.length !== 6} aria-busy={busy} className="btn-primary btn-md disabled:opacity-60">
+            {busy ? (
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent align-middle" aria-hidden="true" />
+            ) : (
+              labels.verify
+            )}
+          </button>
         </form>
       )}
       {error && <p role="alert" className="mt-3 text-xs font-bold text-negative">{error}</p>}
