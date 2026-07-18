@@ -58,13 +58,16 @@ export function NavigationFeedback() {
     // so hook the history API as an additional finish signal.
     const originalPush = history.pushState.bind(history);
     const originalReplace = history.replaceState.bind(history);
+    // Next may commit history inside useInsertionEffect, where scheduling
+    // React state updates is forbidden — always defer the finish a tick.
+    const finishDeferred = () => setTimeout(finish, 0);
     history.pushState = (...args: Parameters<History["pushState"]>) => {
       originalPush(...args);
-      finish();
+      finishDeferred();
     };
     history.replaceState = (...args: Parameters<History["replaceState"]>) => {
       originalReplace(...args);
-      finish();
+      finishDeferred();
     };
     window.addEventListener("popstate", finish);
     window.addEventListener("pageshow", finish);
