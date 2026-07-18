@@ -113,10 +113,10 @@ export function MediaGallery({
                   onClick={() => setSelected(index)}
                   aria-label={`${title} ${index + 1}`}
                   aria-pressed={selected === index}
-                  className={`relative aspect-square w-[4.75rem] shrink-0 snap-start overflow-hidden rounded-xl bg-surface-sub ring-2 ring-offset-2 transition ${
+                  className={`relative aspect-square w-[4.75rem] shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-surface-sub transition ${
                     selected === index
-                      ? "ring-primary"
-                      : "ring-transparent hover:ring-line"
+                      ? "border-primary"
+                      : "border-transparent opacity-85 hover:opacity-100 hover:border-line"
                   }`}
                 >
                   <Image
@@ -134,10 +134,10 @@ export function MediaGallery({
                   onClick={() => setSelected(videoIndex)}
                   aria-label={videoLabel}
                   aria-pressed={selectedIsVideo}
-                  className={`relative flex aspect-square w-[4.75rem] shrink-0 snap-start items-center justify-center overflow-hidden rounded-xl bg-[#101923] text-white ring-2 ring-offset-2 transition ${
+                  className={`relative flex aspect-square w-[4.75rem] shrink-0 snap-start items-center justify-center overflow-hidden rounded-xl border-2 bg-[#101923] text-white transition ${
                     selectedIsVideo
-                      ? "ring-primary"
-                      : "ring-transparent hover:ring-line"
+                      ? "border-primary"
+                      : "border-transparent opacity-85 hover:opacity-100 hover:border-line"
                   }`}
                 >
                   <svg
@@ -353,7 +353,7 @@ export function MediaGallery({
                     event.stopPropagation();
                     setOpen(index);
                   }}
-                  className={`relative aspect-square w-12 shrink-0 overflow-hidden rounded-lg ring-2 ring-offset-2 ring-offset-[#05070a] ${open === index ? "ring-white" : "ring-transparent opacity-60 hover:opacity-100"}`}
+                  className={`relative aspect-square w-12 shrink-0 overflow-hidden rounded-lg border-2 ${open === index ? "border-white" : "border-transparent opacity-60 hover:opacity-100"}`}
                 >
                   <Image
                     src={url}

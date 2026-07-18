@@ -44,7 +44,7 @@ export function SectionTabs({
   return (
     <nav
       aria-label={ariaLabel}
-      className="scrollbar-none sticky top-[4.5rem] z-20 -mx-1 flex overflow-x-auto border-b border-line bg-[#f7f8fa]/95 px-1 pt-1 backdrop-blur"
+      className="scrollbar-none sticky top-[4.5rem] z-20 mx-[calc(var(--page-gutter-inline)*-1)] flex overflow-x-auto border-b border-line bg-[#f7f8fa] px-[var(--page-gutter-inline)] pt-1"
     >
       {items.map((item) => {
         const isActive = item.id === active;
