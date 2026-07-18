@@ -506,6 +506,10 @@ export function CommentList({
               rows={3}
               autoFocus
               defaultValue={editComment.body}
+              onFocus={(event) => {
+                const end = event.currentTarget.value.length;
+                event.currentTarget.setSelectionRange(end, end);
+              }}
               className="plain-input mt-3 w-full resize-y rounded-2xl border border-line bg-surface-sub px-4 py-3 text-sm leading-6 transition focus:border-primary/50"
             />
             <div className="mt-3 flex gap-2">

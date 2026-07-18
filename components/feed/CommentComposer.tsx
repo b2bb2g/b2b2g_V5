@@ -51,6 +51,7 @@ export function CommentComposer({
   const fileInput = useRef<HTMLInputElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const caretInitialized = useRef(false);
 
   async function upload(raw: File) {
     setUploading(true);
@@ -117,6 +118,13 @@ export function CommentComposer({
             rows={parentId ? 1 : 2}
             autoFocus={autoFocus}
             value={body}
+            onFocus={(event) => {
+              // Prefilled mentions should continue at the end, not the start.
+              if (caretInitialized.current) return;
+              caretInitialized.current = true;
+              const end = event.currentTarget.value.length;
+              event.currentTarget.setSelectionRange(end, end);
+            }}
             onChange={(event) => setBody(event.target.value)}
             placeholder={labels.placeholder}
             className="plain-input min-h-11 w-full resize-y bg-transparent px-4 pt-3 text-sm leading-6"

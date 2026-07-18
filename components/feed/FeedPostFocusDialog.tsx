@@ -151,10 +151,10 @@ export function FeedPostFocusDialog({
           transform: dragY ? `translateY(${dragY}px)` : undefined,
           transition: dragY ? "none" : "transform 200ms ease-out",
         }}
-        className={`feed-post-sheet flex h-dvh w-full max-w-6xl overflow-hidden bg-white text-ink shadow-2xl sm:h-[min(88dvh,56rem)] sm:rounded-[1.75rem] ${paths.length ? "flex-col md:grid md:grid-cols-[minmax(0,1.55fr)_minmax(20rem,.8fr)]" : "max-w-2xl flex-col"}`}
+        className={`feed-post-sheet flex h-dvh w-full max-w-6xl overflow-y-auto overscroll-contain bg-white text-ink shadow-2xl sm:h-[min(88dvh,56rem)] sm:rounded-[1.75rem] md:overflow-hidden ${paths.length ? "flex-col md:grid md:grid-cols-[minmax(0,1.55fr)_minmax(20rem,.8fr)]" : "max-w-2xl flex-col"}`}
       >
         {paths.length > 0 && (
-          <div className="flex min-h-[46dvh] min-w-0 flex-1 bg-[#07090d] md:min-h-0">
+          <div className="flex h-[52dvh] min-w-0 shrink-0 bg-[#07090d] md:h-auto md:min-h-0 md:flex-1">
             <FeedMediaCarousel
               paths={paths}
               activeIndex={activeIndex}
@@ -167,9 +167,9 @@ export function FeedPostFocusDialog({
           </div>
         )}
 
-        <div className="flex min-h-0 flex-1 flex-col bg-white">
+        <div className="flex flex-col bg-white md:min-h-0 md:flex-1">
           <div
-            className="touch-pan-x border-b border-line px-5 pb-4 sm:px-6 sm:pt-4"
+            className="sticky top-0 z-10 touch-pan-x border-b border-line bg-white px-5 pb-4 sm:px-6 sm:pt-4 md:static"
             onPointerDown={(event) => {
               if (event.pointerType === "mouse") return;
               dragStart.current = event.clientY;
@@ -286,7 +286,7 @@ export function FeedPostFocusDialog({
             </div>
             </div>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="pb-[max(1rem,env(safe-area-inset-bottom))] md:min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
             <p className="whitespace-pre-wrap px-5 pt-5 text-[15px] leading-7 text-ink sm:px-6 sm:pt-6">
               {body}
             </p>
