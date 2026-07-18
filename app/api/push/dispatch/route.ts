@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
   if (!subscriptions?.length) return NextResponse.json({ ok: true, sent: 0 });
 
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT ?? "mailto:badaon.com@gmail.com",
+    process.env.VAPID_SUBJECT ?? "mailto:no-reply@b2bb2g.com",
     vapidPublic,
     vapidPrivate,
   );
