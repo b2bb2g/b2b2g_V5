@@ -24,6 +24,16 @@ export default function ErrorPage({
   );
   useEffect(() => {
     console.error(error);
+    // Report to the admin error log (best-effort).
+    void fetch("/api/log-error", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: error.message || String(error),
+        stack: error.stack?.slice(0, 4000),
+        url: window.location.pathname + window.location.search,
+      }),
+    }).catch(() => {});
   }, [error]);
   const t = getDictionary(locale);
 

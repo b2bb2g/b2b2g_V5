@@ -22,6 +22,7 @@ export default async function AdminSecurityPage() {
     { data: failures },
     { data: settings },
     { data: devices },
+    { data: errorLogs },
   ] = await Promise.all([
     supabase.from("login_failure_events").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
     supabase.from("login_events").select("id", { count: "exact", head: true }).neq("risk_level", "normal").gte("created_at", weekAgo),
@@ -31,6 +32,7 @@ export default async function AdminSecurityPage() {
     supabase.from("login_failure_events").select("id, profile_id, ip_masked, country, user_agent, created_at, profiles(uid)").order("created_at", { ascending: false }).limit(20),
     supabase.from("site_settings").select("key, value").in("key", ["login_session_policy", "new_device_email_alert", "suspicious_login_email_alert", "failed_login_threshold", "security_log_retention_days"]).order("key"),
     supabase.from("trusted_devices").select("id, profile_id, label, last_ip_masked, last_country, last_seen_at, profiles(uid)").order("last_seen_at", { ascending: false }).limit(20),
+    supabase.from("app_error_logs").select("id, source, message, url, created_at").order("created_at", { ascending: false }).limit(20),
   ]);
   const labels: Record<string, string> = t.admin.settingLabels;
   const format = (value: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -84,6 +86,28 @@ export default async function AdminSecurityPage() {
         const profile = Array.isArray(device.profiles) ? device.profiles[0] : device.profiles;
         return <article key={device.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"><div><Link href={`/admin/members/${device.profile_id}`} className="text-sm font-extrabold text-primary">UID:{profile?.uid}</Link><p className="mt-1 text-xs text-ink-faint">{device.label} · {device.last_ip_masked || "—"} · {device.last_country || "—"} · {format(device.last_seen_at)}</p></div><form action={revokeMemberDevice}><input type="hidden" name="deviceId" value={device.id} /><input type="hidden" name="profileId" value={device.profile_id} /><PendingButton className="btn-danger btn-sm">{t.admin.revokeDevice}</PendingButton></form></article>;
       })}</div> : <p className="px-5 py-8 text-center text-sm text-ink-faint">{t.admin.noTrustedDevices}</p>}</section>
+
+      <section className="card overflow-hidden">
+        <div className="border-b border-line px-5 py-4"><h3 className="font-extrabold">{t.admin.errorLogs}</h3></div>
+        {errorLogs?.length ? (
+          <div className="divide-y divide-line">
+            {errorLogs.map((log) => (
+              <article key={log.id} className="px-5 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${log.source === "server" ? "bg-negative-soft text-negative" : "bg-caution-soft text-caution"}`}>
+                    {log.source}
+                  </span>
+                  <time className="text-xs text-ink-faint">{format(log.created_at)}</time>
+                </div>
+                <p className="mt-2 break-words font-mono text-xs leading-5 text-ink">{log.message}</p>
+                {log.url && <p className="mt-1 truncate text-xs text-ink-faint">{log.url}</p>}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="px-5 py-8 text-center text-sm text-ink-faint">{t.admin.noErrorLogs}</p>
+        )}
+      </section>
     </div>
   );
 }

@@ -148,9 +148,12 @@ async function hydrateFeedItems(
 export async function listFeed({
   limit = 12,
   authorUid,
+  before,
 }: {
   limit?: number;
   authorUid?: number;
+  /** Cursor: return posts created strictly before this timestamp. */
+  before?: string;
 } = {}): Promise<FeedItem[]> {
   const supabase = await createClient();
   let query = supabase
@@ -161,6 +164,7 @@ export async function listFeed({
     .order("created_at", { ascending: false })
     .limit(limit);
   if (authorUid) query = query.eq("profiles.uid", authorUid);
+  if (before) query = query.lt("created_at", before);
   const { data: posts, error } = await query;
   if (error) throw error;
   if (!posts?.length) return [];

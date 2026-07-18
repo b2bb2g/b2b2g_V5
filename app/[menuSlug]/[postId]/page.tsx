@@ -14,6 +14,7 @@ import { EventCard } from "@/components/marketplace/EventCard";
 import { RequestDetail } from "@/components/marketplace/RequestDetail";
 import { StatusLabel } from "@/components/ui/StatusLabel";
 import { SectionTabs } from "@/components/marketplace/SectionTabs";
+import { BookmarkButton } from "@/components/marketplace/BookmarkButton";
 import { MediaGallery } from "@/components/post/MediaGallery";
 import { RichContentViewer } from "@/components/post/RichContentViewer";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
@@ -425,6 +426,18 @@ export default async function PostDetailPage(props: {
     );
   }
 
+  let bookmarked = false;
+  if (isCommerceProduct && session.userId) {
+    const supabaseForBookmark = await createClient();
+    const { data: bookmarkRow } = await supabaseForBookmark
+      .from("post_bookmarks")
+      .select("post_id")
+      .eq("post_id", postId)
+      .eq("profile_id", session.userId)
+      .maybeSingle();
+    bookmarked = Boolean(bookmarkRow);
+  }
+
   if (isCommerceProduct) {
     const body = full
       ? locale === "ko" && full.post.body_ko
@@ -585,12 +598,21 @@ export default async function PostDetailPage(props: {
                     {t.post.editPost}
                   </Link>
                 ) : isMember && post?.status === POST_STATUS.APPROVED ? (
-                  <Link
-                    href={inquiryPath}
-                    className="btn-primary btn-lg mt-3 w-full"
-                  >
-                    {t.post.inquire}
-                  </Link>
+                  <div className="mt-3 flex items-center gap-2">
+                    <Link
+                      href={inquiryPath}
+                      className="btn-primary btn-lg min-w-0 flex-1"
+                    >
+                      {t.post.inquire}
+                    </Link>
+                    <BookmarkButton
+                      postId={postId}
+                      returnTo={`/${menu.slug}/${postId}`}
+                      saved={bookmarked}
+                      saveLabel={t.dashboard.saveProduct}
+                      savedLabel={t.dashboard.savedProduct}
+                    />
+                  </div>
                 ) : !isMember ? (
                   <Link
                     href={`/login?next=${encodeURIComponent(inquiryPath)}`}

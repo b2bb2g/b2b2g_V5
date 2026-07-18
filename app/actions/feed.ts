@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { listFeed, type FeedItem } from "@/lib/data/feed";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 
 const UUID =
@@ -424,4 +425,12 @@ export async function blockFeedMember(formData: FormData) {
   if (error) redirect(withNotice(returnTo, "error", "block"));
   revalidatePath("/feed");
   redirect(withNotice("/feed", "toast", "blocked"));
+}
+
+// Cursor pagination for the infinite feed stream.
+export async function loadMoreFeed(before: string): Promise<FeedItem[]> {
+  if (typeof before !== "string" || Number.isNaN(Date.parse(before))) {
+    return [];
+  }
+  return listFeed({ limit: 12, before });
 }

@@ -56,6 +56,7 @@ export async function Header({
       { href: "/write/select", label: t.dashboard.registerProduct },
       { href: "/write?menu=requests", label: t.dashboard.postRequest },
       { href: "/dashboard/posts", label: t.nav.myPosts },
+      { href: "/dashboard/bookmarks", label: t.dashboard.savedProducts },
       { href: "/inquiries", label: t.inquiry.title },
     );
     if (
