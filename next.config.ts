@@ -33,9 +33,29 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: supabaseHost },
       { protocol: "https", hostname: "i.ytimg.com" },
     ],
+    // Optimized images rarely change per URL; keep them in the CDN cache.
+    minimumCacheTTL: 2678400,
   },
   async headers() {
     return [
+      {
+        // Fonts are content-stable; served immutable.
+        source: "/fonts/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // Static brand/content images in public/ (Vercel defaults to
+        // max-age=0 there, forcing a revalidation on every view).
+        source: "/:dir(icons|brand|catalog|events|notices|landing-v2|generated)/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=604800, stale-while-revalidate=86400",
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [

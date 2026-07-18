@@ -1,16 +1,25 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createAnonClient } from "@/lib/supabase/anon";
 import type { Menu } from "@/lib/types";
 
-export const getVisibleMenus = cache(async (): Promise<Menu[]> => {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("menus")
-    .select("*")
-    .eq("is_visible", true)
-    .order("sort_order");
-  return (data as Menu[]) ?? [];
-});
+// Menus are public under RLS and change rarely, so they are shared across
+// requests for a minute; admin menu actions bust the tag instantly.
+export const getVisibleMenus = cache(
+  unstable_cache(
+    async (): Promise<Menu[]> => {
+      const supabase = createAnonClient();
+      const { data } = await supabase
+        .from("menus")
+        .select("*")
+        .eq("is_visible", true)
+        .order("sort_order");
+      return (data as Menu[]) ?? [];
+    },
+    ["visible-menus"],
+    { revalidate: 60, tags: ["menus"] },
+  ),
+);
 
 // Menu names follow the admin menu settings per locale; typing English
 // into the Korean field shows English in the Korean UI too.
@@ -21,12 +30,18 @@ export function menuTitle(
   return locale === "ko" && menu.title_ko ? menu.title_ko : menu.title_en;
 }
 
-export const getMenuBySlug = cache(async (slug: string): Promise<Menu | null> => {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("menus")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
-  return (data as Menu) ?? null;
-});
+export const getMenuBySlug = cache(
+  unstable_cache(
+    async (slug: string): Promise<Menu | null> => {
+      const supabase = createAnonClient();
+      const { data } = await supabase
+        .from("menus")
+        .select("*")
+        .eq("slug", slug)
+        .maybeSingle();
+      return (data as Menu) ?? null;
+    },
+    ["menu-by-slug"],
+    { revalidate: 60, tags: ["menus"] },
+  ),
+);

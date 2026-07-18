@@ -12,6 +12,29 @@ function asSessionCookie(options: CookieOptions | undefined): CookieOptions {
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
+
+  // Anonymous fast path: without a Supabase auth cookie there is no session
+  // to refresh, so skip the auth server round trip entirely. Protected areas
+  // still bounce to sign-in.
+  const hasAuthCookie = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
+  if (!hasAuthCookie) {
+    const anonPath = request.nextUrl.pathname;
+    const anonProtected =
+      anonPath.startsWith("/dashboard") ||
+      anonPath.startsWith("/admin") ||
+      anonPath.startsWith("/reset/update");
+    if (anonProtected) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = "";
+      url.searchParams.set("next", anonPath);
+      return NextResponse.redirect(url);
+    }
+    return response;
+  }
+
   const sessionOnly =
     request.cookies.get(SESSION_ONLY_COOKIE)?.value === "1";
 

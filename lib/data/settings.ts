@@ -1,16 +1,23 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createAnonClient } from "@/lib/supabase/anon";
 
 // Admin-controlled switches (PRD: policy is admin settings, not code).
-export const getPublicSettings = cache(
+// Settings are public under RLS, so they are shared across requests for a
+// minute instead of queried per request; admin saves bust the tag instantly.
+const readPublicSettings = unstable_cache(
   async (): Promise<Record<string, unknown>> => {
-    const supabase = await createClient();
+    const supabase = createAnonClient();
     const { data } = await supabase.from("site_settings").select("key, value");
     const map: Record<string, unknown> = {};
     for (const row of data ?? []) map[row.key] = row.value;
     return map;
-  }
+  },
+  ["public-site-settings"],
+  { revalidate: 60, tags: ["site-settings"] },
 );
+
+export const getPublicSettings = cache(readPublicSettings);
 
 export function settingBool(
   settings: Record<string, unknown>,

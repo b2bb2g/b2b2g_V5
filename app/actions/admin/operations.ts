@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { audit, requireAdmin, type AdminPermission } from "@/app/actions/admin/core";
 import { STORAGE_BUCKETS } from "@/lib/constants";
@@ -104,6 +104,7 @@ export async function updateOperationsSetting(formData: FormData) {
     .throwOnError();
   await audit(supabase, "operations_setting_change", "site_setting", key, { value, permission });
   revalidatePath("/admin", "layout");
+  revalidateTag("site-settings", "max");
 }
 
 export async function uploadSiteAsset(formData: FormData) {
@@ -133,5 +134,6 @@ export async function uploadSiteAsset(formData: FormData) {
   await audit(supabase, "site_asset_uploaded", "site_setting", key, { path });
   revalidatePath("/admin/content");
   revalidatePath("/", "layout");
+  revalidateTag("site-settings", "max");
   redirect("/admin/content?toast=saved");
 }

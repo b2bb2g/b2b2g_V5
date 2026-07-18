@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import type { HomepageInput } from "@/app/actions/homepage";
 
 import { audit, requireAdmin } from "@/app/actions/admin/core";
@@ -109,6 +109,7 @@ export async function toggleMenuFlag(formData: FormData) {
   await audit(supabase, "menu_flag_change", "menu", menuId, { flag, value });
   revalidatePath("/admin/menus");
   revalidatePath("/", "layout");
+  revalidateTag("menus", "max");
 }
 
 // Reorder menus by swapping sort_order with the neighbour (PRD 17.6).
@@ -134,6 +135,7 @@ export async function moveMenu(formData: FormData) {
   await audit(supabase, "menu_reorder", "menu", menuId, { direction });
   revalidatePath("/admin/menus");
   revalidatePath("/", "layout");
+  revalidateTag("menus", "max");
 }
 
 export async function createMenu(formData: FormData) {
@@ -165,6 +167,7 @@ export async function createMenu(formData: FormData) {
   await audit(supabase, "menu_create", "menu", slug, { boardType });
   revalidatePath("/admin/menus");
   revalidatePath("/", "layout");
+  revalidateTag("menus", "max");
 }
 
 export async function updateMenu(formData: FormData) {
@@ -181,6 +184,7 @@ export async function updateMenu(formData: FormData) {
   await audit(supabase, "menu_update", "menu", menuId, { titleEn, titleKo });
   revalidatePath("/admin/menus");
   revalidatePath("/", "layout");
+  revalidateTag("menus", "max");
 }
 
 export async function deleteMenu(formData: FormData) {
@@ -201,6 +205,7 @@ export async function deleteMenu(formData: FormData) {
   await audit(supabase, "menu_delete", "menu", menuId, {});
   revalidatePath("/admin/menus");
   revalidatePath("/", "layout");
+  revalidateTag("menus", "max");
   redirect("/admin/menus?toast=deleted");
 }
 
@@ -289,4 +294,5 @@ export async function updateSetting(formData: FormData) {
   await audit(supabase, "setting_change", "site_setting", key, { value });
   revalidatePath("/admin/settings");
   revalidatePath("/", "layout");
+  revalidateTag("site-settings", "max");
 }
