@@ -25,10 +25,12 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   }
 
   return {
+    id: "/",
     name: title,
     short_name: title,
     description,
     start_url: "/",
+    scope: "/",
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#1769e0",

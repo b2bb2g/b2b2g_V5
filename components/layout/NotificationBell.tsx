@@ -43,8 +43,19 @@ export function NotificationBell({
         refresh
       )
       .subscribe();
+    // Fallbacks for dropped sockets: refresh when the tab regains focus and
+    // on a slow heartbeat, so the badge stays live even without realtime.
+    const onFocus = () => void refresh();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    const heartbeat = window.setInterval(() => {
+      if (!document.hidden) void refresh();
+    }, 30000);
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+      window.clearInterval(heartbeat);
     };
   }, [userId]);
 

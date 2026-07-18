@@ -111,6 +111,7 @@ export function MobileMenu({
           </button>
         </div>
 
+        <div className="min-h-0 flex-1 overflow-y-auto">
         {account && (
           <div className="px-4 pb-3">
             <Link
@@ -158,7 +159,7 @@ export function MobileMenu({
           </Link>
         </div>
 
-        <nav className="min-h-0 flex-1 overflow-y-auto px-4 pb-3">
+        <nav className="px-4 pb-3">
           <ul className="space-y-0.5">
             {items.map((item) => {
               const href = `/${item.slug}`;
@@ -200,6 +201,7 @@ export function MobileMenu({
             </ul>
           )}
         </nav>
+        </div>
 
         <div className="shrink-0 border-t border-line px-5 py-3">
           <form action={setLocale} className="flex items-center justify-between gap-3">

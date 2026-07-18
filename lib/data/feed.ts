@@ -225,7 +225,7 @@ export async function listFeedComments(
       "id, author_id, body, created_at, profiles!member_feed_comments_author_id_fkey!inner(uid, avatar_url)",
     )
     .eq("post_id", postId)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(limit);
   return (data ?? []).filter((comment) => !blocked.has(comment.author_id)).map((comment) => {
     const profile = comment.profiles as unknown as {
