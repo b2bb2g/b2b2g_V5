@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
+import { PushToggle } from "@/components/notifications/PushToggle";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -36,6 +37,8 @@ function renderNotification(t: Dictionary, n: AppNotification): string {
     message_rejected: t.inquiry.steps.rejected,
     badge_approved: t.notifications.badgeApproved,
     badge_rejected: t.notifications.badgeRejected,
+    feed_liked: t.notifications.feedLiked,
+    feed_commented: t.notifications.feedCommented,
     subscription_expiring: t.dashboard.subscription,
   };
   const label = base[n.type] ?? n.type;
@@ -48,7 +51,9 @@ function notificationHref(n: AppNotification): string | null {
     inquiry_id?: string;
     post_id?: string;
     application_id?: string;
+    feed_post_id?: string;
   };
+  if (payload.feed_post_id) return `/feed/${payload.feed_post_id}`;
   if (payload.inquiry_id) return `/inquiries/${payload.inquiry_id}`;
   if (payload.post_id) return "/dashboard/posts";
   if (payload.application_id || n.type.startsWith("badge_"))
@@ -118,6 +123,16 @@ export default async function NotificationsPage(props: {
             </form>
           ) : undefined
         }
+      />
+
+      <PushToggle
+        labels={{
+          title: t.notifications.pushTitle,
+          body: t.notifications.pushBody,
+          enable: t.notifications.pushEnable,
+          disable: t.notifications.pushDisable,
+          denied: t.notifications.pushDenied,
+        }}
       />
 
       <nav className="flex w-fit gap-1 rounded-full bg-surface-sub p-1">
