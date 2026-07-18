@@ -322,7 +322,7 @@ async function LandingContent() {
         </section>
 
         {products.length > 0 && (
-          <section className="bg-[#f5f5f7] py-20 sm:py-28 lg:py-32">
+          <section className="bg-[#f5f5f7] py-12 sm:py-20 lg:py-32">
             <div className={container}>
               <Reveal>
                 <SectionHeading
@@ -336,7 +336,7 @@ async function LandingContent() {
                   }
                 />
               </Reveal>
-              <div className="mt-10 lg:mt-12">
+              <div className="mt-7 lg:mt-12">
                 <Carousel
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
@@ -383,7 +383,7 @@ async function LandingContent() {
                         />
                       </Reveal>
 
-                      <div className="mt-10 sm:mt-12">
+                      <div className="mt-7 sm:mt-12">
                         <Carousel
                           prevLabel={t.home.prev}
                           nextLabel={t.home.next}
@@ -428,7 +428,7 @@ async function LandingContent() {
           </section>
         )}
 
-        <section className="bg-white py-20 sm:py-28 lg:py-32">
+        <section className="bg-white py-12 sm:py-20 lg:py-32">
           <div className={container}>
             <Reveal>
               <SectionHeading
@@ -436,7 +436,7 @@ async function LandingContent() {
                 title={t.home.valueTitle}
               />
             </Reveal>
-            <div className="mt-10 sm:mt-12">
+            <div className="mt-7 sm:mt-12">
               <Carousel
                 prevLabel={t.home.prev}
                 nextLabel={t.home.next}
@@ -485,7 +485,7 @@ async function LandingContent() {
         </section>
 
         {requestsMenu && requests.length > 0 && (
-          <section className="bg-[#f5f5f7] py-20 sm:py-28 lg:py-32">
+          <section className="bg-[#f5f5f7] py-12 sm:py-20 lg:py-32">
             <div className={container}>
               <Reveal>
                 <SectionHeading
@@ -499,7 +499,7 @@ async function LandingContent() {
                   }
                 />
               </Reveal>
-              <div className="mt-10 sm:mt-12">
+              <div className="mt-7 sm:mt-12">
                 <Carousel
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
@@ -547,7 +547,7 @@ async function LandingContent() {
         )}
 
         {(featured.length > 0 || (events.length > 0 && eventsMenu)) && (
-          <section className="bg-white py-20 sm:py-28 lg:py-32">
+          <section className="bg-white py-12 sm:py-20 lg:py-32">
             <div className={container}>
               <Reveal>
                 <SectionHeading
@@ -558,7 +558,7 @@ async function LandingContent() {
               </Reveal>
 
               {featured.length > 0 && (
-                <div className="mt-10 sm:mt-12">
+                <div className="mt-7 sm:mt-12">
                   <Carousel
                     prevLabel={t.home.prev}
                     nextLabel={t.home.next}
@@ -630,7 +630,7 @@ async function LandingContent() {
                       }
                     />
                   </Reveal>
-                  <div className="mt-10">
+                  <div className="mt-7 sm:mt-10">
                     <Carousel
                       prevLabel={t.home.prev}
                       nextLabel={t.home.next}
@@ -661,7 +661,7 @@ async function LandingContent() {
         )}
 
         {feedItems.length > 0 && (
-          <section className="bg-[#f5f5f7] py-20 sm:py-28 lg:py-32">
+          <section className="bg-[#f5f5f7] py-12 sm:py-20 lg:py-32">
             <div className={container}>
               <Reveal>
                 <SectionHeading
@@ -673,7 +673,7 @@ async function LandingContent() {
                   }
                 />
               </Reveal>
-              <div className="mt-10 lg:mt-12">
+              <div className="mt-7 lg:mt-12">
                 <Carousel
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
@@ -701,10 +701,10 @@ async function LandingContent() {
         )}
 
         {!session.userId && (
-          <section className="bg-white py-20 sm:py-28 lg:py-32">
+          <section className="bg-white py-12 sm:py-20 lg:py-32">
             <div className={container}>
               <Reveal>
-                <div className="relative overflow-hidden rounded-[2rem] bg-[#0a58ca] px-6 py-16 text-center text-white shadow-[0_22px_70px_rgba(10,88,202,.24)] sm:px-12 sm:py-20 lg:rounded-[2.5rem] lg:py-24">
+                <div className="relative overflow-hidden rounded-[2rem] bg-[#0a58ca] px-6 py-12 text-center text-white shadow-[0_22px_70px_rgba(10,88,202,.24)] sm:px-12 sm:py-20 lg:rounded-[2.5rem] lg:py-24">
                   <div className="absolute -right-24 -top-36 h-96 w-96 rounded-full border-[4rem] border-white/8" />
                   <div className="absolute -bottom-44 -left-20 h-96 w-96 rounded-full border-[4rem] border-white/6" />
                   <div className="relative mx-auto max-w-4xl">

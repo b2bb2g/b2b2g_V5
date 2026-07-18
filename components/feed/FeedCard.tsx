@@ -110,19 +110,19 @@ export function FeedCard({
               alt=""
               width={52}
               height={52}
-              className="h-13 w-13 rounded-full border border-line object-cover"
+              className={`${compact ? "h-11 w-11" : "h-13 w-13"} rounded-full border border-line object-cover`}
             />
           ) : (
-            <DefaultAvatar className="h-13 w-13" />
+            <DefaultAvatar className={compact ? "h-11 w-11" : "h-13 w-13"} />
           )}
           <span className="min-w-0 pt-0.5">
-            <strong className="block truncate text-base font-extrabold tracking-[-.01em] text-ink">
+            <strong className={`block truncate ${compact ? "text-[15px]" : "text-base"} font-extrabold tracking-[-.01em] text-ink`}>
               UID:{item.authorUid}
             </strong>
             <span className="block truncate text-xs leading-5 text-ink-soft">
               {labels.memberSubtitle}
             </span>
-            <span className="flex items-center gap-1 text-xs text-ink-faint">
+            <span className="flex items-center gap-1 whitespace-nowrap text-xs text-ink-faint">
               <RelativeTime
                 dateTime={item.createdAt}
                 locale={labels.locale}
@@ -257,7 +257,7 @@ export function FeedCard({
         }}
       />
 
-      <footer className="grid grid-cols-4 border-t border-line/70 px-2 py-1.5 text-ink-soft sm:px-3">
+      <footer className={`grid grid-cols-4 border-t border-line/70 px-2 py-1.5 text-ink-soft sm:px-3 ${compact ? "mt-auto" : ""}`}>
         {viewerId ? (
           <form action={toggleFeedLike}>
             <input type="hidden" name="postId" value={item.id} />

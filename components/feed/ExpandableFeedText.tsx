@@ -28,6 +28,10 @@ export function ExpandableFeedText({
   const [canCollapse, setCanCollapse] = useState(false);
   const measureRef = useRef<HTMLSpanElement>(null);
   const bodyId = useId();
+  // Rail cards without media let the text carry the card (LinkedIn-style)
+  // instead of clamping to two lines above a large void.
+  const clampLines = variant === "compact" && !hasMedia ? 10 : 2;
+  const clampClass = clampLines === 10 ? "line-clamp-[10]" : "line-clamp-2";
 
   useEffect(() => {
     const element = measureRef.current;
@@ -39,7 +43,8 @@ export function ExpandableFeedText({
       );
       const naturalHeight = element.getBoundingClientRect().height;
       setCanCollapse(
-        Number.isFinite(lineHeight) && naturalHeight > lineHeight * 2 + 1,
+        Number.isFinite(lineHeight) &&
+          naturalHeight > lineHeight * clampLines + 1,
       );
     };
     measure();
@@ -47,7 +52,7 @@ export function ExpandableFeedText({
     const observer = new ResizeObserver(measure);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [body]);
+  }, [body, clampLines]);
 
   const openFocus = (trigger: HTMLButtonElement) => {
     const selection = window.getSelection();
@@ -94,7 +99,7 @@ export function ExpandableFeedText({
             }}
             className="relative block w-full cursor-pointer select-text rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            <span id={bodyId} className="line-clamp-2 whitespace-pre-wrap">
+            <span id={bodyId} className={`${clampClass} whitespace-pre-wrap`}>
               {body}
             </span>
             <span className="absolute bottom-0 right-0 bg-gradient-to-r from-white/0 via-white via-25% to-white pl-8 font-semibold text-ink-soft hover:text-ink">
@@ -110,7 +115,7 @@ export function ExpandableFeedText({
             onClick={(event) => openFocus(event.currentTarget)}
             className="block w-full cursor-pointer select-text rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            <span id={bodyId} className="line-clamp-2 whitespace-pre-wrap">
+            <span id={bodyId} className={`${clampClass} whitespace-pre-wrap`}>
               {body}
             </span>
           </button>
