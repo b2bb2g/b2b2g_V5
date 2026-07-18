@@ -105,7 +105,7 @@ function CommentRow({
             )}
           </div>
           {comment.body.trim() && (
-            <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink-soft">
+            <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-ink-soft">
               {comment.body}
             </p>
           )}
