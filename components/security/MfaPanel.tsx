@@ -89,15 +89,15 @@ export function MfaPanel({
     setBusy(false);
   }
 
-  async function verify() {
+  async function verify(value = code) {
     const factorId = enrollment?.id ?? factor?.id;
-    if (!factorId || !/^\d{6}$/.test(code)) return;
+    if (!factorId || !/^\d{6}$/.test(value)) return;
     setBusy(true);
     setError("");
     const supabase = createClient();
     const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({
       factorId,
-      code,
+      code: value,
     });
     if (verifyError) {
       setError(labels.error);
@@ -182,7 +182,23 @@ export function MfaPanel({
         >
           <label className="min-w-0 flex-1">
             <span className="sr-only">{labels.code}</span>
-            <input autoFocus={required} value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder={labels.code} className="field tracking-[.25em]" />
+            <input
+              autoFocus={required}
+              value={code}
+              onChange={(event) => {
+                const next = event.target.value.replace(/\D/g, "").slice(0, 6);
+                setCode(next);
+                if (next.length === 6 && !busy) void verify(next);
+              }}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder={required ? "000000" : labels.code}
+              className={
+                required
+                  ? "field text-center text-2xl font-extrabold tracking-[.45em]"
+                  : "field tracking-[.25em]"
+              }
+            />
           </label>
           <button type="submit" disabled={busy || code.length !== 6} aria-busy={busy} className="btn-primary btn-md disabled:opacity-60">
             {busy ? (

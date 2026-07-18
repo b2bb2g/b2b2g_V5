@@ -23,7 +23,7 @@ export default async function SecurityPage(props: {
     currentDeviceHash(),
     props.searchParams,
   ]);
-  const mfaRequired = Boolean(session.profile?.is_admin && params.mfa === "required");
+  const mfaRequired = params.mfa === "required";
   const returnTo = params.next === "/admin" || params.next?.startsWith("/admin/")
     ? params.next
     : "/admin";
@@ -82,6 +82,29 @@ export default async function SecurityPage(props: {
     />
   );
 
+  if (mfaRequired) {
+    return (
+      <div className="mx-auto max-w-xl space-y-4 py-4 sm:py-8">
+        <section className="overflow-hidden rounded-[1.5rem] bg-[#101923] px-5 py-6 text-white shadow-[0_18px_55px_rgba(16,25,35,.16)] sm:px-7 sm:py-7">
+          <div className="flex items-start gap-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/20" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="14" height="11" x="5" y="11" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-[#79b4ff]">{t.security.mfaGateEyebrow}</p>
+              <h1 className="mt-2 text-2xl font-extrabold tracking-[-.035em]">{t.security.mfaGateTitle}</h1>
+              <p className="mt-2 text-sm leading-6 text-white/65">{t.security.mfaGateDescription}</p>
+            </div>
+          </div>
+        </section>
+        {mfaPanel}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       <WorkspacePageHeader
@@ -98,24 +121,6 @@ export default async function SecurityPage(props: {
           </>
         }
       />
-
-      {mfaRequired && (
-        <section className="overflow-hidden rounded-[1.5rem] bg-[#101923] px-5 py-6 text-white shadow-[0_18px_55px_rgba(16,25,35,.16)] sm:px-7 sm:py-8">
-          <div className="flex items-start gap-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/20" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect width="14" height="11" x="5" y="11" rx="2" />
-                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-              </svg>
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-[#79b4ff]">{t.security.mfaGateEyebrow}</p>
-              <h2 className="mt-2 text-2xl font-extrabold tracking-[-.035em] sm:text-3xl">{t.security.mfaGateTitle}</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/65">{t.security.mfaGateDescription}</p>
-            </div>
-          </div>
-        </section>
-      )}
 
       {mfaPanel}
 
