@@ -192,7 +192,7 @@ export default async function LegalPage(props: {
       </header>
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-12">
-        <article className="rounded-[2rem] border border-line/80 bg-white px-5 py-8 shadow-[0_16px_50px_rgba(25,31,40,.05)] sm:px-8 sm:py-10 lg:px-10">
+        <article className="min-w-0 rounded-[2rem] border border-line/80 bg-white px-5 py-8 shadow-[0_16px_50px_rgba(25,31,40,.05)] sm:px-8 sm:py-10 lg:px-10">
           <p className="mb-8 rounded-2xl border border-primary/15 bg-primary-soft px-4 py-3 text-sm leading-6 text-ink-soft">
             {ui.importantNotice}
           </p>
