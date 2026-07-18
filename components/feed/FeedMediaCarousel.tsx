@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { postMediaUrl } from "@/lib/media";
+import { ZoomableImage } from "@/components/ui/ZoomableImage";
 
 export function FeedMediaCarousel({
   paths,
@@ -24,6 +25,7 @@ export function FeedMediaCarousel({
     y: number;
     id: number;
   } | null>(null);
+  const zoomedRef = useRef(false);
   const suppressClick = useRef(false);
   const pointerType = useRef<string | null>(null);
   const [loadedPaths, setLoadedPaths] = useState<Set<string>>(() => new Set());
@@ -38,12 +40,12 @@ export function FeedMediaCarousel({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-[#07090d] text-white">
-      <div className="relative min-h-0 flex-1 px-2 py-3 sm:px-12 sm:py-5">
+      <div className="relative min-h-0 flex-1 py-3 sm:px-12 sm:py-5">
         <div
           data-feed-media-stage
-          className={`relative mx-auto h-full w-full max-w-[min(78vw,88rem)] select-none overflow-hidden rounded-xl ${paths.length > 1 ? "cursor-grab active:cursor-grabbing touch-pan-y" : ""}`}
+          className={`relative mx-auto h-full w-full select-none overflow-hidden sm:max-w-[min(78vw,88rem)] sm:rounded-xl ${paths.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
           onPointerDown={(event) => {
-            if (paths.length < 2 || (event.pointerType === "mouse" && event.button !== 0)) {
+            if (zoomedRef.current || paths.length < 2 || (event.pointerType === "mouse" && event.button !== 0)) {
               return;
             }
             pointerType.current = event.pointerType;
@@ -57,7 +59,7 @@ export function FeedMediaCarousel({
           onPointerUp={(event) => {
             const start = pointerStart.current;
             pointerStart.current = null;
-            if (!start || start.id !== event.pointerId || paths.length < 2) {
+            if (zoomedRef.current || !start || start.id !== event.pointerId || paths.length < 2) {
               return;
             }
             const deltaX = event.clientX - start.x;
@@ -86,11 +88,13 @@ export function FeedMediaCarousel({
               className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full border-2 border-white/20 border-t-white/80"
             />
           )}
-          <Image
+          <ZoomableImage
             src={postMediaUrl(paths[activeIndex])}
             alt={`${openImageLabel} ${activeIndex + 1} / ${paths.length}`}
-            fill
-            sizes="(max-width: 768px) 100vw, 78vw"
+            loaded={loadedPaths.has(paths[activeIndex])}
+            onZoomChange={(zoomed) => {
+              zoomedRef.current = zoomed;
+            }}
             onLoad={() => {
               setLoadedPaths((current) => {
                 if (current.has(paths[activeIndex])) return current;
@@ -99,8 +103,6 @@ export function FeedMediaCarousel({
                 return next;
               });
             }}
-            className={`pointer-events-none object-contain transition-opacity duration-200 ${loadedPaths.has(paths[activeIndex]) ? "opacity-100" : "opacity-0"}`}
-            loading="eager"
           />
 
           {paths.length > 1 && (

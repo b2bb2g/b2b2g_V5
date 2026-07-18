@@ -21,6 +21,8 @@ const PUSH_TEXT: Record<string, string> = {
   subscription_expiring: "Your membership is expiring soon",
   feed_liked: "Someone liked your post",
   feed_commented: "New comment on your post",
+  feed_comment_liked: "Someone liked your comment",
+  feed_comment_replied: "New reply to your comment",
   admin_notice: "Notice from the operations team",
 };
 

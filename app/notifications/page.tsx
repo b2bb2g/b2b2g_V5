@@ -39,6 +39,8 @@ function renderNotification(t: Dictionary, n: AppNotification): string {
     badge_rejected: t.notifications.badgeRejected,
     feed_liked: t.notifications.feedLiked,
     feed_commented: t.notifications.feedCommented,
+    feed_comment_liked: t.notifications.feedCommentLiked,
+    feed_comment_replied: t.notifications.feedCommentReplied,
     subscription_expiring: t.dashboard.subscription,
   };
   const label = base[n.type] ?? n.type;

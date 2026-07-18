@@ -20,11 +20,16 @@ export type FeedItem = {
 
 export type FeedComment = {
   id: string;
+  parentId: string | null;
   authorId: string;
   authorUid: number;
   avatarPath: string | null;
   body: string;
+  mediaPaths: string[];
   createdAt: string;
+  likeCount: number;
+  likedByViewer: boolean;
+  replyCount: number;
 };
 
 export type MemberNetworkStats = {
@@ -222,23 +227,55 @@ export async function listFeedComments(
   const { data } = await supabase
     .from("member_feed_comments")
     .select(
-      "id, author_id, body, created_at, profiles!member_feed_comments_author_id_fkey!inner(uid, avatar_url)",
+      "id, parent_id, author_id, body, media_paths, created_at, profiles!member_feed_comments_author_id_fkey!inner(uid, avatar_url)",
     )
     .eq("post_id", postId)
     .order("created_at", { ascending: false })
     .limit(limit);
-  return (data ?? []).filter((comment) => !blocked.has(comment.author_id)).map((comment) => {
+  const visible = (data ?? []).filter(
+    (comment) => !blocked.has(comment.author_id),
+  );
+
+  const ids = visible.map((comment) => comment.id);
+  const { data: likes } = ids.length
+    ? await supabase
+        .from("member_feed_comment_likes")
+        .select("comment_id, profile_id")
+        .in("comment_id", ids)
+    : { data: [] as { comment_id: string; profile_id: string }[] };
+  const likeCounts = new Map<string, number>();
+  const likedByViewer = new Set<string>();
+  for (const like of likes ?? []) {
+    likeCounts.set(like.comment_id, (likeCounts.get(like.comment_id) ?? 0) + 1);
+    if (user && like.profile_id === user.id) likedByViewer.add(like.comment_id);
+  }
+  const replyCounts = new Map<string, number>();
+  for (const comment of visible) {
+    if (comment.parent_id) {
+      replyCounts.set(
+        comment.parent_id,
+        (replyCounts.get(comment.parent_id) ?? 0) + 1,
+      );
+    }
+  }
+
+  return visible.map((comment) => {
     const profile = comment.profiles as unknown as {
       uid: number;
       avatar_url: string | null;
     };
     return {
       id: comment.id,
+      parentId: comment.parent_id ?? null,
       authorId: comment.author_id,
       authorUid: profile.uid,
       avatarPath: profile.avatar_url,
       body: comment.body,
+      mediaPaths: comment.media_paths ?? [],
       createdAt: comment.created_at,
+      likeCount: likeCounts.get(comment.id) ?? 0,
+      likedByViewer: likedByViewer.has(comment.id),
+      replyCount: replyCounts.get(comment.id) ?? 0,
     };
   });
 }

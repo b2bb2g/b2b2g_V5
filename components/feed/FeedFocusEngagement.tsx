@@ -1,11 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  createFeedComment,
-  deleteFeedComment,
   toggleFeedLike,
   toggleFeedRepost,
 } from "@/app/actions/feed";
@@ -15,12 +12,11 @@ import {
   RepostIcon,
 } from "@/components/feed/FeedIcons";
 import { ShareButton } from "@/components/feed/ShareButton";
-import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { PendingButton } from "@/components/ui/PendingButton";
 import type { FeedComment } from "@/lib/data/feed";
-import { postMediaUrl } from "@/lib/media";
-import { RelativeTime } from "@/components/feed/RelativeTime";
-import { CommentSubmitButton } from "@/components/feed/CommentSubmitButton";
+import { CommentComposer } from "@/components/feed/CommentComposer";
+import { CommentList } from "@/components/feed/CommentList";
+import { FeedInsights } from "@/components/feed/FeedInsights";
 import type { Locale } from "@/lib/constants";
 
 export type FeedFocusLabels = {
@@ -36,6 +32,15 @@ export type FeedFocusLabels = {
   copied: string;
   writeComment: string;
   commentPlaceholder: string;
+  reply: string;
+  addImage: string;
+  addEmoji: string;
+  removeImage: string;
+  uploadError: string;
+  likedBy: string;
+  viewedBy: string;
+  views: string;
+  close: string;
   signInToComment: string;
   noComments: string;
   deleteComment: string;
@@ -73,7 +78,6 @@ export function FeedFocusEngagement({
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const composerRef = useRef<HTMLTextAreaElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const sharePath = `/feed/${postId}`;
 
   const fetchComments = useCallback(async (signal?: AbortSignal) => {
@@ -114,17 +118,6 @@ export function FeedFocusEngagement({
       });
     return () => controller.abort();
   }, [fetchComments]);
-
-  async function submitComment(formData: FormData) {
-    await createFeedComment(formData);
-    formRef.current?.reset();
-    await loadComments();
-  }
-
-  async function removeComment(formData: FormData) {
-    await deleteFeedComment(formData);
-    await loadComments();
-  }
 
   const displayedCommentCount = loading ? data.commentCount : comments.length;
 
@@ -231,26 +224,36 @@ export function FeedFocusEngagement({
           )}
         </h2>
 
+        <div className="mt-3">
+          <FeedInsights
+            postId={postId}
+            signedIn={!!data.viewerId}
+            labels={{
+              likedBy: labels.likedBy,
+              viewedBy: labels.viewedBy,
+              views: labels.views,
+              close: labels.close,
+            }}
+          />
+        </div>
+
         {data.viewerId ? (
-          <form
-            ref={formRef}
-            action={submitComment}
-            className="mt-3 flex items-end gap-2"
-          >
-            <input type="hidden" name="postId" value={postId} />
-            <input type="hidden" name="returnTo" value={data.returnTo} />
-            <textarea
-              ref={composerRef}
-              name="body"
-              required
-              maxLength={800}
-              rows={1}
-              aria-label={labels.commentPlaceholder}
-              placeholder={labels.commentPlaceholder}
-              className="min-h-11 flex-1 resize-y rounded-2xl border border-line bg-surface-sub px-4 py-2.5 text-sm leading-6 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-soft"
+          <div className="mt-3">
+            <CommentComposer
+              postId={postId}
+              returnTo={data.returnTo}
+              userId={data.viewerId}
+              onSubmitted={() => void loadComments()}
+              labels={{
+                placeholder: labels.commentPlaceholder,
+                submit: labels.writeComment,
+                addImage: labels.addImage,
+                addEmoji: labels.addEmoji,
+                removeImage: labels.removeImage,
+                uploadError: labels.uploadError,
+              }}
             />
-            <CommentSubmitButton label={labels.writeComment} />
-          </form>
+          </div>
         ) : (
           <Link
             href={`/login?next=${encodeURIComponent(sharePath)}`}
@@ -281,60 +284,30 @@ export function FeedFocusEngagement({
             </button>
           </div>
         ) : comments.length > 0 ? (
-          <div className="mt-5 space-y-4">
-            {comments.map((comment) => (
-              <article key={comment.id} className="flex items-start gap-2.5">
-                <Link href={`/u/${comment.authorUid}`} className="shrink-0">
-                  {comment.avatarPath ? (
-                    <Image
-                      src={postMediaUrl(comment.avatarPath)}
-                      alt=""
-                      width={36}
-                      height={36}
-                      className="h-9 w-9 rounded-full border border-line object-cover"
-                    />
-                  ) : (
-                    <DefaultAvatar className="h-9 w-9" />
-                  )}
-                </Link>
-                <div className="min-w-0 flex-1 rounded-2xl bg-surface-sub px-3.5 py-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <Link
-                        href={`/u/${comment.authorUid}`}
-                        className="block truncate text-xs font-extrabold hover:text-primary"
-                      >
-                        UID:{comment.authorUid}
-                      </Link>
-                      <RelativeTime
-                        dateTime={comment.createdAt}
-                        locale={labels.locale}
-                        initialNow={renderedAt}
-                        justNowLabel={labels.justNow}
-                        className="text-[11px] text-ink-faint"
-                      />
-                    </div>
-                    {data.viewerId === comment.authorId && (
-                      <form action={removeComment}>
-                        <input type="hidden" name="commentId" value={comment.id} />
-                        <input type="hidden" name="postId" value={postId} />
-                        <input type="hidden" name="returnTo" value={data.returnTo} />
-                        <PendingButton
-                          aria-label={labels.deleteComment}
-                          title={labels.deleteComment}
-                          className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-ink-faint hover:bg-white hover:text-negative"
-                        >
-                          ×
-                        </PendingButton>
-                      </form>
-                    )}
-                  </div>
-                  <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink-soft">
-                    {comment.body}
-                  </p>
-                </div>
-              </article>
-            ))}
+          <div className="mt-5">
+            <CommentList
+              postId={postId}
+              comments={comments}
+              viewerId={data.viewerId}
+              returnTo={data.returnTo}
+              locale={labels.locale}
+              renderedAt={renderedAt}
+              labels={{
+                like: labels.like,
+                reply: labels.reply,
+                delete: labels.deleteComment,
+                justNow: labels.justNow,
+                close: labels.close,
+                comments: labels.comments,
+                placeholder: labels.commentPlaceholder,
+                submit: labels.writeComment,
+                addImage: labels.addImage,
+                addEmoji: labels.addEmoji,
+                removeImage: labels.removeImage,
+                uploadError: labels.uploadError,
+              }}
+              onChanged={() => void loadComments()}
+            />
           </div>
         ) : (
           <p className="mt-5 rounded-2xl bg-surface-sub px-4 py-5 text-center text-sm text-ink-faint">

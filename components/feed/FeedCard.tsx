@@ -64,6 +64,15 @@ export type FeedLabels = {
   closePost: string;
   writeComment: string;
   commentPlaceholder: string;
+  reply: string;
+  addImage: string;
+  addEmoji: string;
+  removeImage: string;
+  uploadError: string;
+  likedBy: string;
+  viewedBy: string;
+  views: string;
+  close: string;
   signInToComment: string;
   noComments: string;
   deleteComment: string;
@@ -248,6 +257,15 @@ export function FeedCard({
           following: labels.following,
           writeComment: labels.writeComment,
           commentPlaceholder: labels.commentPlaceholder,
+          reply: labels.reply,
+          addImage: labels.addImage,
+          addEmoji: labels.addEmoji,
+          removeImage: labels.removeImage,
+          uploadError: labels.uploadError,
+          likedBy: labels.likedBy,
+          viewedBy: labels.viewedBy,
+          views: labels.views,
+          close: labels.close,
           signInToComment: labels.signInToComment,
           noComments: labels.noComments,
           deleteComment: labels.deleteComment,

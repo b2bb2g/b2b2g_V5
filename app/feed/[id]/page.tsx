@@ -63,12 +63,23 @@ export default async function FeedDetailPage({
         renderedAt={renderedAt}
         labels={{
           title: t.feed.comments,
+          comments: t.feed.comments,
           placeholder: t.feed.commentPlaceholder,
           submit: t.feed.writeComment,
           signIn: t.feed.signInToComment,
           empty: t.feed.noComments,
           delete: t.feed.deleteComment,
           justNow: t.feed.justNow,
+          like: t.feed.like,
+          reply: t.feed.reply,
+          close: t.common.close,
+          addImage: t.feed.addPhotos,
+          addEmoji: t.feed.addEmoji,
+          removeImage: t.feed.removeImage,
+          uploadError: t.feed.uploadError,
+          likedBy: t.feed.likedBy,
+          viewedBy: t.feed.viewedBy,
+          views: t.feed.views,
         }}
       />
     </div>

@@ -1,12 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
-import { createFeedComment, deleteFeedComment } from "@/app/actions/feed";
-import { PendingButton } from "@/components/ui/PendingButton";
-import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
-import { postMediaUrl } from "@/lib/media";
+import { CommentComposer } from "@/components/feed/CommentComposer";
+import { CommentList, type CommentListLabels } from "@/components/feed/CommentList";
+import { FeedInsights } from "@/components/feed/FeedInsights";
 import type { FeedComment } from "@/lib/data/feed";
-import { RelativeTime } from "@/components/feed/RelativeTime";
-import { CommentSubmitButton } from "@/components/feed/CommentSubmitButton";
 import type { Locale } from "@/lib/constants";
 
 export function FeedComments({
@@ -24,39 +20,53 @@ export function FeedComments({
   returnTo: string;
   locale: Locale;
   renderedAt: string;
-  labels: {
+  labels: CommentListLabels & {
     title: string;
-    placeholder: string;
-    submit: string;
     signIn: string;
     empty: string;
-    delete: string;
-    justNow: string;
+    likedBy: string;
+    viewedBy: string;
+    views: string;
   };
 }) {
+  const topLevelCount = comments.filter((comment) => !comment.parentId).length;
   return (
     <section
       id="comments"
       className="scroll-mt-24 rounded-[1.35rem] border border-line/90 bg-white p-5 shadow-[0_8px_30px_rgba(25,31,40,.055)] sm:p-6"
     >
-      <h2 className="text-lg font-extrabold">
-        {labels.title} {comments.length > 0 ? comments.length : ""}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-extrabold">
+          {labels.title} {topLevelCount > 0 ? topLevelCount : ""}
+        </h2>
+        <FeedInsights
+          postId={postId}
+          signedIn={!!viewerId}
+          labels={{
+            likedBy: labels.likedBy,
+            viewedBy: labels.viewedBy,
+            views: labels.views,
+            close: labels.close,
+          }}
+        />
+      </div>
 
       {viewerId ? (
-        <form action={createFeedComment} className="mt-4 flex items-end gap-2">
-          <input type="hidden" name="postId" value={postId} />
-          <input type="hidden" name="returnTo" value={returnTo} />
-          <textarea
-            name="body"
-            required
-            maxLength={800}
-            rows={2}
-            placeholder={labels.placeholder}
-            className="min-h-12 flex-1 resize-y rounded-2xl border border-line bg-surface-sub px-4 py-3 text-sm leading-6 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-soft"
+        <div className="mt-4">
+          <CommentComposer
+            postId={postId}
+            returnTo={returnTo}
+            userId={viewerId}
+            labels={{
+              placeholder: labels.placeholder,
+              submit: labels.submit,
+              addImage: labels.addImage,
+              addEmoji: labels.addEmoji,
+              removeImage: labels.removeImage,
+              uploadError: labels.uploadError,
+            }}
           />
-          <CommentSubmitButton label={labels.submit} />
-        </form>
+        </div>
       ) : (
         <Link
           href={`/login?next=${encodeURIComponent(returnTo)}`}
@@ -67,63 +77,16 @@ export function FeedComments({
       )}
 
       {comments.length > 0 ? (
-        <div className="mt-6 space-y-5">
-          {comments.map((comment) => (
-            <article key={comment.id} className="flex items-start gap-3">
-              <Link href={`/u/${comment.authorUid}`} className="shrink-0">
-                {comment.avatarPath ? (
-                  <Image
-                    src={postMediaUrl(comment.avatarPath)}
-                    alt=""
-                    width={38}
-                    height={38}
-                    className="h-9.5 w-9.5 rounded-full border border-line object-cover"
-                  />
-                ) : (
-                  <DefaultAvatar className="h-9.5 w-9.5" />
-                )}
-              </Link>
-              <div className="min-w-0 flex-1 rounded-2xl bg-surface-sub px-4 py-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <Link
-                      href={`/u/${comment.authorUid}`}
-                      className="text-sm font-extrabold hover:text-primary"
-                    >
-                      UID:{comment.authorUid}
-                    </Link>
-                    <RelativeTime
-                      dateTime={comment.createdAt}
-                      locale={locale}
-                      initialNow={renderedAt}
-                      justNowLabel={labels.justNow}
-                      className="ml-2 text-xs text-ink-faint"
-                    />
-                  </div>
-                  {viewerId === comment.authorId && (
-                    <form action={deleteFeedComment}>
-                      <input
-                        type="hidden"
-                        name="commentId"
-                        value={comment.id}
-                      />
-                      <input type="hidden" name="postId" value={postId} />
-                      <input type="hidden" name="returnTo" value={returnTo} />
-                      <PendingButton
-                        className="text-xs font-bold text-ink-faint hover:text-negative"
-                        aria-label={labels.delete}
-                      >
-                        ×
-                      </PendingButton>
-                    </form>
-                  )}
-                </div>
-                <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink-soft">
-                  {comment.body}
-                </p>
-              </div>
-            </article>
-          ))}
+        <div className="mt-6">
+          <CommentList
+            postId={postId}
+            comments={comments}
+            viewerId={viewerId}
+            returnTo={returnTo}
+            locale={locale}
+            renderedAt={renderedAt}
+            labels={labels}
+          />
         </div>
       ) : (
         <p className="mt-6 text-center text-sm text-ink-faint">
