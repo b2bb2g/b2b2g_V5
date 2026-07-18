@@ -78,6 +78,7 @@ export function EditFormFrame({
   discardBody,
   discardConfirm,
   keepEditing,
+  stickyActions = false,
   children,
 }: {
   action: (formData: FormData) => void | Promise<void>;
@@ -88,6 +89,8 @@ export function EditFormFrame({
   discardBody: string;
   discardConfirm: string;
   keepEditing: string;
+  /** Keep cancel/save visible while scrolling long forms. */
+  stickyActions?: boolean;
   children: ReactNode;
 }) {
   const router = useRouter();
@@ -117,15 +120,23 @@ export function EditFormFrame({
       className="space-y-3"
     >
       {children}
-      <div className="flex gap-2 pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex-1 rounded-xl bg-surface-sub px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-line/60"
-        >
-          {cancelLabel}
-        </button>
-        <SaveButton label={saveLabel} />
+      <div
+        className={
+          stickyActions
+            ? "sticky bottom-0 z-10 bg-gradient-to-t from-[#f7f8fa] via-[#f7f8fa]/95 to-transparent pb-3 pt-5"
+            : "pt-2"
+        }
+      >
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 rounded-xl bg-surface-sub px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-line/60"
+          >
+            {cancelLabel}
+          </button>
+          <SaveButton label={saveLabel} />
+        </div>
       </div>
 
       <DiscardModal
