@@ -453,6 +453,7 @@ export default async function DashboardPage() {
         </section>
 
         <InvitationManager
+          locale={locale}
           invitations={(activeInvitations.data ?? []) as Array<{
             id: string;
             status: string;

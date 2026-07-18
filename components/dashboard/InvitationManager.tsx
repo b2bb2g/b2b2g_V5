@@ -7,6 +7,8 @@ import {
   type InvitationActionState,
 } from "@/app/actions/invitations";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { LocalDateTime } from "@/components/ui/LocalDateTime";
+import type { Locale } from "@/lib/constants";
 import { ReferralQr } from "@/components/ui/ReferralQr";
 
 type Invitation = {
@@ -39,9 +41,11 @@ type Labels = {
 export function InvitationManager({
   invitations,
   labels,
+  locale,
 }: {
   invitations: Invitation[];
   labels: Labels;
+  locale: Locale;
 }) {
   const [state, action, pending] = useActionState<InvitationActionState, FormData>(
     createReferralInvitation,
@@ -99,7 +103,7 @@ export function InvitationManager({
             </button>
           </div>
           <p className="mt-2 text-[11px] text-ink-faint">
-            {labels.expires}: {new Date(state.expiresAt!).toLocaleString()}
+            {labels.expires}: <LocalDateTime value={state.expiresAt!} locale={locale} />
           </p>
           <ReferralQr value={state.link} label={labels.qr} />
         </div>
@@ -117,7 +121,7 @@ export function InvitationManager({
                     {invitation.status === "reserved" ? labels.reserved : labels.active}
                   </span>
                   <p className="mt-0.5 truncate text-[11px] text-ink-faint">
-                    {labels.expires}: {new Date(invitation.expires_at).toLocaleString()}
+                    {labels.expires}: <LocalDateTime value={invitation.expires_at} locale={locale} />
                   </p>
                 </div>
                 <form action={revokeReferralInvitation}>
