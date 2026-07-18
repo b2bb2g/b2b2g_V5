@@ -47,9 +47,11 @@ export function NavigationFeedback() {
       if (`${next.pathname}${next.search}` !== `${location.pathname}${location.search}`) start();
     }
     function submit(event: SubmitEvent) {
-      // Server-action forms render method="POST" and manage their own button
-      // pending state; only classic GET forms navigate.
+      // Only classic GET navigations get the bar. Server-action forms render
+      // method="POST"; client function-action forms (e.g. locale switch)
+      // render no action attribute at all and never navigate.
       const form = event.target as HTMLFormElement;
+      if (!form.getAttribute("action")) return;
       if ((form.method || "get").toLowerCase() === "get") start();
     }
 

@@ -100,15 +100,15 @@ export async function Header({
           </Link>
 
           {/* Desktop: inline dynamic menu */}
-          <div className="hidden min-w-0 flex-1 md:block">
+          <div className="hidden min-w-0 flex-1 lg:block">
             <MenuNav items={menuItems} inline />
           </div>
-          <div className="min-w-0 flex-1 md:hidden" />
+          <div className="min-w-0 flex-1 lg:hidden" />
 
           <nav className="flex shrink-0 items-center gap-2">
             <Link
               href="/search"
-              className="hidden rounded-full p-2 text-ink-soft transition-colors hover:bg-surface-sub md:block"
+              className="hidden rounded-full p-2 text-ink-soft transition-colors hover:bg-surface-sub lg:block"
               aria-label={t.common.search}
             >
               <svg
@@ -126,7 +126,7 @@ export async function Header({
                 <path d="m21 21-4.3-4.3" />
               </svg>
             </Link>
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <LocaleMenu locale={locale} label={t.common.language} />
             </div>
             {session.userId && session.profile ? (
@@ -155,13 +155,13 @@ export async function Header({
               <>
                 <Link
                   href="/login"
-                  className="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub md:block"
+                  className="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub lg:block"
                 >
                   {t.common.signIn}
                 </Link>
                 <Link
                   href="/signup"
-                  className="btn-primary btn-md hidden rounded-full px-5 md:inline-flex"
+                  className="btn-primary btn-md hidden rounded-full px-5 lg:inline-flex"
                 >
                   {t.common.signUp}
                 </Link>
@@ -169,10 +169,13 @@ export async function Header({
             )}
             <MobileMenu
               items={menuItems}
+              locale={locale}
+              languageLabel={t.common.language}
               searchLabel={t.common.search}
               signInLabel={t.common.signIn}
               signUpLabel={t.common.signUp}
               menuLabel={t.nav.menu}
+              closeLabel={t.common.close}
               showAuth={!session.userId}
             />
           </nav>
