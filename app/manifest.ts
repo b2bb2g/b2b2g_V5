@@ -33,18 +33,19 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     background_color: "#ffffff",
     theme_color: "#1769e0",
     icons: [
+      // ?v= busts browser/manifest caches whenever the brand icon changes.
       {
-        src: "/icons/b2bb2g-icon-192.png",
+        src: "/icons/b2bb2g-icon-192.png?v=3",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "/icons/b2bb2g-icon-512.png",
+        src: "/icons/b2bb2g-icon-512.png?v=3",
         sizes: "512x512",
         type: "image/png",
       },
       {
-        src: "/icons/b2bb2g-icon-512.png",
+        src: "/icons/b2bb2g-icon-maskable-512.png?v=3",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
