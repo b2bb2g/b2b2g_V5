@@ -443,7 +443,7 @@ export default async function PostDetailPage(props: {
 
     return (
       <>
-        <article className="wide space-y-6 pb-16">
+        <article className="wide space-y-4 pb-16 sm:space-y-6">
         <JsonLd data={schemaData} />
         {isOwn && post && post.status !== POST_STATUS.APPROVED && (
           <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">
@@ -475,7 +475,7 @@ export default async function PostDetailPage(props: {
         </nav>
 
         <section className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(21rem,.78fr)] lg:gap-5">
-          <div className="min-w-0 overflow-hidden rounded-[1.75rem] border border-line/80 bg-white p-3 shadow-(--shadow-card) sm:p-4">
+          <div className="min-w-0 overflow-hidden rounded-[1.25rem] sm:rounded-[1.75rem] sm:border sm:border-line/80 sm:bg-white sm:p-4 sm:shadow-(--shadow-card)">
               {commerceImages.length > 0 || embed ? (
                 <MediaGallery
                   images={commerceImages}
@@ -497,17 +497,17 @@ export default async function PostDetailPage(props: {
               )}
           </div>
 
-          <header className="flex min-w-0 flex-col rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-8 lg:min-h-full">
+          <header className="flex min-w-0 flex-col rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-(--shadow-card) sm:rounded-[1.75rem] sm:p-8 lg:min-h-full">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
                     {sectionTitle}
                   </span>
                 </div>
-                <h1 className="mt-5 text-3xl font-extrabold leading-[1.2] tracking-[-.04em] text-ink sm:text-4xl lg:text-[2.5rem]">
+                <h1 className="mt-3.5 text-[1.55rem] font-extrabold leading-[1.22] tracking-[-.04em] text-ink sm:mt-5 sm:text-4xl lg:text-[2.5rem]">
                   {title}
                 </h1>
-                <div className="mt-5 flex flex-wrap items-center gap-2 border-b border-line pb-5 text-sm text-ink-soft">
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-b border-line pb-4 text-sm text-ink-soft sm:mt-5 sm:pb-5">
                   <span className="sr-only">{t.post.postedBy}</span>
                   <AuthorIdentity
                     uid={authorUid}
@@ -567,7 +567,7 @@ export default async function PostDetailPage(props: {
                 </ul>
               </div>
 
-              <div className="mt-auto pt-8">
+              <div className="mt-auto pt-6 sm:pt-8">
                 <div className="rounded-2xl border border-primary/15 bg-primary-soft/55 p-4">
                   <p className="text-sm font-extrabold text-ink">
                     {t.post.requestProductDetails}
@@ -604,18 +604,18 @@ export default async function PostDetailPage(props: {
 
         <nav
           aria-label={t.post.detailNavigation}
-          className="scrollbar-none sticky top-16 z-20 -mx-1 flex overflow-x-auto border-b border-line bg-[#f7f8fa]/95 px-1 pt-1 backdrop-blur sm:top-18"
+          className="scrollbar-none sticky top-[4.5rem] z-20 -mx-1 flex overflow-x-auto border-b border-line bg-[#f7f8fa]/95 px-1 pt-1 backdrop-blur"
         >
           <a
             href="#product-overview"
-            className="shrink-0 border-b-2 border-ink px-5 py-4 text-sm font-extrabold text-ink"
+            className="shrink-0 border-b-2 border-ink px-4 py-3.5 text-sm font-extrabold text-ink sm:px-5 sm:py-4"
           >
             {t.post.productInformation}
           </a>
           {full && full.specs.length > 0 && (
             <a
               href="#product-specifications"
-              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+              className="shrink-0 border-b-2 border-transparent px-4 py-3.5 text-sm font-bold text-ink-faint transition hover:text-ink sm:px-5 sm:py-4"
             >
               {t.post.specs}
             </a>
@@ -623,7 +623,7 @@ export default async function PostDetailPage(props: {
           {full && full.attachments.length > 0 && (
             <a
               href="#product-attachments"
-              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+              className="shrink-0 border-b-2 border-transparent px-4 py-3.5 text-sm font-bold text-ink-faint transition hover:text-ink sm:px-5 sm:py-4"
             >
               {t.post.attachments}
             </a>
@@ -631,7 +631,7 @@ export default async function PostDetailPage(props: {
           {relatedProducts.length > 0 && (
             <a
               href="#related-products"
-              className="shrink-0 border-b-2 border-transparent px-5 py-4 text-sm font-bold text-ink-faint transition hover:text-ink"
+              className="shrink-0 border-b-2 border-transparent px-4 py-3.5 text-sm font-bold text-ink-faint transition hover:text-ink sm:px-5 sm:py-4"
             >
               {t.post.relatedProducts}
             </a>
@@ -643,7 +643,7 @@ export default async function PostDetailPage(props: {
             id="product-overview"
             className="w-full scroll-mt-32 overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]"
           >
-            <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+            <div className="px-5 py-7 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
               <div className="mx-auto max-w-4xl">
                 <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
                   {t.post.productInformation}
@@ -727,7 +727,7 @@ export default async function PostDetailPage(props: {
         ) : (
           teaser && (
             <section className="w-full overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
-              <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+              <div className="px-5 py-7 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
                 <div className="mx-auto max-w-4xl">
                   <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
                     {t.post.productInformation}
@@ -773,11 +773,11 @@ export default async function PostDetailPage(props: {
                 {t.common.viewAll} →
               </Link>
             </div>
-            <div className="scrollbar-none -mx-4 mt-5 flex snap-x gap-4 overflow-x-auto px-4 pb-6">
+            <div className="scrollbar-none -mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-6 sm:gap-4">
               {relatedProducts.map((related) => (
                 <div
                   key={related.id}
-                  className="w-[72vw] max-w-64 shrink-0 snap-start sm:w-60"
+                  className="w-40 shrink-0 snap-start sm:w-56"
                 >
                   <ProductCard
                     post={related}
@@ -903,7 +903,7 @@ export default async function PostDetailPage(props: {
           )}
         </div>
 
-        <header className="flex min-w-0 flex-col rounded-[1.75rem] border border-line/80 bg-white p-6 shadow-(--shadow-card) sm:p-8 lg:min-h-full">
+        <header className="flex min-w-0 flex-col rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-(--shadow-card) sm:rounded-[1.75rem] sm:p-8 lg:min-h-full">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
@@ -987,7 +987,7 @@ export default async function PostDetailPage(props: {
             )}
           </div>
 
-          <div className="mt-auto pt-8">
+          <div className="mt-auto pt-6 sm:pt-8">
             {isOwn && post ? (
               <Link
                 href={`/write?menu=${menu.slug}&post=${postId}`}
@@ -1068,7 +1068,7 @@ export default async function PostDetailPage(props: {
           return (
             <>
               <section className="w-full overflow-hidden rounded-[2rem] border border-line/80 bg-white shadow-[0_20px_65px_rgba(25,31,40,.08)]">
-                <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+                <div className="px-5 py-7 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
                   <div className="mx-auto max-w-4xl">
                     <p className="text-xs font-extrabold uppercase tracking-[.14em] text-primary">
                       {t.board.aboutEvent}
