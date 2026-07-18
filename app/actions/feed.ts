@@ -194,6 +194,42 @@ export async function createFeedComment(formData: FormData) {
   revalidateFeed(postId, returnTo);
 }
 
+export async function updateFeedComment(formData: FormData) {
+  const { supabase, user } = await currentUser();
+  const commentId = String(formData.get("commentId") ?? "");
+  const postId = String(formData.get("postId") ?? "");
+  const returnTo = safeReturnPath(formData.get("returnTo"));
+  const body = String(formData.get("body") ?? "")
+    .trim()
+    .slice(0, 800);
+  if (!UUID.test(commentId) || !UUID.test(postId) || !body) return;
+  await supabase
+    .from("member_feed_comments")
+    .update({ body })
+    .eq("id", commentId)
+    .eq("author_id", user.id);
+  revalidateFeed(postId, returnTo);
+}
+
+export async function reportFeedComment(formData: FormData) {
+  const { supabase, user } = await currentUser();
+  const commentId = String(formData.get("commentId") ?? "");
+  const postId = String(formData.get("postId") ?? "");
+  const returnTo = safeReturnPath(formData.get("returnTo"));
+  if (!UUID.test(commentId) || !UUID.test(postId)) return;
+  const { error } = await supabase.from("member_feed_comment_reports").insert({
+    comment_id: commentId,
+    reporter_id: user.id,
+    reason: "other",
+  });
+  // Duplicate report from the same member is a silent success.
+  if (error && error.code !== "23505") {
+    redirect(withNotice(returnTo, "error", "report"));
+  }
+  revalidatePath("/admin/feed");
+  redirect(withNotice(returnTo, "toast", "reported"));
+}
+
 export async function toggleFeedCommentLike(formData: FormData) {
   const { supabase, user } = await currentUser();
   const commentId = String(formData.get("commentId") ?? "");

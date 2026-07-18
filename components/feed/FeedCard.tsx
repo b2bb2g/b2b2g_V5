@@ -75,6 +75,8 @@ export type FeedLabels = {
   viewedBy: string;
   views: string;
   close: string;
+  reportComment: string;
+  save: string;
   signInToComment: string;
   noComments: string;
   deleteComment: string;
@@ -285,6 +287,9 @@ export function FeedCard({
           views: labels.views,
           close: labels.close,
           cancel: labels.cancel,
+          editComment: labels.edit,
+          saveComment: labels.save,
+          reportComment: labels.reportComment,
           signInToComment: labels.signInToComment,
           noComments: labels.noComments,
           deleteComment: labels.deleteComment,

@@ -43,6 +43,9 @@ export type FeedFocusLabels = {
   views: string;
   close: string;
   cancel: string;
+  editComment: string;
+  saveComment: string;
+  reportComment: string;
   signInToComment: string;
   noComments: string;
   deleteComment: string;
@@ -311,6 +314,9 @@ export function FeedFocusEngagement({
                 justNow: labels.justNow,
                 close: labels.close,
                 cancel: labels.cancel,
+                edit: labels.editComment,
+                save: labels.saveComment,
+                report: labels.reportComment,
                 comments: labels.comments,
                 placeholder: labels.commentPlaceholder,
                 submit: labels.writeComment,

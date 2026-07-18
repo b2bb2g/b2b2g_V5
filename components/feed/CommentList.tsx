@@ -4,7 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useRef, useState, useSyncExternalStore } from "react";
-import { deleteFeedComment, toggleFeedCommentLike } from "@/app/actions/feed";
+import {
+  deleteFeedComment,
+  reportFeedComment,
+  toggleFeedCommentLike,
+  updateFeedComment,
+} from "@/app/actions/feed";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { CommentComposer } from "@/components/feed/CommentComposer";
@@ -20,6 +25,9 @@ export type CommentListLabels = {
   reply: string;
   moreReplies: string;
   cancel: string;
+  edit: string;
+  save: string;
+  report: string;
   delete: string;
   justNow: string;
   close: string;
@@ -59,7 +67,7 @@ function CommentRow({
   onChanged?: () => void;
   inThread?: boolean;
 }) {
-  const isOwn = viewerId === comment.authorId;
+  const canOpenMenu = Boolean(viewerId && onOpenMenu);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelPress = () => {
     if (pressTimer.current) clearTimeout(pressTimer.current);
@@ -85,7 +93,7 @@ function CommentRow({
           className="rounded-2xl bg-surface-sub px-3.5 py-2.5"
           onPointerDown={() => {
             // Instagram-style long press opens the comment actions.
-            if (!isOwn || !onOpenMenu) return;
+            if (!canOpenMenu || !onOpenMenu) return;
             cancelPress();
             pressTimer.current = setTimeout(() => onOpenMenu(comment), 550);
           }}
@@ -93,7 +101,7 @@ function CommentRow({
           onPointerMove={cancelPress}
           onPointerCancel={cancelPress}
           onContextMenu={(event) => {
-            if (isOwn && onOpenMenu) {
+            if (canOpenMenu && onOpenMenu) {
               event.preventDefault();
               onOpenMenu(comment);
             }
@@ -115,12 +123,12 @@ function CommentRow({
                 className="text-[11px] text-ink-faint"
               />
             </div>
-            {isOwn && onOpenMenu && (
+            {canOpenMenu && (
               <button
                 type="button"
                 aria-label={labels.delete}
                 aria-haspopup="menu"
-                onClick={() => onOpenMenu(comment)}
+                onClick={() => onOpenMenu?.(comment)}
                 className="flex h-7 w-7 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-white hover:text-ink"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -133,7 +141,19 @@ function CommentRow({
           </div>
           {comment.body.trim() && (
             <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-ink-soft">
-              {comment.body}
+              {comment.body.split(/(@\d{4,9})/g).map((part, index) =>
+                /^@\d{4,9}$/.test(part) ? (
+                  <Link
+                    key={`${part}-${index}`}
+                    href={`/u/${part.slice(1)}`}
+                    className="font-bold text-primary hover:underline"
+                  >
+                    {part}
+                  </Link>
+                ) : (
+                  part
+                ),
+              )}
             </p>
           )}
           {comment.mediaPaths.length > 0 && (
@@ -225,6 +245,7 @@ export function CommentList({
   const [threadId, setThreadId] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [menuComment, setMenuComment] = useState<FeedComment | null>(null);
+  const [editComment, setEditComment] = useState<FeedComment | null>(null);
   // Ancestors animate transforms (page-enter), which traps fixed overlays;
   // portaling to <body> keeps the sheets viewport-sized.
   const mounted = useSyncExternalStore(
@@ -367,11 +388,15 @@ export function CommentList({
             {viewerId && (
               <div className="shrink-0 border-t border-line px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
                 <CommentComposer
+                  key={thread.id}
                   postId={postId}
                   parentId={thread.id}
                   returnTo={returnTo}
                   userId={viewerId}
                   autoFocus
+                  initialBody={
+                    thread.authorId === viewerId ? "" : `@${thread.authorUid} `
+                  }
                   onSubmitted={onChanged}
                   labels={{
                     placeholder: labels.placeholder,
@@ -401,20 +426,48 @@ export function CommentList({
             aria-label={labels.delete}
             className="w-full rounded-t-[1.5rem] bg-white p-3 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:max-w-xs sm:rounded-[1.5rem]"
           >
-            <form
-              action={async (formData: FormData) => {
-                await deleteFeedComment(formData);
-                setMenuComment(null);
-                onChanged?.();
-              }}
-            >
-              <input type="hidden" name="commentId" value={menuComment.id} />
-              <input type="hidden" name="postId" value={postId} />
-              <input type="hidden" name="returnTo" value={returnTo} />
-              <PendingButton className="flex w-full items-center justify-center rounded-xl py-3 text-sm font-extrabold text-negative transition-colors hover:bg-negative-soft">
-                {labels.delete}
-              </PendingButton>
-            </form>
+            {viewerId === menuComment.authorId ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditComment(menuComment);
+                    setMenuComment(null);
+                  }}
+                  className="w-full rounded-xl py-3 text-sm font-extrabold text-ink transition-colors hover:bg-surface-sub"
+                >
+                  {labels.edit}
+                </button>
+                <form
+                  action={async (formData: FormData) => {
+                    await deleteFeedComment(formData);
+                    setMenuComment(null);
+                    onChanged?.();
+                  }}
+                >
+                  <input type="hidden" name="commentId" value={menuComment.id} />
+                  <input type="hidden" name="postId" value={postId} />
+                  <input type="hidden" name="returnTo" value={returnTo} />
+                  <PendingButton className="flex w-full items-center justify-center rounded-xl py-3 text-sm font-extrabold text-negative transition-colors hover:bg-negative-soft">
+                    {labels.delete}
+                  </PendingButton>
+                </form>
+              </>
+            ) : (
+              <form
+                action={async (formData: FormData) => {
+                  await reportFeedComment(formData);
+                  setMenuComment(null);
+                }}
+              >
+                <input type="hidden" name="commentId" value={menuComment.id} />
+                <input type="hidden" name="postId" value={postId} />
+                <input type="hidden" name="returnTo" value={returnTo} />
+                <PendingButton className="flex w-full items-center justify-center rounded-xl py-3 text-sm font-extrabold text-negative transition-colors hover:bg-negative-soft">
+                  {labels.report}
+                </PendingButton>
+              </form>
+            )}
             <button
               type="button"
               onClick={() => setMenuComment(null)}
@@ -423,6 +476,51 @@ export function CommentList({
               {labels.cancel}
             </button>
           </div>
+        </div>,
+        document.body,
+      )}
+
+      {mounted && editComment && createPortal(
+        <div
+          className="fixed inset-0 z-[246] flex items-end justify-center bg-ink/45 backdrop-blur-[2px] sm:items-center sm:p-4"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setEditComment(null);
+          }}
+        >
+          <form
+            action={async (formData: FormData) => {
+              await updateFeedComment(formData);
+              setEditComment(null);
+              onChanged?.();
+            }}
+            className="w-full rounded-t-[1.5rem] bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:max-w-md sm:rounded-[1.5rem]"
+          >
+            <p className="text-sm font-extrabold">{labels.edit}</p>
+            <input type="hidden" name="commentId" value={editComment.id} />
+            <input type="hidden" name="postId" value={postId} />
+            <input type="hidden" name="returnTo" value={returnTo} />
+            <textarea
+              name="body"
+              required
+              maxLength={800}
+              rows={3}
+              autoFocus
+              defaultValue={editComment.body}
+              className="plain-input mt-3 w-full resize-y rounded-2xl border border-line bg-surface-sub px-4 py-3 text-sm leading-6 transition focus:border-primary/50"
+            />
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setEditComment(null)}
+                className="flex-1 rounded-xl bg-surface-sub py-2.5 text-sm font-bold text-ink-soft transition-colors hover:bg-line/60"
+              >
+                {labels.cancel}
+              </button>
+              <PendingButton className="flex flex-1 items-center justify-center rounded-xl bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-strong">
+                {labels.save}
+              </PendingButton>
+            </div>
+          </form>
         </div>,
         document.body,
       )}

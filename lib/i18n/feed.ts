@@ -54,6 +54,8 @@ export function getFeedCardLabels(t: Dictionary, locale: Locale): FeedLabels {
     viewedBy: t.feed.viewedBy,
     views: t.feed.views,
     close: t.common.close,
+    reportComment: t.feed.reportComment,
+    save: t.common.save,
     signInToComment: t.feed.signInToComment,
     noComments: t.feed.noComments,
     deleteComment: t.feed.deleteComment,

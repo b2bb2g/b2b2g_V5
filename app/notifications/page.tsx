@@ -41,6 +41,7 @@ function renderNotification(t: Dictionary, n: AppNotification): string {
     feed_commented: t.notifications.feedCommented,
     feed_comment_liked: t.notifications.feedCommentLiked,
     feed_comment_replied: t.notifications.feedCommentReplied,
+    feed_mentioned: t.notifications.feedMentioned,
     subscription_expiring: t.dashboard.subscription,
   };
   const label = base[n.type] ?? n.type;
@@ -55,7 +56,11 @@ function notificationHref(n: AppNotification): string | null {
     application_id?: string;
     feed_post_id?: string;
   };
-  if (payload.feed_post_id) return `/feed/${payload.feed_post_id}`;
+  if (payload.feed_post_id) {
+    const anchor =
+      n.type === "feed_liked" ? "" : "#comments";
+    return `/feed/${payload.feed_post_id}${anchor}`;
+  }
   if (payload.inquiry_id) return `/inquiries/${payload.inquiry_id}`;
   if (payload.post_id) return "/dashboard/posts";
   if (payload.application_id || n.type.startsWith("badge_"))

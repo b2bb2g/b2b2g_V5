@@ -788,6 +788,7 @@ const en = {
     blockBody: "You will no longer see each other's network posts.",
     reply: "Reply",
     moreReplies: "View more replies",
+    reportComment: "Report comment",
     addEmoji: "Emoji",
     removeImage: "Remove image",
     likedBy: "Liked by",
@@ -990,6 +991,7 @@ const en = {
     ownerOnly: "Only the platform owner can change staff access.",
     feedSafety: "Network safety",
     pendingReports: "Pending feed reports",
+    commentReports: "Comment report",
     hideFeedPost: "Hide post",
     dismissReport: "Dismiss report",
     approve: "Approve",
@@ -1134,6 +1136,7 @@ const en = {
     feedCommented: "New comment on your post",
     feedCommentLiked: "New like on your comment",
     feedCommentReplied: "New reply to your comment",
+    feedMentioned: "You were mentioned in a comment",
     pushTitle: "Push notifications",
     pushBody:
       "Get approval, message, comment and like alerts even when the app is closed.",

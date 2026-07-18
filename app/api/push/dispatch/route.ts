@@ -23,6 +23,7 @@ const PUSH_TEXT: Record<string, string> = {
   feed_commented: "New comment on your post",
   feed_comment_liked: "Someone liked your comment",
   feed_comment_replied: "New reply to your comment",
+  feed_mentioned: "You were mentioned in a comment",
   admin_notice: "Notice from the operations team",
 };
 
@@ -36,8 +37,10 @@ function pushCategory(type: string): string | null {
 }
 
 function pushUrl(type: string, payload: Record<string, unknown>): string {
-  if (typeof payload.feed_post_id === "string")
-    return `/feed/${payload.feed_post_id}`;
+  if (typeof payload.feed_post_id === "string") {
+    const anchor = type === "feed_liked" ? "" : "#comments";
+    return `/feed/${payload.feed_post_id}${anchor}`;
+  }
   if (typeof payload.inquiry_id === "string")
     return `/inquiries/${payload.inquiry_id}`;
   if (typeof payload.post_id === "string") return "/dashboard/posts";

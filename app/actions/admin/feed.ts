@@ -49,3 +49,35 @@ export async function reviewFeedReport(formData: FormData) {
   revalidatePath("/admin/feed");
   redirect("/admin/feed?toast=reviewed");
 }
+
+export async function reviewFeedCommentReport(formData: FormData) {
+  const reportId = String(formData.get("reportId") ?? "");
+  const commentId = String(formData.get("commentId") ?? "");
+  const decision = String(formData.get("decision") ?? "dismiss");
+  const { supabase, userId } = await requireAdmin("review");
+
+  if (decision === "delete") {
+    const { error: deleteError } = await supabase
+      .from("member_feed_comments")
+      .delete()
+      .eq("id", commentId);
+    if (deleteError) redirect("/admin/feed?error=review");
+    // Deleting cascades the report rows; nothing left to mark.
+  } else {
+    const { error } = await supabase
+      .from("member_feed_comment_reports")
+      .update({
+        status: "dismissed",
+        reviewed_by: userId,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", reportId);
+    if (error) redirect("/admin/feed?error=review");
+  }
+  await audit(supabase, "feed_comment_report_review", "feed_comment", commentId, {
+    decision,
+    report_id: reportId,
+  });
+  revalidatePath("/admin/feed");
+  redirect("/admin/feed?toast=saved");
+}

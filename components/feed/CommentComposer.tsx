@@ -23,6 +23,7 @@ export function CommentComposer({
   returnTo,
   userId,
   autoFocus = false,
+  initialBody = "",
   onSubmitted,
   labels,
 }: {
@@ -31,6 +32,7 @@ export function CommentComposer({
   returnTo: string;
   userId: string;
   autoFocus?: boolean;
+  initialBody?: string;
   onSubmitted?: () => void;
   labels: {
     placeholder: string;
@@ -41,7 +43,7 @@ export function CommentComposer({
     uploadError: string;
   };
 }) {
-  const [body, setBody] = useState("");
+  const [body, setBody] = useState(initialBody);
   const [mediaPath, setMediaPath] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
