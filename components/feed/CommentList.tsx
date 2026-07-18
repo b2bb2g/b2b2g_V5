@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useRef, useState, useSyncExternalStore } from "react";
+import { useEscape } from "@/lib/use-escape";
 import {
   deleteFeedComment,
   reportFeedComment,
@@ -25,6 +26,7 @@ export type CommentListLabels = {
   reply: string;
   moreReplies: string;
   cancel: string;
+  edited: string;
   edit: string;
   save: string;
   report: string;
@@ -115,13 +117,15 @@ function CommentRow({
               >
                 UID:{comment.authorUid}
               </Link>
-              <RelativeTime
-                dateTime={comment.createdAt}
-                locale={locale}
-                initialNow={renderedAt}
-                justNowLabel={labels.justNow}
-                className="text-[11px] text-ink-faint"
-              />
+              <span className="flex items-center gap-1 text-[11px] text-ink-faint">
+                <RelativeTime
+                  dateTime={comment.createdAt}
+                  locale={locale}
+                  initialNow={renderedAt}
+                  justNowLabel={labels.justNow}
+                />
+                {comment.edited && <span>· {labels.edited}</span>}
+              </span>
             </div>
             {canOpenMenu && (
               <button
@@ -246,6 +250,12 @@ export function CommentList({
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [menuComment, setMenuComment] = useState<FeedComment | null>(null);
   const [editComment, setEditComment] = useState<FeedComment | null>(null);
+  useEscape(Boolean(lightbox), () => setLightbox(null));
+  useEscape(Boolean(editComment), () => setEditComment(null));
+  useEscape(Boolean(menuComment), () => setMenuComment(null));
+  useEscape(Boolean(threadId) && !lightbox && !menuComment && !editComment, () =>
+    setThreadId(null),
+  );
   // Ancestors animate transforms (page-enter), which traps fixed overlays;
   // portaling to <body> keeps the sheets viewport-sized.
   const mounted = useSyncExternalStore(

@@ -44,6 +44,7 @@ export type FeedFocusLabels = {
   close: string;
   cancel: string;
   editComment: string;
+  editedComment: string;
   saveComment: string;
   reportComment: string;
   signInToComment: string;
@@ -315,6 +316,7 @@ export function FeedFocusEngagement({
                 close: labels.close,
                 cancel: labels.cancel,
                 edit: labels.editComment,
+                edited: labels.editedComment,
                 save: labels.saveComment,
                 report: labels.reportComment,
                 comments: labels.comments,

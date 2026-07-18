@@ -4,6 +4,7 @@ import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { SafeImage } from "@/components/ui/SafeImage";
 import type { PostTeaser } from "@/lib/types";
 import { BadgePill } from "@/components/ui/Badge";
+import { BookmarkButton } from "@/components/marketplace/BookmarkButton";
 import { stripRichText } from "@/lib/richtext-text";
 
 const FEATURE_BADGE_STYLES: Record<string, string> = {
@@ -24,6 +25,7 @@ export function ProductCard({
   showAuthor = true,
   feature = false,
   compactFeature = false,
+  bookmark,
 }: {
   post: PostTeaser;
   href: string;
@@ -32,6 +34,13 @@ export function ProductCard({
   showAuthor?: boolean;
   feature?: boolean;
   compactFeature?: boolean;
+  /** Signed-in grids show a heart overlay on the image tile. */
+  bookmark?: {
+    saved: boolean;
+    returnTo: string;
+    saveLabel: string;
+    savedLabel: string;
+  };
 }) {
   const thumbnail = repThumbnail(post);
   const title =
@@ -93,6 +102,7 @@ export function ProductCard({
   }
 
   return (
+    <div className="relative h-full">
     <Link
       href={href}
       className="group flex h-full flex-col transition-transform duration-300 ease-out focus:outline-none hover:-translate-y-1 active:scale-[.97]"
@@ -130,5 +140,18 @@ export function ProductCard({
         )}
       </div>
     </Link>
+    {bookmark && (
+      <div className="absolute right-2 top-2 z-10">
+        <BookmarkButton
+          postId={post.id}
+          returnTo={bookmark.returnTo}
+          saved={bookmark.saved}
+          saveLabel={bookmark.saveLabel}
+          savedLabel={bookmark.savedLabel}
+          size="sm"
+        />
+      </div>
+    )}
+    </div>
   );
 }

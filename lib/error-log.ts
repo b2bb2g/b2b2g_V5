@@ -23,6 +23,33 @@ export async function persistErrorLog(entry: {
       url: entry.url?.slice(0, 300) ?? null,
       user_agent: entry.userAgent?.slice(0, 250) ?? null,
     });
+
+    // Server errors alert admins (in-app + push), throttled to one alert
+    // per 15 minutes so an error storm cannot spam anyone.
+    if (entry.source === "server") {
+      const throttleWindow = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      const { data: recent } = await supabase
+        .from("notifications")
+        .select("id")
+        .eq("type", "app_error_alert")
+        .gte("created_at", throttleWindow)
+        .limit(1);
+      if (!recent?.length) {
+        const { data: admins } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("is_admin", true);
+        if (admins?.length) {
+          await supabase.from("notifications").insert(
+            admins.map((admin) => ({
+              profile_id: admin.id,
+              type: "app_error_alert",
+              payload: { message: entry.message.slice(0, 120) },
+            })),
+          );
+        }
+      }
+    }
   } catch {
     // Logging is best-effort only.
   }

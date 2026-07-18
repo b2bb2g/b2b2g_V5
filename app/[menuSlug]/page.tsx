@@ -176,6 +176,9 @@ export default async function BoardPage(props: {
   const page = Math.max(1, Number.parseInt(query.page ?? "1", 10) || 1);
   const authorUid = Number.parseInt(query.uid ?? "", 10) || undefined;
   const supabase = await createClient();
+  const {
+    data: { user: viewer },
+  } = await supabase.auth.getUser();
 
   const [{ posts, totalPages }, highlights, { data: categoryRows }] =
     await Promise.all([
@@ -195,6 +198,24 @@ export default async function BoardPage(props: {
             .order("sort_order")
         : Promise.resolve({ data: [] }),
     ]);
+
+  // Viewer's saved products among the visible grid (heart overlays).
+  const savedPostIds = new Set<string>(
+    viewer && posts.length
+      ? (
+          (
+            await supabase
+              .from("post_bookmarks")
+              .select("post_id")
+              .eq("profile_id", viewer.id)
+              .in(
+                "post_id",
+                posts.map((post) => post.id),
+              )
+          ).data ?? []
+        ).map((row) => row.post_id)
+      : [],
+  );
 
   const categories =
     (categoryRows as
@@ -414,6 +435,16 @@ export default async function BoardPage(props: {
                     href={`/${menu.slug}/${post.id}`}
                     locale={locale}
                     priority={index < 4}
+                    bookmark={
+                      viewer
+                        ? {
+                            saved: savedPostIds.has(post.id),
+                            returnTo: `/${menu.slug}`,
+                            saveLabel: t.dashboard.saveProduct,
+                            savedLabel: t.dashboard.savedProduct,
+                          }
+                        : undefined
+                    }
                   />
                 ))}
               </div>

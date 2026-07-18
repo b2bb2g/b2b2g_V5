@@ -49,6 +49,12 @@ export default async function BookmarksPage() {
               href={`/${menuSlugById.get(post.menu_id) ?? "commercial"}/${post.id}`}
               locale={locale}
               priority={index < 4}
+              bookmark={{
+                saved: true,
+                returnTo: "/dashboard/bookmarks",
+                saveLabel: t.dashboard.saveProduct,
+                savedLabel: t.dashboard.savedProduct,
+              }}
             />
           ))}
         </div>

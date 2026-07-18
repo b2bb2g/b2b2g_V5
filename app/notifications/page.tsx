@@ -42,6 +42,7 @@ function renderNotification(t: Dictionary, n: AppNotification): string {
     feed_comment_liked: t.notifications.feedCommentLiked,
     feed_comment_replied: t.notifications.feedCommentReplied,
     feed_mentioned: t.notifications.feedMentioned,
+    app_error_alert: t.notifications.appErrorAlert,
     subscription_expiring: t.dashboard.subscription,
   };
   const label = base[n.type] ?? n.type;
@@ -66,6 +67,7 @@ function notificationHref(n: AppNotification): string | null {
   if (payload.application_id || n.type.startsWith("badge_"))
     return "/dashboard/badges";
   if (n.type === "subscription_expiring") return "/membership";
+  if (n.type === "app_error_alert") return "/admin/security";
   return null;
 }
 

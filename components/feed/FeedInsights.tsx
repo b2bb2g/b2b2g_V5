@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { listFeedEngagement, recordFeedView } from "@/app/actions/feed";
+import { useEscape } from "@/lib/use-escape";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { postMediaUrl } from "@/lib/media";
 import { LikeIcon } from "@/components/feed/FeedIcons";
@@ -33,6 +34,7 @@ export function FeedInsights({
     () => true,
     () => false,
   );
+  useEscape(Boolean(open), () => setOpen(null));
 
   async function openSheet(kind: "likers" | "viewers") {
     setOpen(kind);

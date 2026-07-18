@@ -79,6 +79,7 @@ export type FeedLabels = {
   close: string;
   reportComment: string;
   save: string;
+  edited: string;
   signInToComment: string;
   noComments: string;
   deleteComment: string;
@@ -290,6 +291,7 @@ export function FeedCard({
           close: labels.close,
           cancel: labels.cancel,
           editComment: labels.edit,
+          editedComment: labels.edited,
           saveComment: labels.save,
           reportComment: labels.reportComment,
           signInToComment: labels.signInToComment,

@@ -76,6 +76,7 @@ export default async function FeedDetailPage({
           close: t.common.close,
           cancel: t.common.cancel,
           edit: t.common.edit,
+          edited: t.feed.edited,
           save: t.common.save,
           report: t.feed.reportComment,
           addImage: t.feed.addPhotos,

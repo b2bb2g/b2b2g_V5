@@ -21,6 +21,7 @@ export type FeedItem = {
 export type FeedComment = {
   id: string;
   parentId: string | null;
+  edited: boolean;
   authorId: string;
   authorUid: number;
   avatarPath: string | null;
@@ -231,7 +232,7 @@ export async function listFeedComments(
   const { data } = await supabase
     .from("member_feed_comments")
     .select(
-      "id, parent_id, author_id, body, media_paths, created_at, profiles!member_feed_comments_author_id_fkey!inner(uid, avatar_url)",
+      "id, parent_id, author_id, body, media_paths, created_at, updated_at, profiles!member_feed_comments_author_id_fkey!inner(uid, avatar_url)",
     )
     .eq("post_id", postId)
     .order("created_at", { ascending: false })
@@ -271,6 +272,10 @@ export async function listFeedComments(
     return {
       id: comment.id,
       parentId: comment.parent_id ?? null,
+      edited:
+        new Date(comment.updated_at).getTime() -
+          new Date(comment.created_at).getTime() >
+        2000,
       authorId: comment.author_id,
       authorUid: profile.uid,
       avatarPath: profile.avatar_url,

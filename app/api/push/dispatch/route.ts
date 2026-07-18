@@ -25,6 +25,7 @@ const PUSH_TEXT: Record<string, string> = {
   feed_comment_replied: "New reply to your comment",
   feed_mentioned: "You were mentioned in a comment",
   admin_notice: "Notice from the operations team",
+  app_error_alert: "Application error detected",
 };
 
 function pushCategory(type: string): string | null {
@@ -46,6 +47,7 @@ function pushUrl(type: string, payload: Record<string, unknown>): string {
   if (typeof payload.post_id === "string") return "/dashboard/posts";
   if (type.startsWith("badge_")) return "/dashboard/badges";
   if (type === "subscription_expiring") return "/membership";
+  if (type === "app_error_alert") return "/admin/security";
   return "/notifications";
 }
 

@@ -10,12 +10,14 @@ export function BookmarkButton({
   saved,
   saveLabel,
   savedLabel,
+  size = "md",
 }: {
   postId: string;
   returnTo: string;
   saved: boolean;
   saveLabel: string;
   savedLabel: string;
+  size?: "md" | "sm";
 }) {
   return (
     <form action={togglePostBookmark}>
@@ -25,15 +27,17 @@ export function BookmarkButton({
         pendingLabel=""
         aria-pressed={saved}
         title={saved ? savedLabel : saveLabel}
-        className={`flex h-12 w-12 items-center justify-center rounded-full border transition-colors ${
+        className={`flex items-center justify-center rounded-full border shadow-[0_2px_10px_rgba(25,31,40,.12)] transition-colors ${
+          size === "sm" ? "h-9 w-9" : "h-12 w-12"
+        } ${
           saved
             ? "border-negative/30 bg-negative-soft text-negative"
-            : "border-line bg-white text-ink-soft hover:border-negative/40 hover:text-negative"
+            : "border-line bg-white/95 text-ink-soft hover:border-negative/40 hover:text-negative"
         }`}
       >
         <svg
-          width="20"
-          height="20"
+          width={size === "sm" ? "16" : "20"}
+          height={size === "sm" ? "16" : "20"}
           viewBox="0 0 24 24"
           fill={saved ? "currentColor" : "none"}
           stroke="currentColor"

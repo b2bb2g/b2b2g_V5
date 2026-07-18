@@ -30,6 +30,21 @@ export function FeedStream({
     itemsRef.current = items;
   }, [items]);
 
+  // Server refreshes (likes, new posts, deletions) update the first page;
+  // merge them into the stream instead of freezing the initial snapshot.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setItems((current) => {
+        const freshById = new Map(initialItems.map((item) => [item.id, item]));
+        const known = new Set(current.map((item) => item.id));
+        const merged = current.map((item) => freshById.get(item.id) ?? item);
+        const incoming = initialItems.filter((item) => !known.has(item.id));
+        return [...incoming, ...merged];
+      });
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [initialItems]);
+
   useEffect(() => {
     const node = sentinel.current;
     if (!node || done) return;

@@ -793,6 +793,7 @@ const en = {
     reply: "Reply",
     moreReplies: "View more replies",
     reportComment: "Report comment",
+    edited: "Edited",
     addEmoji: "Emoji",
     removeImage: "Remove image",
     likedBy: "Liked by",
@@ -1143,6 +1144,7 @@ const en = {
     feedCommentLiked: "New like on your comment",
     feedCommentReplied: "New reply to your comment",
     feedMentioned: "You were mentioned in a comment",
+    appErrorAlert: "Application error detected",
     pushTitle: "Push notifications",
     pushBody:
       "Get approval, message, comment and like alerts even when the app is closed.",
