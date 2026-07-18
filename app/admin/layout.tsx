@@ -42,17 +42,19 @@ export default async function AdminLayout({
   }
 
   const { t } = await getT();
-  const [pendingPostsResult, pendingMessagesResult, pendingBadgesResult, pendingReportsResult] = await Promise.all([
+  const [pendingPostsResult, pendingMessagesResult, pendingBadgesResult, pendingReportsResult, pendingCommentReportsResult] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("inquiry_messages").select("id", { count: "exact", head: true }).eq("review_status", "pending"),
     supabase.from("badge_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("member_feed_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("member_feed_comment_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
   ]);
   const queueCountError = [
     pendingPostsResult.error,
     pendingMessagesResult.error,
     pendingBadgesResult.error,
     pendingReportsResult.error,
+    pendingCommentReportsResult.error,
   ].find(Boolean);
   if (queueCountError) {
     console.error("[admin] review queue counts unavailable", queueCountError);
@@ -60,7 +62,11 @@ export default async function AdminLayout({
   const pendingPosts = pendingPostsResult.error ? undefined : pendingPostsResult.count ?? 0;
   const pendingMessages = pendingMessagesResult.error ? undefined : pendingMessagesResult.count ?? 0;
   const pendingBadges = pendingBadgesResult.error ? undefined : pendingBadgesResult.count ?? 0;
-  const pendingReports = pendingReportsResult.error ? undefined : pendingReportsResult.count ?? 0;
+  const pendingReports =
+    pendingReportsResult.error || pendingCommentReportsResult.error
+      ? undefined
+      : (pendingReportsResult.count ?? 0) +
+        (pendingCommentReportsResult.count ?? 0);
 
   const can = (permission: string) => isOwner || permissions.has(permission);
   const groups: AdminNavGroup[] = [
