@@ -77,9 +77,9 @@ export function RequestBoardCard({
   return (
     <Link
       href={href}
-      className="store-card-interactive group grid min-h-[17rem] overflow-hidden rounded-[1.5rem] bg-white shadow-[0_12px_40px_rgba(25,31,40,.07)] ring-1 ring-black/[.035] sm:grid-cols-[minmax(0,1fr)_13rem]"
+      className="store-card-interactive group grid overflow-hidden rounded-[1.5rem] bg-white shadow-[0_12px_40px_rgba(25,31,40,.07)] ring-1 ring-black/[.035] sm:min-h-[17rem] sm:grid-cols-[minmax(0,1fr)_13rem]"
     >
-      <span className="flex min-w-0 flex-col p-6 sm:p-7">
+      <span className="flex min-w-0 flex-col p-5 sm:p-7">
         <span className="flex flex-wrap items-center gap-2">
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-bold ${
@@ -100,13 +100,13 @@ export function RequestBoardCard({
             </span>
           )}
         </span>
-        <strong className="mt-5 line-clamp-2 text-2xl font-semibold leading-[1.13] tracking-[-.03em] text-ink transition-colors group-hover:text-primary">
+        <strong className="mt-3.5 line-clamp-2 text-lg sm:mt-5 sm:text-2xl font-semibold leading-[1.13] tracking-[-.03em] text-ink transition-colors group-hover:text-primary">
           {title}
         </strong>
-        <span className="mt-3 line-clamp-3 text-sm leading-6 text-ink-soft">
+        <span className="mt-2.5 line-clamp-2 text-sm leading-6 text-ink-soft sm:mt-3 sm:line-clamp-3">
           {teaser}
         </span>
-        <span className="mt-auto flex items-end justify-between gap-4 pt-7">
+        <span className="mt-auto flex items-end justify-between gap-4 pt-5 sm:pt-7">
           <AuthorIdentity
             uid={post.author_uid}
             badges={post.author_badges}
@@ -119,7 +119,7 @@ export function RequestBoardCard({
         </span>
       </span>
 
-      <span className="relative min-h-48 overflow-hidden bg-primary-soft sm:min-h-full">
+      <span className="relative hidden overflow-hidden bg-primary-soft sm:block sm:min-h-full">
         {thumbnail ? (
           <SafeImage
             src={thumbnail}

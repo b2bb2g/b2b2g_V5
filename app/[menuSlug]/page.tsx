@@ -421,28 +421,17 @@ export default async function BoardPage(props: {
                   />
                 </div>
               )}
-              <div
-                className="mt-8 flex flex-wrap items-stretch gap-y-8 sm:mt-10"
-                style={{ columnGap: "clamp(0.5rem, 0.7vw, 1rem)" }}
-              >
+              {/* Dense shopping grid (Coupang-style): two columns on phones,
+                  image tile + title + trust row per card. */}
+              <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-7 sm:mt-10 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4 xl:grid-cols-5">
                 {posts.map((post, index) => (
-                  <div
+                  <ProductCard
                     key={post.id}
-                    className="store-card-directory"
-                    style={{
-                      width: "min(100%, 25rem)",
-                      height: "31.25rem",
-                      flex: "0 0 min(100%, 25rem)",
-                    }}
-                  >
-                    <ProductCard
-                      post={post}
-                      href={`/${menu.slug}/${post.id}`}
-                      locale={locale}
-                      priority={index < 4}
-                      feature
-                    />
-                  </div>
+                    post={post}
+                    href={`/${menu.slug}/${post.id}`}
+                    locale={locale}
+                    priority={index < 4}
+                  />
                 ))}
               </div>
               <Pagination
@@ -481,7 +470,7 @@ export default async function BoardPage(props: {
                 />
               </div>
             )}
-            <div className="mt-8 grid gap-5 sm:mt-10 lg:grid-cols-2">
+            <div className="mt-8 grid gap-3 sm:mt-10 sm:gap-5 lg:grid-cols-2">
               {posts.map((post) => (
                 <RequestBoardCard
                   key={post.id}
