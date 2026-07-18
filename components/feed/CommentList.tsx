@@ -10,12 +10,14 @@ import { CommentComposer } from "@/components/feed/CommentComposer";
 import { RelativeTime } from "@/components/feed/RelativeTime";
 import { LikeIcon } from "@/components/feed/FeedIcons";
 import { postMediaUrl } from "@/lib/media";
+import { ZoomableImage } from "@/components/ui/ZoomableImage";
 import type { FeedComment } from "@/lib/data/feed";
 import type { Locale } from "@/lib/constants";
 
 export type CommentListLabels = {
   like: string;
   reply: string;
+  moreReplies: string;
   delete: string;
   justNow: string;
   close: string;
@@ -37,6 +39,7 @@ function CommentRow({
   renderedAt,
   labels,
   onOpenThread,
+  onOpenImage,
   onChanged,
   inThread = false,
 }: {
@@ -48,6 +51,7 @@ function CommentRow({
   renderedAt: string;
   labels: CommentListLabels;
   onOpenThread?: (id: string) => void;
+  onOpenImage?: (path: string) => void;
   onChanged?: () => void;
   inThread?: boolean;
 }) {
@@ -112,14 +116,20 @@ function CommentRow({
           {comment.mediaPaths.length > 0 && (
             <div className="mt-2 flex gap-2">
               {comment.mediaPaths.map((path) => (
-                <Image
+                <button
                   key={path}
-                  src={postMediaUrl(path)}
-                  alt=""
-                  width={180}
-                  height={180}
-                  className="h-36 w-36 rounded-xl border border-line object-cover"
-                />
+                  type="button"
+                  onClick={() => onOpenImage?.(path)}
+                  className="overflow-hidden rounded-xl border border-line transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                >
+                  <Image
+                    src={postMediaUrl(path)}
+                    alt=""
+                    width={180}
+                    height={180}
+                    className="h-36 w-36 object-cover"
+                  />
+                </button>
               ))}
             </div>
           )}
@@ -188,34 +198,74 @@ export function CommentList({
   onChanged?: () => void;
 }) {
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<string | null>(null);
   const topLevel = comments.filter((comment) => !comment.parentId);
+  const repliesByParent = new Map<string, FeedComment[]>();
+  for (const comment of comments) {
+    if (!comment.parentId) continue;
+    const list = repliesByParent.get(comment.parentId) ?? [];
+    list.push(comment);
+    repliesByParent.set(comment.parentId, list);
+  }
+  // Replies read oldest-first beneath their parent, like every major SNS.
+  for (const list of repliesByParent.values()) list.reverse();
   const thread = threadId
     ? comments.find((comment) => comment.id === threadId)
     : null;
-  const replies = threadId
-    ? comments
-        .filter((comment) => comment.parentId === threadId)
-        .slice()
-        .reverse()
-    : [];
+  const threadReplies = threadId ? (repliesByParent.get(threadId) ?? []) : [];
 
   return (
     <>
       <div className="space-y-4">
-        {topLevel.map((comment) => (
-          <CommentRow
-            key={comment.id}
-            comment={comment}
-            postId={postId}
-            viewerId={viewerId}
-            returnTo={returnTo}
-            locale={locale}
-            renderedAt={renderedAt}
-            labels={labels}
-            onOpenThread={setThreadId}
-            onChanged={onChanged}
-          />
-        ))}
+        {topLevel.map((comment) => {
+          const inlineReplies = repliesByParent.get(comment.id) ?? [];
+          const shown = inlineReplies.slice(0, 2);
+          const hidden = inlineReplies.length - shown.length;
+          return (
+            <div key={comment.id}>
+              <CommentRow
+                comment={comment}
+                postId={postId}
+                viewerId={viewerId}
+                returnTo={returnTo}
+                locale={locale}
+                renderedAt={renderedAt}
+                labels={labels}
+                onOpenThread={setThreadId}
+                onOpenImage={setLightbox}
+                onChanged={onChanged}
+              />
+              {shown.length > 0 && (
+                <div className="ml-11 mt-3 space-y-3 border-l-2 border-line pl-3">
+                  {shown.map((replyComment) => (
+                    <CommentRow
+                      key={replyComment.id}
+                      comment={replyComment}
+                      postId={postId}
+                      viewerId={viewerId}
+                      returnTo={returnTo}
+                      locale={locale}
+                      renderedAt={renderedAt}
+                      labels={labels}
+                      onOpenImage={setLightbox}
+                      onChanged={onChanged}
+                      inThread
+                    />
+                  ))}
+                  {hidden > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setThreadId(comment.id)}
+                      className="pl-1 text-xs font-bold text-ink-faint transition-colors hover:text-ink"
+                    >
+                      {labels.moreReplies} ({hidden})
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {thread && (
@@ -253,12 +303,13 @@ export function CommentList({
                 locale={locale}
                 renderedAt={renderedAt}
                 labels={labels}
+                onOpenImage={setLightbox}
                 onChanged={onChanged}
                 inThread
               />
-              {replies.length > 0 && (
+              {threadReplies.length > 0 && (
                 <div className="space-y-4 border-l-2 border-line pl-4">
-                  {replies.map((replyComment) => (
+                  {threadReplies.map((replyComment) => (
                     <CommentRow
                       key={replyComment.id}
                       comment={replyComment}
@@ -268,6 +319,7 @@ export function CommentList({
                       locale={locale}
                       renderedAt={renderedAt}
                       labels={labels}
+                      onOpenImage={setLightbox}
                       onChanged={onChanged}
                       inThread
                     />
@@ -295,6 +347,31 @@ export function CommentList({
                 />
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[90] flex flex-col bg-black/92"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setLightbox(null);
+          }}
+        >
+          <div className="flex shrink-0 justify-end p-3">
+            <button
+              type="button"
+              onClick={() => setLightbox(null)}
+              aria-label={labels.close}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="m6 6 12 12M18 6 6 18" />
+              </svg>
+            </button>
+          </div>
+          <div className="min-h-0 flex-1 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <ZoomableImage src={postMediaUrl(lightbox)} alt="" onDismiss={() => setLightbox(null)} />
           </div>
         </div>
       )}

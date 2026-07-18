@@ -65,6 +65,7 @@ export type FeedLabels = {
   writeComment: string;
   commentPlaceholder: string;
   reply: string;
+  moreReplies: string;
   addImage: string;
   addEmoji: string;
   removeImage: string;
@@ -151,10 +152,24 @@ export function FeedCard({
               <form action={toggleMemberFollow}>
                 <input type="hidden" name="targetId" value={item.authorId} />
                 <input type="hidden" name="returnTo" value={returnTo} />
-                <PendingButton className="rounded-full px-3 py-2 text-sm font-extrabold text-primary hover:bg-primary-soft">
-                  {item.followingAuthor
-                    ? `✓ ${labels.following}`
-                    : `＋ ${labels.follow}`}
+                <PendingButton
+                  title={item.followingAuthor ? labels.following : labels.follow}
+                  className={
+                    item.followingAuthor
+                      ? "flex h-9 w-9 items-center justify-center rounded-full bg-surface-sub text-positive hover:bg-line/70"
+                      : "rounded-full px-3 py-2 text-sm font-extrabold text-primary hover:bg-primary-soft"
+                  }
+                >
+                  {item.followingAuthor ? (
+                    <>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                      <span className="sr-only">{labels.following}</span>
+                    </>
+                  ) : (
+                    `＋ ${labels.follow}`
+                  )}
                 </PendingButton>
               </form>
             ) : (
@@ -258,6 +273,7 @@ export function FeedCard({
           writeComment: labels.writeComment,
           commentPlaceholder: labels.commentPlaceholder,
           reply: labels.reply,
+          moreReplies: labels.moreReplies,
           addImage: labels.addImage,
           addEmoji: labels.addEmoji,
           removeImage: labels.removeImage,

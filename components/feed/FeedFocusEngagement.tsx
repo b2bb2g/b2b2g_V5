@@ -33,6 +33,7 @@ export type FeedFocusLabels = {
   writeComment: string;
   commentPlaceholder: string;
   reply: string;
+  moreReplies: string;
   addImage: string;
   addEmoji: string;
   removeImage: string;
@@ -295,6 +296,7 @@ export function FeedFocusEngagement({
               labels={{
                 like: labels.like,
                 reply: labels.reply,
+                moreReplies: labels.moreReplies,
                 delete: labels.deleteComment,
                 justNow: labels.justNow,
                 close: labels.close,

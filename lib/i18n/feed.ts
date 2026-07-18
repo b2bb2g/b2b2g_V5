@@ -45,6 +45,7 @@ export function getFeedCardLabels(t: Dictionary, locale: Locale): FeedLabels {
     writeComment: t.feed.writeComment,
     commentPlaceholder: t.feed.commentPlaceholder,
     reply: t.feed.reply,
+    moreReplies: t.feed.moreReplies,
     addImage: t.feed.addPhotos,
     addEmoji: t.feed.addEmoji,
     removeImage: t.feed.removeImage,

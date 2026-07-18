@@ -771,6 +771,7 @@ const ko: Dict = {
     blockTitle: "이 회원을 차단하시겠습니까?",
     blockBody: "서로의 네트워크 게시글이 더 이상 표시되지 않습니다.",
     reply: "답글",
+    moreReplies: "답글 더 보기",
     addEmoji: "이모지",
     removeImage: "이미지 제거",
     likedBy: "좋아요한 회원",

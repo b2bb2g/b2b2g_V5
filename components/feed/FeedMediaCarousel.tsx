@@ -12,6 +12,7 @@ export function FeedMediaCarousel({
   openImageLabel,
   previousLabel,
   nextLabel,
+  onDismiss,
 }: {
   paths: string[];
   activeIndex: number;
@@ -19,6 +20,8 @@ export function FeedMediaCarousel({
   openImageLabel: string;
   previousLabel: string;
   nextLabel: string;
+  /** Vertical swipe-down (not zoomed) closes the surrounding viewer. */
+  onDismiss?: () => void;
 }) {
   const pointerStart = useRef<{
     x: number;
@@ -45,7 +48,7 @@ export function FeedMediaCarousel({
           data-feed-media-stage
           className={`relative mx-auto h-full w-full select-none overflow-hidden sm:max-w-[min(78vw,88rem)] sm:rounded-xl ${paths.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
           onPointerDown={(event) => {
-            if (zoomedRef.current || paths.length < 2 || (event.pointerType === "mouse" && event.button !== 0)) {
+            if (zoomedRef.current || (paths.length < 2 && !onDismiss) || (event.pointerType === "mouse" && event.button !== 0)) {
               return;
             }
             pointerType.current = event.pointerType;
@@ -59,14 +62,17 @@ export function FeedMediaCarousel({
           onPointerUp={(event) => {
             const start = pointerStart.current;
             pointerStart.current = null;
-            if (zoomedRef.current || !start || start.id !== event.pointerId || paths.length < 2) {
+            if (zoomedRef.current || !start || start.id !== event.pointerId) {
               return;
             }
             const deltaX = event.clientX - start.x;
             const deltaY = event.clientY - start.y;
-            if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.15) {
+            if (paths.length > 1 && Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.15) {
               suppressClick.current = true;
               step(deltaX > 0 ? -1 : 1);
+            } else if (onDismiss && deltaY > 90 && Math.abs(deltaY) > Math.abs(deltaX) * 1.2 && pointerType.current !== "mouse") {
+              suppressClick.current = true;
+              onDismiss();
             }
           }}
           onPointerCancel={() => {

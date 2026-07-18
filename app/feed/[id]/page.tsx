@@ -72,6 +72,7 @@ export default async function FeedDetailPage({
           justNow: t.feed.justNow,
           like: t.feed.like,
           reply: t.feed.reply,
+          moreReplies: t.feed.moreReplies,
           close: t.common.close,
           addImage: t.feed.addPhotos,
           addEmoji: t.feed.addEmoji,

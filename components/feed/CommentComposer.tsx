@@ -76,6 +76,7 @@ export function CommentComposer({
     const end = element.selectionEnd ?? body.length;
     const next = body.slice(0, start) + emoji + body.slice(end);
     setBody(next);
+    setEmojiOpen(false);
     requestAnimationFrame(() => {
       element.focus();
       const cursor = start + emoji.length;

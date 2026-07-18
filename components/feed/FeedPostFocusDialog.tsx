@@ -45,6 +45,8 @@ export function FeedPostFocusDialog({
     FeedFocusLabels & { follow: string; following: string };
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [dragY, setDragY] = useState(0);
+  const dragStart = useRef<number | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const pushedHistoryRef = useRef(false);
@@ -143,6 +145,10 @@ export function FeedPostFocusDialog({
         role="dialog"
         aria-modal="true"
         aria-label={labels.fullPost}
+        style={{
+          transform: dragY ? `translateY(${dragY}px)` : undefined,
+          transition: dragY ? "none" : "transform 200ms ease-out",
+        }}
         className={`feed-post-sheet flex h-dvh w-full max-w-6xl overflow-hidden bg-white text-ink shadow-2xl sm:h-[min(88dvh,56rem)] sm:rounded-[1.75rem] ${paths.length ? "flex-col md:grid md:grid-cols-[minmax(0,1.55fr)_minmax(20rem,.8fr)]" : "max-w-2xl flex-col"}`}
       >
         {paths.length > 0 && (
@@ -154,12 +160,38 @@ export function FeedPostFocusDialog({
               openImageLabel={labels.openImage}
               previousLabel={labels.previousImage}
               nextLabel={labels.nextImage}
+              onDismiss={requestClose}
             />
           </div>
         )}
 
         <div className="flex min-h-0 flex-1 flex-col bg-white">
-          <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+          <div
+            className="touch-pan-x border-b border-line px-5 pb-4 sm:px-6 sm:pt-4"
+            onPointerDown={(event) => {
+              if (event.pointerType === "mouse") return;
+              dragStart.current = event.clientY;
+            }}
+            onPointerMove={(event) => {
+              if (dragStart.current === null) return;
+              setDragY(Math.max(0, event.clientY - dragStart.current));
+            }}
+            onPointerUp={(event) => {
+              if (dragStart.current === null) return;
+              const delta = event.clientY - dragStart.current;
+              dragStart.current = null;
+              if (delta > 110) requestClose();
+              setDragY(0);
+            }}
+            onPointerCancel={() => {
+              dragStart.current = null;
+              setDragY(0);
+            }}
+          >
+            <div className="flex justify-center py-2.5 sm:hidden" aria-hidden="true">
+              <span className="h-1 w-10 rounded-full bg-line" />
+            </div>
+            <div className="flex items-center justify-between gap-3">
             <Link
               href={`/u/${authorUid}`}
               onClick={onClose}
@@ -207,10 +239,28 @@ export function FeedPostFocusDialog({
                       name="returnTo"
                       value={engagement.returnTo}
                     />
-                    <PendingButton className="rounded-full px-2.5 py-2 text-xs font-extrabold text-primary hover:bg-primary-soft sm:px-3 sm:text-sm">
-                      {engagement.followingAuthor
-                        ? `✓ ${labels.following}`
-                        : `＋ ${labels.follow}`}
+                    <PendingButton
+                      title={
+                        engagement.followingAuthor
+                          ? labels.following
+                          : labels.follow
+                      }
+                      className={
+                        engagement.followingAuthor
+                          ? "flex h-9 w-9 items-center justify-center rounded-full bg-surface-sub text-positive hover:bg-line/70"
+                          : "rounded-full px-2.5 py-2 text-xs font-extrabold text-primary hover:bg-primary-soft sm:px-3 sm:text-sm"
+                      }
+                    >
+                      {engagement.followingAuthor ? (
+                        <>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M20 6 9 17l-5-5" />
+                          </svg>
+                          <span className="sr-only">{labels.following}</span>
+                        </>
+                      ) : (
+                        `＋ ${labels.follow}`
+                      )}
                     </PendingButton>
                   </form>
                 ) : (
@@ -230,6 +280,7 @@ export function FeedPostFocusDialog({
               >
                 <CloseIcon />
               </button>
+            </div>
             </div>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom))]">

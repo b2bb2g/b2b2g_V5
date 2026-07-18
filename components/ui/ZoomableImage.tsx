@@ -13,6 +13,7 @@ export function ZoomableImage({
   src,
   alt,
   onZoomChange,
+  onDismiss,
   overlay,
   onLoad,
   loaded = true,
@@ -21,6 +22,8 @@ export function ZoomableImage({
   alt: string;
   /** Reports zoom state so parents can pause swipe navigation. */
   onZoomChange?: (zoomed: boolean) => void;
+  /** Swipe-down (while not zoomed) dismisses, matching SNS viewers. */
+  onDismiss?: () => void;
   overlay?: ReactNode;
   onLoad?: () => void;
   loaded?: boolean;
@@ -37,6 +40,7 @@ export function ZoomableImage({
   } | null>(null);
   const panStart = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const lastTap = useRef(0);
+  const dismissStart = useRef<{ x: number; y: number } | null>(null);
   const [interacting, setInteracting] = useState(false);
   const zoomed = transform.scale > 1.01;
 
@@ -89,6 +93,9 @@ export function ZoomableImage({
           };
           panStart.current = null;
         } else if (points.length === 1) {
+          if (!zoomed && onDismiss) {
+            dismissStart.current = { x: event.clientX, y: event.clientY };
+          }
           if (zoomed) {
             panStart.current = {
               x: event.clientX,
@@ -158,9 +165,22 @@ export function ZoomableImage({
       onPointerUp={(event) => {
         pointers.current.delete(event.pointerId);
         if (pointers.current.size < 2) pinchStart.current = null;
+        const start = dismissStart.current;
         if (pointers.current.size === 0) {
           panStart.current = null;
+          dismissStart.current = null;
           setInteracting(false);
+        }
+        if (
+          start &&
+          !zoomed &&
+          onDismiss &&
+          event.clientY - start.y > 90 &&
+          Math.abs(event.clientY - start.y) >
+            Math.abs(event.clientX - start.x) * 1.2
+        ) {
+          onDismiss();
+          return;
         }
         setTransform((current) =>
           current.scale <= 1.05 ? { scale: 1, x: 0, y: 0 } : current,
@@ -170,6 +190,7 @@ export function ZoomableImage({
         pointers.current.delete(event.pointerId);
         pinchStart.current = null;
         panStart.current = null;
+        dismissStart.current = null;
         setInteracting(false);
       }}
     >

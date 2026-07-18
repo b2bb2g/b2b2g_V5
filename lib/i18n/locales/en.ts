@@ -787,6 +787,7 @@ const en = {
     blockTitle: "Block this member?",
     blockBody: "You will no longer see each other's network posts.",
     reply: "Reply",
+    moreReplies: "View more replies",
     addEmoji: "Emoji",
     removeImage: "Remove image",
     likedBy: "Liked by",
