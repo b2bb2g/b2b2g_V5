@@ -1,4 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+
+// Explicit viewport keeps in-app browsers (KakaoTalk, Instagram) from
+// applying their own scaling; viewport-fit covers notched screens.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 import { Suspense } from "react";
 import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";

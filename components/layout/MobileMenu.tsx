@@ -136,25 +136,32 @@ export function MobileMenu({
           </ul>
         </nav>
 
-        <div className="shrink-0 border-t border-line px-5 pt-4">
-          <p className="text-[11px] font-bold uppercase tracking-[.14em] text-ink-faint">
-            {languageLabel}
-          </p>
-          <form action={setLocale} className="mt-2.5 flex rounded-xl bg-surface-sub p-1">
-            {LOCALES.map((l) => (
-              <PendingButton
-                key={l}
-                name="locale"
-                value={l}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-bold transition-colors ${
-                  l === locale
-                    ? "bg-white text-ink shadow-[0_1px_6px_rgba(25,31,40,.12)]"
-                    : "text-ink-faint hover:text-ink-soft"
-                }`}
-              >
-                {LOCALE_LABELS[l]}
-              </PendingButton>
-            ))}
+        <div className="shrink-0 border-t border-line px-5 py-3">
+          <form action={setLocale} className="flex items-center justify-between gap-3">
+            <span className="flex items-center text-ink-faint">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                <path d="M2 12h20" />
+              </svg>
+              <span className="sr-only">{languageLabel}</span>
+            </span>
+            <div className="flex rounded-full bg-surface-sub p-0.5">
+              {LOCALES.map((l) => (
+                <PendingButton
+                  key={l}
+                  name="locale"
+                  value={l}
+                  className={`rounded-full px-3.5 py-1.5 text-[13px] font-bold transition-colors ${
+                    l === locale
+                      ? "bg-white text-ink shadow-[0_1px_5px_rgba(25,31,40,.14)]"
+                      : "text-ink-faint hover:text-ink-soft"
+                  }`}
+                >
+                  {LOCALE_LABELS[l]}
+                </PendingButton>
+              ))}
+            </div>
           </form>
         </div>
 

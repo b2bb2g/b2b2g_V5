@@ -278,10 +278,12 @@ async function LandingContent() {
                 fill
                 priority
                 sizes="100vw"
-                className="origin-bottom scale-[1.55] object-contain object-bottom sm:scale-[1.18] lg:scale-100 lg:object-cover xl:object-top"
+                className="object-cover object-bottom xl:object-top"
               />
+              {/* Small screens crop into the busy globe, so the copy zone gets
+                  a stronger wash than the desktop composition needs. */}
               <div
-                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(246,251,255,.5)_0%,rgba(238,247,255,.1)_36%,rgba(231,243,255,0)_58%)]"
+                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(246,251,255,.94)_0%,rgba(242,249,255,.8)_32%,rgba(236,246,255,.34)_56%,rgba(231,243,255,0)_76%)] lg:bg-[linear-gradient(180deg,rgba(246,251,255,.5)_0%,rgba(238,247,255,.1)_36%,rgba(231,243,255,0)_58%)]"
                 aria-hidden="true"
               />
               <div className="relative z-10 flex min-h-[42rem] flex-col items-center px-5 pt-14 text-center sm:min-h-[48rem] sm:px-8 sm:pt-16 lg:min-h-[min(54rem,calc(100svh-4.5rem))] lg:pt-16">
