@@ -25,9 +25,11 @@ export function NavigationFeedback() {
     setPending(false);
   }, []);
 
-  // Route commit: the pathname or query changed.
+  // Route commit: the pathname or query changed. Deferred a tick so the
+  // effect never sets state synchronously during render commit.
   useEffect(() => {
-    finish();
+    const timer = setTimeout(finish, 0);
+    return () => clearTimeout(timer);
   }, [pathname, searchParams, finish]);
 
   useEffect(() => {
