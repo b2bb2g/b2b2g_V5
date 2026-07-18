@@ -71,11 +71,6 @@
   --color-primary-strong: #8ab4ff;
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
 /* In-app browsers (KakaoTalk, Instagram) inflate text on Android via font
    boosting, breaking the layout scale. Pinning text-size-adjust keeps the
    authored sizes everywhere. */
@@ -111,8 +106,23 @@ body:has(.auth-shell) > main {
   /* Shared content alignment: header, landing copy and footer stay on a
      centered 85.5vw line until 1680px, while card rails remain full bleed. */
   --store-shell-max: 105rem;
-  --store-shell-width: min(85.5vw, var(--store-shell-max));
+  /* App-like gutters: 16px on phones, 32px on tablets, the airy 85.5vw
+     measure only from desktop up. Everything (header, landing, boards,
+     detail pages, carousel insets) derives from this one variable. */
+  --store-shell-width: min(calc(100vw - 2rem), var(--store-shell-max));
   --store-shelf-inset: calc((100vw - var(--store-shell-width)) / 2);
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --store-shell-width: min(calc(100vw - 4rem), var(--store-shell-max));
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --store-shell-width: min(85.5vw, var(--store-shell-max));
+  }
 }
 
 .site-shell {
@@ -146,33 +156,33 @@ body:has(.auth-shell) > main {
 }
 
 .store-card-featured {
-  width: min(76vw, 22rem);
+  width: min(79vw, 22rem);
   height: 29rem;
 }
 
 .store-card-collection-lead {
-  width: min(76vw, 24rem);
+  width: min(79vw, 24rem);
   height: 29rem;
 }
 
 .store-card-collection-item {
-  width: min(74vw, 19rem);
+  width: min(76vw, 19rem);
   height: 29rem;
 }
 
 .store-card-process {
-  width: min(76vw, 30rem);
+  width: min(79vw, 30rem);
   height: 31.25rem;
 }
 
 .store-card-showcase,
 .store-card-network {
-  width: min(76vw, 22rem);
+  width: min(79vw, 22rem);
   height: 29rem;
 }
 
 .store-card-calendar {
-  width: min(76vw, 30rem);
+  width: min(79vw, 30rem);
   height: 29rem;
 }
 
