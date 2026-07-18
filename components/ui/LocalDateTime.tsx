@@ -24,12 +24,15 @@ export function LocalDateTime({
   );
 
   useEffect(() => {
-    setLabel(
-      new Intl.DateTimeFormat(locale, {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(new Date(value)),
-    );
+    const timer = setTimeout(() => {
+      setLabel(
+        new Intl.DateTimeFormat(locale, {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(new Date(value)),
+      );
+    }, 0);
+    return () => clearTimeout(timer);
   }, [value, locale]);
 
   return (
