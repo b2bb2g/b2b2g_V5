@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { listFeedEngagement, recordFeedView } from "@/app/actions/feed";
 import { useEscape } from "@/lib/use-escape";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { postMediaUrl } from "@/lib/media";
 import { LikeIcon } from "@/components/feed/FeedIcons";
@@ -35,6 +36,7 @@ export function FeedInsights({
     () => false,
   );
   useEscape(Boolean(open), () => setOpen(null));
+  const sheetTrap = useFocusTrap<HTMLDivElement>(Boolean(open));
 
   async function openSheet(kind: "likers" | "viewers") {
     setOpen(kind);
@@ -110,9 +112,11 @@ export function FeedInsights({
           }}
         >
           <div
+            ref={sheetTrap}
             role="dialog"
             aria-modal="true"
             aria-label={sheet.title}
+            tabIndex={-1}
             className="flex max-h-[70dvh] w-full flex-col rounded-t-[1.5rem] bg-white shadow-2xl sm:max-w-sm sm:rounded-[1.5rem]"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-3.5">

@@ -327,7 +327,7 @@ export function FeedFocusEngagement({
                 removeImage: labels.removeImage,
                 uploadError: labels.uploadError,
               }}
-              onChanged={() => void loadComments()}
+              onChanged={() => loadComments()}
             />
           </div>
         ) : (

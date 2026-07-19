@@ -16,11 +16,15 @@ export const metadata = {
   alternates: { canonical: "/feed" },
 };
 
-export default async function FeedPage() {
+export default async function FeedPage(props: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const { tab } = await props.searchParams;
+  const followingOnly = tab === "following";
   const [{ t, locale }, session, items] = await Promise.all([
     getT(),
     getSession(),
-    listFeed({ limit: 12 }),
+    listFeed({ limit: 12, followingOnly }),
   ]);
   const stats = await getMemberNetworkStats(session.userId);
   const profile = session.profile;
@@ -58,12 +62,44 @@ export default async function FeedPage() {
             </Link>
           </div>
         )}
+        {session.userId && (
+          <nav className="flex gap-2" aria-label={t.feed.title}>
+            {[
+              { href: "/feed", label: t.feed.tabAll, active: !followingOnly },
+              {
+                href: "/feed?tab=following",
+                label: t.feed.tabFollowing,
+                active: followingOnly,
+              },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={item.active ? "page" : undefined}
+                className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-extrabold transition-colors ${
+                  item.active
+                    ? "bg-ink text-white"
+                    : "bg-white text-ink-soft shadow-sm hover:text-primary"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        )}
         {items.length > 0 ? (
           <FeedStream
+            key={followingOnly ? "following" : "all"}
             initialItems={items}
             viewerId={session.userId}
-            returnTo="/feed"
+            returnTo={followingOnly ? "/feed?tab=following" : "/feed"}
             labels={labels}
+            followingOnly={followingOnly}
+          />
+        ) : followingOnly ? (
+          <EmptyState
+            title={t.feed.followingEmpty}
+            hint={t.feed.followingEmptyHint}
           />
         ) : (
           <EmptyState title={t.feed.empty} hint={t.feed.emptyHint} />

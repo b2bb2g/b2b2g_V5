@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useOptimistic } from "react";
 import { postMediaUrl } from "@/lib/media";
 import {
   toggleFeedLike,
@@ -109,6 +110,21 @@ export function FeedCard({
   const sharePath = `/feed/${item.id}`;
   const media = item.mediaPaths;
   const renderedAt = new Date().toISOString();
+  // Likes and reposts flip instantly; the server refresh settles the truth.
+  const [likeState, applyLike] = useOptimistic(
+    { active: item.likedByViewer, count: item.likeCount },
+    (state) => ({
+      active: !state.active,
+      count: Math.max(0, state.count + (state.active ? -1 : 1)),
+    }),
+  );
+  const [repostState, applyRepost] = useOptimistic(
+    { active: item.repostedByViewer, count: item.repostCount },
+    (state) => ({
+      active: !state.active,
+      count: Math.max(0, state.count + (state.active ? -1 : 1)),
+    }),
+  );
 
   return (
     <article
@@ -307,6 +323,7 @@ export function FeedCard({
         {viewerId ? (
           <form
             action={async (formData: FormData) => {
+              applyLike(undefined);
               await toggleFeedLike(formData);
               window.dispatchEvent(
                 new CustomEvent("b2bb2g:feed-engagement-changed", {
@@ -317,17 +334,20 @@ export function FeedCard({
           >
             <input type="hidden" name="postId" value={item.id} />
             <input type="hidden" name="returnTo" value={returnTo} />
-            <PendingButton
-              aria-pressed={item.likedByViewer}
-              title={item.likedByViewer ? labels.liked : labels.like}
-              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold transition hover:bg-surface-sub ${item.likedByViewer ? "text-primary" : "text-ink-soft"}`}
+            <button
+              type="submit"
+              aria-pressed={likeState.active}
+              title={likeState.active ? labels.liked : labels.like}
+              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold transition hover:bg-surface-sub ${likeState.active ? "text-primary" : "text-ink-soft"}`}
             >
-              <LikeIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
-              {item.likeCount > 0 && <span>{item.likeCount}</span>}
+              <LikeIcon
+                className={`h-5.5 w-5.5 stroke-current stroke-[1.9] ${likeState.active ? "fill-current" : "fill-none"}`}
+              />
+              {likeState.count > 0 && <span>{likeState.count}</span>}
               <span className="sr-only">
-                {item.likedByViewer ? labels.liked : labels.like}
+                {likeState.active ? labels.liked : labels.like}
               </span>
-            </PendingButton>
+            </button>
           </form>
         ) : (
           <Link
@@ -358,20 +378,26 @@ export function FeedCard({
           />
         )}
         {viewerId ? (
-          <form action={toggleFeedRepost}>
+          <form
+            action={async (formData: FormData) => {
+              applyRepost(undefined);
+              await toggleFeedRepost(formData);
+            }}
+          >
             <input type="hidden" name="postId" value={item.id} />
             <input type="hidden" name="returnTo" value={returnTo} />
-            <PendingButton
-              aria-pressed={item.repostedByViewer}
-              title={item.repostedByViewer ? labels.reposted : labels.repost}
-              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub ${item.repostedByViewer ? "text-[#238558]" : "text-ink-soft"}`}
+            <button
+              type="submit"
+              aria-pressed={repostState.active}
+              title={repostState.active ? labels.reposted : labels.repost}
+              className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-bold hover:bg-surface-sub ${repostState.active ? "text-[#238558]" : "text-ink-soft"}`}
             >
               <RepostIcon className="h-5.5 w-5.5 fill-none stroke-current stroke-[1.9]" />
-              {item.repostCount > 0 && <span>{item.repostCount}</span>}
+              {repostState.count > 0 && <span>{repostState.count}</span>}
               <span className="sr-only">
-                {item.repostedByViewer ? labels.reposted : labels.repost}
+                {repostState.active ? labels.reposted : labels.repost}
               </span>
-            </PendingButton>
+            </button>
           </form>
         ) : (
           <Link

@@ -10,6 +10,7 @@ import { signOut } from "@/app/actions/auth";
 import { LOCALES, LOCALE_LABELS, type Locale } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 // Slide-in navigation drawer for phone and tablet. Rendered through a portal:
 // the sticky header's backdrop-blur creates a containing block that would trap
@@ -48,6 +49,7 @@ export function MobileMenu({
   };
 }) {
   const [open, setOpen] = useState(false);
+  const drawerTrap = useFocusTrap<HTMLElement>(open);
   const pathname = usePathname();
   const mounted = useSyncExternalStore(
     emptySubscribe,
@@ -87,10 +89,13 @@ export function MobileMenu({
         aria-hidden="true"
       />
       <aside
+        ref={drawerTrap}
         id="mobile-drawer"
         role="dialog"
         aria-modal="true"
         aria-label={menuLabel}
+        tabIndex={-1}
+        inert={!open}
         className={`fixed inset-y-0 right-0 z-50 flex w-[19.5rem] max-w-[86vw] flex-col rounded-l-[1.5rem] bg-surface shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
           open ? "translate-x-0" : "translate-x-full"
         }`}

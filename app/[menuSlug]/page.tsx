@@ -15,6 +15,7 @@ import {
 } from "@/components/marketplace/EventCard";
 import { FaqExperience } from "@/components/marketplace/FaqExperience";
 import { ProductCard } from "@/components/marketplace/ProductCard";
+import { RecentlyViewedSection } from "@/components/marketplace/RecentlyViewed";
 import { Carousel } from "@/components/ui/Carousel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
@@ -28,6 +29,7 @@ import { getMenuBySlug, menuTitle } from "@/lib/data/menus";
 import {
   listPostHighlights,
   listPostsForMenu,
+  type BoardSort,
 } from "@/lib/data/posts";
 import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import {
@@ -156,7 +158,12 @@ export async function generateMetadata(props: {
 
 export default async function BoardPage(props: {
   params: Promise<{ menuSlug: string }>;
-  searchParams: Promise<{ category?: string; page?: string; uid?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    page?: string;
+    uid?: string;
+    sort?: string;
+  }>;
 }) {
   const [{ menuSlug }, query, { t, locale }, settings] = await Promise.all([
     props.params,
@@ -175,6 +182,7 @@ export default async function BoardPage(props: {
   const activeCategory = categoryNavVisible ? (query.category ?? "") : "";
   const page = Math.max(1, Number.parseInt(query.page ?? "1", 10) || 1);
   const authorUid = Number.parseInt(query.uid ?? "", 10) || undefined;
+  const sort: BoardSort = query.sort === "popular" ? "popular" : "latest";
   const supabase = await createClient();
   const {
     data: { user: viewer },
@@ -182,7 +190,13 @@ export default async function BoardPage(props: {
 
   const [{ posts, totalPages }, highlights, { data: categoryRows }] =
     await Promise.all([
-      listPostsForMenu(menu.id, activeCategory || undefined, page, authorUid),
+      listPostsForMenu(
+        menu.id,
+        activeCategory || undefined,
+        page,
+        authorUid,
+        sort,
+      ),
       listPostHighlights(
         menu.id,
         activeCategory || undefined,
@@ -425,9 +439,41 @@ export default async function BoardPage(props: {
                   />
                 </div>
               )}
+              <nav
+                aria-label={t.board.sortLabel}
+                className="mt-8 flex gap-1.5"
+              >
+                {(
+                  [
+                    ["latest", t.board.sortLatest],
+                    ["popular", t.board.sortPopular],
+                  ] as const
+                ).map(([value, label]) => {
+                  const params = new URLSearchParams({
+                    ...(activeCategory ? { category: activeCategory } : {}),
+                    ...(authorUid ? { uid: String(authorUid) } : {}),
+                    ...(value === "popular" ? { sort: value } : {}),
+                  });
+                  const search = params.toString();
+                  return (
+                    <Link
+                      key={value}
+                      href={`/${menu.slug}${search ? `?${search}` : ""}#all-products`}
+                      aria-current={sort === value ? "page" : undefined}
+                      className={`inline-flex min-h-9 items-center rounded-full px-3.5 text-[13px] font-bold transition-colors ${
+                        sort === value
+                          ? "bg-ink text-white"
+                          : "bg-[#f5f5f7] text-ink-soft hover:text-primary"
+                      }`}
+                    >
+                      {label}
+                    </Link>
+                  );
+                })}
+              </nav>
               {/* Dense shopping grid (Coupang-style): two columns on phones,
                   image tile + title + trust row per card. */}
-              <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-7 sm:mt-10 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4 xl:grid-cols-5">
                 {posts.map((post, index) => (
                   <ProductCard
                     key={post.id}
@@ -455,12 +501,18 @@ export default async function BoardPage(props: {
                 extraQuery={{
                   ...(activeCategory ? { category: activeCategory } : {}),
                   ...(authorUid ? { uid: String(authorUid) } : {}),
+                  ...(sort === "popular" ? { sort } : {}),
                 }}
                 prevLabel={t.home.prev}
                 nextLabel={t.home.next}
               />
             </div>
           </section>
+
+          <RecentlyViewedSection
+            heading={t.board.recentlyViewed}
+            locale={locale}
+          />
         </>
       ) : isRequest ? (
         <section className="bg-white pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">

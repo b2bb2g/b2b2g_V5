@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { getLocale } from "@/lib/i18n/server";
 
 // Stores the caller's own web-push subscription (RLS: self rows only).
 export async function savePushSubscription(subscription: {
@@ -22,6 +23,7 @@ export async function savePushSubscription(subscription: {
   }
 
   const userAgent = (await headers()).get("user-agent")?.slice(0, 250) ?? null;
+  const locale = await getLocale();
   const { error } = await supabase.from("push_subscriptions").upsert(
     {
       profile_id: user.id,
@@ -29,9 +31,20 @@ export async function savePushSubscription(subscription: {
       p256dh,
       auth,
       user_agent: userAgent,
+      locale,
     },
     { onConflict: "endpoint" },
   );
+  // Pre-migration rows have no locale column; keep the subscription alive.
+  if (error?.message?.includes("locale")) {
+    const { error: retryError } = await supabase
+      .from("push_subscriptions")
+      .upsert(
+        { profile_id: user.id, endpoint, p256dh, auth, user_agent: userAgent },
+        { onConflict: "endpoint" },
+      );
+    return { ok: !retryError };
+  }
   return { ok: !error };
 }
 

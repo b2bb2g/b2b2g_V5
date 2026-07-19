@@ -5,14 +5,51 @@ import type { Post, PostSpec, PostTeaser } from "@/lib/types";
 // posts with teaser columns, which is exactly what a list needs.
 export const BOARD_PAGE_SIZE = 24;
 
+export type BoardSort = "latest" | "popular";
+
 export async function listPostsForMenu(
   menuId: string,
   categoryId?: string,
   page = 1,
   authorUid?: number,
+  sort: BoardSort = "latest",
 ): Promise<{ posts: PostTeaser[]; totalPages: number }> {
   const supabase = await createClient();
   const from = (page - 1) * BOARD_PAGE_SIZE;
+
+  if (sort === "popular") {
+    // Ordering by saves lives in a dedicated aggregate view; page the ids
+    // there, then fetch the visible teasers.
+    let idQuery = supabase
+      .from("public_post_popularity")
+      .select("id", { count: "exact" })
+      .eq("menu_id", menuId)
+      .order("bookmark_count", { ascending: false })
+      .order("published_at", { ascending: false })
+      .range(from, from + BOARD_PAGE_SIZE - 1);
+    if (categoryId) idQuery = idQuery.eq("category_id", categoryId);
+    if (authorUid) idQuery = idQuery.eq("author_uid", authorUid);
+    const { data: idRows, count, error } = await idQuery;
+    if (!error) {
+      const ids = (idRows ?? []).map((row) => row.id as string);
+      if (!ids.length) return { posts: [], totalPages: 1 };
+      const { data } = await supabase
+        .from("public_posts")
+        .select("*")
+        .in("id", ids);
+      const byId = new Map(
+        ((data as PostTeaser[]) ?? []).map((post) => [post.id, post]),
+      );
+      return {
+        posts: ids
+          .map((id) => byId.get(id))
+          .filter((post): post is PostTeaser => Boolean(post)),
+        totalPages: Math.max(1, Math.ceil((count ?? 0) / BOARD_PAGE_SIZE)),
+      };
+    }
+    // View missing (migration not applied yet): fall through to latest.
+  }
+
   let query = supabase
     .from("public_posts")
     .select("*", { count: "exact" })

@@ -164,6 +164,10 @@ const ko: Dict = {
     allProducts: "전체 상품",
     allProductsHint:
       "전체 상품을 비교하고 상세 페이지에서 사양 확인과 문의를 진행해 보세요.",
+    sortLabel: "정렬",
+    sortLatest: "최신순",
+    sortPopular: "인기순",
+    recentlyViewed: "최근 본 상품",
     liveSourcing: "실시간 소싱",
     activeRequests: "진행 중인 구매요청",
     activeRequestsHint:
@@ -758,6 +762,10 @@ const ko: Dict = {
     joinNetwork: "네트워크 가입",
     empty: "아직 회원 소식이 없습니다",
     emptyHint: "첫 번째 소식이 여기에 표시됩니다.",
+    tabAll: "전체",
+    tabFollowing: "팔로잉",
+    followingEmpty: "팔로우한 회원의 소식이 아직 없습니다",
+    followingEmptyHint: "게시물이나 프로필에서 회원을 팔로우해 보세요.",
     editTitle: "게시글 수정",
     editHint: "다른 회원에게 유용하도록 명확하고 최신 내용으로 관리해 주세요.",
     deleteTitle: "이 게시글을 삭제하시겠습니까?",

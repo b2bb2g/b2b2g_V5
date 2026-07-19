@@ -160,6 +160,10 @@ const en = {
     allProducts: "All products",
     allProductsHint:
       "Compare the complete collection and open any listing for specifications and a direct inquiry.",
+    sortLabel: "Sort",
+    sortLatest: "Newest",
+    sortPopular: "Popular",
+    recentlyViewed: "Recently viewed",
     liveSourcing: "Live sourcing",
     activeRequests: "Active sourcing requests",
     activeRequestsHint:
@@ -773,6 +777,11 @@ const en = {
     joinNetwork: "Join the network",
     empty: "No member updates yet",
     emptyHint: "The first community updates will appear here.",
+    tabAll: "All posts",
+    tabFollowing: "Following",
+    followingEmpty: "No posts from members you follow yet",
+    followingEmptyHint:
+      "Follow members from their posts or profiles to build this feed.",
     editTitle: "Edit feed post",
     editHint: "Keep your update clear, current and useful to other members.",
     deleteTitle: "Delete this feed post?",

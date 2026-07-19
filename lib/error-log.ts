@@ -24,6 +24,15 @@ export async function persistErrorLog(entry: {
       user_agent: entry.userAgent?.slice(0, 250) ?? null,
     });
 
+    // Retention: the log is an operational window, not an archive.
+    const retentionCutoff = new Date(
+      Date.now() - 30 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+    await supabase
+      .from("app_error_logs")
+      .delete()
+      .lt("created_at", retentionCutoff);
+
     // Server errors alert admins (in-app + push), throttled to one alert
     // per 15 minutes so an error storm cannot spam anyone.
     if (entry.source === "server") {

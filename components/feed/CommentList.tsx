@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useOptimistic, useRef, useState, useSyncExternalStore } from "react";
 import { useEscape } from "@/lib/use-escape";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import {
   deleteFeedComment,
   reportFeedComment,
@@ -66,10 +67,18 @@ function CommentRow({
   onOpenThread?: (id: string) => void;
   onOpenImage?: (path: string) => void;
   onOpenMenu?: (comment: FeedComment) => void;
-  onChanged?: () => void;
+  onChanged?: () => void | Promise<void>;
   inThread?: boolean;
 }) {
   const canOpenMenu = Boolean(viewerId && onOpenMenu);
+  // The heart flips instantly; the refreshed comment list settles the truth.
+  const [likeState, applyLike] = useOptimistic(
+    { active: comment.likedByViewer, count: comment.likeCount },
+    (state) => ({
+      active: !state.active,
+      count: Math.max(0, state.count + (state.active ? -1 : 1)),
+    }),
+  );
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelPress = () => {
     if (pressTimer.current) clearTimeout(pressTimer.current);
@@ -185,23 +194,26 @@ function CommentRow({
           {viewerId ? (
             <form
               action={async (formData: FormData) => {
+                applyLike(undefined);
                 await toggleFeedCommentLike(formData);
-                onChanged?.();
+                await onChanged?.();
               }}
             >
               <input type="hidden" name="commentId" value={comment.id} />
               <input type="hidden" name="postId" value={postId} />
               <input type="hidden" name="returnTo" value={returnTo} />
-              <PendingButton
-                pendingLabel=""
-                aria-pressed={comment.likedByViewer}
+              <button
+                type="submit"
+                aria-pressed={likeState.active}
                 title={labels.like}
-                className={`flex min-h-8 items-center gap-1 rounded-full px-2 transition-colors hover:bg-surface-sub ${comment.likedByViewer ? "text-primary" : ""}`}
+                className={`flex min-h-8 items-center gap-1 rounded-full px-2 transition-colors hover:bg-surface-sub ${likeState.active ? "text-primary" : ""}`}
               >
-                <LikeIcon className="h-4 w-4 fill-none stroke-current stroke-[1.9]" />
+                <LikeIcon
+                  className={`h-4 w-4 stroke-current stroke-[1.9] ${likeState.active ? "fill-current" : "fill-none"}`}
+                />
                 <span className="sr-only">{labels.like}</span>
-                {comment.likeCount > 0 && <span>{comment.likeCount}</span>}
-              </PendingButton>
+                {likeState.count > 0 && <span>{likeState.count}</span>}
+              </button>
             </form>
           ) : (
             <span className="flex min-h-8 items-center gap-1 px-2">
@@ -244,7 +256,7 @@ export function CommentList({
   locale: Locale;
   renderedAt: string;
   labels: CommentListLabels;
-  onChanged?: () => void;
+  onChanged?: () => void | Promise<void>;
 }) {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -256,6 +268,12 @@ export function CommentList({
   useEscape(Boolean(threadId) && !lightbox && !menuComment && !editComment, () =>
     setThreadId(null),
   );
+  const threadTrap = useFocusTrap<HTMLDivElement>(
+    Boolean(threadId) && !lightbox && !menuComment && !editComment,
+  );
+  const menuTrap = useFocusTrap<HTMLDivElement>(Boolean(menuComment));
+  const editTrap = useFocusTrap<HTMLFormElement>(Boolean(editComment));
+  const lightboxTrap = useFocusTrap<HTMLDivElement>(Boolean(lightbox));
   // Ancestors animate transforms (page-enter), which traps fixed overlays;
   // portaling to <body> keeps the sheets viewport-sized.
   const mounted = useSyncExternalStore(
@@ -342,9 +360,11 @@ export function CommentList({
           }}
         >
           <div
+            ref={threadTrap}
             role="dialog"
             aria-modal="true"
             aria-label={labels.comments}
+            tabIndex={-1}
             className="flex max-h-[88dvh] w-full flex-col rounded-t-[1.5rem] bg-white shadow-2xl sm:max-w-lg sm:rounded-[1.5rem]"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-3.5">
@@ -432,8 +452,10 @@ export function CommentList({
           }}
         >
           <div
+            ref={menuTrap}
             role="menu"
             aria-label={labels.delete}
+            tabIndex={-1}
             className="w-full rounded-t-[1.5rem] bg-white p-3 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:max-w-xs sm:rounded-[1.5rem]"
           >
             {viewerId === menuComment.authorId ? (
@@ -498,10 +520,11 @@ export function CommentList({
           }}
         >
           <form
+            ref={editTrap}
             action={async (formData: FormData) => {
               await updateFeedComment(formData);
               setEditComment(null);
-              onChanged?.();
+              await onChanged?.();
             }}
             className="w-full rounded-t-[1.5rem] bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:max-w-md sm:rounded-[1.5rem]"
           >
@@ -541,6 +564,8 @@ export function CommentList({
 
       {mounted && lightbox && createPortal(
         <div
+          ref={lightboxTrap}
+          tabIndex={-1}
           className="fixed inset-0 z-[250] flex flex-col bg-black/92"
           onClick={(event) => {
             if (event.target === event.currentTarget) setLightbox(null);

@@ -428,9 +428,12 @@ export async function blockFeedMember(formData: FormData) {
 }
 
 // Cursor pagination for the infinite feed stream.
-export async function loadMoreFeed(before: string): Promise<FeedItem[]> {
+export async function loadMoreFeed(
+  before: string,
+  followingOnly = false,
+): Promise<FeedItem[]> {
   if (typeof before !== "string" || Number.isNaN(Date.parse(before))) {
     return [];
   }
-  return listFeed({ limit: 12, before });
+  return listFeed({ limit: 12, before, followingOnly: followingOnly === true });
 }

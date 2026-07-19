@@ -10,6 +10,7 @@ import { getPublicSettings, settingBool } from "@/lib/data/settings";
 import { postMediaUrl, repThumbnail, videoEmbedUrl } from "@/lib/media";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 import { ProductCard } from "@/components/marketplace/ProductCard";
+import { RecentProductRecorder } from "@/components/marketplace/RecentlyViewed";
 import { EventCard } from "@/components/marketplace/EventCard";
 import { RequestDetail } from "@/components/marketplace/RequestDetail";
 import { StatusLabel } from "@/components/ui/StatusLabel";
@@ -459,6 +460,15 @@ export default async function PostDetailPage(props: {
       <>
         <article className="wide space-y-4 pb-16 sm:space-y-6">
         <JsonLd data={schemaData} />
+        <RecentProductRecorder
+          product={{
+            id: postId,
+            href: `/${menu.slug}/${postId}`,
+            titleEn: post?.title_en ?? teaser?.title_en ?? "",
+            titleKo: post?.title_ko ?? teaser?.title_ko ?? "",
+            image: repImage ? postMediaUrl(repImage) : null,
+          }}
+        />
         {isOwn && post && post.status !== POST_STATUS.APPROVED && (
           <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">
             <StatusLabel

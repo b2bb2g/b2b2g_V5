@@ -150,13 +150,29 @@ export async function listFeed({
   limit = 12,
   authorUid,
   before,
+  followingOnly = false,
 }: {
   limit?: number;
   authorUid?: number;
   /** Cursor: return posts created strictly before this timestamp. */
   before?: string;
+  /** Only posts from members the viewer follows (empty when signed out). */
+  followingOnly?: boolean;
 } = {}): Promise<FeedItem[]> {
   const supabase = await createClient();
+  let followedIds: string[] | null = null;
+  if (followingOnly) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: follows } = await supabase
+      .from("member_follows")
+      .select("following_id")
+      .eq("follower_id", user.id);
+    followedIds = (follows ?? []).map((row) => row.following_id);
+    if (!followedIds.length) return [];
+  }
   let query = supabase
     .from("member_feed_posts")
     .select(
@@ -165,6 +181,7 @@ export async function listFeed({
     .order("created_at", { ascending: false })
     .limit(limit);
   if (authorUid) query = query.eq("profiles.uid", authorUid);
+  if (followedIds) query = query.in("author_id", followedIds);
   if (before) query = query.lt("created_at", before);
   const { data: posts, error } = await query;
   if (error) throw error;
