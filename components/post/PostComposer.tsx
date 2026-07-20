@@ -673,7 +673,7 @@ export function PostComposer({
         {/* Compact sticky toolbar: a single slim row on phones so the body
             and image tools keep the screen. Cancel/preview shrink to icons
             on mobile; the primary submit takes the remaining width. */}
-        <div className="sticky bottom-0 z-10 -mx-4 border-t border-line bg-white/95 px-4 py-2.5 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border sm:px-3.5 sm:pb-3.5 sm:pt-3 sm:shadow-[0_-8px_24px_rgba(25,31,40,.06)]">
+        <div className="composer-actionbar sticky bottom-0 z-10 -mx-4 border-t border-line bg-white/95 px-4 py-2.5 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border sm:px-3.5 sm:pb-3.5 sm:pt-3 sm:shadow-[0_-8px_24px_rgba(25,31,40,.06)]">
           {(autoSavedAt || (!valid && !quotaBlocked)) && (
             <p className="mb-1.5 flex items-center justify-between gap-3 text-[11px] leading-4 text-ink-faint">
               <span className="truncate">

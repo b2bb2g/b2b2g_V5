@@ -399,6 +399,7 @@ export default async function BoardPage(props: {
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
                   edgeToEdge
+                  autoPlayMs={5000}
                 >
                   {newProducts.map((post, index) => (
                     <div

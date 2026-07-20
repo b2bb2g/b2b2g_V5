@@ -306,6 +306,30 @@ main > :where(.full-bleed) {
   padding: 0;
 }
 
+/* Scroll-direction chrome: the header slides up and the composer action bar
+   slides down while scrolling down, and return on scroll-up / pause / edges
+   (driven by AutoHideChrome toggling data-chrome-hidden on <html>). */
+.site-header {
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.composer-actionbar {
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+:root[data-chrome-hidden="true"] .site-header {
+  transform: translateY(-100%);
+}
+:root[data-chrome-hidden="true"] .composer-actionbar {
+  transform: translateY(calc(100% + 1.5rem));
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header,
+  .composer-actionbar {
+    transition: none;
+  }
+}
+
 /* Installed-app launch splash. */
 @keyframes splash-pop {
   from {

@@ -30,6 +30,7 @@ import { SETTING_KEYS } from "@/lib/constants";
 import { AppSplash } from "@/components/pwa/AppSplash";
 import { AppLockGate } from "@/components/security/AppLockGate";
 import { SecurityNudge } from "@/components/security/SecurityNudge";
+import { AutoHideChrome } from "@/components/layout/AutoHideChrome";
 
 // Hangul renders in Noto Sans KR; Latin renders in Pretendard via the
 // unicode-ranged @font-face in globals.css.
@@ -107,6 +108,7 @@ export default async function RootLayout({
     <html lang={locale} className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
         <AppSplash />
+        <AutoHideChrome />
         <AppLockGate
           labels={{
             title: t.security.lockTitle,
