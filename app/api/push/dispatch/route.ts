@@ -111,6 +111,11 @@ export async function POST(request: NextRequest) {
     .eq("id", id)
     .maybeSingle();
   if (!notification) return NextResponse.json({ ok: false });
+  // Notices are badge-only: in-app bell yes, web push no (the DB trigger
+  // already skips the dispatch ping; this guards any direct call).
+  if (notification.type === "notice_published") {
+    return NextResponse.json({ ok: true, skipped: "badge_only" });
+  }
   if (Date.now() - new Date(notification.created_at).getTime() > MAX_AGE_MS) {
     return NextResponse.json({ ok: false, reason: "stale" });
   }
