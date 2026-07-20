@@ -44,7 +44,7 @@ export function MobileMenu({
     uid: number;
     avatarUrl: string | null;
     subtitle: string;
-    items: { href: string; label: string }[];
+    groups: { label?: string; items: { href: string; label: string }[] }[];
     signOutLabel: string;
   };
 }) {
@@ -190,20 +190,34 @@ export function MobileMenu({
               );
             })}
           </ul>
-          {account && account.items.length > 0 && (
-            <ul className="mt-3 space-y-0.5 border-t border-line pt-3">
-              {account.items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    onClick={close}
-                    className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub hover:text-ink"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
+          {account && account.groups.length > 0 && (
+            <div className="mt-3 border-t border-line pt-2">
+              {account.groups.map((group, index) => (
+                <div
+                  key={group.label ?? `group-${index}`}
+                  className={index > 0 ? "mt-1.5" : ""}
+                >
+                  {group.label && (
+                    <p className="px-3.5 pb-0.5 pt-1 text-[10px] font-bold uppercase tracking-[.12em] text-ink-faint">
+                      {group.label}
+                    </p>
+                  )}
+                  <ul className="space-y-0.5">
+                    {group.items.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={close}
+                          className="flex items-center justify-between rounded-xl px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sub hover:text-ink"
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </nav>
         </div>

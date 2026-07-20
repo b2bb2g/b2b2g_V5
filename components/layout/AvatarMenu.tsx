@@ -8,15 +8,18 @@ import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
 import { PendingButton } from "@/components/ui/PendingButton";
 
 export type AvatarMenuItem = { href: string; label: string };
+export type AvatarMenuGroup = { label?: string; items: AvatarMenuItem[] };
 
 // Profile dropdown: opens on hover (desktop) or tap (touch), closes when the
 // pointer leaves the trigger+panel area or after navigation. The member's
-// primary identifier is the UID (copyable), not the email.
+// primary identifier is the UID (copyable), not the email. Entries are
+// grouped by category (activity / create / community / account) for a dense,
+// scannable menu.
 export function AvatarMenu({
   name,
   uid,
   avatarUrl,
-  items,
+  groups,
   signOutLabel,
   copyLabel,
   copiedLabel,
@@ -24,7 +27,7 @@ export function AvatarMenu({
   name: string;
   uid: number;
   avatarUrl: string | null;
-  items: AvatarMenuItem[];
+  groups: AvatarMenuGroup[];
   signOutLabel: string;
   copyLabel: string;
   copiedLabel: string;
@@ -124,17 +127,29 @@ export function AvatarMenu({
               </span>
             </div>
           </div>
-          <nav className="p-1.5">
-            {items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                role="menuitem"
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-sub hover:text-ink"
+          <nav className="max-h-[70vh] overflow-y-auto p-1.5">
+            {groups.map((group, index) => (
+              <div
+                key={group.label ?? `group-${index}`}
+                className={index > 0 ? "mt-1 border-t border-line/70 pt-1" : ""}
               >
-                {item.label}
-              </Link>
+                {group.label && (
+                  <p className="px-3 pb-0.5 pt-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-ink-faint">
+                    {group.label}
+                  </p>
+                )}
+                {group.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                    className="block rounded-lg px-3 py-1.5 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-sub hover:text-ink"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             ))}
           </nav>
           <form action={signOut} className="border-t border-line p-1.5">

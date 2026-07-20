@@ -7,6 +7,7 @@ import { MenuNav } from "@/components/layout/MenuNav";
 import {
   AvatarMenu,
   type AvatarMenuItem,
+  type AvatarMenuGroup,
 } from "@/components/layout/AvatarMenu";
 import { LocaleMenu } from "@/components/layout/LocaleMenu";
 import { NotificationBell } from "@/components/layout/NotificationBell";
@@ -44,39 +45,53 @@ export async function Header({
     label: menuTitle(menu, locale),
   }));
 
-  // Role-aware dropdown entries (member / certified / coordinator / admin).
-  // Product/request creation lives here and on the dashboard only.
-  const dropdown: AvatarMenuItem[] = [];
+  // Role-aware account menu, grouped by category (activity / create /
+  // community / account / admin) for a dense, scannable dropdown & drawer.
+  const groups: AvatarMenuGroup[] = [];
   if (session.profile) {
-    dropdown.push(
-      { href: "/dashboard", label: t.common.dashboard },
+    groups.push({ items: [{ href: "/dashboard", label: t.common.dashboard }] });
+    groups.push({
+      label: t.nav.groupActivity,
+      items: [
+        { href: "/dashboard/posts", label: t.nav.myPosts },
+        { href: "/inquiries", label: t.inquiry.title },
+        { href: "/dashboard/bookmarks", label: t.dashboard.savedProducts },
+      ],
+    });
+    groups.push({
+      label: t.nav.groupCreate,
+      items: [
+        { href: "/write/select", label: t.dashboard.registerProduct },
+        { href: "/write?menu=requests", label: t.dashboard.postRequest },
+      ],
+    });
+    const community: AvatarMenuItem[] = [
       { href: "/feed", label: t.feed.title },
-      { href: "/dashboard/profile", label: t.nav.profile },
-      { href: "/dashboard/security", label: t.nav.security },
-      { href: "/write/select", label: t.dashboard.registerProduct },
-      { href: "/write?menu=requests", label: t.dashboard.postRequest },
-      { href: "/dashboard/posts", label: t.nav.myPosts },
-      { href: "/dashboard/bookmarks", label: t.dashboard.savedProducts },
-      { href: "/inquiries", label: t.inquiry.title },
-    );
+    ];
     if (
       session.badges.some((b) => b.badge_types?.code === BADGE_CODES.CERTIFIED)
     ) {
-      dropdown.push({ href: "/dashboard/homepage", label: t.homepage.title });
+      community.push({ href: "/dashboard/homepage", label: t.homepage.title });
     }
+    groups.push({ label: t.nav.groupCommunity, items: community });
+    const account: AvatarMenuItem[] = [
+      { href: "/dashboard/profile", label: t.nav.profile },
+      { href: "/dashboard/security", label: t.nav.security },
+    ];
     if (session.profile.is_coordinator) {
-      dropdown.push({
+      account.push({
         href: "/dashboard/coordinator",
         label: t.coordinator.title,
       });
     } else if (session.profile.referred_by) {
-      dropdown.push({
+      account.push({
         href: "/dashboard/messages",
         label: t.coordinator.directMessages,
       });
     }
+    groups.push({ label: t.nav.groupAccount, items: account });
     if (session.profile.is_admin) {
-      dropdown.push({ href: "/admin", label: t.common.admin });
+      groups.push({ items: [{ href: "/admin", label: t.common.admin }] });
     }
   }
 
@@ -147,7 +162,7 @@ export async function Header({
                       ? postMediaUrl(session.profile.avatar_url)
                       : null
                   }
-                  items={dropdown}
+                  groups={groups}
                   signOutLabel={t.common.signOut}
                   copyLabel={t.common.copy}
                   copiedLabel={t.common.copied}
@@ -188,7 +203,7 @@ export async function Header({
                         ? postMediaUrl(session.profile.avatar_url)
                         : null,
                       subtitle: t.common.dashboard,
-                      items: dropdown,
+                      groups,
                       signOutLabel: t.common.signOut,
                     }
                   : undefined

@@ -59,6 +59,10 @@ const ko: Dict = {
     security: "보안 설정",
     badgeUnread: "안 읽음",
     badgeInReview: "검토 중",
+    groupActivity: "활동",
+    groupCreate: "만들기",
+    groupCommunity: "커뮤니티",
+    groupAccount: "계정",
   },
   security: {
     eyebrow: "계정 보호",
