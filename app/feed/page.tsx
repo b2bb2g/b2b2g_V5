@@ -13,12 +13,27 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { getFeedCardLabels } from "@/lib/i18n/feed";
 import { FeedNetworkSidebar } from "@/components/feed/FeedNetworkSidebar";
 
-export const metadata = {
-  title: "B2BB2G Network",
-  description:
-    "Connect through public updates from B2BB2G marketplace members.",
-  alternates: { canonical: "/feed" },
-};
+export async function generateMetadata(props: {
+  searchParams: Promise<{ tab?: string; tag?: string }>;
+}) {
+  const { tab, tag: rawTag } = await props.searchParams;
+  const tag = sanitizeFeedTag(rawTag);
+  if (tag) {
+    return {
+      title: `#${tag} · B2BB2G Network`,
+      description: `Member updates tagged #${tag} on the B2BB2G network.`,
+      alternates: { canonical: `/feed?tag=${encodeURIComponent(tag)}` },
+    };
+  }
+  return {
+    title: "B2BB2G Network",
+    description:
+      "Connect through public updates from B2BB2G marketplace members.",
+    alternates: { canonical: "/feed" },
+    // The following tab is personalized; keep crawlers on the public feed.
+    ...(tab === "following" ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 export default async function FeedPage(props: {
   searchParams: Promise<{ tab?: string; tag?: string }>;

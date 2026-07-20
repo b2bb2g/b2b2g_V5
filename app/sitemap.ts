@@ -25,6 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { data: homepages },
       { data: profiles },
       { data: feedPosts },
+      { data: recentBodies },
     ] =
       await Promise.all([
         supabase.from("menus").select("id, slug").eq("is_visible", true),
@@ -49,6 +50,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .eq("moderation_status", "visible")
           .order("updated_at", { ascending: false })
           .limit(2000),
+        supabase
+          .from("member_feed_posts")
+          .select("body")
+          .eq("moderation_status", "visible")
+          .order("created_at", { ascending: false })
+          .limit(300),
       ]);
 
     const menuSlugById = new Map((menus ?? []).map((m) => [m.id, m.slug]));
@@ -91,6 +98,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: post.updated_at ?? undefined,
         changeFrequency: "weekly",
         priority: 0.5,
+      });
+    }
+    // Live hashtag hubs: the most-used tags across recent network posts.
+    const tagCounts = new Map<string, number>();
+    for (const row of recentBodies ?? []) {
+      for (const match of (row.body ?? "").matchAll(/#([\p{L}\p{N}_]+)/gu)) {
+        const tag = match[1].slice(0, 40);
+        tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+      }
+    }
+    const topTags = [...tagCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 30);
+    for (const [tag] of topTags) {
+      entries.push({
+        url: `${site}/feed?tag=${encodeURIComponent(tag)}`,
+        changeFrequency: "daily",
+        priority: 0.4,
       });
     }
   } catch {

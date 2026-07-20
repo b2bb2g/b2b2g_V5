@@ -42,7 +42,9 @@ export function FeedMediaCarousel({
   if (!paths.length) return null;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-[#07090d] text-white">
+    // min-w-0: the thumbnail strip's natural width (n x 48px) must never
+    // push a phone-width dialog wider than the viewport.
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-[#07090d] text-white">
       <div className="relative min-h-0 flex-1 py-3 sm:px-12 sm:py-5">
         <div
           data-feed-media-stage
