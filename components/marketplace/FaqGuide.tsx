@@ -18,6 +18,45 @@ function SearchIcon() {
   );
 }
 
+// Renders an answer: consecutive "1) ..." lines become a numbered step list
+// (with the marker stripped), everything else stays a paragraph. This keeps the
+// how-to click-paths readable as real steps.
+function AnswerBody({ lines }: { lines: string[] }) {
+  const blocks: Array<
+    { type: "p"; text: string } | { type: "steps"; items: string[] }
+  > = [];
+  for (const line of lines) {
+    const match = line.match(/^\s*\d+\)\s*(.*)$/);
+    if (match) {
+      const last = blocks[blocks.length - 1];
+      if (last && last.type === "steps") last.items.push(match[1]);
+      else blocks.push({ type: "steps", items: [match[1]] });
+    } else {
+      blocks.push({ type: "p", text: line });
+    }
+  }
+  return (
+    <div className="space-y-3 border-t border-line/70 bg-[#fbfbfd] px-5 py-4 text-[14.5px] leading-7 text-ink-soft">
+      {blocks.map((block, index) =>
+        block.type === "steps" ? (
+          <ol key={index} className="space-y-2">
+            {block.items.map((step, stepIndex) => (
+              <li key={stepIndex} className="flex gap-2.5">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-soft text-[11px] font-extrabold text-primary">
+                  {stepIndex + 1}
+                </span>
+                <span className="min-w-0">{step}</span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p key={index}>{block.text}</p>
+        ),
+      )}
+    </div>
+  );
+}
+
 // Manual-style help center: questions grouped into categories with a jump nav,
 // a search that narrows across every category, and native disclosure rows so
 // it stays accessible and keyboard-friendly.
@@ -157,11 +196,7 @@ export function FaqGuide({
                           </svg>
                         </span>
                       </summary>
-                      <div className="space-y-3 border-t border-line/70 bg-[#fbfbfd] px-5 py-4 text-[14.5px] leading-7 text-ink-soft">
-                        {item.a.map((paragraph, pIndex) => (
-                          <p key={pIndex}>{paragraph}</p>
-                        ))}
-                      </div>
+                      <AnswerBody lines={item.a} />
                     </details>
                   ))}
                 </div>
