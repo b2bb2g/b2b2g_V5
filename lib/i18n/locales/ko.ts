@@ -115,15 +115,19 @@ const ko: Dict = {
     lockDisable: "끄기",
     lockVerifyToDisable: "앱 잠금을 끄려면 6자리 PIN을 입력하세요",
     lockTitle: "B2BB2G 잠금 해제",
-    lockSubtitle: "본인 확인 후 이 기기에서 앱을 열 수 있습니다.",
-    lockUnlockBiometric: "생체인증으로 잠금 해제",
-    lockUsePin: "PIN으로 인증",
+    lockSubtitle: "지문·Face ID를 사용하거나, 앱 PIN을 입력하세요.",
+    lockUnlockBiometric: "지문·Face ID로 잠금 해제",
+    lockBiometricHint: "기기의 생체인증을 사용합니다.",
+    lockOr: "또는",
+    lockPinSectionLabel: "앱 PIN (6자리)",
     lockPinPlaceholder: "6자리 PIN",
     lockWrongPin: "인증에 실패했습니다.",
     lockAttemptsLeft: "남은 시도 {n}회.",
-    lockEmergency: "잠금 해제가 안 되나요? 로그아웃하고 잠금 제거",
-    lockEmergencyHint:
-      "계정은 비밀번호와 이메일로 계속 보호됩니다. 다시 로그인하면 이용할 수 있습니다.",
+    lockForgotPin: "PIN을 잊으셨나요?",
+    lockForgotPinHint:
+      "로그아웃하면 잠금이 해제됩니다. 비밀번호로 다시 로그인한 뒤 새 PIN을 설정하세요. 새 휴대폰은 잠금 없이 시작됩니다.",
+    lockResetConfirm:
+      "앱 잠금을 제거하고 로그아웃할까요? 다시 로그인한 뒤 새 PIN을 설정할 수 있습니다.",
     nudgeTitle: "이 기기를 보호하세요",
     nudgeBody:
       "지문·Face ID 잠금을 추가하면 이 기기에서 나만 B2BB2G를 열 수 있습니다. 1분이면 설정됩니다.",

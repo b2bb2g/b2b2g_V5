@@ -18,41 +18,42 @@ import { signOut } from "@/app/actions/auth";
 type Labels = {
   title: string;
   subtitle: string;
-  unlockBiometric: string;
-  usePin: string;
+  biometricCta: string;
+  biometricHint: string;
+  or: string;
+  pinSectionLabel: string;
   pinPlaceholder: string;
   confirm: string;
   wrongPin: string;
   attemptsLeft: string;
-  emergency: string;
-  emergencyHint: string;
+  forgotPin: string;
+  forgotPinHint: string;
+  resetConfirm: string;
 };
 
 const MAX_PIN_ATTEMPTS = 5;
 
-// Full-screen unlock gate. Appears when the device lock is enabled and this
-// browser session has not been unlocked yet (or the app sat in the
-// background past the re-lock window). Biometric fires first; the PIN is
-// always one tap away; the emergency path signs out AND clears the lock so
-// nobody is ever stranded on their own device.
+// Full-screen unlock gate. Both paths are shown at once, on purpose: tapping
+// the biometric button opens the OS prompt, while the 6-digit field accepts
+// OUR app PIN directly. Keeping the PIN field on our own screen means a
+// member who wants the PIN never enters the OS dialog (whose own "use PIN"
+// is the DEVICE screen-lock PIN — a different thing that used to confuse
+// everyone). No auto-firing of the OS prompt for the same reason.
 export function AppLockGate({ labels }: { labels: Labels }) {
   const [config, setConfig] = useState<AppLockConfig | null>(null);
   const [locked, setLocked] = useState(false);
-  const [mode, setMode] = useState<"biometric" | "pin">("biometric");
   const [pin, setPin] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<"biometric" | "pin" | null>(null);
   const hiddenAt = useRef<number | null>(null);
-  const biometricTried = useRef(false);
 
   const engage = useCallback((current: AppLockConfig) => {
     markLocked();
     setConfig(current);
-    setMode(current.credentialId ? "biometric" : "pin");
     setPin("");
-    setError(false);
-    biometricTried.current = false;
+    setError(null);
+    setAttempts(0);
     setLocked(true);
   }, []);
 
@@ -79,31 +80,6 @@ export function AppLockGate({ labels }: { labels: Labels }) {
     };
   }, [engage]);
 
-  const unlock = useCallback(() => {
-    markUnlocked();
-    setLocked(false);
-    setPin("");
-    setAttempts(0);
-  }, []);
-
-  const tryBiometric = useCallback(async () => {
-    if (!config?.credentialId || busy) return;
-    setBusy(true);
-    setError(false);
-    const ok = await verifyBiometric(config.credentialId);
-    setBusy(false);
-    if (ok) unlock();
-    else setError(true);
-  }, [config, busy, unlock]);
-
-  // Biometric prompts need no extra tap on open.
-  useEffect(() => {
-    if (!locked || mode !== "biometric" || biometricTried.current) return;
-    biometricTried.current = true;
-    const timer = setTimeout(() => void tryBiometric(), 350);
-    return () => clearTimeout(timer);
-  }, [locked, mode, tryBiometric]);
-
   useEffect(() => {
     if (!locked) return;
     const previous = document.body.style.overflow;
@@ -112,6 +88,24 @@ export function AppLockGate({ labels }: { labels: Labels }) {
       document.body.style.overflow = previous;
     };
   }, [locked]);
+
+  const unlock = useCallback(() => {
+    markUnlocked();
+    setLocked(false);
+    setPin("");
+    setAttempts(0);
+    setError(null);
+  }, []);
+
+  async function tryBiometric() {
+    if (!config?.credentialId || busy) return;
+    setBusy(true);
+    setError(null);
+    const ok = await verifyBiometric(config.credentialId);
+    setBusy(false);
+    if (ok) unlock();
+    else setError("biometric");
+  }
 
   async function submitPin() {
     if (!config || pin.length !== 6 || busy) return;
@@ -125,11 +119,15 @@ export function AppLockGate({ labels }: { labels: Labels }) {
     const next = attempts + 1;
     setAttempts(next);
     setPin("");
-    setError(true);
-    if (next >= MAX_PIN_ATTEMPTS) await emergencyExit();
+    setError("pin");
+    if (next >= MAX_PIN_ATTEMPTS) await resetLock();
   }
 
-  async function emergencyExit() {
+  // Forgot-PIN / lost-device recovery: clear the device lock and sign out.
+  // Signing back in (password + email, still fully enforced) is the identity
+  // proof; the member sets a fresh PIN afterward. A brand-new phone simply
+  // has no lock and enrolls fresh.
+  async function resetLock() {
     writeAppLock(null);
     markUnlocked();
     setLocked(false);
@@ -139,122 +137,113 @@ export function AppLockGate({ labels }: { labels: Labels }) {
   if (!locked || !config) return null;
 
   const remaining = MAX_PIN_ATTEMPTS - attempts;
+  const hasBiometric = !!config.credentialId;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={labels.title}
-      className="fixed inset-0 z-[500] flex flex-col items-center justify-center bg-white px-6"
+      className="fixed inset-0 z-[500] flex flex-col items-center overflow-y-auto bg-white px-6 py-12"
     >
-      <Image
-        src="/icons/b2bb2g-icon-192.png"
-        alt=""
-        width={72}
-        height={72}
-        priority
-        className="h-18 w-18 rounded-[1.2rem] shadow-[0_14px_40px_rgba(27,100,218,.22)]"
-      />
-      <h1 className="mt-5 text-xl font-extrabold tracking-[-.02em]">
-        {labels.title}
-      </h1>
-      <p className="mt-1 max-w-xs text-center text-sm leading-6 text-ink-soft">
-        {labels.subtitle}
-      </p>
+      <div className="flex w-full max-w-xs flex-1 flex-col items-center justify-center">
+        <Image
+          src="/icons/b2bb2g-icon-192.png"
+          alt=""
+          width={64}
+          height={64}
+          priority
+          className="h-16 w-16 rounded-[1.1rem] shadow-[0_14px_40px_rgba(27,100,218,.22)]"
+        />
+        <h1 className="mt-4 text-xl font-extrabold tracking-[-.02em]">
+          {labels.title}
+        </h1>
+        <p className="mt-1 text-center text-sm leading-6 text-ink-soft">
+          {labels.subtitle}
+        </p>
 
-      {mode === "biometric" ? (
-        <div className="mt-7 flex w-full max-w-xs flex-col items-center gap-3">
-          <button
-            type="button"
-            onClick={() => void tryBiometric()}
-            disabled={busy}
-            aria-busy={busy}
-            className="btn-primary btn-lg w-full disabled:opacity-60"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M12 11a4 4 0 0 1 4 4c0 2.5-.6 4.4-1.3 5.9M8.6 20.2A12 12 0 0 0 9.7 15a2.3 2.3 0 0 1 4.6 0c0 1.7-.2 3.3-.6 4.8M5.9 18A16 16 0 0 0 6.4 15a5.6 5.6 0 0 1 9-4.4M3.7 14.6A9 9 0 0 1 12 6a9 9 0 0 1 8.4 5.7" />
-            </svg>
-            {labels.unlockBiometric}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode("pin");
-              setError(false);
-            }}
-            className="text-sm font-bold text-primary hover:text-primary-strong"
-          >
-            {labels.usePin}
-          </button>
-        </div>
-      ) : (
+        {hasBiometric && (
+          <div className="mt-7 w-full">
+            <button
+              type="button"
+              onClick={() => void tryBiometric()}
+              disabled={busy}
+              aria-busy={busy}
+              className="btn-primary btn-lg w-full disabled:opacity-60"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 11a4 4 0 0 1 4 4c0 2.5-.6 4.4-1.3 5.9M8.6 20.2A12 12 0 0 0 9.7 15a2.3 2.3 0 0 1 4.6 0c0 1.7-.2 3.3-.6 4.8M5.9 18A16 16 0 0 0 6.4 15a5.6 5.6 0 0 1 9-4.4M3.7 14.6A9 9 0 0 1 12 6a9 9 0 0 1 8.4 5.7" />
+              </svg>
+              {labels.biometricCta}
+            </button>
+            {error === "biometric" && (
+              <p role="alert" className="mt-2 text-center text-xs font-bold text-negative">
+                {labels.wrongPin}
+              </p>
+            )}
+            <div className="mt-5 flex items-center gap-3">
+              <span className="h-px flex-1 bg-line" />
+              <span className="text-xs font-bold text-ink-faint">{labels.or}</span>
+              <span className="h-px flex-1 bg-line" />
+            </div>
+          </div>
+        )}
+
         <form
-          className="mt-7 flex w-full max-w-xs flex-col items-center gap-3"
+          className={`w-full ${hasBiometric ? "mt-5" : "mt-7"}`}
           onSubmit={(event) => {
             event.preventDefault();
             void submitPin();
           }}
         >
-          <label className="w-full">
-            <span className="sr-only">{labels.pinPlaceholder}</span>
+          <label className="block">
+            <span className="text-xs font-bold text-ink-soft">
+              {labels.pinSectionLabel}
+            </span>
             <input
-              autoFocus
+              autoFocus={!hasBiometric}
               value={pin}
               onChange={(event) => {
                 const next = event.target.value.replace(/\D/g, "").slice(0, 6);
                 setPin(next);
-                setError(false);
+                setError(null);
               }}
               inputMode="numeric"
               type="password"
               autoComplete="off"
               placeholder={labels.pinPlaceholder}
-              className="field text-center text-2xl font-extrabold tracking-[.45em]"
+              className="field mt-1.5 text-center text-2xl font-extrabold tracking-[.4em]"
             />
           </label>
           <button
             type="submit"
             disabled={busy || pin.length !== 6}
             aria-busy={busy}
-            className="btn-primary btn-lg w-full disabled:opacity-50"
+            className="btn-primary btn-lg mt-3 w-full disabled:opacity-50"
           >
             {labels.confirm}
           </button>
-          {config.credentialId && (
-            <button
-              type="button"
-              onClick={() => {
-                setMode("biometric");
-                setError(false);
-                void tryBiometric();
-              }}
-              className="text-sm font-bold text-primary hover:text-primary-strong"
-            >
-              {labels.unlockBiometric}
-            </button>
+          {error === "pin" && (
+            <p role="alert" className="mt-2 text-center text-xs font-bold text-negative">
+              {labels.wrongPin} {labels.attemptsLeft.replace("{n}", String(remaining))}
+            </p>
           )}
         </form>
-      )}
 
-      {error && (
-        <p role="alert" className="mt-4 text-xs font-bold text-negative">
-          {mode === "pin"
-            ? `${labels.wrongPin} ${labels.attemptsLeft.replace("{n}", String(remaining))}`
-            : labels.wrongPin}
-        </p>
-      )}
-
-      <div className="mt-10 text-center">
-        <button
-          type="button"
-          onClick={() => void emergencyExit()}
-          className="text-xs font-bold text-ink-faint underline-offset-2 hover:text-ink hover:underline"
-        >
-          {labels.emergency}
-        </button>
-        <p className="mt-1 max-w-xs text-[11px] leading-4 text-ink-faint">
-          {labels.emergencyHint}
-        </p>
+        <div className="mt-9 text-center">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm(labels.resetConfirm)) void resetLock();
+            }}
+            className="text-sm font-bold text-primary underline-offset-2 hover:underline"
+          >
+            {labels.forgotPin}
+          </button>
+          <p className="mt-1.5 max-w-xs text-[11px] leading-4 text-ink-faint">
+            {labels.forgotPinHint}
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -111,14 +111,17 @@ export default async function RootLayout({
           labels={{
             title: t.security.lockTitle,
             subtitle: t.security.lockSubtitle,
-            unlockBiometric: t.security.lockUnlockBiometric,
-            usePin: t.security.lockUsePin,
+            biometricCta: t.security.lockUnlockBiometric,
+            biometricHint: t.security.lockBiometricHint,
+            or: t.security.lockOr,
+            pinSectionLabel: t.security.lockPinSectionLabel,
             pinPlaceholder: t.security.lockPinPlaceholder,
             confirm: t.common.confirm,
             wrongPin: t.security.lockWrongPin,
             attemptsLeft: t.security.lockAttemptsLeft,
-            emergency: t.security.lockEmergency,
-            emergencyHint: t.security.lockEmergencyHint,
+            forgotPin: t.security.lockForgotPin,
+            forgotPinHint: t.security.lockForgotPinHint,
+            resetConfirm: t.security.lockResetConfirm,
           }}
         />
         {session.userId ? (

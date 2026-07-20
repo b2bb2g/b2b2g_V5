@@ -115,15 +115,19 @@ const en = {
     lockDisable: "Turn off",
     lockVerifyToDisable: "Enter your 6-digit PIN to turn off the app lock",
     lockTitle: "Unlock B2BB2G",
-    lockSubtitle: "Verify it's you to open the app on this device.",
-    lockUnlockBiometric: "Unlock with biometric",
-    lockUsePin: "Use PIN instead",
+    lockSubtitle: "Use your fingerprint / Face ID, or enter your app PIN.",
+    lockUnlockBiometric: "Unlock with fingerprint / Face ID",
+    lockBiometricHint: "Uses your device biometric.",
+    lockOr: "OR",
+    lockPinSectionLabel: "App PIN (6 digits)",
     lockPinPlaceholder: "6-digit PIN",
     lockWrongPin: "Verification failed.",
     lockAttemptsLeft: "{n} attempts left.",
-    lockEmergency: "Can't unlock? Sign out and remove the lock",
-    lockEmergencyHint:
-      "Your account stays protected by your password and email - sign back in to continue.",
+    lockForgotPin: "Forgot your PIN?",
+    lockForgotPinHint:
+      "Sign out to remove the lock, then set a new PIN after signing back in with your password. A new phone starts with no lock.",
+    lockResetConfirm:
+      "Remove the app lock and sign out? You can set a new PIN after signing back in.",
     nudgeTitle: "Protect this device",
     nudgeBody:
       "Add a quick fingerprint or Face ID lock so only you can open B2BB2G on this device. It takes about a minute.",
