@@ -1269,6 +1269,7 @@ const ko: Dict = {
     rejected: "사유와 함께 반려되었습니다.",
     forwarded: "전달되었습니다.",
     reasonRequired: "반려 사유를 입력해 주세요.",
+    actionFailed: "처리하지 못했습니다. 다시 시도해 주세요.",
   },
   cookie: {
     message:

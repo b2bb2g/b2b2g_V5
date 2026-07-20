@@ -15,9 +15,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
+    // Server-only route: use the service role so the sitemap can read public
+    // content (incl. filtering members by `status`) without the anon role
+    // needing SELECT on sensitive profile columns.
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } },
     );
     const [
       { data: menus },

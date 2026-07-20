@@ -11,8 +11,10 @@ const WINDOW_DAYS = 7;
 const DEDUPE_DAYS = 6;
 
 export async function GET(request: NextRequest) {
+  // Fail closed: an unset CRON_SECRET must reject, never run this service-role
+  // job for an unauthenticated caller.
   const secret = process.env.CRON_SECRET;
-  if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

@@ -6,7 +6,6 @@ import { Carousel } from "@/components/ui/Carousel";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EventCard } from "@/components/marketplace/EventCard";
-import { CollectionLeadCard } from "@/components/marketplace/CollectionLeadCard";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
@@ -200,6 +199,9 @@ async function LandingContent() {
   const menuSlugById = new Map<string, string>(
     menus.map((menu: Menu) => [menu.id, menu.slug]),
   );
+  // Products already surfaced in "New arrivals" are dropped from the category
+  // rails below so the same listing never appears twice on the landing page.
+  const featuredProductIds = new Set(products.map((post) => post.id));
   const container = "store-shell";
   const steps = [
     { n: "01", title: t.home.step1Title, body: t.home.step1Body },
@@ -217,27 +219,18 @@ async function LandingContent() {
     ended: t.board.eventEnded,
     venueTbd: t.board.eventVenueTbd,
   };
-  const marketRailCopy: Record<
-    string,
-    { tagline: string; title: string; body: string; image: string }
-  > = {
+  const marketRailCopy: Record<string, { tagline: string; title: string }> = {
     commercial: {
       tagline: t.home.commercialRailTagline,
       title: t.home.commercialRailTitle,
-      body: t.home.commercialRailBody,
-      image: MARKET_IMAGES[0],
     },
     industrial: {
       tagline: t.home.industrialRailTagline,
       title: t.home.industrialRailTitle,
-      body: t.home.industrialRailBody,
-      image: MARKET_IMAGES[1],
     },
     epc: {
       tagline: t.home.epcRailTagline,
       title: t.home.epcRailTitle,
-      body: t.home.epcRailBody,
-      image: MARKET_IMAGES[2],
     },
   };
 
@@ -360,10 +353,12 @@ async function LandingContent() {
                 </TextLink>
               </div>
 
-              <div className="mt-20 space-y-20 sm:mt-28 sm:space-y-28">
+              <div className="mt-14 space-y-14 sm:mt-20 sm:space-y-20">
                 {marketRailMenus.map((menu) => {
                   const copy = marketRailCopy[menu.slug];
-                  const menuPosts = marketPostsByMenu[menu.id] ?? [];
+                  const menuPosts = (marketPostsByMenu[menu.id] ?? []).filter(
+                    (post) => !featuredProductIds.has(post.id),
+                  );
                   if (!copy || menuPosts.length === 0) return null;
                   const title = menuTitle(menu, locale);
 
@@ -382,23 +377,13 @@ async function LandingContent() {
                         />
                       </Reveal>
 
-                      <div className="mt-7 sm:mt-12">
+                      <div className="mt-6 sm:mt-8">
                         <Carousel
                           prevLabel={t.home.prev}
                           nextLabel={t.home.next}
                           marquee
                           edgeToEdge
                         >
-                          <div className={LANDING_CARD_FAMILY.collectionLead}>
-                            <CollectionLeadCard
-                              href={`/${menu.slug}`}
-                              image={copy.image}
-                              eyebrow={title}
-                              title={copy.title}
-                              body={copy.body}
-                              actionLabel={t.home.exploreCollection}
-                            />
-                          </div>
                           {menuPosts.map((post) => (
                             <div
                               key={post.id}
@@ -505,16 +490,6 @@ async function LandingContent() {
                   nextLabel={t.home.next}
                   edgeToEdge
                 >
-                  <div className={LANDING_CARD_FAMILY.collectionLead}>
-                    <CollectionLeadCard
-                      href={`/${requestsMenu.slug}`}
-                      image="/landing-v2/precision-manufacturing.jpg"
-                      eyebrow={t.home.eyebrowRequests}
-                      title={t.home.step2Title}
-                      body={t.home.value2Body}
-                      actionLabel={t.dashboard.viewAll}
-                    />
-                  </div>
                   {requests.map((post, index) => (
                     <Reveal
                       key={post.id}

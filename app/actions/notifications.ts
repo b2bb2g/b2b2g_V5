@@ -23,11 +23,13 @@ export async function openNotification(formData: FormData) {
   }
   if (ids.length) {
     const supabase = await createClient();
-    await supabase
+    const { error } = await supabase
       .from("notifications")
       .update({ state: NOTIFICATION_STATE.READ })
       .in("id", ids)
       .eq("state", NOTIFICATION_STATE.UNREAD);
+    if (error)
+      console.error("[notifications] openNotification update failed", error);
     revalidatePath("/notifications");
   }
   redirect(href.startsWith("/") ? href : "/notifications");
@@ -39,11 +41,12 @@ export async function markAllRead() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return;
-  await supabase
+  const { error } = await supabase
     .from("notifications")
     .update({ state: NOTIFICATION_STATE.READ })
     .eq("profile_id", user.id)
     .eq("state", NOTIFICATION_STATE.UNREAD);
+  if (error) console.error("[notifications] markAllRead update failed", error);
   revalidatePath("/notifications");
 }
 
@@ -66,16 +69,20 @@ export async function setNotificationState(formData: FormData) {
   if (!ids.length) return;
   const supabase = await createClient();
 
+  let error = null;
   if (state === "delete") {
-    await supabase
+    ({ error } = await supabase
       .from("notifications")
       .delete()
       .in("id", ids)
-      .eq("state", NOTIFICATION_STATE.TRASHED);
-  } else if (
-    (Object.values(NOTIFICATION_STATE) as string[]).includes(state)
-  ) {
-    await supabase.from("notifications").update({ state }).in("id", ids);
+      .eq("state", NOTIFICATION_STATE.TRASHED));
+  } else if ((Object.values(NOTIFICATION_STATE) as string[]).includes(state)) {
+    ({ error } = await supabase
+      .from("notifications")
+      .update({ state })
+      .in("id", ids));
   }
+  if (error)
+    console.error("[notifications] setNotificationState write failed", error);
   revalidatePath("/notifications");
 }

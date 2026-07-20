@@ -9,11 +9,14 @@ export const getVisibleMenus = cache(
   unstable_cache(
     async (): Promise<Menu[]> => {
       const supabase = createAnonClient();
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("menus")
         .select("*")
         .eq("is_visible", true)
         .order("sort_order");
+      // Throw (rather than cache an empty nav) so a transient DB error surfaces
+      // as a retryable error instead of a silently broken, cached-for-60s site.
+      if (error) throw error;
       return (data as Menu[]) ?? [];
     },
     ["visible-menus"],
@@ -34,11 +37,14 @@ export const getMenuBySlug = cache(
   unstable_cache(
     async (slug: string): Promise<Menu | null> => {
       const supabase = createAnonClient();
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("menus")
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
+      // A genuine miss returns data:null/error:null (-> notFound upstream); only
+      // a real DB error throws, so a transient hiccup never masquerades as a 404.
+      if (error) throw error;
       return (data as Menu) ?? null;
     },
     ["menu-by-slug"],

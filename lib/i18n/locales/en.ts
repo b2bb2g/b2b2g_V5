@@ -1297,6 +1297,7 @@ const en = {
     rejected: "Rejected with the reason provided.",
     forwarded: "Forwarded.",
     reasonRequired: "Enter a reason before rejecting.",
+    actionFailed: "The action could not be completed. Please try again.",
   },
   cookie: {
     message:

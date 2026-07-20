@@ -172,9 +172,9 @@ export function AppLockGate({ labels }: { labels: Labels }) {
               onClick={() => void tryBiometric()}
               disabled={busy}
               aria-busy={busy}
-              className="btn-primary btn-lg w-full disabled:opacity-60"
+              className="btn-primary btn-lg w-full gap-2.5 disabled:opacity-60"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
                 <path d="M12 11a4 4 0 0 1 4 4c0 2.5-.6 4.4-1.3 5.9M8.6 20.2A12 12 0 0 0 9.7 15a2.3 2.3 0 0 1 4.6 0c0 1.7-.2 3.3-.6 4.8M5.9 18A16 16 0 0 0 6.4 15a5.6 5.6 0 0 1 9-4.4M3.7 14.6A9 9 0 0 1 12 6a9 9 0 0 1 8.4 5.7" />
               </svg>
               {labels.biometricCta}

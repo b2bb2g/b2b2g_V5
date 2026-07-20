@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 // Global two-step confirmation pattern (PRD 14): every action button asks
 // once more before it fires; while pending it shows a loading state.
@@ -51,6 +52,19 @@ export function ConfirmSubmit({
   destructive?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const dialogRef = useFocusTrap<HTMLDivElement>(open);
+  const titleId = useId();
+  const bodyId = useId();
+
+  // Escape closes the confirmation (the focus trap handles focus in/out).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
     <>
@@ -68,9 +82,20 @@ export function ConfirmSubmit({
             if (event.target === event.currentTarget) setOpen(false);
           }}
         >
-          <div className="w-full max-w-sm rounded-card bg-surface p-5 shadow-xl">
-            <p className="text-base font-bold">{confirmTitle}</p>
-            <p className="mt-1 text-sm text-ink-soft">{confirmBody}</p>
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            aria-describedby={bodyId}
+            className="w-full max-w-sm rounded-card bg-surface p-5 shadow-xl"
+          >
+            <p id={titleId} className="text-base font-bold">
+              {confirmTitle}
+            </p>
+            <p id={bodyId} className="mt-1 text-sm text-ink-soft">
+              {confirmBody}
+            </p>
             <div className="mt-5 flex gap-2">
               <button
                 type="button"

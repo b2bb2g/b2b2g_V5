@@ -9,8 +9,10 @@ export const runtime = "nodejs";
 // and by email when Resend is configured. Keyed by report month so reruns
 // are no-ops.
 export async function GET(request: NextRequest) {
+  // Fail closed: an unset CRON_SECRET must reject, never run this service-role
+  // job for an unauthenticated caller.
   const secret = process.env.CRON_SECRET;
-  if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

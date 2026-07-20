@@ -8,7 +8,12 @@ import { createAnonClient } from "@/lib/supabase/anon";
 const readPublicSettings = unstable_cache(
   async (): Promise<Record<string, unknown>> => {
     const supabase = createAnonClient();
-    const { data } = await supabase.from("site_settings").select("key, value");
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("key, value");
+    // Throw rather than cache an empty map, which would silently revert every
+    // admin-controlled switch to its code default for the next 60 seconds.
+    if (error) throw error;
     const map: Record<string, unknown> = {};
     for (const row of data ?? []) map[row.key] = row.value;
     return map;
