@@ -37,10 +37,12 @@ export default async function SecurityPage(props: {
     supabase
       .from("trusted_devices")
       .select("id, device_hash, label, last_ip_masked, last_country, last_seen_at, created_at")
+      .eq("profile_id", session.userId)
       .order("last_seen_at", { ascending: false }),
     supabase
       .from("login_events")
       .select("id, device_label, ip_masked, country, city, risk_level, is_new_device, created_at")
+      .eq("profile_id", session.userId)
       .order("created_at", { ascending: false })
       .limit(20),
     supabase.auth.mfa.listFactors(),

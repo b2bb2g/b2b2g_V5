@@ -68,6 +68,7 @@ export default async function DashboardPage() {
     supabase
       .from("referral_invitations")
       .select("id, status, expires_at, created_at")
+      .eq("inviter_id", session.userId)
       .in("status", ["active", "reserved"])
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false }),
