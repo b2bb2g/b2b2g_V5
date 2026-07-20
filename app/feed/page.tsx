@@ -57,18 +57,16 @@ export default async function FeedPage(props: {
 
   return (
     <div className="full-bleed bg-[#f5f5f7]">
-      <section className="pb-6 pt-9 sm:pt-12 lg:pt-14">
-        <div className="store-shell">
-          <BoardSectionHeading
-            eyebrow={t.feed.eyebrow}
-            title={t.feed.title}
-            body={t.feed.subtitle}
-            level="h1"
-          />
-        </div>
-      </section>
-      <section className="pb-16 sm:pb-20">
-        <div className="store-shell grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,46rem)_20rem]">
+      {/* Header and the two-column feed share one centered column, so the
+          social content sits in the middle of the page (not pushed left). */}
+      <div className="mx-auto w-full max-w-[68rem] px-4 pb-16 pt-9 sm:px-6 sm:pb-20 sm:pt-12 lg:pt-14">
+        <BoardSectionHeading
+          eyebrow={t.feed.eyebrow}
+          title={t.feed.title}
+          body={t.feed.subtitle}
+          level="h1"
+        />
+        <div className="mt-8 grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,46rem)_20rem]">
           <div className="min-w-0 space-y-5">
         {session.userId ? (
           <FeedComposer
@@ -163,7 +161,7 @@ export default async function FeedPage(props: {
           </div>
           <FeedNetworkSidebar profile={profile} stats={stats} bio={bio} t={t} />
         </div>
-      </section>
+      </div>
     </div>
   );
 }
