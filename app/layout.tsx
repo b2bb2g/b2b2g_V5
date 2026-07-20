@@ -145,7 +145,7 @@ export default async function RootLayout({
           <NavigationFeedback />
         </Suspense>
         <PullToRefresh />
-        <RouteChrome hideOnAdmin hideOnHome>
+        <RouteChrome hideOnAdmin>
           <Header />
         </RouteChrome>
         <main id="main-content" tabIndex={-1} className="w-full flex-1">

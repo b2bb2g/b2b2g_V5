@@ -1,6 +1,9 @@
 "use client";
 
 import {
+  Children,
+  cloneElement,
+  isValidElement,
   useRef,
   useState,
   useEffect,
@@ -10,11 +13,19 @@ import {
 } from "react";
 
 const EDGE_TOLERANCE = 4;
+// Marquee cruising speed (px/second). Slow and continuous, like a gentle
+// current; a card is ~280px so it drifts past in ~9 seconds.
+const MARQUEE_PX_PER_SEC = 30;
 
 // Snap carousel. Cards stay aligned with the rest of the page (no side inset);
 // prev/next controls overlay the image edges as frosted glass and only appear
 // when there is actually somewhere to scroll — left hidden at the start, right
 // hidden at the end. Small screens swipe.
+//
+// `marquee` turns it into a seamless auto-scrolling ribbon: the children are
+// duplicated so the loop never shows a seam, motion is continuous (no card
+// stepping), and it pauses on hover / touch / focus, off-screen, when the tab
+// is hidden, and under reduced-motion.
 export function Carousel({
   children,
   prevLabel,
@@ -22,7 +33,7 @@ export function Carousel({
   header,
   action,
   edgeToEdge = false,
-  autoPlayMs,
+  marquee = false,
 }: {
   children: ReactNode;
   prevLabel: string;
@@ -30,20 +41,36 @@ export function Carousel({
   header?: ReactNode;
   action?: ReactNode;
   edgeToEdge?: boolean;
-  /** Advance one card on this interval; pauses on hover/touch/focus and off-screen. */
-  autoPlayMs?: number;
+  /** Continuous seamless auto-scroll; pauses on hover/touch/focus/off-screen. */
+  marquee?: boolean;
 }) {
   const track = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
 
+  const items = Children.toArray(children);
+
+  // Continuous marquee: duplicate the cards and drift scrollLeft every frame,
+  // wrapping by one set's width so the seam is invisible.
   useEffect(() => {
     const el = track.current;
-    if (!autoPlayMs || !el) return;
+    if (!marquee || !el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let paused = false;
     let onScreen = true;
+    let raf = 0;
+    let last: number | null = null;
+    let loopWidth = 0;
+
+    const measure = () => {
+      const secondSet = el.children[items.length] as HTMLElement | undefined;
+      loopWidth = secondSet ? secondSet.offsetLeft : el.scrollWidth / 2;
+    };
+    measure();
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(el);
+
     const pause = () => {
       paused = true;
     };
@@ -57,33 +84,38 @@ export function Carousel({
     el.addEventListener("pointerenter", pause);
     el.addEventListener("pointerdown", pause);
     el.addEventListener("pointerleave", resume);
+    el.addEventListener("pointerup", resume);
+    el.addEventListener("touchstart", pause, { passive: true });
+    el.addEventListener("touchend", resume);
     el.addEventListener("focusin", pause);
     el.addEventListener("focusout", resume);
-    const timer = window.setInterval(() => {
-      if (paused || !onScreen || document.hidden) return;
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (el.scrollLeft >= maxScroll - EDGE_TOLERANCE) {
-        el.scrollTo({ left: 0, behavior: "smooth" });
-        return;
-      }
-      const cards = el.children;
-      const step =
-        cards.length > 1
-          ? (cards[1] as HTMLElement).offsetLeft -
-            (cards[0] as HTMLElement).offsetLeft
-          : el.clientWidth * 0.8;
-      el.scrollBy({ left: step, behavior: "smooth" });
-    }, autoPlayMs);
+
+    const frame = (now: number) => {
+      raf = window.requestAnimationFrame(frame);
+      if (last === null) last = now;
+      const dt = (now - last) / 1000;
+      last = now;
+      if (paused || !onScreen || document.hidden || loopWidth <= 0) return;
+      let next = el.scrollLeft + MARQUEE_PX_PER_SEC * dt;
+      if (next >= loopWidth) next -= loopWidth;
+      el.scrollLeft = next;
+    };
+    raf = window.requestAnimationFrame(frame);
+
     return () => {
-      window.clearInterval(timer);
+      window.cancelAnimationFrame(raf);
+      resizeObserver.disconnect();
       io.disconnect();
       el.removeEventListener("pointerenter", pause);
       el.removeEventListener("pointerdown", pause);
       el.removeEventListener("pointerleave", resume);
+      el.removeEventListener("pointerup", resume);
+      el.removeEventListener("touchstart", pause);
+      el.removeEventListener("touchend", resume);
       el.removeEventListener("focusin", pause);
       el.removeEventListener("focusout", resume);
     };
-  }, [autoPlayMs]);
+  }, [marquee, items.length]);
 
   const update = useCallback(() => {
     const el = track.current;
@@ -95,10 +127,6 @@ export function Carousel({
     const firstCardRect = firstCard?.getBoundingClientRect();
     const lastCardRect = lastCard?.getBoundingClientRect();
 
-    // The edge-to-edge rail keeps symmetric outer padding so the first and
-    // last cards can align with the page grid. That padding can leave a small
-    // scroll range even when every card is already visible. Controls therefore
-    // follow actual card visibility instead of raw scrollLeft/scrollWidth.
     setAtStart(
       !firstCardRect ||
         firstCardRect.left >= viewport.left - EDGE_TOLERANCE,
@@ -110,6 +138,7 @@ export function Carousel({
   }, []);
 
   useEffect(() => {
+    if (marquee) return; // arrows are not used in marquee mode
     update();
     const el = track.current;
     if (!el) return;
@@ -127,7 +156,7 @@ export function Carousel({
       el.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
-  }, [update]);
+  }, [update, marquee]);
 
   function scroll(direction: 1 | -1) {
     const el = track.current;
@@ -170,9 +199,14 @@ export function Carousel({
     : "absolute top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white shadow-[0_4px_14px_rgba(0,0,0,.3)] backdrop-blur-md transition duration-200 hover:bg-black/55 active:scale-95 lg:flex";
   const arrowInset = edgeToEdge ? "lg:left-6" : "left-2";
   const nextArrowInset = edgeToEdge ? "lg:right-6" : "right-2";
-  const trackClassName = edgeToEdge
-    ? "store-shelf-track scrollbar-none -my-6 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth py-6"
-    : "scrollbar-none -mx-4 -my-6 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 py-6 sm:mx-0 sm:px-0";
+  // Marquee scrolls itself, so it drops snap/smooth (which would fight the
+  // per-frame drift) and hides the manual arrows.
+  const baseTrack = edgeToEdge
+    ? "store-shelf-track scrollbar-none -my-6 flex gap-5 overflow-x-auto py-6"
+    : "scrollbar-none -mx-4 -my-6 flex gap-4 overflow-x-auto px-4 py-6 sm:mx-0 sm:px-0";
+  const trackClassName = marquee
+    ? baseTrack
+    : `${baseTrack} snap-x snap-mandatory scroll-smooth`;
 
   return (
     <div>
@@ -189,28 +223,20 @@ export function Carousel({
             : "relative"
         }
       >
-        <button
-          type="button"
-          onClick={() => scroll(-1)}
-          aria-label={prevLabel}
-          aria-hidden={atStart}
-          disabled={atStart}
-          className={`${arrowCls} ${arrowInset} ${atStart ? "pointer-events-none opacity-0" : "opacity-100"}`}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+        {!marquee && (
+          <button
+            type="button"
+            onClick={() => scroll(-1)}
+            aria-label={prevLabel}
+            aria-hidden={atStart}
+            disabled={atStart}
+            className={`${arrowCls} ${arrowInset} ${atStart ? "pointer-events-none opacity-0" : "opacity-100"}`}
           >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+        )}
         <div
           ref={track}
           data-carousel-track
@@ -218,30 +244,34 @@ export function Carousel({
           onKeyDown={handleKeyDown}
           className={`${trackClassName} rounded-[var(--store-card-radius)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary`}
         >
-          {children}
+          {items}
+          {marquee &&
+            items.map((child, index) =>
+              isValidElement(child)
+                ? cloneElement(
+                    child as React.ReactElement<{
+                      "aria-hidden"?: boolean;
+                      tabIndex?: number;
+                    }>,
+                    { key: `marquee-dup-${index}`, "aria-hidden": true, tabIndex: -1 },
+                  )
+                : child,
+            )}
         </div>
-        <button
-          type="button"
-          onClick={() => scroll(1)}
-          aria-label={nextLabel}
-          aria-hidden={atEnd}
-          disabled={atEnd}
-          className={`${arrowCls} ${nextArrowInset} ${atEnd ? "pointer-events-none opacity-0" : "opacity-100"}`}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+        {!marquee && (
+          <button
+            type="button"
+            onClick={() => scroll(1)}
+            aria-label={nextLabel}
+            aria-hidden={atEnd}
+            disabled={atEnd}
+            className={`${arrowCls} ${nextArrowInset} ${atEnd ? "pointer-events-none opacity-0" : "opacity-100"}`}
           >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-        </button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );

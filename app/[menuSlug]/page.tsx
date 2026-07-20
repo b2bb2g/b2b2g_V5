@@ -353,7 +353,7 @@ export default async function BoardPage(props: {
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
                   edgeToEdge
-                  autoPlayMs={4000}
+                  marquee
                 >
                   <div className="store-card-collection-lead">
                     <CollectionLeadCard
@@ -399,7 +399,7 @@ export default async function BoardPage(props: {
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
                   edgeToEdge
-                  autoPlayMs={5000}
+                  marquee
                 >
                   {newProducts.map((post, index) => (
                     <div

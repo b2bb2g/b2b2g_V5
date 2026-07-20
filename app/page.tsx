@@ -1,7 +1,6 @@
 import { Suspense, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Header } from "@/components/layout/Header";
 import { Reveal } from "@/components/ui/Reveal";
 import { Carousel } from "@/components/ui/Carousel";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -244,7 +243,6 @@ async function LandingContent() {
 
   return (
     <>
-      <Header />
       <div className="full-bleed overflow-hidden bg-white">
         <JsonLd
           data={[
@@ -340,7 +338,7 @@ async function LandingContent() {
                 <Carousel
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
-                  autoPlayMs={4500}
+                  marquee
                   edgeToEdge
                 >
                   {products.map((post, index) => (
@@ -388,7 +386,7 @@ async function LandingContent() {
                         <Carousel
                           prevLabel={t.home.prev}
                           nextLabel={t.home.next}
-                          autoPlayMs={4500}
+                          marquee
                           edgeToEdge
                         >
                           <div className={LANDING_CARD_FAMILY.collectionLead}>
@@ -564,7 +562,7 @@ async function LandingContent() {
                   <Carousel
                     prevLabel={t.home.prev}
                     nextLabel={t.home.next}
-                    autoPlayMs={4500}
+                    marquee
                     edgeToEdge
                   >
                     {featured.slice(0, 6).map((company, index) => {
