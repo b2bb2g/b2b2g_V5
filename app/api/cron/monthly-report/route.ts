@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
     )
     .join("");
   const topHtml = topLines.length
-    ? `<p style="margin:18px 0 6px;font-weight:700">이달의 찜 상위 상품</p><ol style="margin:0;padding-left:20px;color:#374151">${topLines.map((line) => `<li style="margin:3px 0">${line}</li>`).join("")}</ol>`
+    ? `<p style="margin:18px 0 6px;font-weight:700">이달의 저장 상위 상품</p><ol style="margin:0;padding-left:20px;color:#374151">${topLines.map((line) => `<li style="margin:3px 0">${line}</li>`).join("")}</ol>`
     : "";
   const html = `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="margin:0 0 4px">B2BB2G 월간 운영 리포트</h2><p style="margin:0 0 16px;color:#5b6472">${monthKey}</p><table style="border-collapse:collapse;width:100%">${rows}</table>${topHtml}<p style="margin:20px 0 0"><a href="https://b2bb2g.com/admin" style="color:#1b64da;font-weight:700">관리자 콘솔 열기</a></p></div>`;
 

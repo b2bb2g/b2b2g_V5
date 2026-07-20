@@ -135,12 +135,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "a_ko": [
           "1) 로그인한 뒤 헤더 오른쪽 위의 동그란 프로필 사진을 누릅니다.",
           "2) '내 메뉴'가 열립니다.",
-          "안에는 대시보드, 활동(내 게시글·문의 내역·저장한 상품), 만들기(상품 등록·요청 작성), 커뮤니티(피드), 계정(프로필·보안)이 있습니다."
+          "안에는 대시보드, 활동(내 게시글·문의 내역·저장한 상품), 만들기(상품 등록·구매요청 등록), 커뮤니티(피드), 계정(프로필·보안)이 있습니다."
         ],
         "a_en": [
           "1) After logging in, press the round profile photo at the top right of the header.",
           "2) 'My Menu' opens.",
-          "Inside are Dashboard, Activity (My posts, Inquiries, Saved products), Create (Post a product, Write a request), Community (Feed), and Account (Profile, Security)."
+          "Inside are Dashboard, Activity (My posts, Inquiries, Saved products), Create (Add a product, Post a sourcing request), Community (Feed), and Account (Profile, Security)."
         ]
       },
       {
@@ -156,7 +156,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
           "The dashboard is the screen where you manage your activity in one place (address /dashboard).",
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
           "2) Press 'Dashboard'.",
-          "Inside the dashboard, a vertical menu list is on the left: Dashboard, My posts, Post a product, Apply for a badge, Inquiries, Notifications, Profile, Security, Mini homepage, Coordinator."
+          "Inside the dashboard, a vertical menu list is on the left: Dashboard, My posts, Add a product, Apply for a badge, Inquiries, Notifications, Profile, Security, Mini homepage, Coordinator."
         ]
       },
       {
@@ -219,7 +219,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Create > Post a product'. (Or press 'Post a product' in the dashboard's left menu.)",
+          "2) Press 'Create > Add a product'. (Or press 'Add a product' in the dashboard's left menu.)",
           "3) A screen to choose a board appears first. Choose the board that fits your product.",
           "4) Fill in the title, content, photos, and specs (the detailed specifications of the product).",
           "5) Press 'Register'.",
@@ -318,14 +318,14 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "How do I post a request?",
         "a_ko": [
           "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
-          "2) '만들기 > 요청 작성'을 누릅니다. (또는 헤더 가운데의 'RFQ & ITB' 게시판에서 작성합니다.)",
+          "2) '만들기 > 구매요청 등록'을 누릅니다. (또는 헤더 가운데의 'RFQ & ITB' 게시판에서 작성합니다.)",
           "3) 제목과 필요한 내용을 적습니다.",
           "4) 마감 기한을 정하거나, 기한 없이 열어 둡니다.",
           "5) 등록해 요청을 올립니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Create > Write a request'. (Or write it from the 'RFQ & ITB' board in the middle of the header.)",
+          "2) Press 'Create > Post a sourcing request'. (Or write it from the 'RFQ & ITB' board in the middle of the header.)",
           "3) Enter the title and the details of what you need.",
           "4) Set a deadline, or leave it open with no deadline.",
           "5) Register to post the request."
@@ -839,7 +839,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "마음에 든 상품을 저장하고 비교할 수 있습니까?",
         "q_en": "Can I save products I like and compare them?",
         "a_ko": [
-          "1) 상품에서 찜(하트) 아이콘을 누릅니다.",
+          "1) 상품에서 저장(하트) 아이콘을 누릅니다.",
           "2) 저장한 상품은 '내 메뉴 > 활동 > 저장한 상품'(주소 /dashboard/bookmarks)에 담깁니다.",
           "3) 여기에서 여러 상품을 나란히 비교합니다."
         ],
