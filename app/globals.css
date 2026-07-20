@@ -310,18 +310,22 @@ main > :where(.full-bleed) {
    slides down while scrolling down, and return on scroll-up / pause / edges
    (driven by AutoHideChrome toggling data-chrome-hidden on <html>). */
 .site-header {
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 .composer-actionbar {
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 :root[data-chrome-hidden="true"] .site-header {
-  transform: translateY(-100%);
+  transform: translate3d(0, -100%, 0);
 }
 :root[data-chrome-hidden="true"] .composer-actionbar {
-  transform: translateY(calc(100% + 1.5rem));
+  transform: translate3d(0, calc(100% + 1.5rem), 0);
 }
 @media (prefers-reduced-motion: reduce) {
   .site-header,

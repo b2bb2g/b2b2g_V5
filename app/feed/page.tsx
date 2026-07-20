@@ -8,7 +8,7 @@ import {
 } from "@/lib/data/feed";
 import { FeedComposer } from "@/components/feed/FeedComposer";
 import { FeedStream } from "@/components/feed/FeedStream";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getFeedCardLabels } from "@/lib/i18n/feed";
 import { FeedNetworkSidebar } from "@/components/feed/FeedNetworkSidebar";
@@ -58,7 +58,10 @@ export default async function FeedPage(props: {
   return (
     <div className="wide grid min-w-0 items-start justify-center gap-6 lg:grid-cols-[minmax(0,46rem)_20rem]">
       <div className="min-w-0 space-y-5">
-        <PageHeader title={t.feed.title} subtitle={t.feed.subtitle} />
+        <WorkspacePageHeader
+          title={t.feed.title}
+          description={t.feed.subtitle}
+        />
         {session.userId ? (
           <FeedComposer
             userId={session.userId}
@@ -85,7 +88,10 @@ export default async function FeedPage(props: {
           </div>
         )}
         {session.userId && (
-          <nav className="flex gap-2" aria-label={t.feed.title}>
+          <nav
+            className="flex w-fit gap-1 rounded-full bg-surface-sub p-1"
+            aria-label={t.feed.title}
+          >
             {[
               { href: "/feed", label: t.feed.tabAll, active: !followingOnly },
               {
@@ -98,10 +104,10 @@ export default async function FeedPage(props: {
                 key={item.href}
                 href={item.href}
                 aria-current={item.active ? "page" : undefined}
-                className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-extrabold transition-colors ${
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
                   item.active
-                    ? "bg-ink text-white"
-                    : "bg-white text-ink-soft shadow-sm hover:text-primary"
+                    ? "bg-[#101923] text-white shadow-sm"
+                    : "text-ink-soft hover:text-primary"
                 }`}
               >
                 {item.label}

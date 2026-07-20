@@ -3,7 +3,7 @@ import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { getFeedPost } from "@/lib/data/feed";
 import { FeedComposer } from "@/components/feed/FeedComposer";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { WorkspacePageHeader } from "@/components/dashboard/WorkspacePageHeader";
 
 export default async function EditFeedPage({
   params,
@@ -20,7 +20,7 @@ export default async function EditFeedPage({
   if (!item || item.authorId !== session.userId) notFound();
   return (
     <div className="mx-auto w-full max-w-3xl space-y-4">
-      <PageHeader title={t.feed.editTitle} subtitle={t.feed.editHint} />
+      <WorkspacePageHeader title={t.feed.editTitle} description={t.feed.editHint} />
       <FeedComposer
         userId={session.userId}
         uid={session.profile?.uid ?? null}

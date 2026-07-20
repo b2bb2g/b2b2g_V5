@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { confirmMfaReset, requestMfaReset } from "@/app/actions/mfa-reset";
+import { CodeField } from "@/components/security/CodeField";
 
 type Factor = { id: string; status: string; friendly_name?: string };
 type Enrollment = { id: string; totp: { qr_code: string; secret: string } };
@@ -35,6 +36,8 @@ type Labels = {
   verify: string;
   remove: string;
   error: string;
+  showPassword: string;
+  hidePassword: string;
   lostDevice: string;
   resetHint: string;
   sendResetCode: string;
@@ -224,26 +227,20 @@ export function MfaPanel({
             void verify();
           }}
         >
-          <label className="min-w-0 flex-1">
-            <span className="sr-only">{labels.code}</span>
-            <input
-              autoFocus={required}
+          <div className="min-w-0 flex-1">
+            <CodeField
               value={code}
-              onChange={(event) => {
-                const next = event.target.value.replace(/\D/g, "").slice(0, 6);
-                setCode(next);
-                if (next.length === 6 && !busy) void verify(next);
+              onChange={setCode}
+              onComplete={(next) => {
+                if (!busy) void verify(next);
               }}
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              placeholder={required ? "000000" : labels.code}
-              className={
-                required
-                  ? "field text-center text-2xl font-extrabold tracking-[.45em]"
-                  : "field tracking-[.25em]"
-              }
+              autoFocus={required}
+              ariaLabel={labels.code}
+              showLabel={labels.showPassword}
+              hideLabel={labels.hidePassword}
+              size={required ? "lg" : "md"}
             />
-          </label>
+          </div>
           <button type="submit" disabled={busy || code.length !== 6} aria-busy={busy} className="btn-primary btn-md disabled:opacity-60">
             {busy ? (
               <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent align-middle" aria-hidden="true" />
@@ -281,21 +278,16 @@ export function MfaPanel({
                 void finishReset();
               }}
             >
-              <label className="min-w-0 flex-1">
-                <span className="sr-only">{labels.code}</span>
-                <input
+              <div className="min-w-0 flex-1">
+                <CodeField
                   value={resetCode}
-                  onChange={(event) =>
-                    setResetCode(
-                      event.target.value.replace(/\D/g, "").slice(0, 6),
-                    )
-                  }
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  placeholder="000000"
-                  className="field text-center text-lg font-extrabold tracking-[.35em]"
+                  onChange={setResetCode}
+                  ariaLabel={labels.code}
+                  showLabel={labels.showPassword}
+                  hideLabel={labels.hidePassword}
+                  size="md"
                 />
-              </label>
+              </div>
               <button
                 type="submit"
                 disabled={busy || resetCode.length !== 6}

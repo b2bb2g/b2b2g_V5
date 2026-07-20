@@ -3,32 +3,53 @@
 import { useEffect } from "react";
 
 // Scroll-direction chrome. Scrolling down slides the top header up and any
-// bottom action bar down (more room for content / writing); scrolling up,
-// pausing, or reaching the top/bottom brings them back. Pure attribute
-// toggle on <html>; the transforms and transitions live in CSS so this works
-// for server-rendered chrome too, PC and mobile alike.
-const DELTA = 6;
-const TOP_ZONE = 80;
-const BOTTOM_ZONE = 140;
-const IDLE_REVEAL_MS = 900;
+// bottom action bar down; scrolling back up, or reaching the top/bottom,
+// brings them back. Uses accumulated-distance hysteresis so it commits to a
+// direction instead of flipping on every few pixels (that jitter is what
+// made it feel stiff on phones, especially with momentum scrolling). Pure
+// attribute toggle on <html>; transforms/transitions live in CSS.
+const HIDE_AFTER = 52; // cumulative downward px before hiding
+const SHOW_AFTER = 36; // cumulative upward px before showing
+const TOP_ZONE = 64;
+const BOTTOM_ZONE = 120;
 
 export function AutoHideChrome() {
   useEffect(() => {
     const root = document.documentElement;
     let lastY = Math.max(0, window.scrollY);
+    let acc = 0; // signed distance since the last direction change
+    let hidden = false;
     let ticking = false;
-    let idle: ReturnType<typeof setTimeout> | undefined;
+
+    const setHidden = (next: boolean) => {
+      if (next === hidden) return;
+      hidden = next;
+      root.dataset.chromeHidden = next ? "true" : "false";
+    };
 
     const apply = () => {
       ticking = false;
       const y = Math.max(0, window.scrollY);
       const delta = y - lastY;
-      if (Math.abs(delta) < DELTA) return;
+      lastY = y;
+      if (delta === 0) return;
+
+      // Always show at the very top and near the bottom (so the submit bar
+      // and top nav are reachable without fighting the gesture).
       const nearBottom =
         window.innerHeight + y >= root.scrollHeight - BOTTOM_ZONE;
-      const hidden = y > TOP_ZONE && !nearBottom && delta > 0;
-      root.dataset.chromeHidden = hidden ? "true" : "false";
-      lastY = y;
+      if (y <= TOP_ZONE || nearBottom) {
+        acc = 0;
+        setHidden(false);
+        return;
+      }
+
+      // Reset the accumulator whenever the scroll direction flips.
+      if (delta > 0 !== acc > 0) acc = 0;
+      acc += delta;
+
+      if (acc > HIDE_AFTER) setHidden(true);
+      else if (acc < -SHOW_AFTER) setHidden(false);
     };
 
     const onScroll = () => {
@@ -36,17 +57,11 @@ export function AutoHideChrome() {
         ticking = true;
         window.requestAnimationFrame(apply);
       }
-      // Always come back when the user stops scrolling.
-      clearTimeout(idle);
-      idle = setTimeout(() => {
-        root.dataset.chromeHidden = "false";
-      }, IDLE_REVEAL_MS);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
-      clearTimeout(idle);
       delete root.dataset.chromeHidden;
     };
   }, []);

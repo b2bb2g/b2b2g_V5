@@ -124,6 +124,8 @@ export default async function RootLayout({
             forgotPin: t.security.lockForgotPin,
             forgotPinHint: t.security.lockForgotPinHint,
             resetConfirm: t.security.lockResetConfirm,
+            showPin: t.auth.showPassword,
+            hidePin: t.auth.hidePassword,
           }}
         />
         {session.userId ? (

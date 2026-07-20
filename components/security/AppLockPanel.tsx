@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CodeField } from "@/components/security/CodeField";
 import {
   biometricAvailable,
   enrollBiometric,
@@ -28,6 +29,8 @@ type Labels = {
   disable: string;
   verifyToDisable: string;
   error: string;
+  showPin: string;
+  hidePin: string;
 };
 
 // Settings card for the device app lock. Enrollment is two steps at most:
@@ -170,35 +173,35 @@ export function AppLockPanel({ userLabel, labels }: { userLabel: string; labels:
               <span className="text-xs font-bold text-ink-soft">
                 {labels.pinLabel}
               </span>
-              <input
-                value={pin}
-                onChange={(event) =>
-                  setPin(event.target.value.replace(/\D/g, "").slice(0, 6))
-                }
-                inputMode="numeric"
-                type="password"
-                autoComplete="off"
-                placeholder="000000"
-                className="field mt-1 text-center text-lg font-extrabold tracking-[.4em]"
-              />
+              <div className="mt-1">
+                <CodeField
+                  value={pin}
+                  onChange={setPin}
+                  secret
+                  placeholder="000000"
+                  ariaLabel={labels.pinLabel}
+                  showLabel={labels.showPin}
+                  hideLabel={labels.hidePin}
+                  size="md"
+                />
+              </div>
             </label>
             <label className="block">
               <span className="text-xs font-bold text-ink-soft">
                 {labels.pinConfirmLabel}
               </span>
-              <input
-                value={pinConfirm}
-                onChange={(event) =>
-                  setPinConfirm(
-                    event.target.value.replace(/\D/g, "").slice(0, 6),
-                  )
-                }
-                inputMode="numeric"
-                type="password"
-                autoComplete="off"
-                placeholder="000000"
-                className="field mt-1 text-center text-lg font-extrabold tracking-[.4em]"
-              />
+              <div className="mt-1">
+                <CodeField
+                  value={pinConfirm}
+                  onChange={setPinConfirm}
+                  secret
+                  placeholder="000000"
+                  ariaLabel={labels.pinConfirmLabel}
+                  showLabel={labels.showPin}
+                  hideLabel={labels.hidePin}
+                  size="md"
+                />
+              </div>
             </label>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">

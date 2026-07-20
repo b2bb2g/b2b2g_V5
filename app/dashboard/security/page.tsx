@@ -79,6 +79,8 @@ export default async function SecurityPage(props: {
         verify: t.security.mfaVerify,
         remove: t.security.mfaRemove,
         error: t.security.mfaError,
+        showPassword: t.auth.showPassword,
+        hidePassword: t.auth.hidePassword,
         lostDevice: t.security.mfaLostDevice,
         resetHint: t.security.mfaResetHint,
         sendResetCode: t.security.mfaSendResetCode,
@@ -150,6 +152,8 @@ export default async function SecurityPage(props: {
           disable: t.security.lockDisable,
           verifyToDisable: t.security.lockVerifyToDisable,
           error: t.security.mfaError,
+          showPin: t.auth.showPassword,
+          hidePin: t.auth.hidePassword,
         }}
       />
 

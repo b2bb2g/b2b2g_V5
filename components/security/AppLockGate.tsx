@@ -14,6 +14,7 @@ import {
   type AppLockConfig,
 } from "@/lib/app-lock";
 import { signOut } from "@/app/actions/auth";
+import { CodeField } from "@/components/security/CodeField";
 
 type Labels = {
   title: string;
@@ -29,6 +30,8 @@ type Labels = {
   forgotPin: string;
   forgotPinHint: string;
   resetConfirm: string;
+  showPin: string;
+  hidePin: string;
 };
 
 const MAX_PIN_ATTEMPTS = 5;
@@ -200,20 +203,21 @@ export function AppLockGate({ labels }: { labels: Labels }) {
             <span className="text-xs font-bold text-ink-soft">
               {labels.pinSectionLabel}
             </span>
-            <input
-              autoFocus={!hasBiometric}
-              value={pin}
-              onChange={(event) => {
-                const next = event.target.value.replace(/\D/g, "").slice(0, 6);
-                setPin(next);
-                setError(null);
-              }}
-              inputMode="numeric"
-              type="password"
-              autoComplete="off"
-              placeholder={labels.pinPlaceholder}
-              className="field mt-1.5 text-center text-2xl font-extrabold tracking-[.4em]"
-            />
+            <div className="mt-1.5">
+              <CodeField
+                value={pin}
+                onChange={(next) => {
+                  setPin(next);
+                  setError(null);
+                }}
+                secret
+                autoFocus={!hasBiometric}
+                placeholder={labels.pinPlaceholder}
+                ariaLabel={labels.pinSectionLabel}
+                showLabel={labels.showPin}
+                hideLabel={labels.hidePin}
+              />
+            </div>
           </label>
           <button
             type="submit"
