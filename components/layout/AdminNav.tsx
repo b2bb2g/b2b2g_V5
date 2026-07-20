@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 export type AdminNavGroup = {
   label: string;
@@ -20,21 +21,35 @@ export function AdminNav({
   badgeLabel: string;
 }) {
   const pathname = usePathname();
+  const chipRow = useRef<HTMLElement>(null);
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
   const describe = (label: string, badge?: number) =>
     badge ? `${label}, ${badge} ${badgeLabel}` : label;
 
+  // With 15+ sections the active chip easily sits off-screen; keep it in
+  // view whenever the route changes.
+  useEffect(() => {
+    chipRow.current
+      ?.querySelector<HTMLElement>('[data-active="true"]')
+      ?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [pathname]);
+
   return (
     <>
-      {/* Mobile: chips */}
-      <nav className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto border-y border-line bg-surface px-4 py-2 lg:hidden">
+      {/* Mobile: chips, pinned under the console header so section jumps
+          never require scrolling back to the top of a long queue. */}
+      <nav
+        ref={chipRow}
+        className="scrollbar-none sticky top-[4.6rem] z-20 -mx-4 flex gap-1 overflow-x-auto border-y border-line bg-surface px-4 py-2 lg:hidden"
+      >
         {groups
           .flatMap((group) => group.items)
           .map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              data-active={isActive(item.href) || undefined}
               aria-label={describe(item.label, item.badge)}
               className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 isActive(item.href)
