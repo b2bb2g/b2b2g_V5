@@ -78,6 +78,13 @@ export default async function SecurityPage(props: {
         verify: t.security.mfaVerify,
         remove: t.security.mfaRemove,
         error: t.security.mfaError,
+        lostDevice: t.security.mfaLostDevice,
+        resetHint: t.security.mfaResetHint,
+        sendResetCode: t.security.mfaSendResetCode,
+        resetCodeSent: t.security.mfaResetCodeSent,
+        resetThrottled: t.security.mfaResetThrottled,
+        confirmReset: t.security.mfaConfirmReset,
+        resetDone: t.security.mfaResetDone,
       }}
     />
   );

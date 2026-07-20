@@ -258,6 +258,10 @@ export default async function InquiryDetailPage(props: {
               removeImage: t.common.remove,
               uploadError: t.feed.uploadError,
               hint: t.inquiry.stepHint,
+              templates: t.inquiry.templates,
+              saveTemplate: t.inquiry.saveTemplate,
+              noTemplates: t.inquiry.noTemplates,
+              removeTemplate: t.common.delete,
             }}
           />
         </section>

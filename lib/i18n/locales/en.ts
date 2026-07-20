@@ -87,6 +87,17 @@ const en = {
     mfaVerify: "Verify",
     mfaRemove: "Remove authenticator",
     mfaError: "The authenticator request could not be completed. Check the code and try again.",
+    mfaLostDevice: "Can't use your authenticator app?",
+    mfaResetHint:
+      "We'll email a 6-digit code to your account address. Entering it removes the old authenticator so you can enroll a new device.",
+    mfaSendResetCode: "Email me a reset code",
+    mfaResetCodeSent:
+      "A reset code was sent to your email. Enter it below within 10 minutes.",
+    mfaResetThrottled:
+      "A code was sent recently. Check your inbox or try again in a few minutes.",
+    mfaConfirmReset: "Reset authenticator",
+    mfaResetDone:
+      "Your authenticator was reset. Set up a new device below.",
   },
   inapp: {
     title: "Open in your browser",
@@ -506,6 +517,9 @@ const en = {
     writeReply: "Write a reply",
     read: "Read",
     replyPlaceholder: "Write your reply",
+    templates: "Saved replies",
+    saveTemplate: "Save current text",
+    noTemplates: "Write a reply and save it here for one-tap reuse.",
     adminFeedback: "Team note",
     steps: {
       sent: "Sent",

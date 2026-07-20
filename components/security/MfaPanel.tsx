@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { confirmMfaReset, requestMfaReset } from "@/app/actions/mfa-reset";
 
 type Factor = { id: string; status: string; friendly_name?: string };
 type Enrollment = { id: string; totp: { qr_code: string; secret: string } };
@@ -34,6 +35,13 @@ type Labels = {
   verify: string;
   remove: string;
   error: string;
+  lostDevice: string;
+  resetHint: string;
+  sendResetCode: string;
+  resetCodeSent: string;
+  resetThrottled: string;
+  confirmReset: string;
+  resetDone: string;
 };
 
 export function MfaPanel({
@@ -57,6 +65,42 @@ export function MfaPanel({
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // Lost-authenticator recovery: idle -> email code sent -> factor removed.
+  const [reset, setReset] = useState<"idle" | "sent" | "done">("idle");
+  const [resetCode, setResetCode] = useState("");
+  const [resetNotice, setResetNotice] = useState("");
+
+  async function startReset() {
+    setBusy(true);
+    setResetNotice("");
+    const result = await requestMfaReset();
+    if (result.ok) {
+      setReset("sent");
+      setResetNotice(labels.resetCodeSent);
+    } else {
+      setResetNotice(
+        result.reason === "throttled" ? labels.resetThrottled : labels.error,
+      );
+    }
+    setBusy(false);
+  }
+
+  async function finishReset() {
+    if (!/^\d{6}$/.test(resetCode)) return;
+    setBusy(true);
+    const result = await confirmMfaReset(resetCode);
+    if (result.ok) {
+      setReset("done");
+      setResetNotice(labels.resetDone);
+      setResetCode("");
+      setFactor(null);
+      setEnrollment(null);
+      await refresh();
+    } else {
+      setResetNotice(labels.error);
+    }
+    setBusy(false);
+  }
 
   async function refresh() {
     const supabase = createClient();
@@ -210,6 +254,68 @@ export function MfaPanel({
         </form>
       )}
       {error && <p role="alert" className="mt-3 text-xs font-bold text-negative">{error}</p>}
+
+      {/* Lost-device recovery: available whenever a verified factor blocks
+          the member (challenge) or they simply cannot open their app. */}
+      {factor && reset !== "done" && (
+        <div className="mt-5 border-t border-line pt-4">
+          {reset === "idle" ? (
+            <>
+              <button
+                type="button"
+                onClick={startReset}
+                disabled={busy}
+                className="text-sm font-bold text-primary hover:text-primary-strong disabled:opacity-60"
+              >
+                {labels.lostDevice}
+              </button>
+              <p className="mt-1 text-xs leading-5 text-ink-faint">
+                {labels.resetHint}
+              </p>
+            </>
+          ) : (
+            <form
+              className="flex flex-col gap-2 sm:flex-row"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void finishReset();
+              }}
+            >
+              <label className="min-w-0 flex-1">
+                <span className="sr-only">{labels.code}</span>
+                <input
+                  value={resetCode}
+                  onChange={(event) =>
+                    setResetCode(
+                      event.target.value.replace(/\D/g, "").slice(0, 6),
+                    )
+                  }
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="000000"
+                  className="field text-center text-lg font-extrabold tracking-[.35em]"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={busy || resetCode.length !== 6}
+                aria-busy={busy}
+                className="btn-secondary btn-md disabled:opacity-60"
+              >
+                {labels.confirmReset}
+              </button>
+            </form>
+          )}
+        </div>
+      )}
+      {resetNotice && (
+        <p
+          role="status"
+          className={`mt-3 text-xs font-bold ${reset === "done" ? "text-positive" : "text-ink-soft"}`}
+        >
+          {resetNotice}
+        </p>
+      )}
     </section>
   );
 }

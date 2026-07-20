@@ -91,6 +91,14 @@ const ko: Dict = {
     mfaVerify: "인증하기",
     mfaRemove: "인증 앱 해제",
     mfaError: "인증에 실패했습니다. 코드를 확인하고 다시 시도해 주세요.",
+    mfaLostDevice: "인증 앱을 사용할 수 없나요?",
+    mfaResetHint:
+      "계정 이메일로 6자리 코드를 보내드립니다. 코드를 입력하면 기존 인증기가 해제되어 새 기기를 등록할 수 있습니다.",
+    mfaSendResetCode: "재설정 코드 이메일 받기",
+    mfaResetCodeSent: "재설정 코드를 이메일로 보냈습니다. 10분 안에 아래에 입력해 주세요.",
+    mfaResetThrottled: "코드를 최근에 보냈습니다. 받은편지함을 확인하거나 잠시 후 다시 시도해 주세요.",
+    mfaConfirmReset: "인증기 재설정",
+    mfaResetDone: "인증기가 재설정되었습니다. 아래에서 새 기기를 등록해 주세요.",
   },
   inapp: {
     title: "기본 브라우저에서 열어 주세요",
@@ -500,6 +508,9 @@ const ko: Dict = {
     writeReply: "답변 작성",
     read: "읽음",
     replyPlaceholder: "답장을 입력하세요",
+    templates: "자주 쓰는 답변",
+    saveTemplate: "현재 내용 저장",
+    noTemplates: "답장을 작성한 뒤 저장해 두면 한 번에 불러올 수 있습니다.",
     adminFeedback: "운영팀 메모",
     steps: {
       sent: "발송됨",

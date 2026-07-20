@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { replyInquiry } from "@/app/actions/inquiries";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/imageCompress";
@@ -9,6 +9,24 @@ import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { randomId } from "@/lib/random-id";
+
+// Frequently-used replies, kept on the device (traders repeat the same
+// quotes/greetings across threads).
+const TEMPLATE_KEY = "b2bb2g:inquiry-templates";
+const TEMPLATE_MAX = 5;
+
+function readTemplates(): string[] {
+  try {
+    const parsed = JSON.parse(
+      window.localStorage.getItem(TEMPLATE_KEY) ?? "[]",
+    ) as string[];
+    return Array.isArray(parsed)
+      ? parsed.filter((item) => typeof item === "string").slice(0, TEMPLATE_MAX)
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 // Reply composer with optional image attachments (max 2). Sending stays an
 // explicit step and the message still passes review before delivery.
@@ -26,12 +44,56 @@ export function InquiryComposer({
     removeImage: string;
     uploadError: string;
     hint: string;
+    templates: string;
+    saveTemplate: string;
+    noTemplates: string;
+    removeTemplate: string;
   };
 }) {
   const [mediaPaths, setMediaPaths] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [templates, setTemplates] = useState<string[]>([]);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const textarea = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setTemplates(readTemplates()), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const persistTemplates = (next: string[]) => {
+    setTemplates(next);
+    try {
+      window.localStorage.setItem(TEMPLATE_KEY, JSON.stringify(next));
+    } catch {
+      // Device storage is best-effort only.
+    }
+  };
+
+  const saveCurrentAsTemplate = () => {
+    const value = textarea.current?.value.trim();
+    if (!value) return;
+    persistTemplates(
+      [value, ...templates.filter((item) => item !== value)].slice(
+        0,
+        TEMPLATE_MAX,
+      ),
+    );
+  };
+
+  const insertTemplate = (value: string) => {
+    const element = textarea.current;
+    if (!element) return;
+    element.value = element.value.trim()
+      ? `${element.value.trimEnd()}\n${value}`
+      : value;
+    setTemplatesOpen(false);
+    element.focus();
+    const end = element.value.length;
+    element.setSelectionRange(end, end);
+  };
 
   async function upload(raw: File) {
     setUploading(true);
@@ -56,6 +118,7 @@ export function InquiryComposer({
         <input type="hidden" name="media" value={JSON.stringify(mediaPaths)} />
         <div className="min-w-0 flex-1 rounded-2xl border border-line bg-surface-sub transition focus-within:border-primary/50">
           <textarea
+            ref={textarea}
             name="body"
             rows={2}
             required
@@ -117,7 +180,68 @@ export function InquiryComposer({
                 </svg>
               )}
             </button>
+            <button
+              type="button"
+              onClick={() => setTemplatesOpen((value) => !value)}
+              aria-expanded={templatesOpen}
+              aria-label={labels.templates}
+              title={labels.templates}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-line/60 hover:text-ink-soft"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h9" />
+              </svg>
+            </button>
           </div>
+          {templatesOpen && (
+            <div className="border-t border-line/70 px-3 py-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-extrabold text-ink-soft">
+                  {labels.templates}
+                </p>
+                <button
+                  type="button"
+                  onClick={saveCurrentAsTemplate}
+                  className="rounded-full px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary-soft"
+                >
+                  ＋ {labels.saveTemplate}
+                </button>
+              </div>
+              {templates.length === 0 ? (
+                <p className="mt-1.5 text-xs text-ink-faint">
+                  {labels.noTemplates}
+                </p>
+              ) : (
+                <ul className="mt-1.5 space-y-1">
+                  {templates.map((template) => (
+                    <li key={template} className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => insertTemplate(template)}
+                        className="min-w-0 flex-1 truncate rounded-lg px-2 py-1.5 text-left text-xs font-semibold text-ink-soft transition-colors hover:bg-white hover:text-ink"
+                      >
+                        {template}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          persistTemplates(
+                            templates.filter((item) => item !== template),
+                          )
+                        }
+                        aria-label={labels.removeTemplate}
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-negative-soft hover:text-negative"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                          <path d="m6 6 12 12M18 6 6 18" />
+                        </svg>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
         <PendingButton
           pendingLabel=""
