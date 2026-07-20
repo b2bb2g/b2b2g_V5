@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import {
   createReferralInvitation,
   revokeReferralInvitation,
@@ -22,6 +22,10 @@ type Labels = {
   eyebrow: string;
   title: string;
   description: string;
+  infoLabel: string;
+  infoOneUse: string;
+  infoExpires: string;
+  infoCopyOnce: string;
   emailLabel: string;
   emailOptional: string;
   create: string;
@@ -52,11 +56,73 @@ export function InvitationManager({
     {},
   );
   const [copied, setCopied] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const infoRef = useRef<HTMLDivElement>(null);
+
+  // Close the info popover on Escape or a click outside it.
+  useEffect(() => {
+    if (!infoOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setInfoOpen(false);
+    };
+    const onClick = (event: MouseEvent) => {
+      if (infoRef.current && !infoRef.current.contains(event.target as Node)) {
+        setInfoOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onClick);
+    };
+  }, [infoOpen]);
 
   return (
     <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-6">
       <p className="text-xs font-bold uppercase tracking-[.15em] text-primary">{labels.eyebrow}</p>
-      <h2 className="mt-2 text-base font-extrabold">{labels.title}</h2>
+      <div className="mt-2 flex items-center gap-2">
+        <h2 className="text-base font-extrabold">{labels.title}</h2>
+        <div ref={infoRef} className="relative flex">
+          <button
+            type="button"
+            onClick={() => setInfoOpen((v) => !v)}
+            aria-expanded={infoOpen}
+            aria-label={labels.infoLabel}
+            className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
+              infoOpen
+                ? "text-primary"
+                : "text-ink-faint hover:text-primary"
+            }`}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </button>
+          {infoOpen && (
+            <div
+              role="dialog"
+              aria-label={labels.infoLabel}
+              className="animate-fade-up absolute left-1/2 top-8 z-30 w-72 -translate-x-1/2 rounded-2xl border border-line bg-white p-4 text-left shadow-(--shadow-float)"
+              style={{ animationDuration: "0.18s" }}
+            >
+              <p className="text-xs font-extrabold text-ink">{labels.infoLabel}</p>
+              <ul className="mt-2.5 space-y-2 text-[12px] leading-5 text-ink-soft">
+                {[labels.infoOneUse, labels.infoExpires, labels.infoCopyOnce].map(
+                  (line) => (
+                    <li key={line} className="flex gap-2">
+                      <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-primary" />
+                      <span>{line}</span>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
       <p className="mt-1 text-xs leading-5 text-ink-faint">{labels.description}</p>
 
       <form action={action} className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end">
