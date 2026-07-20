@@ -84,6 +84,7 @@ export function DashboardActionCard({
   return (
     <Link
       href={href}
+      data-nav-overlay=""
       className={`group relative flex min-h-32 flex-col justify-between overflow-hidden rounded-[1.35rem] p-5 transition duration-300 hover:-translate-y-1 ${styles[tone]}`}
     >
       <LinkPendingOverlay />
@@ -118,6 +119,7 @@ export function DashboardMetricCard({
   return (
     <Link
       href={href}
+      data-nav-overlay=""
       className="group relative overflow-hidden rounded-[1.25rem] border border-line bg-white p-3.5 shadow-[0_8px_24px_rgba(25,31,40,.045)] transition hover:border-primary/40 hover:shadow-(--shadow-card)"
     >
       <LinkPendingOverlay />

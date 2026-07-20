@@ -17,6 +17,7 @@ import { InAppGuard } from "@/components/layout/InAppGuard";
 import { PullToRefresh } from "@/components/layout/PullToRefresh";
 import { Toaster } from "@/components/ui/Toaster";
 import { NavigationFeedback } from "@/components/layout/NavigationFeedback";
+import { NavPending } from "@/components/layout/NavPending";
 import { RouteChrome } from "@/components/layout/RouteChrome";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
@@ -146,6 +147,9 @@ export default async function RootLayout({
         </a>
         <Suspense>
           <NavigationFeedback />
+        </Suspense>
+        <Suspense>
+          <NavPending />
         </Suspense>
         <PullToRefresh />
         <RouteChrome hideOnAdmin>
