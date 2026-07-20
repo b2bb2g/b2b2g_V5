@@ -131,6 +131,7 @@ export type InquiryMessage = {
   inquiry_id: string;
   sender_id: string;
   body: string;
+  media_paths?: string[] | null;
   review_status: MessageReviewStatus;
   reject_reason: string | null;
   admin_feedback: string | null;

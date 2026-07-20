@@ -50,6 +50,51 @@ function renderNotification(t: Dictionary, n: AppNotification): string {
   return subject ? `${label} · ${subject}` : label;
 }
 
+// Same event on the same target collapses into one row ("liked your post
+// +2 more"). Only repeatable social/message types group; approvals and
+// alerts stay individual.
+const GROUPABLE = new Set([
+  "feed_liked",
+  "feed_commented",
+  "feed_comment_liked",
+  "feed_comment_replied",
+  "message_delivered",
+]);
+
+type NotificationGroup = {
+  head: AppNotification;
+  ids: string[];
+  count: number;
+  unread: boolean;
+};
+
+function groupNotifications(rows: AppNotification[]): NotificationGroup[] {
+  const groups: NotificationGroup[] = [];
+  const index = new Map<string, NotificationGroup>();
+  for (const n of rows) {
+    const payload = n.payload as { feed_post_id?: string; inquiry_id?: string };
+    const target = payload.feed_post_id ?? payload.inquiry_id;
+    const key =
+      GROUPABLE.has(n.type) && target ? `${n.type}:${target}` : `solo:${n.id}`;
+    const existing = index.get(key);
+    if (existing) {
+      existing.ids.push(n.id);
+      existing.count += 1;
+      existing.unread ||= n.state === NOTIFICATION_STATE.UNREAD;
+    } else {
+      const group: NotificationGroup = {
+        head: n,
+        ids: [n.id],
+        count: 1,
+        unread: n.state === NOTIFICATION_STATE.UNREAD,
+      };
+      index.set(key, group);
+      groups.push(group);
+    }
+  }
+  return groups;
+}
+
 function notificationHref(n: AppNotification): string | null {
   const payload = n.payload as {
     inquiry_id?: string;
@@ -190,9 +235,14 @@ export default async function NotificationsPage(props: {
       ) : (
         <div className="overflow-hidden rounded-[1.5rem] border border-line/70 bg-white shadow-(--shadow-card)">
           <div className="divide-y divide-line">
-            {notifications.map((n) => {
-              const unread = n.state === NOTIFICATION_STATE.UNREAD;
+            {groupNotifications(notifications).map((group) => {
+              const n = group.head;
+              const unread = group.unread;
               const href = notificationHref(n);
+              const groupedSuffix =
+                group.count > 1
+                  ? ` ${t.notifications.groupedMore.replace("{n}", String(group.count - 1))}`
+                  : "";
               const body = (
                 <>
                   <span
@@ -204,6 +254,11 @@ export default async function NotificationsPage(props: {
                       className={`block truncate text-sm ${unread ? "font-bold text-ink" : "font-semibold text-ink-soft"}`}
                     >
                       {renderNotification(t, n)}
+                      {groupedSuffix && (
+                        <span className="font-bold text-primary">
+                          {groupedSuffix}
+                        </span>
+                      )}
                     </span>
                     <span className="mt-0.5 block text-xs text-ink-faint">
                       {formatDateTime(n.created_at, locale)}
@@ -233,6 +288,13 @@ export default async function NotificationsPage(props: {
                     className="flex shrink-0 flex-wrap justify-end gap-1 sm:flex-nowrap"
                   >
                     <input type="hidden" name="id" value={n.id} />
+                    {group.count > 1 && (
+                      <input
+                        type="hidden"
+                        name="ids"
+                        value={JSON.stringify(group.ids)}
+                      />
+                    )}
                     {view === "inbox" && (
                       <>
                         {unread && (

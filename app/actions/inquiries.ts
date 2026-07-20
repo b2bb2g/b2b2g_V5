@@ -104,10 +104,27 @@ export async function replyInquiry(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Up to two own-folder storage paths; anything else is dropped.
+  let mediaPaths: string[] = [];
+  try {
+    const parsed = JSON.parse(String(formData.get("media") ?? "[]"));
+    if (Array.isArray(parsed)) {
+      mediaPaths = parsed
+        .filter(
+          (path): path is string =>
+            typeof path === "string" && path.startsWith(`${user.id}/`),
+        )
+        .slice(0, 2);
+    }
+  } catch {
+    mediaPaths = [];
+  }
+
   const { error } = await supabase.from("inquiry_messages").insert({
     inquiry_id: inquiryId,
     sender_id: user.id,
     body,
+    ...(mediaPaths.length ? { media_paths: mediaPaths } : {}),
   });
   if (error) redirect(`/inquiries/${inquiryId}?error=1`);
 

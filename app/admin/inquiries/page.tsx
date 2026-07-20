@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { getT } from "@/lib/i18n/server";
+import { postMediaUrl } from "@/lib/media";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { reviewMessage } from "@/app/actions/admin/reviews";
@@ -60,6 +62,27 @@ export default async function InquiryModerationPage(props: {
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
                 {message.body}
               </p>
+              {(message.media_paths?.length ?? 0) > 0 && (
+                <div className="mt-3 flex gap-2">
+                  {(message.media_paths ?? []).map((path) => (
+                    <a
+                      key={path}
+                      href={postMediaUrl(path)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="overflow-hidden rounded-xl border border-line transition hover:opacity-90"
+                    >
+                      <Image
+                        src={postMediaUrl(path)}
+                        alt=""
+                        width={140}
+                        height={140}
+                        className="h-28 w-28 object-cover"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
               <ReviewDecisionForm
                 action={reviewMessage}
                 idField="messageId"

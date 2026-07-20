@@ -41,11 +41,15 @@ function lastDaysTotal(bins: TrendBin[], days: number): number {
   return bins.slice(-days).reduce((sum, bin) => sum + bin.count, 0);
 }
 
-export default async function AdminOverviewPage() {
-  const [{ t }, access] = await Promise.all([
+export default async function AdminOverviewPage(props: {
+  searchParams: Promise<{ range?: string }>;
+}) {
+  const [{ t }, access, { range }] = await Promise.all([
     getT(),
     requireAdmin("overview"),
+    props.searchParams,
   ]);
+  const trendDays = range === "7" ? 7 : range === "90" ? 90 : 30;
   const { supabase, isOwner, permissions } = access;
   const can = (permission: AdminPermission) =>
     isOwner || permissions.includes(permission);
@@ -94,22 +98,24 @@ export default async function AdminOverviewPage() {
       supabase.from("site_settings").select("value").eq("key", SETTING_KEYS.ADMIN_QUEUE_SLA_HOURS).maybeSingle(),
     ]);
 
-  // 30-day trend rows (created_at only, newest first for safe truncation).
+  // Trend rows for the selected window (created_at only, newest first for
+  // safe truncation).
+  const trendStart = isoDaysFromNow(-trendDays);
   const [signupRows, postRows, inquiryRows] = await Promise.all([
     canMembers
-      ? supabase.from("profiles").select("created_at").gte("created_at", monthAgo).order("created_at", { ascending: false }).limit(1000)
+      ? supabase.from("profiles").select("created_at").gte("created_at", trendStart).order("created_at", { ascending: false }).limit(1000)
       : Promise.resolve({ data: [] as { created_at: string }[] }),
     canReview || canContent
-      ? supabase.from("posts").select("created_at").gte("created_at", monthAgo).order("created_at", { ascending: false }).limit(1000)
+      ? supabase.from("posts").select("created_at").gte("created_at", trendStart).order("created_at", { ascending: false }).limit(1000)
       : Promise.resolve({ data: [] as { created_at: string }[] }),
     canReview
-      ? supabase.from("inquiries").select("created_at").gte("created_at", monthAgo).order("created_at", { ascending: false }).limit(1000)
+      ? supabase.from("inquiries").select("created_at").gte("created_at", trendStart).order("created_at", { ascending: false }).limit(1000)
       : Promise.resolve({ data: [] as { created_at: string }[] }),
   ]);
   const trends = [
-    ...(canMembers ? [{ title: t.admin.trendSignups, bins: binDaily(signupRows.data ?? []) }] : []),
-    ...(canReview || canContent ? [{ title: t.admin.trendPosts, bins: binDaily(postRows.data ?? []) }] : []),
-    ...(canReview ? [{ title: t.admin.trendInquiries, bins: binDaily(inquiryRows.data ?? []) }] : []),
+    ...(canMembers ? [{ title: t.admin.trendSignups, bins: binDaily(signupRows.data ?? [], trendDays) }] : []),
+    ...(canReview || canContent ? [{ title: t.admin.trendPosts, bins: binDaily(postRows.data ?? [], trendDays) }] : []),
+    ...(canReview ? [{ title: t.admin.trendInquiries, bins: binDaily(inquiryRows.data ?? [], trendDays) }] : []),
   ];
 
   const slaHours = typeof slaSetting.data?.value === "number" ? Math.max(1, slaSetting.data.value) : 24;
@@ -161,7 +167,21 @@ export default async function AdminOverviewPage() {
       ))}
       </div>
       {trends.length > 0 && <section className="rounded-[1.5rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
-        <h2 className="text-base font-extrabold">{t.admin.trendsTitle}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-extrabold">{t.admin.trendsTitle}</h2>
+          <nav aria-label={t.admin.trendsTitle} className="flex gap-1 rounded-full bg-surface-sub p-1">
+            {[7, 30, 90].map((days) => (
+              <Link
+                key={days}
+                href={days === 30 ? "/admin" : `/admin?range=${days}`}
+                aria-current={trendDays === days ? "page" : undefined}
+                className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${trendDays === days ? "bg-[#101923] text-white shadow-sm" : "text-ink-soft hover:text-primary"}`}
+              >
+                {days}{t.admin.daysUnit}
+              </Link>
+            ))}
+          </nav>
+        </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {trends.map((trend) => (
             <TrendSparkline

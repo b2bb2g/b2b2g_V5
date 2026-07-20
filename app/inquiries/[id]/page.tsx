@@ -7,9 +7,12 @@ import { StatusLabel } from "@/components/ui/StatusLabel";
 import { replyInquiry } from "@/app/actions/inquiries";
 import { INQUIRY_STATUS, MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { Inquiry, InquiryMessage } from "@/lib/types";
+import Image from "next/image";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { InquiryReadMarker } from "@/components/inquiries/InquiryReadMarker";
 import { InquiryLive } from "@/components/inquiries/InquiryLive";
+import { InquiryComposer } from "@/components/inquiries/InquiryComposer";
+import { postMediaUrl } from "@/lib/media";
 import { formatDateTime } from "@/lib/format";
 
 const TIMELINE: string[] = [
@@ -166,6 +169,27 @@ export default async function InquiryDetailPage(props: {
                   <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
                     {message.body}
                   </p>
+                  {(message.media_paths?.length ?? 0) > 0 && (
+                    <span className="mt-2.5 flex gap-2">
+                      {(message.media_paths ?? []).map((path) => (
+                        <a
+                          key={path}
+                          href={postMediaUrl(path)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="overflow-hidden rounded-xl border border-white/20 transition hover:opacity-90"
+                        >
+                          <Image
+                            src={postMediaUrl(path)}
+                            alt=""
+                            width={160}
+                            height={160}
+                            className="h-32 w-32 object-cover"
+                          />
+                        </a>
+                      ))}
+                    </span>
+                  )}
                   {message.admin_feedback && (
                     <p
                       className={`mt-2.5 rounded-lg px-3 py-2 text-xs ${mine && !rejected ? "bg-white/15 text-white/90" : "bg-primary-soft text-primary-strong"}`}
@@ -235,30 +259,18 @@ export default async function InquiryDetailPage(props: {
               {t.common.error}
             </p>
           )}
-          <form action={replyInquiry} className="flex items-end gap-2">
-            <input type="hidden" name="inquiryId" value={inquiry.id} />
-            <textarea
-              name="body"
-              rows={2}
-              required
-              placeholder={t.inquiry.replyPlaceholder}
-              className="plain-input min-h-11 w-full flex-1 resize-y rounded-2xl border border-line bg-surface-sub px-4 py-2.5 text-sm leading-6 transition focus:border-primary/50"
-            />
-            <PendingButton
-              pendingLabel=""
-              title={t.inquiry.send}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-strong"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="m22 2-7 20-4-9-9-4Z" />
-                <path d="M22 2 11 13" />
-              </svg>
-              <span className="sr-only">{t.inquiry.send}</span>
-            </PendingButton>
-          </form>
-          <p className="mt-2 px-1 text-[11px] text-ink-faint">
-            {t.inquiry.stepHint}
-          </p>
+          <InquiryComposer
+            inquiryId={inquiry.id}
+            userId={session.userId}
+            labels={{
+              placeholder: t.inquiry.replyPlaceholder,
+              send: t.inquiry.send,
+              addImage: t.feed.addPhotos,
+              removeImage: t.common.remove,
+              uploadError: t.feed.uploadError,
+              hint: t.inquiry.stepHint,
+            }}
+          />
         </section>
       )}
     </div>

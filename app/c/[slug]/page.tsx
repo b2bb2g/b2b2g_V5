@@ -5,9 +5,10 @@ import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { getVisibleMenus } from "@/lib/data/menus";
 import { createClient } from "@/lib/supabase/server";
-import { postMediaUrl, repThumbnail } from "@/lib/media";
+import { postMediaUrl } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
 import { MediaGallery } from "@/components/post/MediaGallery";
+import { ProductCard } from "@/components/marketplace/ProductCard";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
 
@@ -96,34 +97,70 @@ export default async function CompanyPage(props: {
 
   return (
     <article className="space-y-6">
-      {homepage.cover_image_path && (
-        <div className="relative aspect-video overflow-hidden rounded-card bg-surface-sub">
-          <Image
-            src={postMediaUrl(homepage.cover_image_path)}
-            alt={companyName}
-            fill
-            sizes="(max-width: 768px) 100vw, 768px"
-            className="object-cover"
-            priority
-          />
-        </div>
+      {homepage.cover_image_path ? (
+        <header className="relative overflow-hidden rounded-[1.75rem] bg-[#101923] shadow-[0_20px_60px_rgba(25,31,40,.14)]">
+          <div className="relative aspect-[16/8] sm:aspect-[16/6]">
+            <Image
+              src={postMediaUrl(homepage.cover_image_path)}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="object-cover"
+              priority
+            />
+            <span
+              className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/18 to-black/12"
+              aria-hidden="true"
+            />
+          </div>
+          <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-7">
+            <h1 className="text-2xl font-extrabold leading-snug tracking-[-.02em] sm:text-3xl">
+              {companyName}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {badges.map((b) => (
+                <BadgePill
+                  key={b.code}
+                  code={b.code}
+                  label={locale === "ko" ? b.name_ko : b.name_en}
+                />
+              ))}
+              <Link
+                href={`/u/${owner.uid}`}
+                className="rounded-full bg-white/14 px-2.5 py-0.5 text-xs font-bold text-white backdrop-blur transition hover:bg-white/22"
+              >
+                UID:{owner.uid}
+              </Link>
+            </div>
+          </div>
+        </header>
+      ) : (
+        <header className="rounded-[1.75rem] bg-[#101923] p-6 text-white sm:p-8">
+          <h1 className="text-2xl font-extrabold leading-snug tracking-[-.02em] sm:text-3xl">
+            {companyName}
+          </h1>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            {badges.map((b) => (
+              <BadgePill
+                key={b.code}
+                code={b.code}
+                label={locale === "ko" ? b.name_ko : b.name_en}
+              />
+            ))}
+            <Link
+              href={`/u/${owner.uid}`}
+              className="rounded-full bg-white/14 px-2.5 py-0.5 text-xs font-bold text-white transition hover:bg-white/22"
+            >
+              UID:{owner.uid}
+            </Link>
+          </div>
+        </header>
       )}
 
-      <header className="space-y-2">
-        <h1 className="text-2xl font-extrabold leading-snug">{companyName}</h1>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {badges.map((b) => (
-            <BadgePill
-              key={b.code}
-              code={b.code}
-              label={locale === "ko" ? b.name_ko : b.name_en}
-            />
-          ))}
-        </div>
-      </header>
-
-      <div className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
-        {intro}
+      <div className="rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-(--shadow-card) sm:p-6">
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
+          {intro}
+        </p>
       </div>
 
       {gallery.length > 0 && (
@@ -184,32 +221,16 @@ export default async function CompanyPage(props: {
       {posts.length > 0 && (
         <section>
           <h2 className="text-base font-bold">{t.homepage.companyPosts}</h2>
-          <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {posts.map((post) => {
-              const thumb = repThumbnail(post);
-              return (
-                <Link
-                  key={post.id}
-                  href={`/${menuSlugById.get(post.menu_id) ?? "industrial"}/${post.id}`}
-                  className="group overflow-hidden rounded-card border border-line bg-surface"
-                >
-                  <div className="relative aspect-square bg-surface-sub">
-                    {thumb && (
-                      <Image
-                        src={thumb}
-                        alt={post.title_en}
-                        fill
-                        sizes="(max-width: 640px) 50vw, 33vw"
-                        className="object-cover transition-transform group-hover:scale-[1.03]"
-                      />
-                    )}
-                  </div>
-                  <p className="line-clamp-2 p-3 text-sm font-bold leading-snug">
-                    {locale === "ko" && post.title_ko ? post.title_ko : post.title_en}
-                  </p>
-                </Link>
-              );
-            })}
+          <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3">
+            {posts.map((post, index) => (
+              <ProductCard
+                key={post.id}
+                post={post}
+                href={`/${menuSlugById.get(post.menu_id) ?? "industrial"}/${post.id}`}
+                locale={locale}
+                priority={index < 3}
+              />
+            ))}
           </div>
         </section>
       )}
