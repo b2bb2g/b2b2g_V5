@@ -670,28 +670,21 @@ export function PostComposer({
           </Section>
         )}
 
-        {/* Sticky action bar: always reachable, always shows what is missing */}
-        <div className="sticky bottom-0 z-10 rounded-2xl border border-line bg-white/95 p-3 shadow-[0_-8px_24px_rgba(25,31,40,.06)] backdrop-blur sm:p-3.5">
-          <div className="mb-2 flex min-h-4 items-center justify-between gap-3 text-xs">
-            <span className="text-ink-faint">
-              {autoSavedAt ? `${t.post.autoSaved} · ${autoSavedAt}` : ""}
-            </span>
-            {!valid && !quotaBlocked && (
-              <span className="text-ink-faint">{t.post.submitHint}</span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => setPreviewOpen(true)}
-            className="mb-2 flex w-full items-center justify-center gap-2 rounded-xl border border-line bg-white py-2 text-xs font-semibold text-ink-soft xl:hidden"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            {t.post.livePreview}
-          </button>
-          <div className="grid gap-2 sm:grid-cols-[auto_1fr_1.4fr]">
+        {/* Compact sticky toolbar: a single slim row on phones so the body
+            and image tools keep the screen. Cancel/preview shrink to icons
+            on mobile; the primary submit takes the remaining width. */}
+        <div className="sticky bottom-0 z-10 -mx-4 border-t border-line bg-white/95 px-4 py-2.5 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border sm:px-3.5 sm:pb-3.5 sm:pt-3 sm:shadow-[0_-8px_24px_rgba(25,31,40,.06)]">
+          {(autoSavedAt || (!valid && !quotaBlocked)) && (
+            <p className="mb-1.5 flex items-center justify-between gap-3 text-[11px] leading-4 text-ink-faint">
+              <span className="truncate">
+                {autoSavedAt ? `${t.post.autoSaved} · ${autoSavedAt}` : ""}
+              </span>
+              {!valid && !quotaBlocked && (
+                <span className="shrink-0">{t.post.submitHint}</span>
+              )}
+            </p>
+          )}
+          <div className="flex items-center gap-2">
             <button
               type="button"
               disabled={pending || uploading}
@@ -699,15 +692,32 @@ export function PostComposer({
                 if (dirty.current) setDiscardOpen(true);
                 else router.push(cancelHref);
               }}
-              className="btn-secondary btn-md disabled:opacity-50"
+              aria-label={t.common.cancel}
+              title={t.common.cancel}
+              className="btn-secondary flex h-11 shrink-0 items-center justify-center rounded-xl px-3 disabled:opacity-50 sm:h-auto sm:btn-md"
             >
-              {t.common.cancel}
+              <svg className="h-5 w-5 sm:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                <path d="m6 6 12 12M18 6 6 18" />
+              </svg>
+              <span className="hidden sm:inline">{t.common.cancel}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              aria-label={t.post.livePreview}
+              title={t.post.livePreview}
+              className="btn-secondary flex h-11 shrink-0 items-center justify-center rounded-xl px-3 disabled:opacity-50 sm:h-auto sm:btn-md xl:hidden"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
             </button>
             <button
               type="button"
               disabled={pending || uploading}
               onClick={() => submit(true)}
-              className="btn-secondary btn-md disabled:opacity-50"
+              className="btn-secondary flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-xl px-3.5 text-sm disabled:opacity-50 sm:h-auto sm:btn-md"
             >
               {t.post.saveDraft}
             </button>
@@ -715,7 +725,7 @@ export function PostComposer({
               type="button"
               disabled={pending || uploading || quotaBlocked}
               onClick={() => submit(false)}
-              className={`btn-md inline-flex items-center justify-center gap-2 rounded-xl px-4 font-bold text-white transition-colors ${
+              className={`inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold text-white transition-colors sm:h-auto sm:py-2.5 ${
                 valid ? "bg-primary hover:bg-primary-strong" : "bg-primary/45"
               } disabled:opacity-50`}
             >
