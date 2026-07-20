@@ -101,7 +101,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "I want to change the screen language.",
         "a_ko": [
           "1) 헤더(화면 맨 위 가로 줄) 오른쪽의 지구본 아이콘을 누릅니다.",
-          "2) 원하는 언어를 고릅니다."
+          "2) 원하는 언어를 선택합니다."
         ],
         "a_en": [
           "1) Press the globe icon on the right side of the header (the horizontal bar at the very top of the screen).",
@@ -212,7 +212,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "a_ko": [
           "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
           "2) '만들기 > 상품 등록'을 누릅니다. (또는 대시보드 왼쪽 메뉴에서 '상품 등록'을 누릅니다.)",
-          "3) 먼저 게시판을 고르는 화면이 나옵니다. 상품에 맞는 게시판을 고릅니다.",
+          "3) 먼저 게시판 선택 화면이 나옵니다. 상품에 맞는 게시판을 선택합니다.",
           "4) 제목, 내용, 사진, 사양(제품의 자세한 규격)을 채웁니다.",
           "5) '등록'을 누릅니다.",
           "6) 글은 '검토 대기' 상태가 되고, 운영팀 확인 후 공개됩니다."
@@ -284,7 +284,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "a_ko": [
           "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
           "2) '활동 > 내 게시글'을 누릅니다. (또는 대시보드 왼쪽 메뉴에서 '내 게시글'을 누릅니다.)",
-          "3) 고칠 글을 골라 수정하거나 삭제합니다."
+          "3) 원하는 글을 선택해 수정하거나 삭제합니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
@@ -663,7 +663,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "a_ko": [
           "1) 신고할 글이나 회원을 엽니다.",
           "2) 더보기 메뉴에서 '신고'를 누릅니다.",
-          "3) 신고 이유를 골라 보냅니다. 운영팀이 확인합니다."
+          "3) 신고 이유를 선택해 보냅니다. 운영팀이 확인합니다."
         ],
         "a_en": [
           "1) Open the post or member you want to report.",
