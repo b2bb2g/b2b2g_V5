@@ -29,6 +29,7 @@ import {
 import { SETTING_KEYS } from "@/lib/constants";
 import { AppSplash } from "@/components/pwa/AppSplash";
 import { AppLockGate } from "@/components/security/AppLockGate";
+import { SecurityNudge } from "@/components/security/SecurityNudge";
 
 // Hangul renders in Noto Sans KR; Latin renders in Pretendard via the
 // unicode-ranged @font-face in globals.css.
@@ -120,6 +121,18 @@ export default async function RootLayout({
             emergencyHint: t.security.lockEmergencyHint,
           }}
         />
+        {session.userId ? (
+          <SecurityNudge
+            labels={{
+              title: t.security.nudgeTitle,
+              body: t.security.nudgeBody,
+              bodyPin: t.security.nudgeBodyPin,
+              setup: t.security.nudgeSetup,
+              later: t.security.nudgeLater,
+              never: t.security.nudgeNever,
+            }}
+          />
+        ) : null}
         <a href="#main-content" className="skip-link">
           {t.common.skipToContent}
         </a>

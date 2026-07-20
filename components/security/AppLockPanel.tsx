@@ -120,7 +120,7 @@ export function AppLockPanel({ userLabel, labels }: { userLabel: string; labels:
   if (!ready) return null;
 
   return (
-    <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-7">
+    <section id="app-lock" className="scroll-mt-24 rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-extrabold tracking-[-.02em]">

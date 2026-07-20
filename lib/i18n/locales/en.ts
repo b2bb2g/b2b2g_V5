@@ -124,6 +124,14 @@ const en = {
     lockEmergency: "Can't unlock? Sign out and remove the lock",
     lockEmergencyHint:
       "Your account stays protected by your password and email - sign back in to continue.",
+    nudgeTitle: "Protect this device",
+    nudgeBody:
+      "Add a quick fingerprint or Face ID lock so only you can open B2BB2G on this device. It takes about a minute.",
+    nudgeBodyPin:
+      "Add a 6-digit PIN lock so only you can open B2BB2G on this device. It takes about a minute.",
+    nudgeSetup: "Set up app lock",
+    nudgeLater: "Maybe later",
+    nudgeNever: "Don't show again",
   },
   inapp: {
     title: "Open in your browser",

@@ -124,6 +124,14 @@ const ko: Dict = {
     lockEmergency: "잠금 해제가 안 되나요? 로그아웃하고 잠금 제거",
     lockEmergencyHint:
       "계정은 비밀번호와 이메일로 계속 보호됩니다. 다시 로그인하면 이용할 수 있습니다.",
+    nudgeTitle: "이 기기를 보호하세요",
+    nudgeBody:
+      "지문·Face ID 잠금을 추가하면 이 기기에서 나만 B2BB2G를 열 수 있습니다. 1분이면 설정됩니다.",
+    nudgeBodyPin:
+      "6자리 PIN 잠금을 추가하면 이 기기에서 나만 B2BB2G를 열 수 있습니다. 1분이면 설정됩니다.",
+    nudgeSetup: "앱 잠금 설정하기",
+    nudgeLater: "나중에",
+    nudgeNever: "다시 보지 않기",
   },
   inapp: {
     title: "기본 브라우저에서 열어 주세요",
