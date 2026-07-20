@@ -15,6 +15,9 @@ export function MemberTabs({
     label: string;
     count?: number;
     countLabel?: string;
+    // `emphasis` marks a cross-area link (e.g. the admin console) so it reads
+    // as distinct from the member tabs.
+    emphasis?: boolean;
   }[];
 }) {
   const pathname = usePathname();
@@ -35,12 +38,23 @@ export function MemberTabs({
               : undefined
           }
           className={`flex items-center justify-between gap-2 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all lg:w-full ${
+            item.emphasis ? "lg:mt-1 lg:border-t lg:border-line lg:pt-3.5" : ""
+          } ${
             isActive(item.href)
               ? "bg-[#101923] text-white shadow-sm"
-              : "text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
+              : item.emphasis
+                ? "text-primary-strong hover:bg-primary-soft"
+                : "text-ink-soft hover:bg-primary-soft hover:text-primary-strong"
           }`}
         >
-          <span>{item.label}</span>
+          <span className="flex items-center gap-1.5">
+            {item.emphasis && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 2 4 5v6c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V5l-8-3Z" />
+              </svg>
+            )}
+            {item.label}
+          </span>
           {!!item.count && (
             <span
               title={item.countLabel}

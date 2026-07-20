@@ -35,7 +35,13 @@ export async function MemberArea({ children }: { children: ReactNode }) {
     ],
   );
 
-  const items = [
+  const items: {
+    href: string;
+    label: string;
+    count?: number;
+    countLabel?: string;
+    emphasis?: boolean;
+  }[] = [
     { href: "/dashboard", label: t.common.dashboard },
     {
       href: "/dashboard/posts",
@@ -72,6 +78,10 @@ export async function MemberArea({ children }: { children: ReactNode }) {
       href: "/dashboard/messages",
       label: t.coordinator.directMessages,
     });
+  }
+  // Admins get a direct jump to the admin console from the member dashboard.
+  if (session.profile.is_admin) {
+    items.push({ href: "/admin", label: t.common.admin, emphasis: true });
   }
 
   return (
