@@ -5,7 +5,12 @@ import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { markAllRead, setNotificationState } from "@/app/actions/notifications";
+import {
+  markAllRead,
+  openNotification,
+  setNotificationState,
+} from "@/app/actions/notifications";
+import { NotificationsLive } from "@/components/notifications/NotificationsLive";
 import { NOTIFICATION_STATE } from "@/lib/constants";
 import type { AppNotification } from "@/lib/types";
 import type { Dictionary } from "@/lib/i18n";
@@ -173,6 +178,7 @@ export default async function NotificationsPage(props: {
 
   return (
     <div className="space-y-5">
+      <NotificationsLive userId={session.userId} />
       <PageHeader
         title={t.notifications.title}
         description={t.notifications.description}
@@ -251,7 +257,7 @@ export default async function NotificationsPage(props: {
                   />
                   <span className="min-w-0 flex-1">
                     <span
-                      className={`block truncate text-sm ${unread ? "font-bold text-ink" : "font-semibold text-ink-soft"}`}
+                      className={`line-clamp-2 block text-sm leading-5 ${unread ? "font-bold text-ink" : "font-semibold text-ink-soft"}`}
                     >
                       {renderNotification(t, n)}
                       {groupedSuffix && (
@@ -266,18 +272,36 @@ export default async function NotificationsPage(props: {
                   </span>
                 </>
               );
+              const iconButtonClass =
+                "flex h-9 w-9 items-center justify-center rounded-xl bg-surface-sub text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong";
               return (
                 <div
                   key={n.id}
-                  className="flex items-start justify-between gap-3 p-4 transition hover:bg-surface-sub/45 sm:px-5"
+                  className="flex items-start justify-between gap-2 p-4 transition hover:bg-surface-sub/45 sm:gap-3 sm:px-5"
                 >
                   {href ? (
-                    <Link
-                      href={href}
-                      className="flex min-w-0 flex-1 items-start gap-3 rounded-lg focus-visible:outline-offset-4"
+                    // Tapping a notification opens it AND reads it (the
+                    // group), like any messenger inbox.
+                    <form
+                      action={openNotification}
+                      className="min-w-0 flex-1"
                     >
-                      {body}
-                    </Link>
+                      <input type="hidden" name="id" value={n.id} />
+                      <input type="hidden" name="href" value={href} />
+                      {group.count > 1 && (
+                        <input
+                          type="hidden"
+                          name="ids"
+                          value={JSON.stringify(group.ids)}
+                        />
+                      )}
+                      <button
+                        type="submit"
+                        className="flex w-full min-w-0 items-start gap-3 rounded-lg text-left focus-visible:outline-offset-4"
+                      >
+                        {body}
+                      </button>
+                    </form>
                   ) : (
                     <div className="flex min-w-0 flex-1 items-start gap-3">
                       {body}
@@ -285,7 +309,7 @@ export default async function NotificationsPage(props: {
                   )}
                   <form
                     action={setNotificationState}
-                    className="flex shrink-0 flex-wrap justify-end gap-1 sm:flex-nowrap"
+                    className="flex shrink-0 justify-end gap-1"
                   >
                     <input type="hidden" name="id" value={n.id} />
                     {group.count > 1 && (
@@ -302,26 +326,48 @@ export default async function NotificationsPage(props: {
                             type="submit"
                             name="state"
                             value={NOTIFICATION_STATE.READ}
-                            className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong"
+                            pendingLabel=""
+                            title={t.notifications.markRead}
+                            className={iconButtonClass}
                           >
-                            {t.notifications.markRead}
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                            <span className="sr-only">
+                              {t.notifications.markRead}
+                            </span>
                           </PendingButton>
                         )}
                         <PendingButton
                           type="submit"
                           name="state"
                           value={NOTIFICATION_STATE.ARCHIVED}
-                          className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong"
+                          pendingLabel=""
+                          title={t.notifications.archive}
+                          className={iconButtonClass}
                         >
-                          {t.notifications.archive}
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="5" rx="1.5" />
+                            <path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4" />
+                          </svg>
+                          <span className="sr-only">
+                            {t.notifications.archive}
+                          </span>
                         </PendingButton>
                         <PendingButton
                           type="submit"
                           name="state"
                           value={NOTIFICATION_STATE.TRASHED}
-                          className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong"
+                          pendingLabel=""
+                          title={t.notifications.trash}
+                          className={`${iconButtonClass} hover:bg-negative-soft hover:text-negative`}
                         >
-                          {t.notifications.trash}
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+                          </svg>
+                          <span className="sr-only">
+                            {t.notifications.trash}
+                          </span>
                         </PendingButton>
                       </>
                     )}
@@ -330,9 +376,16 @@ export default async function NotificationsPage(props: {
                         type="submit"
                         name="state"
                         value={NOTIFICATION_STATE.READ}
-                        className="rounded-lg bg-surface-sub px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft transition hover:bg-primary-soft hover:text-primary-strong"
+                        pendingLabel=""
+                        title={t.notifications.restore}
+                        className={iconButtonClass}
                       >
-                        {t.notifications.restore}
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" />
+                        </svg>
+                        <span className="sr-only">
+                          {t.notifications.restore}
+                        </span>
                       </PendingButton>
                     )}
                     {view === NOTIFICATION_STATE.TRASHED && (
@@ -340,9 +393,16 @@ export default async function NotificationsPage(props: {
                         type="submit"
                         name="state"
                         value="delete"
-                        className="rounded-lg bg-negative-soft px-2.5 py-1.5 text-[11px] font-semibold text-negative"
+                        pendingLabel=""
+                        title={t.notifications.deleteForever}
+                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-negative-soft text-negative"
                       >
-                        {t.notifications.deleteForever}
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+                        </svg>
+                        <span className="sr-only">
+                          {t.notifications.deleteForever}
+                        </span>
                       </PendingButton>
                     )}
                   </form>

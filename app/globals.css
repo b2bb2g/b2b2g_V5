@@ -306,6 +306,28 @@ main > :where(.full-bleed) {
   padding: 0;
 }
 
+/* Installed-app launch splash. */
+@keyframes splash-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes splash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Motion vocabulary: load-in, scroll reveal, gentle float. */
 @keyframes fade-up {
   from {

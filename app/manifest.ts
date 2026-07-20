@@ -33,7 +33,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     scope: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#1769e0",
+    theme_color: "#1b64da",
     icons: [
       // ?v= busts browser/manifest caches whenever the brand icon changes.
       {

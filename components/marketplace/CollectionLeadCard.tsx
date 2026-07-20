@@ -54,9 +54,9 @@ export function CollectionLeadCard({
             {eyebrow}
           </p>
         </div>
-        <h3 className="mt-4 whitespace-nowrap text-2xl font-semibold leading-[1.08] tracking-[-.035em]">
+        <p className="mt-4 whitespace-nowrap text-2xl font-semibold leading-[1.08] tracking-[-.035em]">
           {title}
-        </h3>
+        </p>
         <p className="mt-3 min-h-12 max-w-sm line-clamp-2 text-sm leading-6 text-white/82">
           {body}
         </p>

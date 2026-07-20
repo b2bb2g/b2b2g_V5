@@ -84,11 +84,13 @@ export function ProductCard({
               </span>
             ))}
           </div>
-          <h3
+          {/* Card titles stay out of the document outline (a board's h1 is
+              followed directly by cards, which reads as a heading skip). */}
+          <p
             className={`mt-4 line-clamp-2 max-w-xs font-semibold leading-[1.08] tracking-[-.035em] text-white ${compactFeature ? "text-2xl" : "text-3xl"}`}
           >
             {title}
-          </h3>
+          </p>
           {intro && (
             <div className="mt-auto flex min-h-[4.625rem] items-center rounded-2xl border border-white/20 bg-black/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-md">
               <p className="line-clamp-2 text-xs leading-5 text-white/80">

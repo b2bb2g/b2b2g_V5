@@ -1,8 +1,37 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { NOTIFICATION_STATE } from "@/lib/constants";
+
+// Opening a notification IS reading it (messenger convention): the whole
+// group flips to read, then the browser continues to the target.
+export async function openNotification(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  const href = String(formData.get("href") ?? "");
+  let ids = [id].filter(Boolean);
+  try {
+    const parsed = JSON.parse(String(formData.get("ids") ?? "[]"));
+    if (Array.isArray(parsed) && parsed.length) {
+      ids = [
+        ...new Set([...ids, ...parsed.filter((v) => typeof v === "string")]),
+      ];
+    }
+  } catch {
+    // Single-id fallback.
+  }
+  if (ids.length) {
+    const supabase = await createClient();
+    await supabase
+      .from("notifications")
+      .update({ state: NOTIFICATION_STATE.READ })
+      .in("id", ids)
+      .eq("state", NOTIFICATION_STATE.UNREAD);
+    revalidatePath("/notifications");
+  }
+  redirect(href.startsWith("/") ? href : "/notifications");
+}
 
 export async function markAllRead() {
   const supabase = await createClient();
