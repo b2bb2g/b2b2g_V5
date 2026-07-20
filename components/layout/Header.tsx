@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
+import { getLatestNoticeAt } from "@/lib/data/notices";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
 import { MenuNav } from "@/components/layout/MenuNav";
@@ -21,10 +22,11 @@ export async function Header({
   /** "overlay" renders the dark translucent chrome used over the landing hero. */
   variant?: "solid" | "overlay";
 } = {}) {
-  const [{ t, locale }, menus, session] = await Promise.all([
+  const [{ t, locale }, menus, session, latestNoticeAt] = await Promise.all([
     getT(),
     getVisibleMenus(),
     getSession(),
+    getLatestNoticeAt(),
   ]);
 
   let unread = 0;
@@ -117,7 +119,13 @@ export async function Header({
 
           {/* Desktop: inline dynamic menu */}
           <div className="hidden min-w-0 flex-1 lg:block">
-            <MenuNav items={menuItems} inline />
+            <MenuNav
+              items={menuItems}
+              inline
+              noticesLatestAt={latestNoticeAt}
+              newNoticesLabel={t.nav.newNotices}
+              faqHelpLabel={t.nav.faqHelp}
+            />
           </div>
           <div className="min-w-0 flex-1 lg:hidden" />
 
@@ -195,6 +203,9 @@ export async function Header({
               menuLabel={t.nav.menu}
               closeLabel={t.common.close}
               showAuth={!session.userId}
+              noticesLatestAt={latestNoticeAt}
+              newNoticesLabel={t.nav.newNotices}
+              faqHelpLabel={t.nav.faqHelp}
               account={
                 session.userId && session.profile
                   ? {

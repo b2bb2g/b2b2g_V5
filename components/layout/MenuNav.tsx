@@ -2,15 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MENU_SLUGS } from "@/lib/constants";
+import { FaqHelpDot, NoticesUnreadDot } from "@/components/layout/NavBadges";
 
 // Dynamic menu row with active-state highlighting. Menus are admin-managed
 // and variable in count, so the row scrolls horizontally when it overflows.
 export function MenuNav({
   items,
   inline = false,
+  noticesLatestAt = null,
+  newNoticesLabel,
+  faqHelpLabel,
 }: {
   items: { id: string; slug: string; label: string }[];
   inline?: boolean;
+  noticesLatestAt?: string | null;
+  newNoticesLabel: string;
+  faqHelpLabel: string;
 }) {
   const pathname = usePathname();
 
@@ -29,13 +37,23 @@ export function MenuNav({
           <Link
             key={item.id}
             href={href}
-            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
               active
                 ? "bg-ink text-surface"
                 : "text-ink-soft hover:bg-surface-sub hover:text-ink"
             }`}
           >
             {item.label}
+            {item.slug === MENU_SLUGS.FAQ && (
+              <FaqHelpDot label={faqHelpLabel} />
+            )}
+            {item.slug === MENU_SLUGS.NOTICES && (
+              <NoticesUnreadDot
+                latestAt={noticesLatestAt}
+                href={href}
+                label={newNoticesLabel}
+              />
+            )}
           </Link>
         );
       })}

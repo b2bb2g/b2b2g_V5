@@ -55,6 +55,8 @@ const en = {
     security: "Security",
     badgeUnread: "unread",
     badgeInReview: "in review",
+    newNotices: "New notices",
+    faqHelp: "Beginner guide",
     groupActivity: "Activity",
     groupCreate: "Create",
     groupCommunity: "Community",

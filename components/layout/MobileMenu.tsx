@@ -7,9 +7,10 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { setLocale } from "@/app/actions/locale";
 import { signOut } from "@/app/actions/auth";
-import { LOCALES, LOCALE_LABELS, type Locale } from "@/lib/constants";
+import { LOCALES, LOCALE_LABELS, MENU_SLUGS, type Locale } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
+import { FaqHelpDot, NoticesUnreadDot } from "@/components/layout/NavBadges";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 
 // Slide-in navigation drawer for phone and tablet. Rendered through a portal:
@@ -28,6 +29,9 @@ export function MobileMenu({
   closeLabel,
   showAuth = true,
   account,
+  noticesLatestAt = null,
+  newNoticesLabel,
+  faqHelpLabel,
 }: {
   items: { id: string; slug: string; label: string }[];
   locale: Locale;
@@ -38,6 +42,9 @@ export function MobileMenu({
   menuLabel: string;
   closeLabel: string;
   showAuth?: boolean;
+  noticesLatestAt?: string | null;
+  newNoticesLabel: string;
+  faqHelpLabel: string;
   // Signed in: the drawer is the single account entry point on phone and
   // tablet — profile card, account menu and sign-out all live here.
   account?: {
@@ -181,7 +188,19 @@ export function MobileMenu({
                         : "text-ink hover:bg-surface-sub"
                     }`}
                   >
-                    {item.label}
+                    <span className="flex items-center gap-2">
+                      {item.label}
+                      {item.slug === MENU_SLUGS.FAQ && (
+                        <FaqHelpDot label={faqHelpLabel} />
+                      )}
+                      {item.slug === MENU_SLUGS.NOTICES && (
+                        <NoticesUnreadDot
+                          latestAt={noticesLatestAt}
+                          href={href}
+                          label={newNoticesLabel}
+                        />
+                      )}
+                    </span>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={active ? "text-primary" : "text-ink-faint/60"}>
                       <path d="m9 18 6-6-6-6" />
                     </svg>

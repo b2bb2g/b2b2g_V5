@@ -18,6 +18,13 @@ export const POST_STATUS = {
 } as const;
 export type PostStatus = (typeof POST_STATUS)[keyof typeof POST_STATUS];
 
+// Slugs of the two utility menus that carry nav badges. Their routes are fixed
+// (/notices board, /faq guide page), so these slugs are effectively stable.
+export const MENU_SLUGS = {
+  NOTICES: "notices",
+  FAQ: "faq",
+} as const;
+
 export const INQUIRY_STATUS = {
   SENT: "sent",
   ADMIN_REVIEW: "admin_review",
