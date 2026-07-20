@@ -37,7 +37,10 @@ const notoSansKr = Noto_Sans_KR({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getPublicSettings();
+  const [settings, { locale }] = await Promise.all([
+    getPublicSettings(),
+    getT(),
+  ]);
   const title = settingString(settings, SETTING_KEYS.SITE_TITLE, "B2BB2G");
   const description = settingString(settings, SETTING_KEYS.SITE_DESCRIPTION);
   const ogImage = settingString(settings, SETTING_KEYS.SITE_OG_IMAGE);
@@ -63,6 +66,8 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: title,
       title,
       description,
+      locale: locale === "ko" ? "ko_KR" : "en_US",
+      alternateLocale: [locale === "ko" ? "en_US" : "ko_KR"],
       ...(ogImage ? { images: [ogImage] } : {}),
     },
     twitter: {

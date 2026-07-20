@@ -556,6 +556,13 @@ const en = {
     savedProducts: "Saved products",
     statSaves: "Saves",
     statInquiries: "Inquiries",
+    compare: "Compare",
+    compareSelected: "{n} selected",
+    compareCta: "Compare",
+    compareTitle: "Compare products",
+    compareHint:
+      "Specifications side by side across your saved products.",
+    compareNoSpecs: "These products have no specifications to compare yet.",
     saveProduct: "Save",
     savedProduct: "Saved",
     noSavedProducts: "No saved products yet",

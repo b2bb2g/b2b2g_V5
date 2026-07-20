@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation";
 import { WorkspacePageHeader } from "@/components/dashboard/WorkspacePageHeader";
+import {
+  CompareBar,
+  CompareToggle,
+} from "@/components/dashboard/CompareControls";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getT } from "@/lib/i18n/server";
@@ -43,22 +47,33 @@ export default async function BookmarksPage() {
       ) : (
         <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4">
           {ordered.map((post, index) => (
-            <ProductCard
-              key={post.id}
-              post={post}
-              href={`/${menuSlugById.get(post.menu_id) ?? "commercial"}/${post.id}`}
-              locale={locale}
-              priority={index < 4}
-              bookmark={{
-                saved: true,
-                returnTo: "/dashboard/bookmarks",
-                saveLabel: t.dashboard.saveProduct,
-                savedLabel: t.dashboard.savedProduct,
-              }}
-            />
+            <div key={post.id} className="relative">
+              <ProductCard
+                post={post}
+                href={`/${menuSlugById.get(post.menu_id) ?? "commercial"}/${post.id}`}
+                locale={locale}
+                priority={index < 4}
+                bookmark={{
+                  saved: true,
+                  returnTo: "/dashboard/bookmarks",
+                  saveLabel: t.dashboard.saveProduct,
+                  savedLabel: t.dashboard.savedProduct,
+                }}
+              />
+              <div className="absolute left-2 top-2 z-10">
+                <CompareToggle postId={post.id} label={t.dashboard.compare} />
+              </div>
+            </div>
           ))}
         </div>
       )}
+      <CompareBar
+        labels={{
+          selected: t.dashboard.compareSelected,
+          compare: t.dashboard.compareCta,
+          clear: t.search.clearRecent,
+        }}
+      />
     </div>
   );
 }
