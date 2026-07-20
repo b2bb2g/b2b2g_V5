@@ -559,13 +559,18 @@ export function PostComposer({
           <Section title={t.post.specs}>
             {specs.length > 0 && (
               <div className="space-y-2">
+                {/* Phones stack name over value (a 2/5 column truncates spec
+                    names like MOQ/lead time); desktop keeps one row. */}
                 {specs.map((spec, i) => (
-                  <div key={i} className="flex gap-2">
+                  <div
+                    key={i}
+                    className="grid grid-cols-[minmax(0,1fr)_2.25rem] gap-2 sm:flex"
+                  >
                     {spec.fieldDefId ? (
                       <input
                         readOnly
                         value={locale === "ko" && spec.nameKo ? spec.nameKo : spec.nameEn}
-                        className="w-2/5 rounded-xl border border-line bg-surface-sub/60 px-3 py-2 text-sm"
+                        className="col-span-2 w-full rounded-xl border border-line bg-surface-sub/60 px-3 py-2 text-sm font-semibold sm:col-span-1 sm:w-2/5"
                       />
                     ) : (
                       <input
@@ -577,11 +582,12 @@ export function PostComposer({
                           markDirty();
                         }}
                         placeholder={t.post.specName}
-                        className="w-2/5 rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-primary"
+                        className="col-span-2 w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-primary sm:col-span-1 sm:w-2/5"
                       />
                     )}
                     <input
                       value={spec.value}
+                      data-spec-value-index={i}
                       onChange={(e) => {
                         const next = [...specs];
                         next[i] = { ...spec, value: e.target.value };
@@ -589,12 +595,12 @@ export function PostComposer({
                         markDirty();
                       }}
                       placeholder={t.post.specValue}
-                      className="flex-1 rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-primary"
+                      className="min-w-0 rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-primary sm:flex-1"
                     />
                     <button
                       type="button"
                       onClick={() => setSpecs(specs.filter((_, j) => j !== i))}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-sub text-ink-faint hover:bg-negative-soft hover:text-negative"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-xl bg-surface-sub text-ink-faint hover:bg-negative-soft hover:text-negative"
                       aria-label={t.common.delete}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -615,6 +621,7 @@ export function PostComposer({
                     key={f.id}
                     type="button"
                     onClick={() => {
+                      const nextIndex = specs.length;
                       setSpecs([
                         ...specs,
                         {
@@ -625,6 +632,15 @@ export function PostComposer({
                         },
                       ]);
                       markDirty();
+                      // Picking a chip means "fill this in": jump straight to
+                      // the new value input (phones scroll it into view too).
+                      setTimeout(() => {
+                        const field = document.querySelector<HTMLInputElement>(
+                          `[data-spec-value-index="${nextIndex}"]`,
+                        );
+                        field?.focus();
+                        field?.scrollIntoView({ block: "center", behavior: "smooth" });
+                      }, 0);
                     }}
                     className="inline-flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-primary/50 hover:text-primary-strong"
                   >

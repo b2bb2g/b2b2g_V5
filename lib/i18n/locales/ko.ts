@@ -167,6 +167,8 @@ const ko: Dict = {
     allProductsHint:
       "전체 상품을 비교하고 상세 페이지에서 사양 확인과 문의를 진행해 보세요.",
     sortLabel: "정렬",
+    calendarTitle: "이벤트 캘린더",
+    calendarHint: "한 달 일정을 한눈에 보고 이벤트를 눌러 일정과 장소를 확인해 보세요.",
     sortLatest: "최신순",
     sortPopular: "인기순",
     recentlyViewed: "최근 본 상품",
@@ -770,6 +772,8 @@ const ko: Dict = {
     empty: "아직 회원 소식이 없습니다",
     emptyHint: "첫 번째 소식이 여기에 표시됩니다.",
     tabAll: "전체",
+    moveEarlier: "앞으로 이동",
+    moveLater: "뒤로 이동",
     tabFollowing: "팔로잉",
     followingEmpty: "팔로우한 회원의 소식이 아직 없습니다",
     followingEmptyHint: "게시물이나 프로필에서 회원을 팔로우해 보세요.",

@@ -36,6 +36,8 @@ export default async function EditFeedPage({
           save: t.common.save,
           remove: t.common.remove,
           uploadError: t.feed.uploadError,
+          moveEarlier: t.feed.moveEarlier,
+          moveLater: t.feed.moveLater,
         }}
       />
     </div>

@@ -163,6 +163,9 @@ const en = {
     allProductsHint:
       "Compare the complete collection and open any listing for specifications and a direct inquiry.",
     sortLabel: "Sort",
+    calendarTitle: "Event calendar",
+    calendarHint:
+      "See the month at a glance and open any event for schedule and venue details.",
     sortLatest: "Newest",
     sortPopular: "Popular",
     recentlyViewed: "Recently viewed",
@@ -785,6 +788,8 @@ const en = {
     empty: "No member updates yet",
     emptyHint: "The first community updates will appear here.",
     tabAll: "All posts",
+    moveEarlier: "Move earlier",
+    moveLater: "Move later",
     tabFollowing: "Following",
     followingEmpty: "No posts from members you follow yet",
     followingEmptyHint:

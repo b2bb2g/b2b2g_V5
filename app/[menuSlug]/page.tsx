@@ -13,6 +13,7 @@ import {
   EventCard,
   EventSpotlightCard,
 } from "@/components/marketplace/EventCard";
+import { EventCalendar } from "@/components/marketplace/EventCalendar";
 import { FaqExperience } from "@/components/marketplace/FaqExperience";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { RecentlyViewedSection } from "@/components/marketplace/RecentlyViewed";
@@ -163,6 +164,7 @@ export default async function BoardPage(props: {
     page?: string;
     uid?: string;
     sort?: string;
+    month?: string;
   }>;
 }) {
   const [{ menuSlug }, query, { t, locale }, settings] = await Promise.all([
@@ -572,6 +574,7 @@ export default async function BoardPage(props: {
           t={t}
           page={page}
           totalPages={totalPages}
+          month={query.month}
         />
       ) : isFaq ? (
         <section className="bg-white pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
@@ -763,6 +766,7 @@ function EventsBoard({
   t,
   page,
   totalPages,
+  month,
 }: {
   menu: Menu;
   posts: PostTeaser[];
@@ -776,7 +780,33 @@ function EventsBoard({
   t: Awaited<ReturnType<typeof getT>>["t"];
   page: number;
   totalPages: number;
+  month?: string;
 }) {
+  // Calendar month: ?month=YYYY-MM, defaulting to the current month.
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const activeMonth = /^\d{4}-(0[1-9]|1[0-2])$/.test(month ?? "")
+    ? (month as string)
+    : todayIso.slice(0, 7);
+  const [calYear, calMonth] = activeMonth.split("-").map(Number);
+  const monthHref = (offset: number) => {
+    const date = new Date(Date.UTC(calYear, calMonth - 1 + offset, 1));
+    const value = date.toISOString().slice(0, 7);
+    return `/${menu.slug}?month=${value}#event-calendar`;
+  };
+  const monthLabel = new Intl.DateTimeFormat(
+    locale === "ko" ? "ko-KR" : "en-US",
+    { year: "numeric", month: "long", timeZone: "UTC" },
+  ).format(new Date(Date.UTC(calYear, calMonth - 1, 1)));
+  const calendarEvents = posts
+    .filter((post) => post.event_start)
+    .map((post) => ({
+      id: post.id,
+      title:
+        locale === "ko" && post.title_ko ? post.title_ko : post.title_en,
+      href: `/${menu.slug}/${post.id}`,
+      start: post.event_start as string,
+      end: post.event_end ?? null,
+    }));
   const rank = (status: EventStatus | null) =>
     status === "ongoing" ? 0 : status === "upcoming" ? 1 : 2;
   const entries = posts
@@ -827,8 +857,40 @@ function EventsBoard({
         </div>
       </section>
 
+      <section
+        id="event-calendar"
+        className="scroll-mt-24 bg-[#f5f5f7] py-16 sm:py-20 lg:py-24"
+      >
+        <div className="store-shell">
+          <Reveal>
+            <BoardSectionHeading
+              eyebrow={t.board.eventDirectory}
+              title={t.board.calendarTitle}
+              body={t.board.calendarHint}
+            />
+          </Reveal>
+          <div className="mt-8 sm:mt-10">
+            <EventCalendar
+              events={calendarEvents}
+              month={activeMonth}
+              monthLabel={monthLabel}
+              prevHref={monthHref(-1)}
+              nextHref={monthHref(1)}
+              prevLabel={t.home.prev}
+              nextLabel={t.home.next}
+              weekdays={
+                locale === "ko"
+                  ? ["일", "월", "화", "수", "목", "금", "토"]
+                  : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+              }
+              todayIso={todayIso}
+            />
+          </div>
+        </div>
+      </section>
+
       {upcoming.length > 0 && (
-        <section className="bg-[#f5f5f7] py-16 sm:py-20 lg:py-24">
+        <section className="bg-white py-16 sm:py-20 lg:py-24">
           <div className="store-shell">
             <Reveal>
               <BoardSectionHeading
@@ -854,7 +916,7 @@ function EventsBoard({
       )}
 
       {past.length > 0 && (
-        <section className="bg-white py-16 sm:py-20 lg:py-24">
+        <section className="bg-[#f5f5f7] py-16 sm:py-20 lg:py-24">
           <div className="store-shell">
             <Reveal>
               <BoardSectionHeading

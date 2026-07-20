@@ -34,12 +34,25 @@ export function FeedComposer({
     save: string;
     remove: string;
     uploadError: string;
+    moveEarlier: string;
+    moveLater: string;
   };
 }) {
   const [paths, setPaths] = useState(initialMedia);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const input = useRef<HTMLInputElement>(null);
+
+  // The first image fronts the post everywhere, so ordering is content.
+  const move = (index: number, direction: -1 | 1) => {
+    setPaths((current) => {
+      const target = index + direction;
+      if (target < 0 || target >= current.length) return current;
+      const next = [...current];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  };
 
   async function upload(files: FileList) {
     const available = Math.max(0, 10 - paths.length);
@@ -106,7 +119,7 @@ export function FeedComposer({
 
       {paths.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
-          {paths.map((path) => (
+          {paths.map((path, index) => (
             <div
               key={path}
               className="relative aspect-square overflow-hidden rounded-xl bg-surface-sub"
@@ -124,10 +137,39 @@ export function FeedComposer({
                 onClick={() =>
                   setPaths((current) => current.filter((item) => item !== path))
                 }
-                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-sm text-white backdrop-blur"
+                className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-sm text-white backdrop-blur"
               >
                 ×
               </button>
+              <span className="absolute left-1.5 top-1.5 rounded-full bg-black/55 px-1.5 text-[10px] font-bold leading-5 text-white backdrop-blur">
+                {index + 1}
+              </span>
+              {paths.length > 1 && (
+                <span className="absolute inset-x-1.5 bottom-1.5 flex justify-between">
+                  <button
+                    type="button"
+                    disabled={index === 0}
+                    aria-label={labels.moveEarlier}
+                    onClick={() => move(index, -1)}
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur transition disabled:opacity-30"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="m15 18-6-6 6-6" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={index === paths.length - 1}
+                    aria-label={labels.moveLater}
+                    onClick={() => move(index, 1)}
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur transition disabled:opacity-30"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </button>
+                </span>
+              )}
             </div>
           ))}
         </div>

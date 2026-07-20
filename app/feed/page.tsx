@@ -57,6 +57,8 @@ export default async function FeedPage(props: {
               save: t.common.save,
               remove: t.common.remove,
               uploadError: t.feed.uploadError,
+              moveEarlier: t.feed.moveEarlier,
+              moveLater: t.feed.moveLater,
             }}
           />
         ) : (
