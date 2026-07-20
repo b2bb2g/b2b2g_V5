@@ -15,6 +15,7 @@ import { compressImage } from "@/lib/imageCompress";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
+import { randomId } from "@/lib/random-id";
 
 // Rich body editor (PRD 7.1-7.2): basic formatting, lists, quote, divider,
 // links and inline image upload. Emits HTML; render paths sanitize it.
@@ -84,7 +85,7 @@ export function RichTextEditor({
     const file = await compressImage(raw);
     if (file.size > maxFileMb * 1024 * 1024) return;
     const supabase = createClient();
-    const path = `${userId}/body-${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+    const path = `${userId}/body-${randomId()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
     const { error } = await supabase.storage
       .from(STORAGE_BUCKETS.POST_MEDIA)
       .upload(path, file);

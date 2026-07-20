@@ -8,6 +8,7 @@ import { compressImage } from "@/lib/imageCompress";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { randomId } from "@/lib/random-id";
 
 // Reply composer with optional image attachments (max 2). Sending stays an
 // explicit step and the message still passes review before delivery.
@@ -38,7 +39,7 @@ export function InquiryComposer({
     const file = await compressImage(raw);
     const supabase = createClient();
     const safeName = file.name.replace(/[^\w.-]+/g, "_");
-    const path = `${userId}/inquiry-${crypto.randomUUID()}-${safeName}`;
+    const path = `${userId}/inquiry-${randomId()}-${safeName}`;
     const { error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKETS.POST_MEDIA)
       .upload(path, file, { cacheControl: "31536000" });

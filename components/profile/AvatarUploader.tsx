@@ -7,6 +7,7 @@ import { compressImage } from "@/lib/imageCompress";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
+import { randomId } from "@/lib/random-id";
 
 // Avatar register/change/remove inside the profile edit form. The chosen
 // storage path travels with the form via a hidden input.
@@ -31,7 +32,7 @@ export function AvatarUploader({
     setUploading(true);
     const file = await compressImage(raw);
     const supabase = createClient();
-    const storagePath = `${userId}/avatar-${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+    const storagePath = `${userId}/avatar-${randomId()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
     const { error } = await supabase.storage
       .from(STORAGE_BUCKETS.POST_MEDIA)
       .upload(storagePath, file);

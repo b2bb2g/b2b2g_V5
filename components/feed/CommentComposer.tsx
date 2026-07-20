@@ -8,6 +8,7 @@ import { compressImage } from "@/lib/imageCompress";
 import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { CommentSubmitButton } from "@/components/feed/CommentSubmitButton";
+import { randomId } from "@/lib/random-id";
 
 // Requested member feature: a quick reaction palette for comments.
 const EMOJIS = [
@@ -59,7 +60,7 @@ export function CommentComposer({
     const file = await compressImage(raw);
     const supabase = createClient();
     const safeName = file.name.replace(/[^\w.-]+/g, "_");
-    const path = `${userId}/feed-comment-${crypto.randomUUID()}-${safeName}`;
+    const path = `${userId}/feed-comment-${randomId()}-${safeName}`;
     const { error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKETS.POST_MEDIA)
       .upload(path, file, { cacheControl: "31536000" });

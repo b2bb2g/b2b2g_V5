@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { STORAGE_BUCKETS } from "@/lib/constants";
+import { randomId } from "@/lib/random-id";
 
 // Identity/company documents for badge applications. Files land in the
 // private badge-docs bucket (owner + admin only, PRD 3.1 / 9); the storage
@@ -24,7 +25,7 @@ export function BadgeDocsUploader({
     const supabase = createClient();
     const added: string[] = [];
     for (const file of Array.from(files)) {
-      const path = `${userId}/${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+      const path = `${userId}/${randomId()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
       const { error } = await supabase.storage
         .from(STORAGE_BUCKETS.BADGE_DOCS)
         .upload(path, file);

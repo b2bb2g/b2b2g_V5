@@ -19,6 +19,7 @@ import { STORAGE_BUCKETS, BOARD_TYPES, type BoardType } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/constants";
 import type { SpecFieldDef } from "@/lib/types";
+import { randomId } from "@/lib/random-id";
 
 type CategoryOption = { id: string; name_en: string; name_ko: string };
 
@@ -209,7 +210,7 @@ export function PostComposer({
     for (const raw of Array.from(files)) {
       const file = await compressImage(raw);
       if (file.size > maxFileMb * 1024 * 1024) continue;
-      const path = `${userId}/${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+      const path = `${userId}/${randomId()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
       const { error: upErr } = await supabase.storage
         .from(STORAGE_BUCKETS.POST_MEDIA)
         .upload(path, file);
@@ -511,7 +512,7 @@ export function PostComposer({
                   const added: AttachmentInput[] = [];
                   for (const file of Array.from(files)) {
                     if (file.size > maxFileMb * 1024 * 1024) continue;
-                    const path = `${userId}/${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+                    const path = `${userId}/${randomId()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
                     const { error: upErr } = await supabase.storage
                       .from(STORAGE_BUCKETS.ATTACHMENTS)
                       .upload(path, file);

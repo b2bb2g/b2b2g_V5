@@ -9,6 +9,7 @@ import { STORAGE_BUCKETS } from "@/lib/constants";
 import { createFeedPost, updateFeedPost } from "@/app/actions/feed";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
+import { randomId } from "@/lib/random-id";
 
 export function FeedComposer({
   userId,
@@ -51,7 +52,7 @@ export function FeedComposer({
     for (const raw of selected) {
       const file = await compressImage(raw);
       const safeName = file.name.replace(/[^\w.-]+/g, "_");
-      const path = `${userId}/feed-${crypto.randomUUID()}-${safeName}`;
+      const path = `${userId}/feed-${randomId()}-${safeName}`;
       const { error: uploadError } = await supabase.storage
         .from(STORAGE_BUCKETS.POST_MEDIA)
         .upload(path, file, { cacheControl: "31536000" });
