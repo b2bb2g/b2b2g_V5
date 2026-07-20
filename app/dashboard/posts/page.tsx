@@ -9,7 +9,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { WorkspacePageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { formatDate } from "@/lib/format";
-import { DashboardIcon } from "@/components/dashboard/DashboardCards";
 import { closeOwnPost, deleteOwnPost } from "@/app/actions/posts";
 import {
   BADGE_CODES,
@@ -211,9 +210,12 @@ export default async function MyPostsPage(props: {
               return (
                 <article
                   key={post.id}
-                  className="grid gap-3 p-4 transition hover:bg-surface-sub/45 sm:grid-cols-[5.5rem_minmax(0,1fr)_auto] sm:items-center sm:px-5"
+                  className="flex items-start gap-3 p-4 transition hover:bg-surface-sub/45 sm:items-center sm:px-5"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-sub">
+                  {/* Fixed small thumbnail so a row never turns into a big
+                      full-width tile on phones; no image shows a subtle mark,
+                      not an empty gallery card. */}
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-sub sm:h-[4.5rem] sm:w-[5.5rem]">
                     {post.rep_image_path ? (
                       <Image
                         src={postMediaUrl(post.rep_image_path)}
@@ -223,12 +225,16 @@ export default async function MyPostsPage(props: {
                         className="object-cover"
                       />
                     ) : (
-                      <span className="absolute inset-0 flex items-center justify-center text-ink-faint">
-                        <DashboardIcon name="posts" />
+                      <span className="absolute inset-0 flex items-center justify-center text-ink-faint/55">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <rect x="3" y="3" width="18" height="18" rx="3" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <path d="m21 15-5-5L5 21" />
+                        </svg>
                       </span>
                     )}
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <StatusLabel
                         status={post.status}
@@ -278,7 +284,7 @@ export default async function MyPostsPage(props: {
                         </p>
                       )}
                   </div>
-                  <div className="flex items-center justify-end gap-2 sm:self-center">
+                  <div className="flex shrink-0 items-center justify-end gap-2 sm:self-center">
                     {post.menus && (
                       <Link
                         href={`/write?menu=${post.menus.slug}&post=${post.id}`}
