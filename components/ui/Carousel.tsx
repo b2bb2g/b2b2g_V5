@@ -47,14 +47,45 @@ export function Carousel({
   const track = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
+  // Marquee only actually runs when one set of cards overflows the viewport —
+  // otherwise the duplicate set would sit visibly beside the originals (the
+  // "same card twice" bug on short rails). Starts false so SSR and first
+  // client render match; a measure effect flips it on when needed.
+  const [run, setRun] = useState(false);
 
   const items = Children.toArray(children);
+
+  // Decide whether the marquee should run: measure the first set's width
+  // (works with or without the duplicate already present) against the
+  // viewport, and re-check on resize.
+  useEffect(() => {
+    const el = track.current;
+    if (!marquee || !el) {
+      setRun(false);
+      return;
+    }
+    const measure = () => {
+      const firstSetWidth =
+        el.children.length > items.length
+          ? (el.children[items.length] as HTMLElement).offsetLeft
+          : el.scrollWidth;
+      setRun(firstSetWidth > el.clientWidth + 8);
+    };
+    measure();
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [marquee, items.length]);
 
   // Continuous marquee: duplicate the cards and drift scrollLeft every frame,
   // wrapping by one set's width so the seam is invisible.
   useEffect(() => {
     const el = track.current;
-    if (!marquee || !el) return;
+    if (!run || !el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let paused = false;
@@ -115,7 +146,7 @@ export function Carousel({
       el.removeEventListener("focusin", pause);
       el.removeEventListener("focusout", resume);
     };
-  }, [marquee, items.length]);
+  }, [run, items.length]);
 
   const update = useCallback(() => {
     const el = track.current;
@@ -245,7 +276,7 @@ export function Carousel({
           className={`${trackClassName} rounded-[var(--store-card-radius)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary`}
         >
           {items}
-          {marquee &&
+          {run &&
             items.map((child, index) =>
               isValidElement(child)
                 ? cloneElement(
