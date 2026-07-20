@@ -2,6 +2,12 @@
 -- (bilingual, with in-app links). Idempotent: skips rows that already exist
 -- by title. Authored by the first admin, published and approved so they show
 -- on the public notice and FAQ boards immediately.
+
+-- Notice writes are gated to admins with the "content" permission via a
+-- trigger keyed on auth.uid(), which is null in migration context. Disable
+-- that one trigger (table-owner privilege) for this trusted one-time seed.
+alter table public.posts disable trigger posts_notice_admin_write;
+
 do $$
 declare
   v_author uuid;
@@ -14,11 +20,6 @@ begin
   if v_author is null or v_notices is null or v_faq is null then
     return;
   end if;
-
-  -- Notice writes are gated to admins with the "content" permission via a
-  -- trigger keyed on auth.uid(), which is null in migration context. This is
-  -- a trusted, one-time seed, so bypass row triggers for the inserts below.
-  perform set_config('session_replication_role', 'replica', true);
 
   -- Announcement notice.
   if not exists (
@@ -98,6 +99,6 @@ begin
       '<p>상품 카드의 하트를 누르면 찜됩니다. 찜한 상품은 <a href="/dashboard/bookmarks">찜한 상품</a>에서 볼 수 있습니다. 그 화면에서 2~3개 상품의 <strong>비교</strong>를 누른 뒤 비교 화면을 열면 사양을 나란히 확인할 수 있습니다.</p>',
       now());
   end if;
-
-  perform set_config('session_replication_role', 'origin', true);
 end $$;
+
+alter table public.posts enable trigger posts_notice_admin_write;
