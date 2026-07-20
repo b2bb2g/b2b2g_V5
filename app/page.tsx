@@ -273,7 +273,7 @@ async function LandingContent() {
           <Reveal className="h-full">
             <div className="relative isolate min-h-[42rem] overflow-hidden bg-[#edf6ff] text-[#1d1d1f] sm:min-h-[48rem] lg:min-h-[min(54rem,calc(100svh-4.5rem))]">
               <Image
-                src="/landing-v2/hero-trade-network-v3.png"
+                src="/landing-v2/hero-trade-network-v3.jpg"
                 alt=""
                 fill
                 priority

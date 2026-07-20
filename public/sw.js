@@ -2,7 +2,7 @@
 // offline fallback for navigations. Content stays network-first (freshness
 // matters more than offline for a trade board); only the fallback page and
 // the app icon are precached.
-const OFFLINE_CACHE = "b2bb2g-offline-v1";
+const OFFLINE_CACHE = "b2bb2g-offline-v2";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
@@ -51,7 +51,10 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(payload.title || "B2BB2G", {
       body: payload.body || "",
       icon: "/icons/b2bb2g-icon-192.png",
-      badge: "/icons/b2bb2g-icon-192.png",
+      // Status-bar badge: Android masks this to a single color, so it must
+      // be a white-on-transparent silhouette (a full-color logo renders as
+      // a plain square).
+      badge: "/icons/b2bb2g-badge-96.png",
       vibrate: [120, 60, 120],
       tag: payload.tag || undefined,
       data: { url: payload.url || "/notifications" },
