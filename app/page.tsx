@@ -405,6 +405,7 @@ async function LandingContent() {
                             <CollectionLeadCard
                               href={`/${menu.slug}`}
                               image={copy.image}
+                              title={title}
                               body={copy.body}
                               actionLabel={t.home.exploreCollection}
                             />
@@ -519,6 +520,7 @@ async function LandingContent() {
                     <CollectionLeadCard
                       href={`/${requestsMenu.slug}`}
                       image="/landing-v2/precision-manufacturing.jpg"
+                      title={menuTitle(requestsMenu, locale)}
                       body={t.home.value2Body}
                       actionLabel={t.dashboard.viewAll}
                     />

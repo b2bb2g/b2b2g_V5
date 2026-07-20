@@ -19,18 +19,21 @@ function Arrow() {
 }
 
 // The 400 × 500 lead card shared by landing and board collection shelves.
-// A collection cover: image + its own one-line description + call-to-action.
-// It deliberately omits the eyebrow/title the neighbouring section heading
-// already shows, so the copy here complements the heading instead of repeating
-// it.
+// A collection cover: image + the collection name + its own one-line
+// description + call-to-action. The title here is the collection/category name
+// (distinct from the neighbouring section heading, whose big title is the
+// tagline), and the description is the collection's own copy -- so the card
+// complements the heading rather than repeating it.
 export function CollectionLeadCard({
   href,
   image,
+  title,
   body,
   actionLabel,
 }: {
   href: string;
   image: string;
+  title?: string;
   body?: string;
   actionLabel: string;
 }) {
@@ -48,12 +51,17 @@ export function CollectionLeadCard({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/12" />
       <div className="relative">
+        {title && (
+          <p className="text-2xl font-semibold leading-[1.1] tracking-[-.03em]">
+            {title}
+          </p>
+        )}
         {body && (
-          <p className="max-w-[26ch] text-[15px] font-semibold leading-6 text-white/90">
+          <p className="mt-2.5 max-w-[26ch] text-sm leading-6 text-white/85">
             {body}
           </p>
         )}
-        <span className="mt-4 inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-white/25 bg-black/35 px-5 text-sm font-bold backdrop-blur-md transition-colors group-hover:bg-black/55">
+        <span className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-white/25 bg-black/35 px-5 text-sm font-bold backdrop-blur-md transition-colors group-hover:bg-black/55">
           {actionLabel}
           <Arrow />
         </span>
