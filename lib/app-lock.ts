@@ -110,9 +110,14 @@ export async function enrollBiometric(label: string): Promise<string | null> {
           { type: "public-key", alg: -257 },
         ],
         authenticatorSelection: {
+          // Keep the credential bound to THIS device: a non-discoverable
+          // ("discouraged") platform credential is verified with the device
+          // biometric locally and is not saved/synced as a passkey to a Google
+          // (or other cloud) account. There is no web API to read the sensor
+          // directly, so the OS still shows the biometric prompt.
           authenticatorAttachment: "platform",
           userVerification: "required",
-          residentKey: "preferred",
+          residentKey: "discouraged",
         },
         timeout: 60000,
       },

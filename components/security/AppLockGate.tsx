@@ -14,6 +14,7 @@ import {
   type AppLockConfig,
 } from "@/lib/app-lock";
 import { signOut } from "@/app/actions/auth";
+import { FingerprintIcon } from "@/components/security/FingerprintIcon";
 import { CodeField } from "@/components/security/CodeField";
 
 type Labels = {
@@ -172,19 +173,26 @@ export function AppLockGate({ labels }: { labels: Labels }) {
               onClick={() => void tryBiometric()}
               disabled={busy}
               aria-busy={busy}
-              className="btn-primary btn-lg w-full gap-2.5 disabled:opacity-60"
+              aria-label={labels.biometricCta}
+              className="group mx-auto flex flex-col items-center gap-3 disabled:opacity-60"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
-                <path d="M12 11a4 4 0 0 1 4 4c0 2.5-.6 4.4-1.3 5.9M8.6 20.2A12 12 0 0 0 9.7 15a2.3 2.3 0 0 1 4.6 0c0 1.7-.2 3.3-.6 4.8M5.9 18A16 16 0 0 0 6.4 15a5.6 5.6 0 0 1 9-4.4M3.7 14.6A9 9 0 0 1 12 6a9 9 0 0 1 8.4 5.7" />
-              </svg>
-              {labels.biometricCta}
+              <span className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full bg-primary-soft text-primary ring-1 ring-inset ring-primary/15 transition-transform group-hover:bg-primary/15 group-active:scale-95">
+                {busy ? (
+                  <span className="h-7 w-7 animate-spin rounded-full border-[3px] border-primary/30 border-t-primary" />
+                ) : (
+                  <FingerprintIcon className="h-9 w-9" />
+                )}
+              </span>
+              <span className="text-sm font-bold text-primary">
+                {labels.biometricCta}
+              </span>
             </button>
             {error === "biometric" && (
-              <p role="alert" className="mt-2 text-center text-xs font-bold text-negative">
+              <p role="alert" className="mt-3 text-center text-xs font-bold text-negative">
                 {labels.wrongPin}
               </p>
             )}
-            <div className="mt-5 flex items-center gap-3">
+            <div className="mt-6 flex items-center gap-3">
               <span className="h-px flex-1 bg-line" />
               <span className="text-xs font-bold text-ink-faint">{labels.or}</span>
               <span className="h-px flex-1 bg-line" />

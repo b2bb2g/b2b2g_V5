@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CodeField } from "@/components/security/CodeField";
+import { FingerprintIcon } from "@/components/security/FingerprintIcon";
 import {
   biometricAvailable,
   enrollBiometric,
@@ -163,9 +164,7 @@ export function AppLockPanel({ userLabel, labels }: { userLabel: string; labels:
           <p
             className={`flex items-center gap-2 text-xs font-bold ${canBiometric ? "text-positive" : "text-ink-faint"}`}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
-              <path d="M12 11a4 4 0 0 1 4 4c0 2.5-.6 4.4-1.3 5.9M8.6 20.2A12 12 0 0 0 9.7 15a2.3 2.3 0 0 1 4.6 0c0 1.7-.2 3.3-.6 4.8M5.9 18A16 16 0 0 0 6.4 15a5.6 5.6 0 0 1 9-4.4M3.7 14.6A9 9 0 0 1 12 6a9 9 0 0 1 8.4 5.7" />
-            </svg>
+            <FingerprintIcon className="h-4 w-4 shrink-0" />
             {canBiometric ? labels.biometricReady : labels.biometricMissing}
           </p>
           <div className="grid gap-2 sm:grid-cols-2">

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { biometricAvailable, readAppLock } from "@/lib/app-lock";
+import { FingerprintIcon } from "@/components/security/FingerprintIcon";
 
 // One-time prompt encouraging members to turn on the device app lock.
 // Shows only when: signed in, lock not already enabled, not dismissed, and
@@ -87,9 +88,7 @@ export function SecurityNudge({ labels }: { labels: Labels }) {
           className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary"
           aria-hidden="true"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 11a4 4 0 0 1 4 4c0 2.5-.6 4.4-1.3 5.9M8.6 20.2A12 12 0 0 0 9.7 15a2.3 2.3 0 0 1 4.6 0c0 1.7-.2 3.3-.6 4.8M5.9 18A16 16 0 0 0 6.4 15a5.6 5.6 0 0 1 9-4.4M3.7 14.6A9 9 0 0 1 12 6a9 9 0 0 1 8.4 5.7" />
-          </svg>
+          <FingerprintIcon className="h-6 w-6" />
         </span>
         <h2 className="mt-4 text-lg font-extrabold tracking-[-.02em]">
           {labels.title}
