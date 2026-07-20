@@ -60,6 +60,19 @@ const en = {
     groupCommunity: "Community",
     groupAccount: "Account",
   },
+  faqGuide: {
+    title: "Help & how-to guide",
+    subtitle:
+      "New here? These answers walk you through B2BB2G step by step, grouped by topic.",
+    search: "Search the guide",
+    clear: "Clear",
+    empty: "No results. Try another word.",
+    count: "answers",
+    onThisPage: "On this page",
+    helpTitle: "Still need a hand?",
+    helpBody: "Can't find it here? Send an inquiry or check the latest notices.",
+    helpCta: "See notices",
+  },
   security: {
     eyebrow: "Account protection",
     title: "Sign-ins and devices",

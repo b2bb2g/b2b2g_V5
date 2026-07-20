@@ -64,6 +64,19 @@ const ko: Dict = {
     groupCommunity: "커뮤니티",
     groupAccount: "계정",
   },
+  faqGuide: {
+    title: "도움말 · 사용 안내",
+    subtitle:
+      "처음 오셨나요? B2BB2G 사용법을 주제별로 하나씩 쉽게 정리했어요.",
+    search: "안내 검색",
+    clear: "지우기",
+    empty: "결과가 없어요. 다른 단어로 찾아보세요.",
+    count: "개",
+    onThisPage: "이 페이지에서",
+    helpTitle: "그래도 궁금한 게 있나요?",
+    helpBody: "여기서 못 찾으셨다면 문의를 보내거나 최신 공지사항을 확인해 보세요.",
+    helpCta: "공지사항 보기",
+  },
   security: {
     eyebrow: "계정 보호",
     title: "로그인 및 기기 관리",
