@@ -259,6 +259,15 @@ body:has(.auth-shell) > main {
   }
 }
 
+/* Feed (network) cards hug their content instead of a fixed height, and
+   top-align in the rail — so a short/text-only post, or a shorter image on a
+   narrow screen, never leaves a gap above the action bar. Width stays the
+   responsive value set above. */
+.store-card-network {
+  height: auto;
+  align-self: flex-start;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .store-card-interactive {
     transition: none;

@@ -697,7 +697,7 @@ async function LandingContent() {
                         viewerId={session.userId}
                         returnTo="/"
                         compact
-                        className="store-card-interactive flex h-full flex-col"
+                        className="store-card-interactive flex flex-col"
                         labels={getFeedCardLabels(t, locale)}
                       />
                     </div>

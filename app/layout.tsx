@@ -177,6 +177,7 @@ export default async function RootLayout({
           title={t.inapp.title}
           body={t.inapp.body}
           openLabel={t.inapp.open}
+          dismissLabel={t.common.close}
         />
         <RouteChrome hideOnAdmin>
           <GlobalBanners
