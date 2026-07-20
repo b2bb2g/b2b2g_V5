@@ -24,6 +24,7 @@ type Labels = {
   biometricHint: string;
   or: string;
   pinSectionLabel: string;
+  pinOwnHint: string;
   pinPlaceholder: string;
   confirm: string;
   wrongPin: string;
@@ -211,7 +212,10 @@ export function AppLockGate({ labels }: { labels: Labels }) {
             <span className="text-xs font-bold text-ink-soft">
               {labels.pinSectionLabel}
             </span>
-            <div className="mt-1.5">
+            <span className="mt-1 block text-[11px] leading-4 text-ink-faint">
+              {labels.pinOwnHint}
+            </span>
+            <div className="mt-2">
               <CodeField
                 value={pin}
                 onChange={(next) => {

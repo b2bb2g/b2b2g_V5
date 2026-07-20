@@ -137,6 +137,8 @@ const en = {
     lockBiometricHint: "Uses your device biometric.",
     lockOr: "OR",
     lockPinSectionLabel: "App PIN (6 digits)",
+    lockPinOwnHint:
+      "This is the B2BB2G app PIN you set here — not your device (Google) PIN.",
     lockPinPlaceholder: "6-digit PIN",
     lockWrongPin: "Verification failed.",
     lockAttemptsLeft: "{n} attempts left.",

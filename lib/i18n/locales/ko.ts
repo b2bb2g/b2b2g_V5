@@ -137,6 +137,8 @@ const ko: Dict = {
     lockBiometricHint: "기기의 생체인증을 사용합니다.",
     lockOr: "또는",
     lockPinSectionLabel: "앱 PIN (6자리)",
+    lockPinOwnHint:
+      "여기에서 설정한 B2BB2G 앱 PIN이에요. 기기(구글) PIN이 아닙니다.",
     lockPinPlaceholder: "6자리 PIN",
     lockWrongPin: "인증에 실패했습니다.",
     lockAttemptsLeft: "남은 시도 {n}회.",

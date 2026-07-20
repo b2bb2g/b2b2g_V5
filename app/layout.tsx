@@ -117,6 +117,7 @@ export default async function RootLayout({
             biometricHint: t.security.lockBiometricHint,
             or: t.security.lockOr,
             pinSectionLabel: t.security.lockPinSectionLabel,
+            pinOwnHint: t.security.lockPinOwnHint,
             pinPlaceholder: t.security.lockPinPlaceholder,
             confirm: t.common.confirm,
             wrongPin: t.security.lockWrongPin,
