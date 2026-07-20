@@ -813,6 +813,7 @@ const en = {
     dangerZone: "Account and privacy",
   },
   feed: {
+    eyebrow: "Community",
     title: "B2BB2G Network",
     subtitle:
       "Share progress, products and business updates with the marketplace community.",

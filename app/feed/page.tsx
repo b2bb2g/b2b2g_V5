@@ -8,7 +8,7 @@ import {
 } from "@/lib/data/feed";
 import { FeedComposer } from "@/components/feed/FeedComposer";
 import { FeedStream } from "@/components/feed/FeedStream";
-import { WorkspacePageHeader } from "@/components/dashboard/WorkspacePageHeader";
+import { BoardSectionHeading } from "@/components/marketplace/BoardSectionHeading";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getFeedCardLabels } from "@/lib/i18n/feed";
 import { FeedNetworkSidebar } from "@/components/feed/FeedNetworkSidebar";
@@ -56,12 +56,20 @@ export default async function FeedPage(props: {
   const labels = getFeedCardLabels(t, locale);
 
   return (
-    <div className="wide grid min-w-0 items-start justify-center gap-6 lg:grid-cols-[minmax(0,46rem)_20rem]">
-      <div className="min-w-0 space-y-5">
-        <WorkspacePageHeader
-          title={t.feed.title}
-          description={t.feed.subtitle}
-        />
+    <div className="full-bleed bg-[#f5f5f7]">
+      <section className="pb-6 pt-9 sm:pt-12 lg:pt-14">
+        <div className="store-shell">
+          <BoardSectionHeading
+            eyebrow={t.feed.eyebrow}
+            title={t.feed.title}
+            body={t.feed.subtitle}
+            level="h1"
+          />
+        </div>
+      </section>
+      <section className="pb-16 sm:pb-20">
+        <div className="store-shell grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,46rem)_20rem]">
+          <div className="min-w-0 space-y-5">
         {session.userId ? (
           <FeedComposer
             userId={session.userId}
@@ -152,8 +160,10 @@ export default async function FeedPage(props: {
         ) : (
           <EmptyState title={t.feed.empty} hint={t.feed.emptyHint} />
         )}
-      </div>
-      <FeedNetworkSidebar profile={profile} stats={stats} bio={bio} t={t} />
+          </div>
+          <FeedNetworkSidebar profile={profile} stats={stats} bio={bio} t={t} />
+        </div>
+      </section>
     </div>
   );
 }

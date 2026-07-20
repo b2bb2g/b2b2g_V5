@@ -791,6 +791,7 @@ const ko: Dict = {
     dangerZone: "계정 및 개인정보",
   },
   feed: {
+    eyebrow: "커뮤니티",
     title: "B2BB2G 네트워크",
     subtitle:
       "진행 상황과 상품, 비즈니스 소식을 회원들과 공유해 보세요.",

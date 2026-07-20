@@ -165,6 +165,57 @@ export function EditorialFeatureCard({
       : post.body_teaser_en,
   );
 
+  // No image: a text-forward hero (no empty photo panel). Soft glows and a
+  // faint watermark give it presence so an announcement reads as intentional.
+  if (!thumbnail) {
+    return (
+      <Link
+        href={href}
+        className="store-card-interactive group relative block min-h-[18rem] overflow-hidden rounded-[2rem] bg-[#101923] p-7 text-white shadow-[0_24px_70px_rgba(16,25,35,.18)] sm:min-h-[20rem] sm:p-10 lg:p-12"
+      >
+        <span
+          className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
+          aria-hidden="true"
+        />
+        <span
+          className="pointer-events-none absolute -bottom-28 -left-12 h-72 w-72 rounded-full bg-[#79b4ff]/12 blur-3xl"
+          aria-hidden="true"
+        />
+        <svg
+          className="pointer-events-none absolute -right-6 bottom-2 h-40 w-40 text-white/[.04] sm:h-52 sm:w-52"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M6 17h3l2-4V7H5v6h3l-2 4Zm8 0h3l2-4V7h-6v6h3l-2 4Z" />
+        </svg>
+        <span className="relative flex h-full min-h-[14rem] flex-col justify-between sm:min-h-[15rem]">
+          <span>
+            <span className="text-xs font-bold uppercase tracking-[.18em] text-[#79b4ff]">
+              {eyebrow}
+            </span>
+            <strong className="mt-5 block max-w-3xl text-3xl font-semibold leading-[1.06] tracking-[-.04em] sm:text-[2.75rem]">
+              {title}
+            </strong>
+            {teaser && (
+              <span className="mt-5 block line-clamp-3 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
+                {teaser}
+              </span>
+            )}
+          </span>
+          <span className="mt-9 flex items-center justify-between gap-5 border-t border-white/15 pt-6">
+            <span className="text-sm font-semibold tabular-nums text-white/60">
+              {showDate ? post.published_at?.slice(0, 10) : eyebrow}
+            </span>
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1">
+              <Arrow />
+            </span>
+          </span>
+        </span>
+      </Link>
+    );
+  }
+
   return (
     <Link
       href={href}
@@ -242,7 +293,9 @@ export function EditorialListCard({
   return (
     <Link
       href={href}
-      className="store-card-interactive group flex min-h-40 overflow-hidden rounded-[1.5rem] bg-white shadow-[0_10px_35px_rgba(25,31,40,.055)] ring-1 ring-black/[.035]"
+      className={`store-card-interactive group flex min-h-40 overflow-hidden rounded-[1.5rem] bg-white shadow-[0_10px_35px_rgba(25,31,40,.055)] ring-1 ring-black/[.035] ${
+        thumbnail ? "" : "border-l-[3px] border-primary/25"
+      }`}
     >
       <span className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
         {showDate && (
@@ -255,11 +308,17 @@ export function EditorialListCard({
         >
           {title}
         </strong>
-        <span className="mt-2 line-clamp-2 text-sm leading-6 text-ink-soft">
-          {teaser}
-        </span>
-        <span className="mt-auto flex justify-end pt-4 text-ink-faint transition-transform group-hover:translate-x-1 group-hover:text-primary">
-          <Arrow />
+        {teaser && (
+          <span
+            className={`mt-2 text-sm leading-6 text-ink-soft ${thumbnail ? "line-clamp-2" : "line-clamp-3"}`}
+          >
+            {teaser}
+          </span>
+        )}
+        <span className="mt-auto flex items-center gap-2 pt-4 text-sm font-semibold text-ink-faint transition-colors group-hover:text-primary">
+          <span className="transition-transform group-hover:translate-x-0.5">
+            <Arrow />
+          </span>
         </span>
       </span>
       {thumbnail && (
