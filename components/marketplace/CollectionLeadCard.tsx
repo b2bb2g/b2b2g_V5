@@ -19,26 +19,22 @@ function Arrow() {
 }
 
 // The 400 × 500 lead card shared by landing and board collection shelves.
-// It introduces the collection before the narrower 313 × 500 listing cards.
+// A purely visual collection cover: the section heading beside it already
+// carries the eyebrow / title / description, so the card only shows the image
+// and a call-to-action -- no repeated copy.
 export function CollectionLeadCard({
   href,
   image,
-  eyebrow,
-  title,
-  body,
   actionLabel,
 }: {
   href: string;
   image: string;
-  eyebrow: string;
-  title: string;
-  body: string;
   actionLabel: string;
 }) {
   return (
     <Link
       href={href}
-      className="store-card-interactive group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-[#111827] p-7 text-white focus:outline-none"
+      className="store-card-interactive group relative flex h-full flex-col justify-end overflow-hidden rounded-[1.5rem] bg-[#111827] p-7 text-white focus:outline-none"
     >
       <Image
         src={image}
@@ -47,24 +43,11 @@ export function CollectionLeadCard({
         sizes="(max-width: 640px) 88vw, 25rem"
         className="object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/68 via-black/24 to-black/72" />
-      <div className="relative flex h-full flex-col">
-        <div className="flex min-h-6 items-center">
-          <p className="truncate text-xs font-bold uppercase leading-6 tracking-[.14em] text-white/72">
-            {eyebrow}
-          </p>
-        </div>
-        <p className="mt-4 whitespace-nowrap text-2xl font-semibold leading-[1.08] tracking-[-.035em]">
-          {title}
-        </p>
-        <p className="mt-3 min-h-12 max-w-sm line-clamp-2 text-sm leading-6 text-white/82">
-          {body}
-        </p>
-        <span className="mt-auto inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-white/20 bg-black/28 px-4 text-sm font-semibold backdrop-blur-md transition-colors group-hover:bg-black/45">
-          {actionLabel}
-          <Arrow />
-        </span>
-      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
+      <span className="relative inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-white/25 bg-black/35 px-5 text-sm font-bold backdrop-blur-md transition-colors group-hover:bg-black/55">
+        {actionLabel}
+        <Arrow />
+      </span>
     </Link>
   );
 }
