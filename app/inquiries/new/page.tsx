@@ -170,7 +170,20 @@ export default async function NewInquiryPage(props: {
         {params.to && (
           <input type="hidden" name="toProfileId" value={params.to} />
         )}
-        <label htmlFor="inquiry-body" className="text-sm font-bold text-ink">
+        <label htmlFor="inquiry-subject" className="text-sm font-bold text-ink">
+          {t.inquiry.subjectLabel}
+        </label>
+        <input
+          id="inquiry-subject"
+          name="subject"
+          maxLength={120}
+          defaultValue={title.slice(0, 120)}
+          className="mt-2 h-11 w-full rounded-2xl border border-line bg-surface-sub/40 px-4 text-sm text-ink outline-none transition placeholder:text-ink-faint focus:border-primary focus:bg-white focus-visible:ring-4 focus-visible:ring-primary/10"
+        />
+        <label
+          htmlFor="inquiry-body"
+          className="mt-4 block text-sm font-bold text-ink"
+        >
           {t.inquiry.yourMessage}
         </label>
         <textarea

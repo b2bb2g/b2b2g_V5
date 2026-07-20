@@ -142,6 +142,24 @@ export default async function AdminMemberDetailPage(props: {
         : Promise.resolve({ data: [] }),
     ]);
 
+  // Chronological activity feed: the per-category sections answer "what",
+  // this answers "when" across all of it at once.
+  const [{ data: timelineInquiries }, { data: timelineFeedPosts }] =
+    await Promise.all([
+      supabase
+        .from("inquiries")
+        .select("id, subject, created_at, sender_id")
+        .or(`sender_id.eq.${id},recipient_id.eq.${id}`)
+        .order("created_at", { ascending: false })
+        .limit(6),
+      supabase
+        .from("member_feed_posts")
+        .select("id, body, created_at")
+        .eq("author_id", id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
+
   const badgeApplicationDocs = await Promise.all(
     (badgeApplications ?? []).map(async (application) => ({
       ...application,
@@ -581,6 +599,77 @@ export default async function AdminMemberDetailPage(props: {
           ))}
         </section>
       )}
+
+      {/* Merged chronological activity */}
+      {(() => {
+        const events: { at: string; kind: string; detail: string }[] = [
+          ...(posts ?? []).map((post) => ({
+            at: post.updated_at,
+            kind: t.admin.tlPost,
+            detail: `${post.title_en} · ${postStatusLabels[post.status] ?? post.status}`,
+          })),
+          ...(timelineInquiries ?? []).map((inquiry) => ({
+            at: inquiry.created_at,
+            kind:
+              inquiry.sender_id === member.id
+                ? t.admin.tlInquirySent
+                : t.admin.tlInquiryReceived,
+            detail: inquiry.subject,
+          })),
+          ...(timelineFeedPosts ?? []).map((feedPost) => ({
+            at: feedPost.created_at,
+            kind: t.admin.tlFeed,
+            detail: feedPost.body.slice(0, 60),
+          })),
+          ...(badgeApplicationDocs ?? []).map((application) => ({
+            at: application.created_at as string,
+            kind: t.admin.tlBadge,
+            detail: `${(application.badge_types as { name_en?: string } | null)?.name_en ?? ""} · ${application.status}`,
+          })),
+          ...(logins ?? []).map((event) => ({
+            at: event.created_at,
+            kind: t.admin.tlLogin,
+            detail: (event.user_agent ?? "").slice(0, 60),
+          })),
+        ]
+          .filter((event) => event.at)
+          .sort((a, b) => b.at.localeCompare(a.at))
+          .slice(0, 15);
+        if (!events.length) return null;
+        return (
+          <section className="space-y-2">
+            <h3 className="text-sm font-bold">{t.admin.timeline}</h3>
+            <div className="card px-4 py-3">
+              <ol className="space-y-0">
+                {events.map((event, index) => (
+                  <li
+                    key={`${event.at}-${index}`}
+                    className="relative flex gap-3 border-l-2 border-line pb-4 pl-4 last:pb-0"
+                  >
+                    <span
+                      className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-primary"
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-xs font-extrabold text-ink">
+                        {event.kind}
+                        <span className="ml-2 font-semibold text-ink-faint">
+                          {event.at.slice(0, 16).replace("T", " ")}
+                        </span>
+                      </p>
+                      {event.detail && (
+                        <p className="mt-0.5 truncate text-xs text-ink-soft">
+                          {event.detail}
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+        );
+      })()}
     </div>
   );
 }

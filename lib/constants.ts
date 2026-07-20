@@ -88,6 +88,8 @@ export const SETTING_KEYS = {
   UPLOAD_MAX_FILES_PER_POST: "upload_max_files_per_post",
   SUBSCRIPTION_EXPIRY_NOTICE_DAYS: "subscription_expiry_notice_days",
   SEO_INDEX_ENABLED: "seo_index_enabled",
+  SEARCH_POPULAR_EN: "search_popular_en",
+  SEARCH_POPULAR_KO: "search_popular_ko",
   ROBOTS_EXTRA_DISALLOW: "robots_extra_disallow",
   GOOGLE_SITE_VERIFICATION: "google_site_verification",
   NAVER_SITE_VERIFICATION: "naver_site_verification",

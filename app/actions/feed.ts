@@ -431,9 +431,15 @@ export async function blockFeedMember(formData: FormData) {
 export async function loadMoreFeed(
   before: string,
   followingOnly = false,
+  tag = "",
 ): Promise<FeedItem[]> {
   if (typeof before !== "string" || Number.isNaN(Date.parse(before))) {
     return [];
   }
-  return listFeed({ limit: 12, before, followingOnly: followingOnly === true });
+  return listFeed({
+    limit: 12,
+    before,
+    followingOnly: followingOnly === true,
+    tag: typeof tag === "string" ? tag : "",
+  });
 }

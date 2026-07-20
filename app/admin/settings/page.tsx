@@ -19,7 +19,7 @@ export default async function SettingsAdminPage() {
   // Human-readable names; the raw key stays visible as a small reference.
   const labels: Record<string, string> = t.admin.settingLabels;
   const groupOf = (key: string) => {
-    if (/^(site_|seo_|robots_|google_|naver_)/.test(key)) return "discovery";
+    if (/^(site_|seo_|robots_|google_|naver_|search_)/.test(key)) return "discovery";
     if (/^email_notify_/.test(key)) return "notifications";
     if (/^(pwa_|inapp_|upload_)/.test(key)) return "experience";
     if (/^(signup_|referral_invite_|login_session_|new_device_|suspicious_login_|failed_login_|security_log_)/.test(key)) return "security";

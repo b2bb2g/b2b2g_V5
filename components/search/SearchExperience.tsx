@@ -162,6 +162,7 @@ export function SearchExperience({
   menuSlugs,
   locale,
   labels,
+  popularQueries,
 }: {
   initialQuery: string;
   initialScope: SearchScope;
@@ -170,6 +171,7 @@ export function SearchExperience({
   menuSlugs: Record<string, string>;
   locale: Locale;
   labels: SearchLabels;
+  popularQueries: string[];
 }) {
   const [query, setQuery] = useState(initialQuery);
   const [scope, setScope] = useState<SearchScope>(initialScope);
@@ -293,10 +295,6 @@ export function SearchExperience({
     { value: "product", label: labels.products },
     { value: "request", label: labels.requests },
   ];
-  const popularQueries =
-    locale === "ko"
-      ? ["태양광", "CNC", "화장품", "EPC", "발전기"]
-      : ["Solar", "CNC", "Beauty", "EPC", "Generator"];
 
   return (
     <>

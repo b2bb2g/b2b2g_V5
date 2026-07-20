@@ -146,11 +146,17 @@ async function hydrateFeedItems(
   });
 }
 
+/** Hashtag filters keep letters/digits/underscore only (matches linkifier). */
+export function sanitizeFeedTag(value: string | undefined): string {
+  return (value ?? "").replace(/[^\p{L}\p{N}_]/gu, "").slice(0, 40);
+}
+
 export async function listFeed({
   limit = 12,
   authorUid,
   before,
   followingOnly = false,
+  tag,
 }: {
   limit?: number;
   authorUid?: number;
@@ -158,6 +164,8 @@ export async function listFeed({
   before?: string;
   /** Only posts from members the viewer follows (empty when signed out). */
   followingOnly?: boolean;
+  /** Only posts containing #tag. */
+  tag?: string;
 } = {}): Promise<FeedItem[]> {
   const supabase = await createClient();
   let followedIds: string[] | null = null;
@@ -182,6 +190,8 @@ export async function listFeed({
     .limit(limit);
   if (authorUid) query = query.eq("profiles.uid", authorUid);
   if (followedIds) query = query.in("author_id", followedIds);
+  const cleanTag = sanitizeFeedTag(tag);
+  if (cleanTag) query = query.ilike("body", `%#${cleanTag}%`);
   if (before) query = query.lt("created_at", before);
   const { data: posts, error } = await query;
   if (error) throw error;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { renderFeedBody } from "@/components/feed/FeedBodyText";
 
 export type FeedTextVariant = "compact" | "stream" | "detail";
 
@@ -79,7 +80,7 @@ export function ExpandableFeedText({
 
         {fullText ? (
           <p id={bodyId} className="whitespace-pre-wrap">
-            {body}
+            {renderFeedBody(body, true)}
           </p>
         ) : canCollapse ? (
           <button
@@ -100,7 +101,7 @@ export function ExpandableFeedText({
             className="relative block w-full cursor-pointer select-text rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <span id={bodyId} className={`${clampClass} whitespace-pre-wrap`}>
-              {body}
+              {renderFeedBody(body, false)}
             </span>
             <span className="absolute bottom-0 right-0 bg-gradient-to-r from-white/0 via-white via-25% to-white pl-8 font-semibold text-ink-soft hover:text-ink">
               {moreLabel}
@@ -116,12 +117,12 @@ export function ExpandableFeedText({
             className="block w-full cursor-pointer select-text rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <span id={bodyId} className={`${clampClass} whitespace-pre-wrap`}>
-              {body}
+              {renderFeedBody(body, false)}
             </span>
           </button>
         ) : (
           <p id={bodyId} className="whitespace-pre-wrap">
-            {body}
+            {renderFeedBody(body, true)}
           </p>
         )}
       </div>

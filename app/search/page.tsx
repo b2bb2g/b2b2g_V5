@@ -14,7 +14,8 @@ import {
   SEARCH_PAGE_SIZE,
 } from "@/lib/search";
 import { searchPublicPosts } from "@/lib/data/public-search";
-import { BOARD_TYPES } from "@/lib/constants";
+import { getPublicSettings, settingString } from "@/lib/data/settings";
+import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
 import type { Metadata } from "next";
 import type { PostTeaser } from "@/lib/types";
 
@@ -73,12 +74,27 @@ function Arrow() {
 export default async function SearchPage(props: {
   searchParams: Promise<{ q?: string; type?: string; sort?: string }>;
 }) {
-  const [{ t, locale }, params, menus, discovery] = await Promise.all([
+  const [{ t, locale }, params, menus, discovery, settings] = await Promise.all([
     getT(),
     props.searchParams,
     getVisibleMenus(),
     getSearchDiscovery(),
+    getPublicSettings(),
   ]);
+  // Operator-managed popular chips (comma-separated per locale).
+  const popularQueries = settingString(
+    settings,
+    locale === "ko"
+      ? SETTING_KEYS.SEARCH_POPULAR_KO
+      : SETTING_KEYS.SEARCH_POPULAR_EN,
+    locale === "ko"
+      ? "태양광, CNC, 화장품, EPC, 발전기"
+      : "Solar, CNC, Beauty, EPC, Generator",
+  )
+    .split(",")
+    .map((term) => term.trim())
+    .filter(Boolean)
+    .slice(0, 8);
   const initialQuery = sanitizeSearchQuery(params.q ?? "");
   const initialScope = normalizeSearchScope(params.type);
   const initialSort = normalizeSearchSort(params.sort);
@@ -151,6 +167,7 @@ export default async function SearchPage(props: {
               menuSlugs={menuSlugs}
               locale={locale}
               labels={searchLabels}
+              popularQueries={popularQueries}
             />
           </div>
         </div>

@@ -15,12 +15,14 @@ export function FeedStream({
   returnTo,
   labels,
   followingOnly = false,
+  tag = "",
 }: {
   initialItems: FeedItem[];
   viewerId: string | null;
   returnTo: string;
   labels: FeedLabels;
   followingOnly?: boolean;
+  tag?: string;
 }) {
   const [items, setItems] = useState(initialItems);
   const [done, setDone] = useState(initialItems.length < PAGE_SIZE);
@@ -59,7 +61,7 @@ export function FeedStream({
           setDone(true);
           return;
         }
-        const more = await loadMoreFeed(cursor, followingOnly);
+        const more = await loadMoreFeed(cursor, followingOnly, tag);
         setItems((current) => {
           const seen = new Set(current.map((item) => item.id));
           return [...current, ...more.filter((item) => !seen.has(item.id))];
@@ -71,7 +73,7 @@ export function FeedStream({
     }, { rootMargin: "600px 0px" });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [done, followingOnly]);
+  }, [done, followingOnly, tag]);
 
   return (
     <>

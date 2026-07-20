@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
-import { getMemberNetworkStats, listFeed } from "@/lib/data/feed";
+import {
+  getMemberNetworkStats,
+  listFeed,
+  sanitizeFeedTag,
+} from "@/lib/data/feed";
 import { FeedComposer } from "@/components/feed/FeedComposer";
 import { FeedStream } from "@/components/feed/FeedStream";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -17,14 +21,15 @@ export const metadata = {
 };
 
 export default async function FeedPage(props: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; tag?: string }>;
 }) {
-  const { tab } = await props.searchParams;
+  const { tab, tag: rawTag } = await props.searchParams;
   const followingOnly = tab === "following";
+  const tag = sanitizeFeedTag(rawTag);
   const [{ t, locale }, session, items] = await Promise.all([
     getT(),
     getSession(),
-    listFeed({ limit: 12, followingOnly }),
+    listFeed({ limit: 12, followingOnly, tag }),
   ]);
   const stats = await getMemberNetworkStats(session.userId);
   const profile = session.profile;
@@ -87,14 +92,34 @@ export default async function FeedPage(props: {
             ))}
           </nav>
         )}
+        {tag && (
+          <p className="flex items-center gap-2">
+            <span className="inline-flex min-h-9 items-center rounded-full bg-primary-soft px-4 text-sm font-extrabold text-primary-strong">
+              #{tag}
+            </span>
+            <Link
+              href={followingOnly ? "/feed?tab=following" : "/feed"}
+              className="text-xs font-bold text-ink-soft hover:text-ink"
+            >
+              {t.common.clearFilter}
+            </Link>
+          </p>
+        )}
         {items.length > 0 ? (
           <FeedStream
-            key={followingOnly ? "following" : "all"}
+            key={`${followingOnly ? "following" : "all"}:${tag}`}
             initialItems={items}
             viewerId={session.userId}
-            returnTo={followingOnly ? "/feed?tab=following" : "/feed"}
+            returnTo={
+              tag
+                ? `/feed?tag=${encodeURIComponent(tag)}`
+                : followingOnly
+                  ? "/feed?tab=following"
+                  : "/feed"
+            }
             labels={labels}
             followingOnly={followingOnly}
+            tag={tag}
           />
         ) : followingOnly ? (
           <EmptyState
