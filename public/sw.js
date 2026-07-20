@@ -2,7 +2,7 @@
 // offline fallback for navigations. Content stays network-first (freshness
 // matters more than offline for a trade board); only the fallback page and
 // the app icon are precached.
-const OFFLINE_CACHE = "b2bb2g-offline-v2";
+const OFFLINE_CACHE = "b2bb2g-offline-v3";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {

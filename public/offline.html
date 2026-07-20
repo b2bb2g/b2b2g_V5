@@ -19,18 +19,13 @@
   }
   main { max-width: 22rem; }
   .mark {
+    display: block;
     width: 3.5rem;
     height: 3.5rem;
     margin: 0 auto 1.5rem;
     border-radius: 1.1rem;
-    background: #1b64da;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
-    letter-spacing: -.02em;
+    object-fit: cover;
+    box-shadow: 0 10px 30px rgba(16, 25, 35, .16);
   }
   h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.03em; }
   p { margin-top: .65rem; font-size: .9rem; line-height: 1.6; color: #5b6472; }
@@ -53,7 +48,7 @@
 </head>
 <body>
 <main>
-  <div class="mark" aria-hidden="true">B2B</div>
+  <img class="mark" src="/icons/b2bb2g-icon-192.png" width="56" height="56" alt="B2BB2G" />
   <h1>인터넷 연결이 끊겼습니다</h1>
   <p>네트워크 상태를 확인한 뒤 다시 시도해 주세요. 연결이 복구되면 보던 페이지로 돌아갑니다.</p>
   <p class="en">You are offline. Check your connection and try again.</p>
