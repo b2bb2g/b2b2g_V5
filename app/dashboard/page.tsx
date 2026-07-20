@@ -13,6 +13,7 @@ import {
   DashboardActionCard,
   DashboardMetricCard,
 } from "@/components/dashboard/DashboardCards";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { postMediaUrl } from "@/lib/media";
 import {
   BADGE_CODES,
@@ -35,6 +36,8 @@ export default async function DashboardPage() {
     recentPosts,
     recentInquiries,
     activeInvitations,
+    bookmarkCount,
+    pushDeviceCount,
   ] = await Promise.all([
     supabase.rpc("member_dashboard_summary"),
     supabase
@@ -68,6 +71,14 @@ export default async function DashboardPage() {
       .in("status", ["active", "reserved"])
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false }),
+    supabase
+      .from("post_bookmarks")
+      .select("post_id", { count: "exact", head: true })
+      .eq("profile_id", session.userId),
+    supabase
+      .from("push_subscriptions")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", session.userId),
   ]);
 
   const summary = (summaryResult.data ?? {}) as {
@@ -144,8 +155,44 @@ export default async function DashboardPage() {
     });
   }
 
+  const onboardingSteps = [
+    {
+      key: "profile",
+      label: t.dashboard.onboardProfile,
+      href: "/dashboard/profile/edit",
+      done: profileCompletion === 100,
+    },
+    {
+      key: "post",
+      label: t.dashboard.onboardPost,
+      href: "/write/select",
+      done: (summary.posts ?? 0) > 0,
+    },
+    {
+      key: "save",
+      label: t.dashboard.onboardSave,
+      href: "/commercial",
+      done: (bookmarkCount.count ?? 0) > 0,
+    },
+    {
+      key: "alerts",
+      label: t.dashboard.onboardAlerts,
+      href: "/notifications",
+      done: (pushDeviceCount.count ?? 0) > 0,
+    },
+  ];
+
   return (
     <div className="space-y-7">
+      <OnboardingChecklist
+        steps={onboardingSteps}
+        labels={{
+          title: t.dashboard.onboardTitle,
+          hint: t.dashboard.onboardHint,
+          dismiss: t.common.close,
+          progress: t.dashboard.onboardProgress,
+        }}
+      />
       <section className="overflow-hidden rounded-[1.5rem] border border-line bg-white shadow-(--shadow-card)">
         <div className="grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_14rem] xl:items-center">
           <div className="flex min-w-0 items-start gap-4">

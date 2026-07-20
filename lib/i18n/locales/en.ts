@@ -577,6 +577,14 @@ const en = {
     compareHint:
       "Specifications side by side across your saved products.",
     compareNoSpecs: "These products have no specifications to compare yet.",
+    onboardTitle: "Get started on B2BB2G",
+    onboardHint:
+      "Four quick steps to make your account work for you.",
+    onboardProgress: "{done} of {total} complete",
+    onboardProfile: "Complete your profile",
+    onboardPost: "Publish your first listing",
+    onboardSave: "Save a product you like",
+    onboardAlerts: "Turn on notifications",
     saveProduct: "Save",
     savedProduct: "Saved",
     noSavedProducts: "No saved products yet",
