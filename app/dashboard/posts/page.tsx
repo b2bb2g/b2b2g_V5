@@ -69,6 +69,31 @@ export default async function MyPostsPage(props: {
       )
     : allRows;
 
+  // Per-listing performance: public save counts (aggregate view) and the
+  // inquiry threads this member can see on their own posts.
+  const rowIds = rows.map((post) => post.id);
+  const [{ data: saveRows }, { data: inquiryRows }] = await Promise.all([
+    rowIds.length
+      ? supabase
+          .from("public_post_popularity")
+          .select("id, bookmark_count")
+          .in("id", rowIds)
+      : Promise.resolve({
+          data: [] as { id: string; bookmark_count: number }[],
+        }),
+    rowIds.length
+      ? supabase.from("inquiries").select("post_id").in("post_id", rowIds)
+      : Promise.resolve({ data: [] as { post_id: string | null }[] }),
+  ]);
+  const saveCounts = new Map(
+    (saveRows ?? []).map((row) => [row.id, row.bookmark_count]),
+  );
+  const inquiryCounts = new Map<string, number>();
+  for (const row of inquiryRows ?? []) {
+    if (!row.post_id) continue;
+    inquiryCounts.set(row.post_id, (inquiryCounts.get(row.post_id) ?? 0) + 1);
+  }
+
   const isPaid = session.badges.some(
     (badge) => badge.badge_types?.code === BADGE_CODES.CERTIFIED,
   );
@@ -218,8 +243,33 @@ export default async function MyPostsPage(props: {
                     <h3 className="mt-2 truncate text-sm font-extrabold">
                       {title}
                     </h3>
-                    <p className="mt-1 text-xs text-ink-faint">
-                      {t.dashboard.updated} {formatDate(post.updated_at, locale)}
+                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-faint">
+                      <span>
+                        {t.dashboard.updated}{" "}
+                        {formatDate(post.updated_at, locale)}
+                      </span>
+                      {post.status !== POST_STATUS.DRAFT && (
+                        <>
+                          <span className="flex items-center gap-1 font-semibold text-ink-soft">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M12 21C7.2 17.6 2 13.3 2 8.9 2 6.2 4.2 4 6.9 4c1.9 0 3.7 1 4.6 2.6h1C13.4 5 15.2 4 17.1 4 19.8 4 22 6.2 22 8.9c0 4.4-5.2 8.7-10 12.1Z" />
+                            </svg>
+                            {saveCounts.get(post.id) ?? 0}
+                            <span className="sr-only">
+                              {t.dashboard.statSaves}
+                            </span>
+                          </span>
+                          <span className="flex items-center gap-1 font-semibold text-ink-soft">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <path d="M7 4h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-5l-4 3v-3H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+                            </svg>
+                            {inquiryCounts.get(post.id) ?? 0}
+                            <span className="sr-only">
+                              {t.dashboard.statInquiries}
+                            </span>
+                          </span>
+                        </>
+                      )}
                     </p>
                     {post.status === POST_STATUS.REJECTED &&
                       post.reject_reason && (

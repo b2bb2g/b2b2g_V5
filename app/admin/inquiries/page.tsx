@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { getT } from "@/lib/i18n/server";
 import { postMediaUrl } from "@/lib/media";
+import { AttachmentThumbs } from "@/components/ui/AttachmentThumbs";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { reviewMessage } from "@/app/actions/admin/reviews";
@@ -8,6 +8,7 @@ import { MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { InquiryMessage } from "@/lib/types";
 import { Pagination } from "@/components/ui/Pagination";
 import { ReviewDecisionForm } from "@/components/admin/ReviewDecisionForm";
+import { ReviewHotkeys } from "@/components/admin/ReviewHotkeys";
 
 const PAGE_SIZE = 20;
 
@@ -35,13 +36,16 @@ export default async function InquiryModerationPage(props: {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <h2 className="text-base font-bold">{t.admin.inquiryModeration}</h2>
-        {(count ?? 0) > 0 && (
-          <span className="rounded-full bg-caution-soft px-2.5 py-0.5 text-xs font-bold text-caution">
-            {count} {t.admin.awaitingReview}
-          </span>
-        )}
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <h2 className="text-base font-bold">{t.admin.inquiryModeration}</h2>
+          {(count ?? 0) > 0 && (
+            <span className="rounded-full bg-caution-soft px-2.5 py-0.5 text-xs font-bold text-caution">
+              {count} {t.admin.awaitingReview}
+            </span>
+          )}
+        </div>
+        <ReviewHotkeys hint={t.admin.hotkeyHint} />
       </div>
       {messages.length === 0 ? (
         <EmptyState title={t.admin.noPending} />
@@ -50,7 +54,9 @@ export default async function InquiryModerationPage(props: {
           {messages.map((message) => (
             <article
               key={message.id}
-              className="rounded-[1.25rem] border border-line bg-surface p-5 shadow-(--shadow-card)"
+              data-review-card
+              tabIndex={-1}
+              className="rounded-[1.25rem] border border-line bg-surface p-5 shadow-(--shadow-card) focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2"
             >
               <p className="text-xs font-semibold text-ink-faint">
                 {message.inquiries?.subject}
@@ -63,24 +69,14 @@ export default async function InquiryModerationPage(props: {
                 {message.body}
               </p>
               {(message.media_paths?.length ?? 0) > 0 && (
-                <div className="mt-3 flex gap-2">
-                  {(message.media_paths ?? []).map((path) => (
-                    <a
-                      key={path}
-                      href={postMediaUrl(path)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="overflow-hidden rounded-xl border border-line transition hover:opacity-90"
-                    >
-                      <Image
-                        src={postMediaUrl(path)}
-                        alt=""
-                        width={140}
-                        height={140}
-                        className="h-28 w-28 object-cover"
-                      />
-                    </a>
-                  ))}
+                <div className="mt-3">
+                  <AttachmentThumbs
+                    images={(message.media_paths ?? []).map(postMediaUrl)}
+                    size="sm"
+                    closeLabel={t.common.close}
+                    previousLabel={t.home.prev}
+                    nextLabel={t.home.next}
+                  />
                 </div>
               )}
               <ReviewDecisionForm

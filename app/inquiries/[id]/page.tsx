@@ -7,11 +7,11 @@ import { StatusLabel } from "@/components/ui/StatusLabel";
 import { replyInquiry } from "@/app/actions/inquiries";
 import { INQUIRY_STATUS, MESSAGE_REVIEW_STATUS } from "@/lib/constants";
 import type { Inquiry, InquiryMessage } from "@/lib/types";
-import Image from "next/image";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { InquiryReadMarker } from "@/components/inquiries/InquiryReadMarker";
 import { InquiryLive } from "@/components/inquiries/InquiryLive";
 import { InquiryComposer } from "@/components/inquiries/InquiryComposer";
+import { AttachmentThumbs } from "@/components/ui/AttachmentThumbs";
 import { postMediaUrl } from "@/lib/media";
 import { formatDateTime } from "@/lib/format";
 
@@ -170,24 +170,13 @@ export default async function InquiryDetailPage(props: {
                     {message.body}
                   </p>
                   {(message.media_paths?.length ?? 0) > 0 && (
-                    <span className="mt-2.5 flex gap-2">
-                      {(message.media_paths ?? []).map((path) => (
-                        <a
-                          key={path}
-                          href={postMediaUrl(path)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="overflow-hidden rounded-xl border border-white/20 transition hover:opacity-90"
-                        >
-                          <Image
-                            src={postMediaUrl(path)}
-                            alt=""
-                            width={160}
-                            height={160}
-                            className="h-32 w-32 object-cover"
-                          />
-                        </a>
-                      ))}
+                    <span className="mt-2.5 block">
+                      <AttachmentThumbs
+                        images={(message.media_paths ?? []).map(postMediaUrl)}
+                        closeLabel={t.common.close}
+                        previousLabel={t.home.prev}
+                        nextLabel={t.home.next}
+                      />
                     </span>
                   )}
                   {message.admin_feedback && (

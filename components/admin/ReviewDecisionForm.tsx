@@ -78,6 +78,7 @@ export function ReviewDecisionForm({
               type="submit"
               name="decision"
               value={approveValue}
+              data-review-approve
               className="btn-primary btn-md flex-1"
             >
               {approveLabel}
@@ -85,6 +86,7 @@ export function ReviewDecisionForm({
             <button
               type="button"
               onClick={() => setRejecting(true)}
+              data-review-reject
               className="btn-secondary btn-md flex-1 text-negative"
             >
               {rejectLabel}

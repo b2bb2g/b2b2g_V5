@@ -6,6 +6,7 @@ import { POST_STATUS } from "@/lib/constants";
 import type { Post } from "@/lib/types";
 import { Pagination } from "@/components/ui/Pagination";
 import { ReviewDecisionForm } from "@/components/admin/ReviewDecisionForm";
+import { ReviewHotkeys } from "@/components/admin/ReviewHotkeys";
 
 const PAGE_SIZE = 20;
 
@@ -45,20 +46,23 @@ export default async function ModerationPage(props: {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <h2 className="text-base font-bold">{t.admin.moderation}</h2>
-        {(count ?? 0) > 0 && (
-          <span className="rounded-full bg-caution-soft px-2.5 py-0.5 text-xs font-bold text-caution">
-            {count} {t.admin.awaitingReview}
-          </span>
-        )}
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <h2 className="text-base font-bold">{t.admin.moderation}</h2>
+          {(count ?? 0) > 0 && (
+            <span className="rounded-full bg-caution-soft px-2.5 py-0.5 text-xs font-bold text-caution">
+              {count} {t.admin.awaitingReview}
+            </span>
+          )}
+        </div>
+        <ReviewHotkeys hint={t.admin.hotkeyHint} />
       </div>
       {posts.length === 0 ? (
         <EmptyState title={t.admin.noPending} />
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
-            <article key={post.id} className="rounded-[1.25rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
+            <article key={post.id} data-review-card tabIndex={-1} className="rounded-[1.25rem] border border-line bg-surface p-5 shadow-(--shadow-card) focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">
               <p className="text-xs font-semibold text-ink-faint">
                 {post.menus
                   ? locale === "ko"
