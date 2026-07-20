@@ -59,10 +59,17 @@ export default async function SignUpPage(props: {
       <p className="mt-1 text-sm text-ink-soft">{t.auth.signUpSubtitle}</p>
 
       {invite && (
-        <p className="mt-3 rounded-lg bg-primary-soft px-3 py-2 text-xs font-semibold text-primary-strong">
-          <span aria-hidden="true">✓ </span>
-          {t.auth.invitationConfirmed}
-        </p>
+        <div className="mt-4 rounded-xl border border-primary/25 bg-primary-soft/70 px-4 py-3">
+          <p className="flex items-center gap-1.5 text-xs font-extrabold text-primary-strong">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+            {t.auth.invitationConfirmed}
+          </p>
+          <p className="mt-1 text-[12px] leading-5 text-primary-strong/85">
+            {t.auth.invitationOneUseNote}
+          </p>
+        </div>
       )}
       {params.error && (
         <p role="alert" className="mt-3 rounded-lg bg-negative-soft px-3 py-2 text-xs font-semibold text-negative">
