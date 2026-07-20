@@ -362,6 +362,7 @@ export default async function BoardPage(props: {
                         RECOMMENDED_COLLECTION_IMAGES[menu.slug] ??
                         "/landing-v2/hero-global-collaboration.jpg"
                       }
+                      body={t.board.recommendedProductsHint}
                       actionLabel={t.board.viewAllProducts}
                     />
                   </div>

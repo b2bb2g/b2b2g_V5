@@ -19,16 +19,19 @@ function Arrow() {
 }
 
 // The 400 × 500 lead card shared by landing and board collection shelves.
-// A purely visual collection cover: the section heading beside it already
-// carries the eyebrow / title / description, so the card only shows the image
-// and a call-to-action -- no repeated copy.
+// A collection cover: image + its own one-line description + call-to-action.
+// It deliberately omits the eyebrow/title the neighbouring section heading
+// already shows, so the copy here complements the heading instead of repeating
+// it.
 export function CollectionLeadCard({
   href,
   image,
+  body,
   actionLabel,
 }: {
   href: string;
   image: string;
+  body?: string;
   actionLabel: string;
 }) {
   return (
@@ -43,11 +46,18 @@ export function CollectionLeadCard({
         sizes="(max-width: 640px) 88vw, 25rem"
         className="object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
-      <span className="relative inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-white/25 bg-black/35 px-5 text-sm font-bold backdrop-blur-md transition-colors group-hover:bg-black/55">
-        {actionLabel}
-        <Arrow />
-      </span>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/12" />
+      <div className="relative">
+        {body && (
+          <p className="max-w-[26ch] text-[15px] font-semibold leading-6 text-white/90">
+            {body}
+          </p>
+        )}
+        <span className="mt-4 inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-white/25 bg-black/35 px-5 text-sm font-bold backdrop-blur-md transition-colors group-hover:bg-black/55">
+          {actionLabel}
+          <Arrow />
+        </span>
+      </div>
     </Link>
   );
 }

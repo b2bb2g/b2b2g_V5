@@ -222,21 +222,24 @@ async function LandingContent() {
   };
   const marketRailCopy: Record<
     string,
-    { tagline: string; title: string; image: string }
+    { tagline: string; title: string; body: string; image: string }
   > = {
     commercial: {
       tagline: t.home.commercialRailTagline,
       title: t.home.commercialRailTitle,
+      body: t.home.commercialRailBody,
       image: MARKET_IMAGES[0],
     },
     industrial: {
       tagline: t.home.industrialRailTagline,
       title: t.home.industrialRailTitle,
+      body: t.home.industrialRailBody,
       image: MARKET_IMAGES[1],
     },
     epc: {
       tagline: t.home.epcRailTagline,
       title: t.home.epcRailTitle,
+      body: t.home.epcRailBody,
       image: MARKET_IMAGES[2],
     },
   };
@@ -402,6 +405,7 @@ async function LandingContent() {
                             <CollectionLeadCard
                               href={`/${menu.slug}`}
                               image={copy.image}
+                              body={copy.body}
                               actionLabel={t.home.exploreCollection}
                             />
                           </div>
@@ -515,6 +519,7 @@ async function LandingContent() {
                     <CollectionLeadCard
                       href={`/${requestsMenu.slug}`}
                       image="/landing-v2/precision-manufacturing.jpg"
+                      body={t.home.value2Body}
                       actionLabel={t.dashboard.viewAll}
                     />
                   </div>
