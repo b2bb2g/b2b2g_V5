@@ -6,6 +6,7 @@ import {
   SEARCH_MIN_QUERY_LENGTH,
   SEARCH_PAGE_SIZE,
   type SearchScope,
+  type SearchSort,
 } from "@/lib/search";
 import type { PostTeaser } from "@/lib/types";
 
@@ -14,11 +15,13 @@ export async function searchPublicPosts({
   page = 1,
   pageSize = SEARCH_PAGE_SIZE,
   scope = "all",
+  sort = "latest",
 }: {
   query: string;
   page?: number;
   pageSize?: number;
   scope?: SearchScope;
+  sort?: SearchSort;
 }) {
   const q = sanitizeSearchQuery(query);
   const safePage = Math.max(1, page);
@@ -48,6 +51,40 @@ export async function searchPublicPosts({
     request = request.or(
       `title_en.ilike.${pattern},title_ko.ilike.${pattern},body_teaser_en.ilike.${pattern},body_teaser_ko.ilike.${pattern}`,
     );
+  }
+
+  if (sort === "popular") {
+    // Popularity needs save counts, which live in the aggregate view without
+    // the searchable text columns. Rank the first 200 matches by count, then
+    // page in memory — search hit sets stay comfortably below that cap.
+    const { data, count, error } = await request
+      .order("published_at", { ascending: false })
+      .range(0, 199);
+    if (error) throw error;
+    const matches = (data as PostTeaser[]) ?? [];
+    const { data: counts } = matches.length
+      ? await supabase
+          .from("public_post_popularity")
+          .select("id, bookmark_count")
+          .in(
+            "id",
+            matches.map((post) => post.id),
+          )
+      : { data: [] as { id: string; bookmark_count: number }[] };
+    const countById = new Map(
+      (counts ?? []).map((row) => [row.id, row.bookmark_count]),
+    );
+    const ranked = [...matches].sort(
+      (a, b) => (countById.get(b.id) ?? 0) - (countById.get(a.id) ?? 0),
+    );
+    const total = count ?? ranked.length;
+    return {
+      query: q,
+      items: ranked.slice(from, from + safePageSize),
+      total,
+      page: safePage,
+      totalPages: Math.max(1, Math.ceil(total / safePageSize)),
+    };
   }
 
   const { data, count, error } = await request

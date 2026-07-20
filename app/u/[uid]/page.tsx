@@ -10,7 +10,14 @@ import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BOARD_TYPES } from "@/lib/constants";
 import { postMediaUrl } from "@/lib/media";
-import { listFeed } from "@/lib/data/feed";
+import {
+  getMemberNetworkStats,
+  listFeed,
+  listFollowConnections,
+} from "@/lib/data/feed";
+import { toggleMemberFollow } from "@/app/actions/feed";
+import { PendingButton } from "@/components/ui/PendingButton";
+import { ProfileNetwork } from "@/components/profile/ProfileNetwork";
 import { FeedCard } from "@/components/feed/FeedCard";
 import { getFeedCardLabels } from "@/lib/i18n/feed";
 import { DefaultAvatar } from "@/components/profile/DefaultAvatar";
@@ -106,6 +113,21 @@ export default async function PublicProfilePage(props: {
   if (!data) notFound();
 
   const { profile, badges, homepageSlug, posts } = data;
+  const [stats, connections, supabaseForFollow] = await Promise.all([
+    getMemberNetworkStats(profile.id),
+    listFollowConnections(profile.id),
+    createClient(),
+  ]);
+  const viewerFollows = session.userId
+    ? !!(
+        await supabaseForFollow
+          .from("member_follows")
+          .select("following_id")
+          .eq("follower_id", session.userId)
+          .eq("following_id", profile.id)
+          .maybeSingle()
+      ).data
+    : false;
   const name = `UID:${profile.uid}`;
   const publicBio =
     locale === "ko"
@@ -193,6 +215,19 @@ export default async function PublicProfilePage(props: {
                     </div>
                   </div>
 
+                  <ProfileNetwork
+                    posts={stats.posts}
+                    followers={connections.followers}
+                    following={connections.following}
+                    labels={{
+                      posts: t.feed.posts,
+                      followers: t.feed.followers,
+                      following: t.feed.followingCount,
+                      close: t.common.close,
+                      empty: t.common.emptyList,
+                    }}
+                  />
+
                   <p className="mt-8 max-w-3xl whitespace-pre-wrap text-base leading-8 text-ink-soft sm:text-lg">
                     {publicBio || t.profile.publicMemberHint}
                   </p>
@@ -256,6 +291,46 @@ export default async function PublicProfilePage(props: {
                   </p>
                 </div>
                 <div className="relative mt-auto flex flex-col gap-2 pt-9">
+                  {!isOwn &&
+                    (session.userId ? (
+                      <form action={toggleMemberFollow}>
+                        <input
+                          type="hidden"
+                          name="targetId"
+                          value={profile.id}
+                        />
+                        <input
+                          type="hidden"
+                          name="returnTo"
+                          value={`/u/${profile.uid}`}
+                        />
+                        <PendingButton
+                          className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition ${
+                            viewerFollows
+                              ? "bg-white/10 text-white hover:bg-white/16"
+                              : "bg-white text-[#101923] hover:bg-white/88"
+                          }`}
+                        >
+                          {viewerFollows ? (
+                            <>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="M20 6 9 17l-5-5" />
+                              </svg>
+                              {t.feed.following}
+                            </>
+                          ) : (
+                            `＋ ${t.feed.follow}`
+                          )}
+                        </PendingButton>
+                      </form>
+                    ) : (
+                      <Link
+                        href={`/login?next=/u/${profile.uid}`}
+                        className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-[#101923] transition hover:bg-white/88"
+                      >
+                        ＋ {t.feed.follow}
+                      </Link>
+                    ))}
                   {!isOwn ? (
                     <Link href={inquiryHref} className="btn-primary btn-lg w-full">
                       {t.post.inquire}

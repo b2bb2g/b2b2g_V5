@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchPublicPosts } from "@/lib/data/public-search";
-import { normalizeSearchScope, SEARCH_PAGE_SIZE } from "@/lib/search";
+import {
+  normalizeSearchScope,
+  normalizeSearchSort,
+  SEARCH_PAGE_SIZE,
+} from "@/lib/search";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -10,6 +14,7 @@ export async function GET(request: NextRequest) {
     Number.parseInt(searchParams.get("page") ?? "1", 10) || 1,
   );
   const scope = normalizeSearchScope(searchParams.get("type") ?? undefined);
+  const sort = normalizeSearchSort(searchParams.get("sort") ?? undefined);
 
   try {
     const result = await searchPublicPosts({
@@ -17,6 +22,7 @@ export async function GET(request: NextRequest) {
       page,
       pageSize: SEARCH_PAGE_SIZE,
       scope,
+      sort,
     });
     return NextResponse.json(result, {
       headers: { "Cache-Control": "private, no-store" },

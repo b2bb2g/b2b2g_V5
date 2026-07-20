@@ -14,12 +14,34 @@ import { BOARD_TYPES, type Locale } from "@/lib/constants";
 import {
   SEARCH_MIN_QUERY_LENGTH,
   type SearchScope,
+  type SearchSort,
 } from "@/lib/search";
 import type { PostTeaser } from "@/lib/types";
+
+// Device-local search history, newest first.
+const RECENT_KEY = "b2bb2g:recent-searches";
+const RECENT_MAX = 8;
+
+function readRecentSearches(): string[] {
+  try {
+    const parsed = JSON.parse(
+      window.localStorage.getItem(RECENT_KEY) ?? "[]",
+    ) as string[];
+    return Array.isArray(parsed)
+      ? parsed.filter((item) => typeof item === "string").slice(0, RECENT_MAX)
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 type SearchLabels = {
   placeholder: string;
   popular: string;
+  sortLatest: string;
+  sortPopular: string;
+  recent: string;
+  clearRecent: string;
   all: string;
   products: string;
   requests: string;
@@ -135,6 +157,7 @@ function ResultCard({
 export function SearchExperience({
   initialQuery,
   initialScope,
+  initialSort,
   initialResult,
   menuSlugs,
   locale,
@@ -142,6 +165,7 @@ export function SearchExperience({
 }: {
   initialQuery: string;
   initialScope: SearchScope;
+  initialSort: SearchSort;
   initialResult: SearchResponse;
   menuSlugs: Record<string, string>;
   locale: Locale;
@@ -149,17 +173,38 @@ export function SearchExperience({
 }) {
   const [query, setQuery] = useState(initialQuery);
   const [scope, setScope] = useState<SearchScope>(initialScope);
+  const [sort, setSort] = useState<SearchSort>(initialSort);
   const [result, setResult] = useState(initialResult);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
+  const [recent, setRecent] = useState<string[]>([]);
   const initialRequest = useRef(true);
   const requestSequence = useRef(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setRecent(readRecentSearches()), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const rememberSearch = useCallback((value: string) => {
+    try {
+      const next = [
+        value,
+        ...readRecentSearches().filter((item) => item !== value),
+      ].slice(0, RECENT_MAX);
+      window.localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+      setRecent(next);
+    } catch {
+      // History is best-effort only.
+    }
+  }, []);
 
   const performSearch = useCallback(
     async (
       value: string,
       selectedScope: SearchScope,
+      selectedSort: SearchSort,
       page = 1,
       append = false,
     ) => {
@@ -188,6 +233,7 @@ export function SearchExperience({
           page: String(page),
         });
         if (selectedScope !== "all") params.set("type", selectedScope);
+        if (selectedSort !== "latest") params.set("sort", selectedSort);
 
         const response = await fetch(`/api/search?${params.toString()}`, {
           cache: "no-store",
@@ -202,8 +248,10 @@ export function SearchExperience({
             ? { ...next, items: [...current.items, ...next.items] }
             : next,
         );
+        if (!append) rememberSearch(normalized);
         const urlParams = new URLSearchParams({ q: normalized });
         if (selectedScope !== "all") urlParams.set("type", selectedScope);
+        if (selectedSort !== "latest") urlParams.set("sort", selectedSort);
         if (page > 1) urlParams.set("page", String(page));
         window.history.replaceState(
           null,
@@ -219,7 +267,7 @@ export function SearchExperience({
         }
       }
     },
-    [],
+    [rememberSearch],
   );
 
   useEffect(() => {
@@ -228,15 +276,15 @@ export function SearchExperience({
       return;
     }
     const timer = window.setTimeout(
-      () => void performSearch(query, scope),
+      () => void performSearch(query, scope, sort),
       280,
     );
     return () => window.clearTimeout(timer);
-  }, [performSearch, query, scope]);
+  }, [performSearch, query, scope, sort]);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void performSearch(query, scope);
+    void performSearch(query, scope, sort);
   }
 
   const hasSearch = query.trim().length >= SEARCH_MIN_QUERY_LENGTH;
@@ -313,6 +361,27 @@ export function SearchExperience({
                 {filter.label}
               </button>
             ))}
+            <span aria-hidden="true" className="mx-1 w-px shrink-0 self-stretch bg-line" />
+            {(
+              [
+                ["latest", labels.sortLatest],
+                ["popular", labels.sortPopular],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={sort === value}
+                onClick={() => setSort(value)}
+                className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition ${
+                  sort === value
+                    ? "bg-primary text-white shadow-sm"
+                    : "border border-line bg-white text-ink-soft hover:border-primary/30 hover:text-primary"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
           <div className="flex min-w-0 items-center gap-2">
             <span className="shrink-0 text-xs font-semibold text-ink-faint">
@@ -332,6 +401,40 @@ export function SearchExperience({
             </div>
           </div>
         </div>
+
+        {recent.length > 0 && (
+          <div className="mt-3 flex min-w-0 items-center gap-2">
+            <span className="shrink-0 text-xs font-semibold text-ink-faint">
+              {labels.recent}
+            </span>
+            <div className="scrollbar-none flex min-w-0 gap-1 overflow-x-auto">
+              {recent.map((entry) => (
+                <button
+                  key={entry}
+                  type="button"
+                  onClick={() => setQuery(entry)}
+                  className="shrink-0 rounded-full bg-surface-sub px-2.5 py-1.5 text-xs font-semibold text-ink-soft transition hover:text-primary"
+                >
+                  {entry}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  window.localStorage.removeItem(RECENT_KEY);
+                } catch {
+                  // Clearing is best-effort only.
+                }
+                setRecent([]);
+              }}
+              className="shrink-0 rounded-full px-2 py-1.5 text-xs font-semibold text-ink-faint transition hover:text-negative"
+            >
+              {labels.clearRecent}
+            </button>
+          </div>
+        )}
       </form>
 
       <div aria-live="polite" aria-atomic="true" className="sr-only">
@@ -401,7 +504,13 @@ export function SearchExperience({
                     type="button"
                     disabled={loadingMore}
                     onClick={() =>
-                      void performSearch(query, scope, result.page + 1, true)
+                      void performSearch(
+                        query,
+                        scope,
+                        sort,
+                        result.page + 1,
+                        true,
+                      )
                     }
                     className="btn-secondary btn-lg min-w-48"
                   >

@@ -306,6 +306,45 @@ export async function listFeedComments(
   });
 }
 
+export type FollowConnection = { uid: number; avatarPath: string | null };
+
+// Follow edges are public reads (SNS convention); lists cap at the most
+// recent 100 connections per direction.
+export async function listFollowConnections(profileId: string): Promise<{
+  followers: FollowConnection[];
+  following: FollowConnection[];
+}> {
+  const supabase = await createClient();
+  const toConnection = (row: unknown): FollowConnection => {
+    const profile = (
+      row as { profiles: { uid: number; avatar_url: string | null } }
+    ).profiles;
+    return { uid: profile.uid, avatarPath: profile.avatar_url };
+  };
+  const [followerRows, followingRows] = await Promise.all([
+    supabase
+      .from("member_follows")
+      .select(
+        "created_at, profiles!member_follows_follower_id_fkey!inner(uid, avatar_url)",
+      )
+      .eq("following_id", profileId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    supabase
+      .from("member_follows")
+      .select(
+        "created_at, profiles!member_follows_following_id_fkey!inner(uid, avatar_url)",
+      )
+      .eq("follower_id", profileId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+  ]);
+  return {
+    followers: (followerRows.data ?? []).map(toConnection),
+    following: (followingRows.data ?? []).map(toConnection),
+  };
+}
+
 export async function getMemberNetworkStats(
   profileId: string | null,
 ): Promise<MemberNetworkStats> {

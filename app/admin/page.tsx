@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
+import { TrendSparkline, type TrendBin } from "@/components/admin/TrendSparkline";
 import {
   MESSAGE_REVIEW_STATUS,
   POST_STATUS,
@@ -15,6 +16,29 @@ function isoDaysFromNow(days: number): string {
 
 function hoursSince(value?: string): number {
   return value ? Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 3_600_000)) : 0;
+}
+
+// 30 daily buckets, oldest first. Rows arrive newest-first so a truncated
+// fetch undercounts the oldest days, never the recent ones.
+function binDaily(rows: { created_at: string }[], days = 30): TrendBin[] {
+  const bins: TrendBin[] = [];
+  const today = Date.now();
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    bins.push({
+      date: new Date(today - offset * 86400_000).toISOString().slice(0, 10),
+      count: 0,
+    });
+  }
+  const index = new Map(bins.map((bin, i) => [bin.date, i]));
+  for (const row of rows) {
+    const slot = index.get(row.created_at.slice(0, 10));
+    if (slot !== undefined) bins[slot].count += 1;
+  }
+  return bins;
+}
+
+function lastDaysTotal(bins: TrendBin[], days: number): number {
+  return bins.slice(-days).reduce((sum, bin) => sum + bin.count, 0);
 }
 
 export default async function AdminOverviewPage() {
@@ -70,6 +94,24 @@ export default async function AdminOverviewPage() {
       supabase.from("site_settings").select("value").eq("key", SETTING_KEYS.ADMIN_QUEUE_SLA_HOURS).maybeSingle(),
     ]);
 
+  // 30-day trend rows (created_at only, newest first for safe truncation).
+  const [signupRows, postRows, inquiryRows] = await Promise.all([
+    canMembers
+      ? supabase.from("profiles").select("created_at").gte("created_at", monthAgo).order("created_at", { ascending: false }).limit(1000)
+      : Promise.resolve({ data: [] as { created_at: string }[] }),
+    canReview || canContent
+      ? supabase.from("posts").select("created_at").gte("created_at", monthAgo).order("created_at", { ascending: false }).limit(1000)
+      : Promise.resolve({ data: [] as { created_at: string }[] }),
+    canReview
+      ? supabase.from("inquiries").select("created_at").gte("created_at", monthAgo).order("created_at", { ascending: false }).limit(1000)
+      : Promise.resolve({ data: [] as { created_at: string }[] }),
+  ]);
+  const trends = [
+    ...(canMembers ? [{ title: t.admin.trendSignups, bins: binDaily(signupRows.data ?? []) }] : []),
+    ...(canReview || canContent ? [{ title: t.admin.trendPosts, bins: binDaily(postRows.data ?? []) }] : []),
+    ...(canReview ? [{ title: t.admin.trendInquiries, bins: binDaily(inquiryRows.data ?? []) }] : []),
+  ];
+
   const slaHours = typeof slaSetting.data?.value === "number" ? Math.max(1, slaSetting.data.value) : 24;
 
   const progressed = (recentInquiries.data ?? []).filter((item) => item.status !== "sent" && item.status !== "admin_review");
@@ -118,6 +160,20 @@ export default async function AdminOverviewPage() {
         </Link>
       ))}
       </div>
+      {trends.length > 0 && <section className="rounded-[1.5rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
+        <h2 className="text-base font-extrabold">{t.admin.trendsTitle}</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {trends.map((trend) => (
+            <TrendSparkline
+              key={trend.title}
+              title={trend.title}
+              bins={trend.bins}
+              recentLabel={t.admin.trendRecentWeek}
+              recentCount={lastDaysTotal(trend.bins, 7)}
+            />
+          ))}
+        </div>
+      </section>}
       {(canReview || canContent) && <section className="rounded-[1.5rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
         <h2 className="text-base font-extrabold">{t.admin.performanceTitle}</h2>
         <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">

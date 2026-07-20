@@ -51,6 +51,10 @@ export async function markInquiryRead(inquiryId: string) {
   } = await supabase.auth.getUser();
   if (!user) return;
 
+  // Shared read receipt for the other participant (best-effort: the rpc
+  // only exists once its migration has run).
+  await supabase.rpc("mark_inquiry_read", { p_inquiry_id: inquiryId });
+
   const { count } = await supabase
     .from("notifications")
     .update({ state: NOTIFICATION_STATE.READ }, { count: "exact" })

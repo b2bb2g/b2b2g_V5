@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/marketplace/ProductCard";
 import { SearchExperience } from "@/components/search/SearchExperience";
 import {
   normalizeSearchScope,
+  normalizeSearchSort,
   sanitizeSearchQuery,
   SEARCH_PAGE_SIZE,
 } from "@/lib/search";
@@ -70,7 +71,7 @@ function Arrow() {
 }
 
 export default async function SearchPage(props: {
-  searchParams: Promise<{ q?: string; type?: string }>;
+  searchParams: Promise<{ q?: string; type?: string; sort?: string }>;
 }) {
   const [{ t, locale }, params, menus, discovery] = await Promise.all([
     getT(),
@@ -80,9 +81,11 @@ export default async function SearchPage(props: {
   ]);
   const initialQuery = sanitizeSearchQuery(params.q ?? "");
   const initialScope = normalizeSearchScope(params.type);
+  const initialSort = normalizeSearchSort(params.sort);
   const initialResult = await searchPublicPosts({
     query: initialQuery,
     scope: initialScope,
+    sort: initialSort,
     pageSize: SEARCH_PAGE_SIZE,
   });
   const menuSlugs = Object.fromEntries(
@@ -100,6 +103,10 @@ export default async function SearchPage(props: {
   const searchLabels = {
     placeholder: t.search.placeholder,
     popular: t.search.popular,
+    sortLatest: t.board.sortLatest,
+    sortPopular: t.board.sortPopular,
+    recent: t.search.recent,
+    clearRecent: t.search.clearRecent,
     all: t.search.all,
     products: t.search.products,
     requests: t.search.requests,
@@ -139,6 +146,7 @@ export default async function SearchPage(props: {
             <SearchExperience
               initialQuery={initialQuery}
               initialScope={initialScope}
+              initialSort={initialSort}
               initialResult={initialResult}
               menuSlugs={menuSlugs}
               locale={locale}

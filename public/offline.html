@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>B2BB2G</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    background: #f5f5f7;
+    color: #101923;
+    font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+    text-align: center;
+  }
+  main { max-width: 22rem; }
+  .mark {
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: 0 auto 1.5rem;
+    border-radius: 1.1rem;
+    background: #1b64da;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: -.02em;
+  }
+  h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.03em; }
+  p { margin-top: .65rem; font-size: .9rem; line-height: 1.6; color: #5b6472; }
+  p.en { margin-top: .35rem; font-size: .8rem; color: #8a93a1; }
+  button {
+    margin-top: 1.75rem;
+    min-height: 3rem;
+    width: 100%;
+    border: 0;
+    border-radius: .9rem;
+    background: #1b64da;
+    color: #fff;
+    font-size: .95rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  button:hover { background: #174ea6; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark" aria-hidden="true">B2B</div>
+  <h1>인터넷 연결이 끊겼습니다</h1>
+  <p>네트워크 상태를 확인한 뒤 다시 시도해 주세요. 연결이 복구되면 보던 페이지로 돌아갑니다.</p>
+  <p class="en">You are offline. Check your connection and try again.</p>
+  <button type="button" onclick="location.reload()">다시 시도 · Retry</button>
+</main>
+</body>
+</html>

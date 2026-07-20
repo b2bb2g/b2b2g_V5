@@ -3,6 +3,11 @@ export const SEARCH_MAX_QUERY_LENGTH = 80;
 export const SEARCH_MIN_QUERY_LENGTH = 2;
 
 export type SearchScope = "all" | "product" | "request";
+export type SearchSort = "latest" | "popular";
+
+export function normalizeSearchSort(value: string | undefined): SearchSort {
+  return value === "popular" ? "popular" : "latest";
+}
 
 export function sanitizeSearchQuery(value: string): string {
   return value
