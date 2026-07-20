@@ -356,9 +356,16 @@ async function LandingContent() {
               <div className="mt-14 space-y-14 sm:mt-20 sm:space-y-20">
                 {marketRailMenus.map((menu) => {
                   const copy = marketRailCopy[menu.slug];
-                  const menuPosts = (marketPostsByMenu[menu.id] ?? []).filter(
+                  const railPosts = marketPostsByMenu[menu.id] ?? [];
+                  // Prefer to drop items already shown in "New arrivals" so a
+                  // listing isn't seen twice -- but only when that still leaves
+                  // a full rail. On a small catalog (where the newest items ARE
+                  // a whole category) fall back to the category's own newest so
+                  // the rail is never emptied or reduced to a lonely card.
+                  const deduped = railPosts.filter(
                     (post) => !featuredProductIds.has(post.id),
                   );
+                  const menuPosts = deduped.length >= 3 ? deduped : railPosts;
                   if (!copy || menuPosts.length === 0) return null;
                   const title = menuTitle(menu, locale);
 
