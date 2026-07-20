@@ -148,6 +148,7 @@ export default async function SecurityPage(props: {
           pinMismatch: t.security.lockPinMismatch,
           enableWithBiometric: t.security.lockEnableBiometric,
           enablePinOnly: t.security.lockEnablePinOnly,
+          pinOnlyHint: t.security.lockPinOnlyHint,
           enabledBadge: t.security.lockEnabledBadge,
           enabledBiometric: t.security.lockEnabledBiometric,
           enabledPinOnly: t.security.lockEnabledPinOnly,

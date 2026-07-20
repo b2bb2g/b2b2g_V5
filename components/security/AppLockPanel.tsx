@@ -24,6 +24,7 @@ type Labels = {
   pinMismatch: string;
   enableWithBiometric: string;
   enablePinOnly: string;
+  pinOnlyHint: string;
   enabledBadge: string;
   enabledBiometric: string;
   enabledPinOnly: string;
@@ -203,7 +204,16 @@ export function AppLockPanel({ userLabel, labels }: { userLabel: string; labels:
               </div>
             </label>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex gap-2 rounded-xl border border-primary/20 bg-primary-soft/45 px-3 py-2.5">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="mt-0.5 shrink-0 text-primary">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4M12 8h.01" />
+            </svg>
+            <p className="text-[11px] leading-4 text-primary-strong">
+              {labels.pinOnlyHint}
+            </p>
+          </div>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             {canBiometric && (
               <button
                 type="button"

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LinkPendingOverlay } from "@/components/ui/LinkPendingOverlay";
 
 export type DashboardIconName =
   "product" | "request" | "feed" | "posts" | "inquiries" | "network";
@@ -83,8 +84,9 @@ export function DashboardActionCard({
   return (
     <Link
       href={href}
-      className={`group flex min-h-32 flex-col justify-between rounded-[1.35rem] p-5 transition duration-300 hover:-translate-y-1 ${styles[tone]}`}
+      className={`group relative flex min-h-32 flex-col justify-between overflow-hidden rounded-[1.35rem] p-5 transition duration-300 hover:-translate-y-1 ${styles[tone]}`}
     >
+      <LinkPendingOverlay />
       <span
         className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone === "light" ? "bg-primary-soft text-primary" : "bg-white/12 text-white"}`}
       >
@@ -116,8 +118,9 @@ export function DashboardMetricCard({
   return (
     <Link
       href={href}
-      className="group rounded-[1.25rem] border border-line bg-white p-3.5 shadow-[0_8px_24px_rgba(25,31,40,.045)] transition hover:border-primary/40 hover:shadow-(--shadow-card)"
+      className="group relative overflow-hidden rounded-[1.25rem] border border-line bg-white p-3.5 shadow-[0_8px_24px_rgba(25,31,40,.045)] transition hover:border-primary/40 hover:shadow-(--shadow-card)"
     >
+      <LinkPendingOverlay />
       <div className="flex items-start justify-between gap-3">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-sub text-ink-soft transition group-hover:bg-primary-soft group-hover:text-primary">
           <DashboardIcon name={icon} className="h-4.5 w-4.5" />

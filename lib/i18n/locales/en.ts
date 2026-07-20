@@ -126,6 +126,8 @@ const en = {
     lockPinMismatch: "The two PINs do not match.",
     lockEnableBiometric: "Turn on with biometric",
     lockEnablePinOnly: "Turn on with PIN only",
+    lockPinOnlyHint:
+      "Prefer PIN only? Unlocking then happens entirely on B2BB2G with your app PIN — the device (Google) fingerprint/PIN prompt never appears.",
     lockEnabledBadge: "Active",
     lockEnabledBiometric: "Biometric + PIN fallback",
     lockEnabledPinOnly: "PIN lock",

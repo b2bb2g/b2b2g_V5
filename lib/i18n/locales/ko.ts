@@ -126,6 +126,8 @@ const ko: Dict = {
     lockPinMismatch: "PIN이 서로 일치하지 않습니다.",
     lockEnableBiometric: "생체인증으로 켜기",
     lockEnablePinOnly: "PIN만으로 켜기",
+    lockPinOnlyHint:
+      "구글 없이 쓰고 싶다면 'PIN만으로 켜기'를 선택하세요. 잠금 해제가 전부 B2BB2G 앱 PIN으로만 이뤄지고, 기기(구글) 지문·PIN 창은 아예 뜨지 않습니다.",
     lockEnabledBadge: "사용 중",
     lockEnabledBiometric: "생체인증 + PIN 대체",
     lockEnabledPinOnly: "PIN 잠금",
