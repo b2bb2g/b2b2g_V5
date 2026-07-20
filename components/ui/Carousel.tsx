@@ -2,8 +2,6 @@
 
 import {
   Children,
-  cloneElement,
-  isValidElement,
   useRef,
   useState,
   useEffect,
@@ -22,10 +20,11 @@ const MARQUEE_PX_PER_SEC = 30;
 // when there is actually somewhere to scroll — left hidden at the start, right
 // hidden at the end. Small screens swipe.
 //
-// `marquee` turns it into a seamless auto-scrolling ribbon: the children are
-// duplicated so the loop never shows a seam, motion is continuous (no card
-// stepping), and it pauses on hover / touch / focus, off-screen, when the tab
-// is hidden, and under reduced-motion.
+// `marquee` turns it into a gently auto-scrolling ribbon: every card is
+// rendered exactly once (no duplicated set, so a listing never reads as
+// appearing twice) and the track drifts back and forth, reversing at each
+// end. It pauses on hover / touch / focus, off-screen, when the tab is hidden,
+// and under reduced-motion.
 export function Carousel({
   children,
   prevLabel,
@@ -65,11 +64,7 @@ export function Carousel({
       return;
     }
     const measure = () => {
-      const firstSetWidth =
-        el.children.length > items.length
-          ? (el.children[items.length] as HTMLElement).offsetLeft
-          : el.scrollWidth;
-      setRun(firstSetWidth > el.clientWidth + 8);
+      setRun(el.scrollWidth > el.clientWidth + 8);
     };
     measure();
     const resizeObserver = new ResizeObserver(measure);
@@ -81,8 +76,9 @@ export function Carousel({
     };
   }, [marquee, items.length]);
 
-  // Continuous marquee: duplicate the cards and drift scrollLeft every frame,
-  // wrapping by one set's width so the seam is invisible.
+  // Ping-pong auto-scroll: drift scrollLeft and reverse direction at each end.
+  // Every card is rendered once (no duplicated set), so the listing count the
+  // viewer sees always equals the real number of items.
   useEffect(() => {
     const el = track.current;
     if (!run || !el) return;
@@ -92,15 +88,7 @@ export function Carousel({
     let onScreen = true;
     let raf = 0;
     let last: number | null = null;
-    let loopWidth = 0;
-
-    const measure = () => {
-      const secondSet = el.children[items.length] as HTMLElement | undefined;
-      loopWidth = secondSet ? secondSet.offsetLeft : el.scrollWidth / 2;
-    };
-    measure();
-    const resizeObserver = new ResizeObserver(measure);
-    resizeObserver.observe(el);
+    let dir = 1;
 
     const pause = () => {
       paused = true;
@@ -126,16 +114,23 @@ export function Carousel({
       if (last === null) last = now;
       const dt = (now - last) / 1000;
       last = now;
-      if (paused || !onScreen || document.hidden || loopWidth <= 0) return;
-      let next = el.scrollLeft + MARQUEE_PX_PER_SEC * dt;
-      if (next >= loopWidth) next -= loopWidth;
+      if (paused || !onScreen || document.hidden) return;
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 1) return;
+      let next = el.scrollLeft + dir * MARQUEE_PX_PER_SEC * dt;
+      if (next >= max) {
+        next = max;
+        dir = -1;
+      } else if (next <= 0) {
+        next = 0;
+        dir = 1;
+      }
       el.scrollLeft = next;
     };
     raf = window.requestAnimationFrame(frame);
 
     return () => {
       window.cancelAnimationFrame(raf);
-      resizeObserver.disconnect();
       io.disconnect();
       el.removeEventListener("pointerenter", pause);
       el.removeEventListener("pointerdown", pause);
@@ -146,7 +141,7 @@ export function Carousel({
       el.removeEventListener("focusin", pause);
       el.removeEventListener("focusout", resume);
     };
-  }, [run, items.length]);
+  }, [run]);
 
   const update = useCallback(() => {
     const el = track.current;
@@ -276,18 +271,6 @@ export function Carousel({
           className={`${trackClassName} rounded-[var(--store-card-radius)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary`}
         >
           {items}
-          {run &&
-            items.map((child, index) =>
-              isValidElement(child)
-                ? cloneElement(
-                    child as React.ReactElement<{
-                      "aria-hidden"?: boolean;
-                      tabIndex?: number;
-                    }>,
-                    { key: `marquee-dup-${index}`, "aria-hidden": true, tabIndex: -1 },
-                  )
-                : child,
-            )}
         </div>
         {!marquee && (
           <button

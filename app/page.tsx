@@ -6,6 +6,7 @@ import { Carousel } from "@/components/ui/Carousel";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { EventCard } from "@/components/marketplace/EventCard";
+import { CollectionLeadCard } from "@/components/marketplace/CollectionLeadCard";
 import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
@@ -219,18 +220,27 @@ async function LandingContent() {
     ended: t.board.eventEnded,
     venueTbd: t.board.eventVenueTbd,
   };
-  const marketRailCopy: Record<string, { tagline: string; title: string }> = {
+  const marketRailCopy: Record<
+    string,
+    { tagline: string; title: string; body: string; image: string }
+  > = {
     commercial: {
       tagline: t.home.commercialRailTagline,
       title: t.home.commercialRailTitle,
+      body: t.home.commercialRailBody,
+      image: MARKET_IMAGES[0],
     },
     industrial: {
       tagline: t.home.industrialRailTagline,
       title: t.home.industrialRailTitle,
+      body: t.home.industrialRailBody,
+      image: MARKET_IMAGES[1],
     },
     epc: {
       tagline: t.home.epcRailTagline,
       title: t.home.epcRailTitle,
+      body: t.home.epcRailBody,
+      image: MARKET_IMAGES[2],
     },
   };
 
@@ -391,6 +401,16 @@ async function LandingContent() {
                           marquee
                           edgeToEdge
                         >
+                          <div className={LANDING_CARD_FAMILY.collectionLead}>
+                            <CollectionLeadCard
+                              href={`/${menu.slug}`}
+                              image={copy.image}
+                              eyebrow={title}
+                              title={copy.title}
+                              body={copy.body}
+                              actionLabel={t.home.exploreCollection}
+                            />
+                          </div>
                           {menuPosts.map((post) => (
                             <div
                               key={post.id}
@@ -497,6 +517,16 @@ async function LandingContent() {
                   nextLabel={t.home.next}
                   edgeToEdge
                 >
+                  <div className={LANDING_CARD_FAMILY.collectionLead}>
+                    <CollectionLeadCard
+                      href={`/${requestsMenu.slug}`}
+                      image="/landing-v2/precision-manufacturing.jpg"
+                      eyebrow={t.home.eyebrowRequests}
+                      title={t.home.step2Title}
+                      body={t.home.value2Body}
+                      actionLabel={t.dashboard.viewAll}
+                    />
+                  </div>
                   {requests.map((post, index) => (
                     <Reveal
                       key={post.id}
