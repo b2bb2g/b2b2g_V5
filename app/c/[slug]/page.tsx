@@ -114,7 +114,7 @@ export default async function CompanyPage(props: {
             />
           </div>
           <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-7">
-            <h1 className="text-2xl font-extrabold leading-snug tracking-[-.02em] sm:text-3xl">
+            <h1 className="line-clamp-2 text-2xl font-extrabold leading-snug tracking-[-.02em] sm:text-3xl">
               {companyName}
             </h1>
             <div className="mt-2 flex flex-wrap items-center gap-1.5">

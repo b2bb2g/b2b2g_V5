@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { AuthorIdentity } from "@/components/marketplace/AuthorIdentity";
 import { RequestBoardCard } from "@/components/marketplace/BoardContentCards";

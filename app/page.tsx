@@ -148,7 +148,7 @@ function SectionHeading({
           {title}
         </h2>
         {body && (
-          <p className="mt-4 text-base leading-7 text-ink-soft sm:text-lg sm:leading-8 lg:whitespace-nowrap">
+          <p className="mt-4 text-pretty text-base leading-7 text-ink-soft sm:text-lg sm:leading-8">
             {body}
           </p>
         )}
@@ -472,10 +472,10 @@ async function LandingContent() {
                         <span className="text-xs font-bold tracking-[.14em] text-white/68">
                           {step.n}
                         </span>
-                        <h3 className="mt-4 max-w-xs text-3xl font-semibold leading-[1.08] tracking-[-.035em]">
+                        <h3 className="mt-4 line-clamp-2 max-w-xs text-3xl font-semibold leading-[1.08] tracking-[-.035em]">
                           {step.title}
                         </h3>
-                        <p className="mt-3 max-w-sm text-sm leading-6 text-white/78 sm:text-base sm:leading-7">
+                        <p className="mt-3 line-clamp-3 max-w-sm text-sm leading-6 text-white/78 sm:text-base sm:leading-7">
                           {step.body}
                         </p>
                         <div className="mt-auto rounded-2xl border border-white/15 bg-black/22 p-4 backdrop-blur-md">
