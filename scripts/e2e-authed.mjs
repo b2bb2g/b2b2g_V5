@@ -81,6 +81,17 @@ const check = (name, ok) => {
   if (!ok) failures.push(name);
 };
 
+// Suppress the one-time security-lock nudge so its modal never intercepts
+// clicks during the interaction checks below (it is a real member-facing
+// prompt, verified separately).
+await page.addInitScript(() => {
+  try {
+    window.localStorage.setItem("b2bb2g:security-nudge-off", "1");
+  } catch {
+    // ignore
+  }
+});
+
 // 1. Sign in via the app's own confirm route.
 await page.goto(
   `${base}/auth/confirm?token_hash=${tokenHash}&type=magiclink&next=/dashboard`,
