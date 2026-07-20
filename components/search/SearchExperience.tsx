@@ -92,6 +92,32 @@ function SearchIcon({ className = "h-6 w-6" }: { className?: string }) {
   );
 }
 
+function Spinner({ className = "h-6 w-6" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`${className} animate-spin`}
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        opacity="0.25"
+      />
+      <path
+        d="M21 12a9 9 0 0 0-9-9"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function ResultCard({
   post,
   slug,
@@ -309,8 +335,10 @@ export function SearchExperience({
           {labels.placeholder}
         </label>
         <div className="flex items-center gap-3 rounded-[1.4rem] border border-line/80 bg-white p-2.5 shadow-[0_18px_55px_rgba(25,31,40,.09)] transition focus-within:border-primary/45 focus-within:ring-4 focus-within:ring-primary/10 sm:p-3">
-          <span className="ml-2 shrink-0 text-ink-faint">
-            <SearchIcon />
+          <span
+            className={`ml-2 shrink-0 ${loading ? "text-primary" : "text-ink-faint"}`}
+          >
+            {loading ? <Spinner /> : <SearchIcon />}
           </span>
           <input
             id="marketplace-search"
@@ -335,10 +363,15 @@ export function SearchExperience({
           )}
           <button
             type="submit"
+            aria-busy={loading}
             className="hidden min-h-12 shrink-0 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-white transition hover:bg-primary-strong sm:inline-flex"
           >
             {labels.search}
-            <SearchIcon className="h-4 w-4" />
+            {loading ? (
+              <Spinner className="h-4 w-4" />
+            ) : (
+              <SearchIcon className="h-4 w-4" />
+            )}
           </button>
         </div>
 
