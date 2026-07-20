@@ -89,6 +89,15 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Language-tuned letter-spacing (user spec): Latin -3%, Hangul -5%. Inherited
+   by all text; headings and chips that set their own tracking keep it. */
+html[lang="en"] body {
+  letter-spacing: -0.03em;
+}
+html[lang="ko"] body {
+  letter-spacing: -0.05em;
+}
+
 body:has(.auth-shell) > main {
   display: flex;
 }
