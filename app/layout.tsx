@@ -28,6 +28,7 @@ import {
 } from "@/lib/data/settings";
 import { SETTING_KEYS } from "@/lib/constants";
 import { AppSplash } from "@/components/pwa/AppSplash";
+import { AppLockGate } from "@/components/security/AppLockGate";
 
 // Hangul renders in Noto Sans KR; Latin renders in Pretendard via the
 // unicode-ranged @font-face in globals.css.
@@ -105,6 +106,20 @@ export default async function RootLayout({
     <html lang={locale} className={`${notoSansKr.variable} h-full antialiased`}>
       <body className="min-h-screen-safe flex flex-col">
         <AppSplash />
+        <AppLockGate
+          labels={{
+            title: t.security.lockTitle,
+            subtitle: t.security.lockSubtitle,
+            unlockBiometric: t.security.lockUnlockBiometric,
+            usePin: t.security.lockUsePin,
+            pinPlaceholder: t.security.lockPinPlaceholder,
+            confirm: t.common.confirm,
+            wrongPin: t.security.lockWrongPin,
+            attemptsLeft: t.security.lockAttemptsLeft,
+            emergency: t.security.lockEmergency,
+            emergencyHint: t.security.lockEmergencyHint,
+          }}
+        />
         <a href="#main-content" className="skip-link">
           {t.common.skipToContent}
         </a>

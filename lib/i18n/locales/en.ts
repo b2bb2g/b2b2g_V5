@@ -98,6 +98,32 @@ const en = {
     mfaConfirmReset: "Reset authenticator",
     mfaResetDone:
       "Your authenticator was reset. Set up a new device below.",
+    lockPanelTitle: "App lock (biometric)",
+    lockPanelDescription:
+      "Lock this device's screen behind your fingerprint or face. A 6-digit PIN always works as the alternative, and the lock applies only to this device.",
+    lockBiometricReady: "Biometric unlock is available on this device.",
+    lockBiometricMissing:
+      "No biometric found on this device - the lock will use your PIN.",
+    lockPinLabel: "6-digit PIN",
+    lockPinConfirmLabel: "Confirm PIN",
+    lockPinMismatch: "The two PINs do not match.",
+    lockEnableBiometric: "Turn on with biometric",
+    lockEnablePinOnly: "Turn on with PIN only",
+    lockEnabledBadge: "Active",
+    lockEnabledBiometric: "Biometric + PIN fallback",
+    lockEnabledPinOnly: "PIN lock",
+    lockDisable: "Turn off",
+    lockVerifyToDisable: "Enter your 6-digit PIN to turn off the app lock",
+    lockTitle: "Unlock B2BB2G",
+    lockSubtitle: "Verify it's you to open the app on this device.",
+    lockUnlockBiometric: "Unlock with biometric",
+    lockUsePin: "Use PIN instead",
+    lockPinPlaceholder: "6-digit PIN",
+    lockWrongPin: "Verification failed.",
+    lockAttemptsLeft: "{n} attempts left.",
+    lockEmergency: "Can't unlock? Sign out and remove the lock",
+    lockEmergencyHint:
+      "Your account stays protected by your password and email - sign back in to continue.",
   },
   inapp: {
     title: "Open in your browser",

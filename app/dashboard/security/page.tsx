@@ -10,6 +10,7 @@ import {
   signOutOtherSessions,
 } from "@/app/actions/security";
 import { MfaPanel } from "@/components/security/MfaPanel";
+import { AppLockPanel } from "@/components/security/AppLockPanel";
 import { WorkspacePageHeader } from "@/components/dashboard/WorkspacePageHeader";
 
 export default async function SecurityPage(props: {
@@ -130,6 +131,27 @@ export default async function SecurityPage(props: {
       />
 
       {mfaPanel}
+
+      <AppLockPanel
+        userLabel={`UID:${session.profile?.uid ?? ""}`}
+        labels={{
+          title: t.security.lockPanelTitle,
+          description: t.security.lockPanelDescription,
+          biometricReady: t.security.lockBiometricReady,
+          biometricMissing: t.security.lockBiometricMissing,
+          pinLabel: t.security.lockPinLabel,
+          pinConfirmLabel: t.security.lockPinConfirmLabel,
+          pinMismatch: t.security.lockPinMismatch,
+          enableWithBiometric: t.security.lockEnableBiometric,
+          enablePinOnly: t.security.lockEnablePinOnly,
+          enabledBadge: t.security.lockEnabledBadge,
+          enabledBiometric: t.security.lockEnabledBiometric,
+          enabledPinOnly: t.security.lockEnabledPinOnly,
+          disable: t.security.lockDisable,
+          verifyToDisable: t.security.lockVerifyToDisable,
+          error: t.security.mfaError,
+        }}
+      />
 
       <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-7">
         <h3 className="text-base font-extrabold">{t.security.devices}</h3>
