@@ -1208,6 +1208,7 @@ const ko: Dict = {
     description: "게시글, 배지, 문의 관련 소식을 한곳에서 확인하세요.",
     markAllRead: "모두 읽음",
     groupedMore: "외 {n}건",
+    noticePublished: "새 공지사항",
     archive: "보관",
     trash: "휴지통",
     deleteForever: "완전 삭제",

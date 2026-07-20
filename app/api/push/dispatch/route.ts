@@ -26,6 +26,7 @@ const PUSH_TEXT: Record<string, Record<string, string>> = {
     feed_comment_replied: "New reply to your comment",
     feed_mentioned: "You were mentioned in a comment",
     admin_notice: "Notice from the operations team",
+    notice_published: "New notice",
     app_error_alert: "Application error detected",
   },
   ko: {
@@ -42,6 +43,7 @@ const PUSH_TEXT: Record<string, Record<string, string>> = {
     feed_comment_replied: "댓글에 새 답글이 달렸습니다",
     feed_mentioned: "댓글에서 회원님이 언급되었습니다",
     admin_notice: "운영팀 공지가 도착했습니다",
+    notice_published: "새 공지사항이 등록되었습니다",
     app_error_alert: "애플리케이션 오류가 감지되었습니다",
   },
 };
@@ -62,6 +64,9 @@ function pushCategory(type: string): string | null {
 }
 
 function pushUrl(type: string, payload: Record<string, unknown>): string {
+  if (type === "notice_published" && typeof payload.post_id === "string") {
+    return `/notices/${payload.post_id}`;
+  }
   if (typeof payload.feed_post_id === "string") {
     const anchor = type === "feed_liked" ? "" : "#comments";
     return `/feed/${payload.feed_post_id}${anchor}`;

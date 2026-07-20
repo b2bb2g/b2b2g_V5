@@ -1234,6 +1234,7 @@ const en = {
     description: "Updates on your posts, badges, and inquiries in one place.",
     markAllRead: "Mark all as read",
     groupedMore: "+{n} more",
+    noticePublished: "New notice",
     archive: "Archive",
     trash: "Trash",
     deleteForever: "Delete forever",

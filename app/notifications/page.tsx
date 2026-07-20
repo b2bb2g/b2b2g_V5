@@ -48,6 +48,7 @@ function renderNotification(t: Dictionary, n: AppNotification): string {
     feed_comment_replied: t.notifications.feedCommentReplied,
     feed_mentioned: t.notifications.feedMentioned,
     app_error_alert: t.notifications.appErrorAlert,
+    notice_published: t.notifications.noticePublished,
     subscription_expiring: t.dashboard.subscription,
   };
   const label = base[n.type] ?? n.type;
@@ -107,6 +108,9 @@ function notificationHref(n: AppNotification): string | null {
     application_id?: string;
     feed_post_id?: string;
   };
+  if (n.type === "notice_published" && payload.post_id) {
+    return `/notices/${payload.post_id}`;
+  }
   if (payload.feed_post_id) {
     const anchor =
       n.type === "feed_liked" ? "" : "#comments";
