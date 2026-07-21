@@ -547,6 +547,9 @@ export default async function DashboardPage() {
             statusRevoked: t.dashboard.invitationStatusRevoked,
             revoke: t.dashboard.revokeInvitation,
             empty: t.dashboard.noActiveInvitations,
+            tabActive: t.dashboard.invitationTabActive,
+            tabHistory: t.dashboard.invitationTabHistory,
+            historyEmpty: t.dashboard.invitationHistoryEmpty,
             activeLimit: t.dashboard.invitationLimitReached,
             error: t.dashboard.invitationCreateFailed,
           }}

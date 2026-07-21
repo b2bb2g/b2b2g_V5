@@ -69,6 +69,9 @@ type Labels = {
   statusRevoked: string;
   revoke: string;
   empty: string;
+  tabActive: string;
+  tabHistory: string;
+  historyEmpty: string;
   activeLimit: string;
   error: string;
 };
@@ -248,6 +251,17 @@ export function InvitationManager({
     placement: "top" | "bottom";
   }>({ left: 0, width: 272, placement: "bottom" });
 
+  // Split the list so live links you still manage stay separate from the
+  // pile of finished ones (joined / expired / cancelled).
+  const [tab, setTab] = useState<"active" | "history">("active");
+  const activeList = invitations.filter(
+    (i) => i.status === "active" || i.status === "reserved",
+  );
+  const historyList = invitations.filter(
+    (i) => i.status !== "active" && i.status !== "reserved",
+  );
+  const shown = tab === "active" ? activeList : historyList;
+
   function openInfo(event: ReactMouseEvent<HTMLButtonElement>) {
     if (infoOpen) {
       setInfoOpen(false);
@@ -371,11 +385,47 @@ export function InvitationManager({
       )}
 
       <div className="mt-5 border-t border-line pt-4">
-        {invitations.length === 0 ? (
-          <p className="text-xs text-ink-faint">{labels.empty}</p>
+        <div className="flex gap-1 rounded-xl bg-surface-sub p-1">
+          {(
+            [
+              ["active", labels.tabActive, activeList.length],
+              ["history", labels.tabHistory, historyList.length],
+            ] as const
+          ).map(([key, label, count]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setTab(key)}
+              aria-pressed={tab === key}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                tab === key
+                  ? "bg-white text-ink shadow-sm"
+                  : "text-ink-faint hover:text-ink-soft"
+              }`}
+            >
+              {label}
+              {count > 0 && (
+                <span
+                  className={`rounded-full px-1.5 text-[10px] tabular-nums ${
+                    tab === key
+                      ? "bg-primary-soft text-primary"
+                      : "bg-line text-ink-faint"
+                  }`}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {shown.length === 0 ? (
+          <p className="px-1 py-4 text-xs text-ink-faint">
+            {tab === "active" ? labels.empty : labels.historyEmpty}
+          </p>
         ) : (
-          <ul className="space-y-2.5">
-            {invitations.map((invitation) => (
+          <ul className="mt-3 space-y-2.5">
+            {shown.map((invitation) => (
               <InvitationRow
                 key={invitation.id}
                 invitation={invitation}
