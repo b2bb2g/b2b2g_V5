@@ -24,7 +24,9 @@ export async function createReferralInvitation(
     return { error: "invalid_email" };
   }
 
-  const token = randomBytes(32).toString("base64url");
+  // 16 bytes (128-bit) is ample entropy for a one-use, expiring, rate-limited
+  // token, and keeps the shared /i/<token> link short. Only the hash is stored.
+  const token = randomBytes(16).toString("base64url");
   const { data, error } = await supabase
     .rpc("create_referral_invitation", {
       p_token_hash: hashPublicValue(token),
@@ -43,7 +45,7 @@ export async function createReferralInvitation(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const invitation = data as { expires_at: string };
   return {
-    link: `${siteUrl}/signup?invite=${encodeURIComponent(token)}`,
+    link: `${siteUrl}/i/${token}`,
     expiresAt: String(invitation.expires_at),
   };
 }

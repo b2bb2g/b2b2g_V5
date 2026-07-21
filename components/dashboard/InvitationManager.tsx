@@ -11,6 +11,23 @@ import { LocalDateTime } from "@/components/ui/LocalDateTime";
 import type { Locale } from "@/lib/constants";
 import { ReferralQr } from "@/components/ui/ReferralQr";
 
+function LinkIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+
 type Invitation = {
   id: string;
   status: string;
@@ -105,7 +122,7 @@ export function InvitationManager({
             <div
               role="dialog"
               aria-label={labels.infoLabel}
-              className="animate-fade-up absolute left-1/2 top-8 z-30 w-72 -translate-x-1/2 rounded-2xl border border-line bg-white p-4 text-left shadow-(--shadow-float)"
+              className="animate-fade-up absolute left-1/2 top-8 z-30 w-[min(17rem,calc(100vw-2.5rem))] max-w-[17rem] -translate-x-1/2 rounded-2xl border border-line bg-white p-4 text-left shadow-(--shadow-float)"
               style={{ animationDuration: "0.18s" }}
             >
               <p className="text-xs font-extrabold text-ink">{labels.infoLabel}</p>
@@ -154,22 +171,56 @@ export function InvitationManager({
       {state.link && (
         <div className="mt-4 rounded-2xl border border-primary/20 bg-primary-soft/45 p-4">
           <p className="text-xs font-extrabold text-primary">{labels.generated}</p>
-          <div className="mt-2 flex gap-2">
-            <input readOnly value={state.link} className="min-w-0 flex-1 rounded-xl border border-line bg-white px-3 py-2 text-xs" />
-            <button
-              type="button"
-              onClick={async () => {
+
+          {/* One tap anywhere on the row copies; the row itself is the
+              affordance, so it never overflows (w-full + truncate) and the
+              long address collapses into a clear confirmation once copied. */}
+          <button
+            type="button"
+            onClick={async () => {
+              try {
                 await navigator.clipboard.writeText(state.link!);
-                setCopied(true);
-                window.setTimeout(() => setCopied(false), 1800);
-              }}
-              className="rounded-xl bg-ink px-4 text-xs font-bold text-white"
+              } catch {
+                // Clipboard can be blocked; the visible link is still selectable.
+              }
+              setCopied(true);
+              window.setTimeout(() => setCopied(false), 1800);
+            }}
+            aria-label={`${labels.copy}: ${state.link}`}
+            className={`mt-2 flex w-full items-center gap-2.5 rounded-xl border bg-white px-3 py-2.5 text-left transition ${
+              copied
+                ? "border-positive/40"
+                : "border-line hover:border-primary/50"
+            }`}
+          >
+            <span
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                copied
+                  ? "bg-positive-soft text-positive"
+                  : "bg-primary-soft text-primary"
+              }`}
             >
-              {copied ? labels.copied : labels.copy}
-            </button>
-          </div>
+              {copied ? <CheckIcon /> : <LinkIcon />}
+            </span>
+            <span
+              className={`min-w-0 flex-1 truncate text-xs font-semibold ${
+                copied ? "text-positive" : "text-ink"
+              }`}
+            >
+              {copied
+                ? labels.copied
+                : state.link.replace(/^https?:\/\//, "")}
+            </span>
+            {!copied && (
+              <span className="shrink-0 text-xs font-bold text-primary">
+                {labels.copy}
+              </span>
+            )}
+          </button>
+
           <p className="mt-2 text-[11px] text-ink-faint">
-            {labels.expires}: <LocalDateTime value={state.expiresAt!} locale={locale} />
+            {labels.expires}:{" "}
+            <LocalDateTime value={state.expiresAt!} locale={locale} />
           </p>
           <ReferralQr value={state.link} label={labels.qr} />
         </div>

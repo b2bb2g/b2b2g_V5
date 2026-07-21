@@ -448,7 +448,7 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-6">
           <p className="text-xs font-bold uppercase tracking-[.15em] text-primary">
             {t.dashboard.trustStatus}
