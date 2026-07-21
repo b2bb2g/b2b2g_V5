@@ -91,6 +91,10 @@ const ko: Dict = {
     devicesHint: "로그인에 성공한 브라우저가 기기로 등록됩니다.",
     current: "현재 기기",
     revoke: "로그아웃",
+    signOutSelected: "선택한 기기 로그아웃",
+    signOutSelectedConfirm:
+      "선택한 기기를 로그아웃할까요? 해당 기기는 다시 로그인해야 합니다.",
+    selectDevice: "기기 선택",
     history: "최근 로그인 기록",
     historyHint: "최근 로그인 성공 기록 20건이 표시됩니다.",
     unknownDevice: "알 수 없는 기기",

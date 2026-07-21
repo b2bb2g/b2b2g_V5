@@ -4,8 +4,9 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { currentDeviceHash } from "@/lib/security";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import {
-  revokeDeviceSession,
+  revokeSelectedDevices,
   signOutEverywhere,
   signOutOtherSessions,
 } from "@/app/actions/security";
@@ -166,25 +167,45 @@ export default async function SecurityPage(props: {
       <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-7">
         <h3 className="text-base font-extrabold">{t.security.devices}</h3>
         <p className="mt-1 text-xs text-ink-faint">{t.security.devicesHint}</p>
-        <ul className="mt-4 divide-y divide-line">
-          {(devices ?? []).map((device) => {
-            const isCurrent = currentHash === device.device_hash;
-            return (
-              <li key={device.id} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-                <div className="min-w-0">
-                  <p className="font-bold">{device.label} {isCurrent && <span className="ml-2 rounded-full bg-positive-soft px-2 py-1 text-[10px] text-positive">{t.security.current}</span>}</p>
-                  <p className="mt-1 text-xs text-ink-faint">{[device.last_country, device.last_ip_masked].filter(Boolean).join(" · ")} · {format(device.last_seen_at)}</p>
-                </div>
-                {!isCurrent && (
-                  <form action={revokeDeviceSession}>
-                    <input type="hidden" name="deviceId" value={device.id} />
-                    <PendingButton className="rounded-lg px-3 py-2 text-xs font-bold text-negative hover:bg-negative-soft">{t.security.revoke}</PendingButton>
-                  </form>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+        <form action={revokeSelectedDevices}>
+          <ul className="mt-4 divide-y divide-line">
+            {(devices ?? []).map((device) => {
+              const isCurrent = currentHash === device.device_hash;
+              return (
+                <li key={device.id} className="flex items-center gap-3 py-4 first:pt-0 last:pb-0">
+                  {isCurrent ? (
+                    <span className="w-4 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <input
+                      type="checkbox"
+                      name="deviceIds"
+                      value={device.id}
+                      aria-label={`${t.security.selectDevice}: ${device.label}`}
+                      className="h-4 w-4 shrink-0 rounded accent-primary"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold">{device.label} {isCurrent && <span className="ml-2 rounded-full bg-positive-soft px-2 py-1 text-[10px] text-positive">{t.security.current}</span>}</p>
+                    <p className="mt-1 text-xs text-ink-faint">{[device.last_country, device.last_ip_masked].filter(Boolean).join(" · ")} · {format(device.last_seen_at)}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          {(devices ?? []).some((device) => currentHash !== device.device_hash) && (
+            <div className="mt-4 flex justify-end">
+              <ConfirmSubmit
+                label={t.security.signOutSelected}
+                confirmTitle={t.common.confirmTitle}
+                confirmBody={t.security.signOutSelectedConfirm}
+                confirmLabel={t.security.signOutSelected}
+                cancelLabel={t.common.cancel}
+                destructive
+                className="rounded-lg bg-negative-soft px-4 py-2.5 text-sm font-bold text-negative"
+              />
+            </div>
+          )}
+        </form>
       </section>
 
       <section className="rounded-[1.5rem] border border-line bg-white p-5 shadow-(--shadow-card) sm:p-7">

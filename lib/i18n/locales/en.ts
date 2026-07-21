@@ -87,6 +87,10 @@ const en = {
     devicesHint: "A device is recognized after a successful sign-in.",
     current: "This device",
     revoke: "Sign out",
+    signOutSelected: "Sign out selected devices",
+    signOutSelectedConfirm:
+      "Sign out the selected devices? They will need to sign in again.",
+    selectDevice: "Select device",
     history: "Recent sign-ins",
     historyHint: "The latest 20 successful sign-ins are shown.",
     unknownDevice: "Unknown device",
