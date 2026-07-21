@@ -43,13 +43,31 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
           "가입은 초대 링크(다른 회원이 보내 주는 가입용 인터넷 주소)로 합니다. 사이트 설정에 따라 초대받은 사람만 가입할 수 있습니다.",
           "1) 받은 초대 링크를 눌러 가입 화면을 엽니다.",
           "2) 이메일과 사용할 비밀번호를 적습니다.",
-          "3) 화면 안내에 따라 가입을 마칩니다."
+          "3) 필수 항목(이용약관·개인정보·쿠키)에 동의합니다. 광고성 정보 수신은 선택이며, 원하면 함께 체크합니다.",
+          "4) 가입 버튼을 눌러 마칩니다."
         ],
         "a_en": [
           "You join with an invite link (a sign-up web address that another member sends you). Depending on site settings, only invited people can join.",
           "1) Tap the invite link you received to open the sign-up screen.",
           "2) Enter your email and the password you want to use.",
-          "3) Follow the on-screen steps to finish signing up."
+          "3) Agree to the required items (Terms, Privacy, Cookie Policy). Marketing messages are optional — check the box too if you want them.",
+          "4) Press the sign-up button to finish."
+        ]
+      },
+      {
+        "q_ko": "가입할 때 동의 항목은 무엇입니까?",
+        "q_en": "What am I agreeing to when I sign up?",
+        "a_ko": [
+          "필수 3가지와 선택 1가지가 있습니다.",
+          "1) (필수) 이용약관 · 개인정보 수집·이용 · 쿠키 정책 — 이 세 가지에 동의해야 가입 버튼이 켜집니다. 각 항목의 '보기'를 눌러 전문을 확인할 수 있습니다.",
+          "2) (선택) 광고성 정보 수신 — 이메일·문자로 혜택과 소식을 받는 것에 대한 동의입니다. 체크하지 않아도 가입할 수 있고, 나중에 언제든 켜고 끌 수 있습니다.",
+          "위쪽의 '전체 동의'를 누르면 한 번에 모두 체크됩니다."
+        ],
+        "a_en": [
+          "Three required items and one optional item.",
+          "1) (Required) Terms of Service, Privacy (collection & use), and Cookie Policy — you must agree to these three for the sign-up button to turn on. Tap 'View' on each to read the full text.",
+          "2) (Optional) Marketing messages — consent to receive offers and news by email / SMS. You can sign up without it, and turn it on or off anytime later.",
+          "The 'Agree to all' option at the top checks everything at once."
         ]
       },
       {
@@ -494,11 +512,27 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "With several links, how do I tell which one I sent to whom?",
         "a_ko": [
           "초대를 만들 때 '받는 사람 메모'에 이름이나 회사를 적어 두면 됩니다.",
-          "그러면 목록의 각 줄에 그 메모가 제목처럼 표시되어, 어느 링크가 누구 것인지 한눈에 구분됩니다."
+          "그러면 목록의 각 줄에 그 메모가 제목처럼 표시되어, 어느 링크가 누구 것인지 한눈에 구분됩니다.",
+          "메모는 나중에 목록에서 연필 아이콘을 눌러 고칠 수 있습니다."
         ],
         "a_en": [
           "When you create the invite, write a name or company in 'Recipient note'.",
-          "That note then shows as the title of each row in the list, so you can tell at a glance which link belongs to whom."
+          "That note then shows as the title of each row in the list, so you can tell at a glance which link belongs to whom.",
+          "You can edit the note later by pressing the pencil icon on the row."
+        ]
+      },
+      {
+        "q_ko": "만든 초대 링크를 카카오톡 등으로 바로 보낼 수 있습니까?",
+        "q_en": "Can I send an invite link straight to KakaoTalk or messages?",
+        "a_ko": [
+          "네. 휴대폰에서는 초대 줄의 '공유' 버튼을 누르면 카카오톡·문자 등 공유 화면이 바로 열립니다.",
+          "PC나 공유를 지원하지 않는 브라우저에서는 '복사'를 눌러 링크를 복사한 뒤 붙여넣어 보내면 됩니다.",
+          "옆의 'QR 코드'를 눌러 QR로 전달할 수도 있습니다."
+        ],
+        "a_en": [
+          "Yes. On a phone, press the 'Share' button on the invite row to open the share sheet (KakaoTalk, Messages, and so on) right away.",
+          "On a PC or a browser without share support, press 'Copy' to copy the link and paste it to send.",
+          "You can also press 'QR code' next to it to share it as a QR."
         ]
       },
       {
@@ -853,6 +887,20 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "a_en": [
           "1) Press the bell icon in the header, or press 'Notifications' in the dashboard's left menu (address /notifications).",
           "2) In notification settings, turn each type on or off."
+        ]
+      },
+      {
+        "q_ko": "광고성 정보 수신을 끄거나 켜고 싶습니다.",
+        "q_en": "I want to turn marketing messages off or on.",
+        "a_ko": [
+          "1) 헤더의 종 아이콘을 누르거나, 대시보드 왼쪽 메뉴에서 '알림'을 누릅니다(주소 /notifications).",
+          "2) '광고성 정보 수신' 카드의 스위치를 끄거나 켭니다.",
+          "가입할 때 동의하지 않았더라도 여기에서 켤 수 있고, 언제든 다시 끌 수 있습니다."
+        ],
+        "a_en": [
+          "1) Press the bell icon in the header, or press 'Notifications' in the dashboard's left menu (address /notifications).",
+          "2) Turn the switch on the 'Marketing messages' card off or on.",
+          "Even if you did not agree at sign-up, you can enable it here — and turn it off again anytime."
         ]
       },
       {
