@@ -1247,6 +1247,7 @@ const ko: Dict = {
     policyDeny: "이 코디네이터만 차단",
     referrer: "추천인",
     exportCsv: "CSV 내보내기",
+    exportMarketing: "광고 수신 동의 CSV",
     resetPasswordMail: "비밀번호 재설정 메일 발송",
     withdrawMember: "탈퇴 처리",
     lastSeen: "최근 접속",

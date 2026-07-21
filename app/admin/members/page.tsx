@@ -107,6 +107,13 @@ export default async function MembersPage(props: {
         <a href="/admin/members/export" download className="btn-secondary btn-sm">
           {t.admin.exportCsv}
         </a>
+        <a
+          href="/admin/members/export?marketing=opted"
+          download
+          className="btn-secondary btn-sm"
+        >
+          {t.admin.exportMarketing}
+        </a>
         <form className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
           <input
             name="q"

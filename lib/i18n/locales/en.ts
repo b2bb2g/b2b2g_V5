@@ -1273,6 +1273,7 @@ const en = {
     policyDeny: "Block for this coordinator",
     referrer: "Referred by",
     exportCsv: "Export CSV",
+    exportMarketing: "Opted-in CSV",
     resetPasswordMail: "Send password reset email",
     withdrawMember: "Process withdrawal",
     lastSeen: "Last seen",
