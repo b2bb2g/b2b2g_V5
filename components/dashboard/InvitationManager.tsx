@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import {
   createReferralInvitation,
   revokeReferralInvitation,
@@ -75,6 +81,37 @@ export function InvitationManager({
   const [copied, setCopied] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const infoRef = useRef<HTMLDivElement>(null);
+  // Popover placement, computed from the "!" button's on-screen position when
+  // it opens: horizontally clamped to keep a margin from both viewport edges
+  // (so it never hugs the left edge on phones), and flipped above the button
+  // when there isn't room below.
+  const [pop, setPop] = useState<{
+    left: number;
+    width: number;
+    placement: "top" | "bottom";
+  }>({ left: 0, width: 272, placement: "bottom" });
+
+  function openInfo(event: ReactMouseEvent<HTMLButtonElement>) {
+    if (infoOpen) {
+      setInfoOpen(false);
+      return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    const margin = 12;
+    const width = Math.min(272, window.innerWidth - margin * 2);
+    // Center on the button, then clamp so the box stays fully on screen.
+    const target = Math.min(
+      Math.max(rect.left + rect.width / 2 - width / 2, margin),
+      window.innerWidth - width - margin,
+    );
+    const spaceBelow = window.innerHeight - rect.bottom;
+    setPop({
+      left: target - rect.left, // relative to the button/wrapper
+      width,
+      placement: spaceBelow < 210 && rect.top > 210 ? "top" : "bottom",
+    });
+    setInfoOpen(true);
+  }
 
   // Close the info popover on Escape or a click outside it.
   useEffect(() => {
@@ -103,7 +140,7 @@ export function InvitationManager({
         <div ref={infoRef} className="relative flex">
           <button
             type="button"
-            onClick={() => setInfoOpen((v) => !v)}
+            onClick={openInfo}
             aria-expanded={infoOpen}
             aria-label={labels.infoLabel}
             className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
@@ -122,8 +159,14 @@ export function InvitationManager({
             <div
               role="dialog"
               aria-label={labels.infoLabel}
-              className="animate-fade-up absolute left-1/2 top-8 z-30 w-[min(17rem,calc(100vw-2.5rem))] max-w-[17rem] -translate-x-1/2 rounded-2xl border border-line bg-white p-4 text-left shadow-(--shadow-float)"
-              style={{ animationDuration: "0.18s" }}
+              style={{
+                left: pop.left,
+                width: pop.width,
+                animationDuration: "0.18s",
+              }}
+              className={`animate-fade-up absolute z-30 rounded-2xl border border-line bg-white p-4 text-left shadow-(--shadow-float) ${
+                pop.placement === "top" ? "bottom-full mb-2" : "top-full mt-2"
+              }`}
             >
               <p className="text-xs font-extrabold text-ink">{labels.infoLabel}</p>
               <ul className="mt-2.5 space-y-2 text-[12px] leading-5 text-ink-soft">
