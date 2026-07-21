@@ -150,12 +150,16 @@ export function ZoomableImage({
             ),
           );
         } else if (points.length === 1 && panStart.current) {
+          // Capture the guarded value: the setTransform updater runs async, by
+          // which point a racing pointerup may have cleared panStart.current
+          // (that null deref was the "reading 'tx'" crash).
+          const pan = panStart.current;
           setTransform((current) =>
             clamp(
               {
                 scale: current.scale,
-                x: panStart.current!.tx + (event.clientX - panStart.current!.x),
-                y: panStart.current!.ty + (event.clientY - panStart.current!.y),
+                x: pan.tx + (event.clientX - pan.x),
+                y: pan.ty + (event.clientY - pan.y),
               },
               rect,
             ),
