@@ -87,7 +87,7 @@ export default async function BadgeAdminPage(props: {
       <section className="grid gap-4 xl:grid-cols-2">
         <form action={saveBadgeType} className="card space-y-3 p-5">
           <h3 className="font-extrabold">{t.admin.badgeTypeManagement}</h3>
-          <div className="grid gap-3 sm:grid-cols-2"><input name="code" required className="field" placeholder="manufacturer" /><input name="nameEn" required className="field" placeholder="Manufacturer" /><input name="nameKo" className="field" placeholder="제조사" /><input name="descriptionEn" className="field" placeholder={`${t.admin.description} (EN)`} /><input name="descriptionKo" className="field sm:col-span-2" placeholder={`${t.admin.description} (KO)`} /></div>
+          <div className="grid gap-3 sm:grid-cols-2"><input name="code" required className="field" placeholder={t.admin.badgeExampleCode} aria-label={t.admin.code} /><input name="nameEn" required className="field" placeholder={t.admin.badgeExampleNameEn} aria-label={t.admin.nameEn} /><input name="nameKo" className="field" placeholder={t.admin.badgeExampleNameKo} aria-label={t.admin.nameKo} /><input name="descriptionEn" className="field" placeholder={`${t.admin.description} (EN)`} aria-label={`${t.admin.description} (EN)`} /><input name="descriptionKo" className="field sm:col-span-2" placeholder={`${t.admin.description} (KO)`} aria-label={`${t.admin.description} (KO)`} /></div>
           <PendingButton className="btn-primary btn-md">{t.admin.addBadgeType}</PendingButton>
         </form>
         <form action={grantBadgeToUid} className="card space-y-3 p-5">

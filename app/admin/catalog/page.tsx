@@ -49,11 +49,13 @@ export default async function CatalogAdminPage(props: { searchParams: Promise<{ 
                 <input
                   name="nameEn"
                   defaultValue={category.name_en}
+                  aria-label={t.admin.nameEn}
                   className="field w-0 min-w-0 flex-1 px-2 py-1.5 text-xs"
                 />
                 <input
                   name="nameKo"
                   defaultValue={category.name_ko}
+                  aria-label={t.admin.nameKo}
                   className="field w-0 min-w-0 flex-1 px-2 py-1.5 text-xs"
                 />
                 <select name="menuId" defaultValue={category.menu_id ?? ""} aria-label={t.admin.menus} className="field hidden w-32 px-2 py-1.5 text-[11px] sm:block"><option value="">{t.admin.allMenus}</option>{(menus ?? []).map((menu) => <option key={menu.id} value={menu.id}>{menu.title_en}</option>)}</select>
@@ -86,8 +88,8 @@ export default async function CatalogAdminPage(props: { searchParams: Promise<{ 
         <form action={saveCategory} className="card space-y-2 p-4">
           <p className="text-sm font-bold">{t.common.add}</p>
           <div className="grid grid-cols-2 gap-2">
-            <input name="nameEn" required placeholder={t.admin.nameEn} className="field px-2 py-1.5 text-xs" />
-            <input name="nameKo" placeholder={t.admin.nameKo} className="field px-2 py-1.5 text-xs" />
+            <input name="nameEn" required placeholder={t.admin.nameEn} aria-label={t.admin.nameEn} className="field px-2 py-1.5 text-xs" />
+            <input name="nameKo" placeholder={t.admin.nameKo} aria-label={t.admin.nameKo} className="field px-2 py-1.5 text-xs" />
           </div>
           <select name="menuId" className="field px-2 py-1.5 text-xs">
             <option value="">{t.admin.allMenus}</option>
@@ -122,11 +124,13 @@ export default async function CatalogAdminPage(props: { searchParams: Promise<{ 
                 <input
                   name="nameEn"
                   defaultValue={field.name_en}
+                  aria-label={t.admin.nameEn}
                   className="field w-0 min-w-0 flex-1 px-2 py-1.5 text-xs"
                 />
                 <input
                   name="nameKo"
                   defaultValue={field.name_ko}
+                  aria-label={t.admin.nameKo}
                   className="field w-0 min-w-0 flex-1 px-2 py-1.5 text-xs"
                 />
                 <PendingButton className="btn-secondary btn-sm">
@@ -154,8 +158,8 @@ export default async function CatalogAdminPage(props: { searchParams: Promise<{ 
         <form action={saveSpecField} className="card space-y-2 p-4">
           <p className="text-sm font-bold">{t.common.add}</p>
           <div className="grid grid-cols-2 gap-2">
-            <input name="nameEn" required placeholder={t.admin.nameEn} className="field px-2 py-1.5 text-xs" />
-            <input name="nameKo" placeholder={t.admin.nameKo} className="field px-2 py-1.5 text-xs" />
+            <input name="nameEn" required placeholder={t.admin.nameEn} aria-label={t.admin.nameEn} className="field px-2 py-1.5 text-xs" />
+            <input name="nameKo" placeholder={t.admin.nameKo} aria-label={t.admin.nameKo} className="field px-2 py-1.5 text-xs" />
           </div>
           <PendingButton className="btn-primary btn-sm">
             {t.common.add}

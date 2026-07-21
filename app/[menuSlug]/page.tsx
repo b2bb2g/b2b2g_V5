@@ -878,11 +878,7 @@ function EventsBoard({
               nextHref={monthHref(1)}
               prevLabel={t.home.prev}
               nextLabel={t.home.next}
-              weekdays={
-                locale === "ko"
-                  ? ["일", "월", "화", "수", "목", "금", "토"]
-                  : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-              }
+              weekdays={t.common.weekdaysShort}
               todayIso={todayIso}
             />
           </div>

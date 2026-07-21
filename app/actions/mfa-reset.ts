@@ -4,6 +4,10 @@ import { createHash, randomInt } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/email";
+import {
+  mfaResetEmail,
+  mfaResetNoticeMessage,
+} from "@/lib/notifications/email-content";
 
 // Lost-authenticator recovery (phone swap, deleted app): the signed-in
 // member proves control of their email with a 6-digit code, then the
@@ -64,11 +68,7 @@ export async function requestMfaReset(): Promise<{
   });
   if (error) return { ok: false, reason: "unavailable" };
 
-  const { sent } = await sendEmail({
-    to: email,
-    subject: `B2BB2G 인증 재설정 코드 ${code}`,
-    html: `<div style="font-family:system-ui,sans-serif;max-width:460px"><h2 style="margin:0 0 10px">OTP 인증 재설정</h2><p style="margin:0 0 14px;color:#5b6472">아래 코드를 입력하면 기존 인증기 등록이 해제되고 새 기기를 등록할 수 있습니다. 10분간 유효합니다.<br/>Enter this code to remove your lost authenticator and enroll a new device. Valid for 10 minutes.</p><p style="font-size:30px;font-weight:800;letter-spacing:.3em;margin:0">${code}</p><p style="margin:16px 0 0;color:#8a93a1;font-size:12px">본인이 요청하지 않았다면 이 메일을 무시하세요. If you did not request this, ignore this email.</p></div>`,
-  });
+  const { sent } = await sendEmail({ to: email, ...mfaResetEmail(code) });
   if (!sent) {
     await admin.from("mfa_reset_codes").delete().eq("profile_id", user.id);
     return { ok: false, reason: "unavailable" };
@@ -115,10 +115,7 @@ export async function confirmMfaReset(
   await admin.from("notifications").insert({
     profile_id: user.id,
     type: "admin_notice",
-    payload: {
-      message:
-        "OTP 인증이 재설정되었습니다. 새 기기를 등록해 주세요. / Your authenticator was reset - enroll a new device.",
-    },
+    payload: { message: mfaResetNoticeMessage() },
   });
   return { ok: true };
 }

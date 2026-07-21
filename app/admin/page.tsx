@@ -137,6 +137,15 @@ export default async function AdminOverviewPage(props: {
   ];
 
   const queueCards = cards.filter((card) => card.queue);
+  // Plain-language category shortcuts: link to the first page each admin can
+  // actually reach in the group, so a first-time operator knows where to go.
+  const shortcuts = [
+    { label: t.admin.groupReview, desc: t.admin.groupReviewDesc, href: canReview ? "/admin/moderation" : null },
+    { label: t.admin.groupMembers, desc: t.admin.groupMembersDesc, href: canMembers ? "/admin/members" : canSubscriptions ? "/admin/subscriptions" : null },
+    { label: t.admin.groupCatalog, desc: t.admin.groupCatalogDesc, href: can("catalog") ? "/admin/menus" : null },
+    { label: t.admin.groupOperations, desc: t.admin.groupOperationsDesc, href: canContent ? "/admin/content" : canNotifications ? "/admin/notifications" : null },
+    { label: t.admin.groupSystem, desc: t.admin.groupSystemDesc, href: can("settings") ? "/admin/settings" : canSecurity ? "/admin/security" : can("audit") ? "/admin/audit" : canTeam ? "/admin/team" : null },
+  ].filter((s): s is { label: string; desc: string; href: string } => Boolean(s.href));
   const healthMetrics = [
     ...(canReview ? [{ href: "/admin/feed", label: t.admin.pendingReports, value: pendingReports.count ?? 0, alert: (pendingReports.count ?? 0) > 0 }] : []),
     ...(canNotifications ? [{ href: "/admin/notifications", label: t.admin.deliveryFailures, value: deliveryFailures.count ?? 0, alert: (deliveryFailures.count ?? 0) > 0 }] : []),
@@ -166,6 +175,27 @@ export default async function AdminOverviewPage(props: {
         </Link>
       ))}
       </div>
+      {shortcuts.length > 0 && (
+        <section className="rounded-[1.5rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
+          <h2 className="text-base font-extrabold">{t.admin.quickAccess}</h2>
+          <p className="mt-1 text-xs text-ink-faint">{t.admin.quickAccessHint}</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {shortcuts.map((shortcut) => (
+              <Link
+                key={shortcut.label}
+                href={shortcut.href}
+                className="group rounded-2xl border border-line p-4 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-(--shadow-card)"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-bold">{shortcut.label}</p>
+                  <span className="text-ink-faint transition group-hover:translate-x-1 group-hover:text-primary">→</span>
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-ink-soft">{shortcut.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
       {trends.length > 0 && <section className="rounded-[1.5rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-base font-extrabold">{t.admin.trendsTitle}</h2>

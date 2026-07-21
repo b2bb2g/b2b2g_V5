@@ -128,7 +128,7 @@ export default async function LegalPage(props: {
   const privacyDepartment = settingString(
     settings,
     "legal_privacy_department",
-    locale === "ko" ? "B2BB2G 운영팀" : "B2BB2G Operations",
+    t.common.operatorTeam,
   );
   const contactPath = settingString(
     settings,

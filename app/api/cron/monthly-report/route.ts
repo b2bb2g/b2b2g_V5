@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/email";
+import {
+  monthlyReportEmail,
+  monthlyReportSummary,
+} from "@/lib/notifications/email-content";
 
 export const runtime = "nodejs";
 
@@ -88,7 +92,13 @@ export async function GET(request: NextRequest) {
     })
     .filter(Boolean) as string[];
 
-  const summary = `${monthKey} 월간 리포트 · 신규 가입 ${members.count ?? 0} · 신규 게시물 ${posts.count ?? 0} · 신규 문의 ${inquiries.count ?? 0} · 소셜 게시물 ${feedPosts.count ?? 0}`;
+  const counts = {
+    members: members.count ?? 0,
+    posts: posts.count ?? 0,
+    inquiries: inquiries.count ?? 0,
+    feedPosts: feedPosts.count ?? 0,
+  };
+  const summary = monthlyReportSummary(monthKey, counts);
 
   // In-app notice for every admin (push rides the notifications trigger).
   const { data: admins } = await supabase
@@ -105,21 +115,7 @@ export async function GET(request: NextRequest) {
   );
 
   // Email digest (skipped silently when Resend is unconfigured).
-  const rows = [
-    ["신규 가입", members.count ?? 0],
-    ["신규 게시물", posts.count ?? 0],
-    ["신규 문의", inquiries.count ?? 0],
-    ["소셜 게시물", feedPosts.count ?? 0],
-  ]
-    .map(
-      ([label, value]) =>
-        `<tr><td style="padding:8px 14px;border-bottom:1px solid #e8eaee;color:#5b6472">${label}</td><td style="padding:8px 14px;border-bottom:1px solid #e8eaee;font-weight:700;text-align:right">${value}</td></tr>`,
-    )
-    .join("");
-  const topHtml = topLines.length
-    ? `<p style="margin:18px 0 6px;font-weight:700">이달의 저장 상위 상품</p><ol style="margin:0;padding-left:20px;color:#374151">${topLines.map((line) => `<li style="margin:3px 0">${line}</li>`).join("")}</ol>`
-    : "";
-  const html = `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="margin:0 0 4px">B2BB2G 월간 운영 리포트</h2><p style="margin:0 0 16px;color:#5b6472">${monthKey}</p><table style="border-collapse:collapse;width:100%">${rows}</table>${topHtml}<p style="margin:20px 0 0"><a href="https://b2bb2g.com/admin" style="color:#1b64da;font-weight:700">관리자 콘솔 열기</a></p></div>`;
+  const email = monthlyReportEmail(monthKey, counts, topLines);
 
   let emailed = 0;
   for (const admin of admins) {
@@ -127,15 +123,11 @@ export async function GET(request: NextRequest) {
       | { email: string | null }
       | { email: string | null }[]
       | null;
-    const email = Array.isArray(contacts)
+    const address = Array.isArray(contacts)
       ? contacts[0]?.email
       : contacts?.email;
-    if (!email) continue;
-    const { sent } = await sendEmail({
-      to: email,
-      subject: `B2BB2G 월간 리포트 · ${monthKey}`,
-      html,
-    });
+    if (!address) continue;
+    const { sent } = await sendEmail({ to: address, ...email });
     if (sent) emailed += 1;
   }
 

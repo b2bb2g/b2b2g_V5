@@ -87,9 +87,7 @@ export default async function SearchPage(props: {
     locale === "ko"
       ? SETTING_KEYS.SEARCH_POPULAR_KO
       : SETTING_KEYS.SEARCH_POPULAR_EN,
-    locale === "ko"
-      ? "태양광, CNC, 화장품, EPC, 발전기"
-      : "Solar, CNC, Beauty, EPC, Generator",
+    t.search.popularFallback,
   )
     .split(",")
     .map((term) => term.trim())

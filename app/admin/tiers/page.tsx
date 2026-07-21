@@ -103,9 +103,9 @@ export default async function TiersAdminPage() {
       <form action={addTier} className="card max-w-lg space-y-2 p-4">
         <p className="text-sm font-bold">{t.admin.addTier}</p>
         <div className="grid grid-cols-3 gap-2">
-          <input name="code" required placeholder={t.admin.tierCode} className="field px-2 py-1.5 text-xs" />
-          <input name="nameEn" required placeholder={t.admin.nameEn} className="field px-2 py-1.5 text-xs" />
-          <input name="nameKo" placeholder={t.admin.nameKo} className="field px-2 py-1.5 text-xs" />
+          <input name="code" required placeholder={t.admin.tierCode} aria-label={t.admin.tierCode} className="field px-2 py-1.5 text-xs" />
+          <input name="nameEn" required placeholder={t.admin.nameEn} aria-label={t.admin.nameEn} className="field px-2 py-1.5 text-xs" />
+          <input name="nameKo" placeholder={t.admin.nameKo} aria-label={t.admin.nameKo} className="field px-2 py-1.5 text-xs" />
         </div>
         <label className="flex items-center gap-2 text-xs text-ink-soft">
           <input type="checkbox" name="isPaid" className="h-4 w-4 rounded accent-primary" />

@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 export type AdminNavGroup = {
   label: string;
+  description?: string;
+  icon?: ReactNode;
   items: { href: string; label: string; badge?: number }[];
 };
 
@@ -66,9 +68,19 @@ export function AdminNav({
       <nav className="sticky top-24 hidden self-start overflow-hidden rounded-[1.5rem] bg-[#101923] p-3 text-white shadow-[0_20px_55px_rgba(16,25,35,.15)] lg:block">
         {groups.map((group) => (
           <div key={group.label} className="mb-4 last:mb-0">
-            <p className="px-3 text-xs font-bold uppercase tracking-wider text-white/50">
-              {group.label}
+            <p className="flex items-center gap-1.5 px-3 text-xs font-bold uppercase tracking-wider text-white/50">
+              {group.icon ? (
+                <span aria-hidden="true" className="text-white/40">
+                  {group.icon}
+                </span>
+              ) : null}
+              <span>{group.label}</span>
             </p>
+            {group.description ? (
+              <p className="mt-1 px-3 text-[11px] font-normal normal-case leading-snug tracking-normal text-white/35">
+                {group.description}
+              </p>
+            ) : null}
             <ul className="mt-1.5 space-y-0.5">
               {group.items.map((item) => (
                 <li key={item.href}>
