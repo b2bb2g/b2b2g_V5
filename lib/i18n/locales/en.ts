@@ -621,6 +621,8 @@ const en = {
     needsAttention: "Needs your attention",
     quickActions: "Quick actions",
     referralLink: "My referral link",
+    invitationManage: "Manage",
+    invitationActiveLabel: "Active invites",
     referralHint: "Create a one-use invitation. It expires automatically and cannot be shared again after signup.",
     referralInfoLabel: "About invitation links",
     referralInfoOneUse: "Only one person can sign up with this link — it is single-use.",

@@ -610,6 +610,8 @@ const ko: Dict = {
     needsAttention: "확인이 필요한 항목",
     quickActions: "빠른 실행",
     referralLink: "내 초대 링크",
+    invitationManage: "관리하기",
+    invitationActiveLabel: "활성 초대",
     referralHint: "한 사람만 가입할 수 있는 초대 링크를 만들 수 있습니다. 링크는 자동 만료되며 가입 후 재사용할 수 없습니다.",
     referralInfoLabel: "초대 링크 안내",
     referralInfoOneUse: "이 링크로는 한 명만 가입할 수 있어요. (1회용)",

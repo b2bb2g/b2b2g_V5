@@ -51,6 +51,7 @@ export async function MemberArea({ children }: { children: ReactNode }) {
     },
     { href: "/write/select", label: t.dashboard.registerProduct },
     { href: "/dashboard/badges", label: t.dashboard.applyBadge },
+    { href: "/dashboard/invitations", label: t.dashboard.referralLink },
     {
       href: "/inquiries",
       label: t.inquiry.title,
