@@ -36,9 +36,13 @@ function CheckIcon() {
 
 type Invitation = {
   id: string;
+  label: string | null;
   status: string;
-  expires_at: string;
-  created_at: string;
+  link: string | null;
+  expiresAt: string;
+  createdAt: string;
+  usedAt: string | null;
+  usedUid: number | null;
 };
 
 type Labels = {
@@ -48,22 +52,176 @@ type Labels = {
   infoLabel: string;
   infoOneUse: string;
   infoExpires: string;
-  infoCopyOnce: string;
-  emailLabel: string;
-  emailOptional: string;
+  infoRecopy: string;
+  recipient: string;
+  recipientPlaceholder: string;
   create: string;
   generated: string;
   copy: string;
   copied: string;
   qr: string;
   expires: string;
-  active: string;
-  reserved: string;
+  noLabel: string;
+  statusWaiting: string;
+  statusSigningUp: string;
+  statusJoined: string;
+  statusExpired: string;
+  statusRevoked: string;
   revoke: string;
   empty: string;
   activeLimit: string;
   error: string;
 };
+
+// Tap-anywhere-to-copy row. w-full + truncate keep it from ever overflowing;
+// the long address collapses into a clear confirmation once copied.
+function CopyLink({
+  link,
+  copyLabel,
+  copiedLabel,
+}: {
+  link: string;
+  copyLabel: string;
+  copiedLabel: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(link);
+        } catch {
+          // Clipboard can be blocked; the visible link is still selectable.
+        }
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1800);
+      }}
+      aria-label={`${copyLabel}: ${link}`}
+      className={`flex w-full items-center gap-2.5 rounded-xl border bg-white px-3 py-2.5 text-left transition ${
+        copied ? "border-positive/40" : "border-line hover:border-primary/50"
+      }`}
+    >
+      <span
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+          copied ? "bg-positive-soft text-positive" : "bg-primary-soft text-primary"
+        }`}
+      >
+        {copied ? <CheckIcon /> : <LinkIcon />}
+      </span>
+      <span
+        className={`min-w-0 flex-1 truncate text-xs font-semibold ${
+          copied ? "text-positive" : "text-ink"
+        }`}
+      >
+        {copied ? copiedLabel : link.replace(/^https?:\/\//, "")}
+      </span>
+      {!copied && (
+        <span className="shrink-0 text-xs font-bold text-primary">
+          {copyLabel}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function statusMeta(status: string, labels: Labels) {
+  switch (status) {
+    case "reserved":
+      return { text: labels.statusSigningUp, cls: "bg-caution-soft text-caution" };
+    case "used":
+      return { text: labels.statusJoined, cls: "bg-positive-soft text-positive" };
+    case "expired":
+      return { text: labels.statusExpired, cls: "bg-surface-sub text-ink-faint" };
+    case "revoked":
+      return { text: labels.statusRevoked, cls: "bg-surface-sub text-ink-faint" };
+    default:
+      return { text: labels.statusWaiting, cls: "bg-primary-soft text-primary" };
+  }
+}
+
+function InvitationRow({
+  invitation,
+  labels,
+  locale,
+  highlight,
+}: {
+  invitation: Invitation;
+  labels: Labels;
+  locale: Locale;
+  highlight: boolean;
+}) {
+  const meta = statusMeta(invitation.status, labels);
+  const actionable = invitation.status === "active" || invitation.status === "reserved";
+  return (
+    <li
+      className={`rounded-xl border p-3 transition ${
+        highlight
+          ? "border-primary/50 bg-primary-soft/40 ring-2 ring-primary/25"
+          : "border-line bg-surface-sub/40"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p
+            className={`truncate text-sm font-bold ${
+              invitation.label ? "text-ink" : "text-ink-faint"
+            }`}
+          >
+            {invitation.label || labels.noLabel}
+          </p>
+          <p className="mt-0.5 truncate text-[11px] text-ink-faint">
+            {invitation.status === "used" ? (
+              <>
+                {invitation.usedUid ? `UID:${invitation.usedUid} · ` : ""}
+                <LocalDateTime
+                  value={invitation.usedAt ?? invitation.createdAt}
+                  locale={locale}
+                />
+              </>
+            ) : (
+              <>
+                {labels.expires}:{" "}
+                <LocalDateTime value={invitation.expiresAt} locale={locale} />
+              </>
+            )}
+          </p>
+        </div>
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${meta.cls}`}
+        >
+          {meta.text}
+        </span>
+      </div>
+
+      {actionable && invitation.link && (
+        <>
+          <div className="mt-2.5 flex items-center gap-1.5">
+            <div className="min-w-0 flex-1">
+              <CopyLink
+                link={invitation.link}
+                copyLabel={labels.copy}
+                copiedLabel={labels.copied}
+              />
+            </div>
+            <form action={revokeReferralInvitation}>
+              <input type="hidden" name="invitationId" value={invitation.id} />
+              <PendingButton
+                aria-label={labels.revoke}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-ink-faint transition hover:bg-negative-soft hover:text-negative"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                </svg>
+              </PendingButton>
+            </form>
+          </div>
+          <ReferralQr value={invitation.link} label={labels.qr} />
+        </>
+      )}
+    </li>
+  );
+}
 
 export function InvitationManager({
   invitations,
@@ -78,7 +236,6 @@ export function InvitationManager({
     createReferralInvitation,
     {},
   );
-  const [copied, setCopied] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const infoRef = useRef<HTMLDivElement>(null);
   // Popover placement, computed from the "!" button's on-screen position when
@@ -99,14 +256,13 @@ export function InvitationManager({
     const rect = event.currentTarget.getBoundingClientRect();
     const margin = 12;
     const width = Math.min(272, window.innerWidth - margin * 2);
-    // Center on the button, then clamp so the box stays fully on screen.
     const target = Math.min(
       Math.max(rect.left + rect.width / 2 - width / 2, margin),
       window.innerWidth - width - margin,
     );
     const spaceBelow = window.innerHeight - rect.bottom;
     setPop({
-      left: target - rect.left, // relative to the button/wrapper
+      left: target - rect.left,
       width,
       placement: spaceBelow < 210 && rect.top > 210 ? "top" : "bottom",
     });
@@ -144,9 +300,7 @@ export function InvitationManager({
             aria-expanded={infoOpen}
             aria-label={labels.infoLabel}
             className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
-              infoOpen
-                ? "text-primary"
-                : "text-ink-faint hover:text-primary"
+              infoOpen ? "text-primary" : "text-ink-faint hover:text-primary"
             }`}
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -159,18 +313,14 @@ export function InvitationManager({
             <div
               role="dialog"
               aria-label={labels.infoLabel}
-              style={{
-                left: pop.left,
-                width: pop.width,
-                animationDuration: "0.18s",
-              }}
+              style={{ left: pop.left, width: pop.width, animationDuration: "0.18s" }}
               className={`animate-fade-up absolute z-30 rounded-2xl border border-line bg-white p-4 text-left shadow-(--shadow-float) ${
                 pop.placement === "top" ? "bottom-full mb-2" : "top-full mt-2"
               }`}
             >
               <p className="text-xs font-extrabold text-ink">{labels.infoLabel}</p>
               <ul className="mt-2.5 space-y-2 text-[12px] leading-5 text-ink-soft">
-                {[labels.infoOneUse, labels.infoExpires, labels.infoCopyOnce].map(
+                {[labels.infoOneUse, labels.infoExpires, labels.infoRecopy].map(
                   (line) => (
                     <li key={line} className="flex gap-2">
                       <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-primary" />
@@ -187,11 +337,13 @@ export function InvitationManager({
 
       <form action={action} className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end">
         <label className="min-w-0 flex-1">
-          <span className="text-xs font-bold text-ink-soft">{labels.emailLabel}</span>
+          <span className="text-xs font-bold text-ink-soft">{labels.recipient}</span>
           <input
-            type="email"
-            name="email"
-            placeholder={labels.emailOptional}
+            type="text"
+            name="label"
+            maxLength={80}
+            autoComplete="off"
+            placeholder={labels.recipientPlaceholder}
             className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
           />
         </label>
@@ -212,85 +364,25 @@ export function InvitationManager({
       )}
 
       {state.link && (
-        <div className="mt-4 rounded-2xl border border-primary/20 bg-primary-soft/45 p-4">
-          <p className="text-xs font-extrabold text-primary">{labels.generated}</p>
-
-          {/* One tap anywhere on the row copies; the row itself is the
-              affordance, so it never overflows (w-full + truncate) and the
-              long address collapses into a clear confirmation once copied. */}
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(state.link!);
-              } catch {
-                // Clipboard can be blocked; the visible link is still selectable.
-              }
-              setCopied(true);
-              window.setTimeout(() => setCopied(false), 1800);
-            }}
-            aria-label={`${labels.copy}: ${state.link}`}
-            className={`mt-2 flex w-full items-center gap-2.5 rounded-xl border bg-white px-3 py-2.5 text-left transition ${
-              copied
-                ? "border-positive/40"
-                : "border-line hover:border-primary/50"
-            }`}
-          >
-            <span
-              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                copied
-                  ? "bg-positive-soft text-positive"
-                  : "bg-primary-soft text-primary"
-              }`}
-            >
-              {copied ? <CheckIcon /> : <LinkIcon />}
-            </span>
-            <span
-              className={`min-w-0 flex-1 truncate text-xs font-semibold ${
-                copied ? "text-positive" : "text-ink"
-              }`}
-            >
-              {copied
-                ? labels.copied
-                : state.link.replace(/^https?:\/\//, "")}
-            </span>
-            {!copied && (
-              <span className="shrink-0 text-xs font-bold text-primary">
-                {labels.copy}
-              </span>
-            )}
-          </button>
-
-          <p className="mt-2 text-[11px] text-ink-faint">
-            {labels.expires}:{" "}
-            <LocalDateTime value={state.expiresAt!} locale={locale} />
-          </p>
-          <ReferralQr value={state.link} label={labels.qr} />
-        </div>
+        <p className="mt-3 flex items-center gap-2 rounded-xl bg-positive-soft px-3 py-2 text-xs font-bold text-positive">
+          <CheckIcon />
+          {labels.generated}
+        </p>
       )}
 
       <div className="mt-5 border-t border-line pt-4">
         {invitations.length === 0 ? (
           <p className="text-xs text-ink-faint">{labels.empty}</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {invitations.map((invitation) => (
-              <li key={invitation.id} className="flex items-center justify-between gap-3 rounded-xl bg-surface-sub px-3 py-2.5">
-                <div className="min-w-0">
-                  <span className="text-xs font-extrabold text-ink-soft">
-                    {invitation.status === "reserved" ? labels.reserved : labels.active}
-                  </span>
-                  <p className="mt-0.5 truncate text-[11px] text-ink-faint">
-                    {labels.expires}: <LocalDateTime value={invitation.expires_at} locale={locale} />
-                  </p>
-                </div>
-                <form action={revokeReferralInvitation}>
-                  <input type="hidden" name="invitationId" value={invitation.id} />
-                  <PendingButton className="rounded-lg px-3 py-2 text-xs font-bold text-negative hover:bg-negative-soft">
-                    {labels.revoke}
-                  </PendingButton>
-                </form>
-              </li>
+              <InvitationRow
+                key={invitation.id}
+                invitation={invitation}
+                labels={labels}
+                locale={locale}
+                highlight={Boolean(state.link) && invitation.link === state.link}
+              />
             ))}
           </ul>
         )}

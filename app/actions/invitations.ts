@@ -19,18 +19,20 @@ export async function createReferralInvitation(
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims.sub) return { error: "authentication_required" };
 
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: "invalid_email" };
-  }
+  // Optional private note so the inviter can tell which link went to whom.
+  const label = String(formData.get("label") ?? "").trim().slice(0, 80);
 
   // 16 bytes (128-bit) is ample entropy for a one-use, expiring, rate-limited
-  // token, and keeps the shared /i/<token> link short. Only the hash is stored.
+  // token, and keeps the shared /i/<token> link short. The hash is used for
+  // signup lookup; the raw token is kept in an owner-only secret table so the
+  // inviter can re-copy the link later.
   const token = randomBytes(16).toString("base64url");
   const { data, error } = await supabase
     .rpc("create_referral_invitation", {
+      p_token: token,
       p_token_hash: hashPublicValue(token),
-      p_bound_email_hash: email ? hashPublicValue(email) : null,
+      p_bound_email_hash: null,
+      p_label: label || null,
     })
     .single();
 

@@ -65,13 +65,9 @@ export default async function DashboardPage() {
       .or(`sender_id.eq.${session.userId},recipient_id.eq.${session.userId}`)
       .order("updated_at", { ascending: false })
       .limit(4),
-    supabase
-      .from("referral_invitations")
-      .select("id, status, expires_at, created_at")
-      .eq("inviter_id", session.userId)
-      .in("status", ["active", "reserved"])
-      .gt("expires_at", new Date().toISOString())
-      .order("created_at", { ascending: false }),
+    // Owner-scoped reader returns the raw token (active/reserved only, for
+    // re-copy), the recipient memo and the accepted member's UID.
+    supabase.rpc("get_my_referral_invitations"),
     supabase
       .from("post_bookmarks")
       .select("post_id", { count: "exact", head: true })
@@ -502,12 +498,31 @@ export default async function DashboardPage() {
 
         <InvitationManager
           locale={locale}
-          invitations={(activeInvitations.data ?? []) as Array<{
-            id: string;
-            status: string;
-            expires_at: string;
-            created_at: string;
-          }>}
+          invitations={(
+            (activeInvitations.data ?? []) as Array<{
+              id: string;
+              label: string | null;
+              status: string;
+              token: string | null;
+              expires_at: string;
+              created_at: string;
+              used_at: string | null;
+              used_uid: number | null;
+            }>
+          ).map((row) => ({
+            id: row.id,
+            label: row.label,
+            status: row.status,
+            // The token is present only for active/reserved links; build the
+            // shareable short link so the raw token stays server-derived.
+            link: row.token
+              ? `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/i/${row.token}`
+              : null,
+            expiresAt: row.expires_at,
+            createdAt: row.created_at,
+            usedAt: row.used_at,
+            usedUid: row.used_uid,
+          }))}
           labels={{
             eyebrow: t.dashboard.growthTools,
             title: t.dashboard.referralLink,
@@ -515,17 +530,21 @@ export default async function DashboardPage() {
             infoLabel: t.dashboard.referralInfoLabel,
             infoOneUse: t.dashboard.referralInfoOneUse,
             infoExpires: t.dashboard.referralInfoExpires,
-            infoCopyOnce: t.dashboard.referralInfoCopyOnce,
-            emailLabel: t.dashboard.invitationEmail,
-            emailOptional: t.dashboard.invitationEmailOptional,
+            infoRecopy: t.dashboard.referralInfoRecopy,
+            recipient: t.dashboard.invitationRecipient,
+            recipientPlaceholder: t.dashboard.invitationRecipientPlaceholder,
             create: t.dashboard.createInvitation,
             generated: t.dashboard.invitationGenerated,
             copy: t.common.copy,
             copied: t.common.copied,
             qr: t.dashboard.qr,
             expires: t.dashboard.invitationExpires,
-            active: t.dashboard.invitationActive,
-            reserved: t.dashboard.invitationReserved,
+            noLabel: t.dashboard.invitationNoLabel,
+            statusWaiting: t.dashboard.invitationStatusWaiting,
+            statusSigningUp: t.dashboard.invitationStatusSigningUp,
+            statusJoined: t.dashboard.invitationStatusJoined,
+            statusExpired: t.dashboard.invitationStatusExpired,
+            statusRevoked: t.dashboard.invitationStatusRevoked,
             revoke: t.dashboard.revokeInvitation,
             empty: t.dashboard.noActiveInvitations,
             activeLimit: t.dashboard.invitationLimitReached,
