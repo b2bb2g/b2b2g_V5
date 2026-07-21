@@ -15,13 +15,10 @@ export default async function CoordinatorPage() {
   if (!session.profile?.is_coordinator) redirect("/dashboard");
 
   const [{ t, locale }, supabase] = await Promise.all([getT(), createClient()]);
-  const { data } = await supabase
-    .from("profiles")
-    .select(
-      "id, uid, display_name, company_name, created_at, profile_contacts(email)",
-    )
-    .eq("referred_by", session.userId)
-    .order("created_at", { ascending: false });
+  // referred_by is no longer directly filterable by authenticated (column
+  // lockdown); the definer RPC returns this coordinator's own direct referrals
+  // with the sanctioned email inline, scoped to referred_by = auth.uid().
+  const { data } = await supabase.rpc("get_my_referred_members");
 
   const referrals = (data ?? []) as unknown as {
     id: string;
@@ -29,7 +26,7 @@ export default async function CoordinatorPage() {
     display_name: string | null;
     company_name: string | null;
     created_at: string;
-    profile_contacts: { email: string | null } | null;
+    email: string | null;
   }[];
 
   return (
@@ -60,7 +57,7 @@ export default async function CoordinatorPage() {
                     )}
                   </p>
                   <p className="mt-0.5 truncate text-xs text-ink-faint">
-                    UID {member.uid} · {member.profile_contacts?.email}
+                    UID {member.uid} · {member.email}
                   </p>
                 </div>
                 <time

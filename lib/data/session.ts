@@ -19,7 +19,9 @@ export const getSession = cache(async (): Promise<SessionInfo> => {
 
   const [{ data: profile }, { data: priv }, { data: badges }] =
     await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).single(),
+      // referred_by is no longer directly selectable by authenticated (column
+      // lockdown), so the owner reads their own full row via the definer RPC.
+      supabase.rpc("get_profile_full", { p_id: user.id }).maybeSingle(),
       // last_seen_at lives in the owner/admin-only profile_private table.
       supabase
         .from("profile_private")

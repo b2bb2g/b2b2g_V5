@@ -32,36 +32,54 @@ export default async function AdminMemberDetailPage(props: {
   const { supabase, isOwner, permissions } = access;
   const canReviewBadges = isOwner || permissions.includes("review");
 
+  // referred_by is no longer directly selectable by authenticated (column
+  // lockdown); a members-admin reads the full row (incl. referred_by) via the
+  // definer RPC, and the contact/memo/private rows come from their own tables.
   const { data: profileRow } = await supabase
-    .from("profiles")
-    .select(
-      "*, profile_contacts(email, phone, contact_person), member_admin_memos(memo)"
-    )
-    .eq("id", id)
+    .rpc("get_profile_full", { p_id: id })
     .maybeSingle();
   if (!profileRow) notFound();
-  // Sensitive columns live in the owner/admin-only profile_private table.
-  const { data: memberPrivate } = await supabase
-    .from("profile_private")
-    .select("suspend_reason, coordinator_msg_override, last_seen_at")
-    .eq("profile_id", id)
-    .maybeSingle<{
-      suspend_reason: string | null;
-      coordinator_msg_override: "allow" | "deny" | null;
-      last_seen_at: string | null;
-    }>();
-  const member = profileRow as unknown as {
-    id: string;
-    uid: number;
-    display_name: string | null;
-    company_name: string | null;
-    bio: string | null;
-    status: string;
-    is_coordinator: boolean;
-    referred_by: string | null;
-    created_at: string;
-    profile_contacts: { email: string | null; phone: string | null; contact_person: string | null } | null;
-    member_admin_memos: { memo: string } | null;
+  const [{ data: memberPrivate }, { data: contact }, { data: memo }] =
+    await Promise.all([
+      // Sensitive columns live in the owner/admin-only profile_private table.
+      supabase
+        .from("profile_private")
+        .select("suspend_reason, coordinator_msg_override, last_seen_at")
+        .eq("profile_id", id)
+        .maybeSingle<{
+          suspend_reason: string | null;
+          coordinator_msg_override: "allow" | "deny" | null;
+          last_seen_at: string | null;
+        }>(),
+      supabase
+        .from("profile_contacts")
+        .select("email, phone, contact_person")
+        .eq("profile_id", id)
+        .maybeSingle<{
+          email: string | null;
+          phone: string | null;
+          contact_person: string | null;
+        }>(),
+      supabase
+        .from("member_admin_memos")
+        .select("memo")
+        .eq("profile_id", id)
+        .maybeSingle<{ memo: string }>(),
+    ]);
+  const member = {
+    ...(profileRow as unknown as {
+      id: string;
+      uid: number;
+      display_name: string | null;
+      company_name: string | null;
+      bio: string | null;
+      status: string;
+      is_coordinator: boolean;
+      referred_by: string | null;
+      created_at: string;
+    }),
+    profile_contacts: contact ?? null,
+    member_admin_memos: memo ?? null,
   };
 
   const [

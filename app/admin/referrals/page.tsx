@@ -62,12 +62,14 @@ function TreeNode({ node, depth, t }: { node: Node; depth: number; t: Dictionary
 
 export default async function ReferralsAdminPage() {
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
-  const { data } = await supabase
-    .from("profiles")
-    .select("id, uid, display_name, company_name, is_coordinator, referred_by")
-    .order("created_at");
+  // referred_by is no longer directly selectable by authenticated (column
+  // lockdown); the admin-only definer RPC returns the full referral graph.
+  const { data } = await supabase.rpc("admin_referral_graph");
 
-  const rows = (data ?? []).map((row) => ({ ...row, children: [] as Node[] }));
+  const rows = ((data ?? []) as Omit<Node, "children">[]).map((row) => ({
+    ...row,
+    children: [] as Node[],
+  }));
   const byId = new Map(rows.map((row) => [row.id, row]));
   const roots: Node[] = [];
   for (const row of rows) {

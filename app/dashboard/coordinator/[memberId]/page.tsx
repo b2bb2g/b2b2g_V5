@@ -21,12 +21,11 @@ export default async function CoordinatorMemberPage(props: {
 
   const [{ t }, supabase] = await Promise.all([getT(), createClient()]);
 
+  // referred_by is no longer directly selectable by authenticated (column
+  // lockdown); the definer RPC returns the row only to the owner, a members-admin
+  // or the referrer, so a coordinator gets it only for a member they referred.
   const { data: member } = await supabase
-    .from("profiles")
-    .select(
-      "id, uid, display_name, company_name, referred_by, profile_contacts(email)",
-    )
-    .eq("id", memberId)
+    .rpc("get_profile_full", { p_id: memberId })
     .maybeSingle();
   const memberRow = member as unknown as {
     id: string;
@@ -34,24 +33,33 @@ export default async function CoordinatorMemberPage(props: {
     display_name: string | null;
     company_name: string | null;
     referred_by: string | null;
-    profile_contacts: { email: string | null } | null;
   } | null;
   if (!memberRow || memberRow.referred_by !== session.userId) notFound();
 
-  const [{ data: messages }, { data: inquiries }] = await Promise.all([
-    supabase
-      .from("coordinator_messages")
-      .select("*")
-      .eq("coordinator_id", session.userId)
-      .eq("member_id", memberId)
-      .order("created_at"),
-    supabase
-      .from("inquiries")
-      .select("*")
-      .or(`sender_id.eq.${memberId},recipient_id.eq.${memberId}`)
-      .order("updated_at", { ascending: false })
-      .limit(20),
-  ]);
+  const [{ data: messages }, { data: inquiries }, { data: contact }] =
+    await Promise.all([
+      supabase
+        .from("coordinator_messages")
+        .select("*")
+        .eq("coordinator_id", session.userId)
+        .eq("member_id", memberId)
+        .order("created_at"),
+      supabase
+        .from("inquiries")
+        .select("*")
+        .or(`sender_id.eq.${memberId},recipient_id.eq.${memberId}`)
+        .order("updated_at", { ascending: false })
+        .limit(20),
+      // Email via the sanctioned coordinator RLS exception on profile_contacts
+      // (is_direct_referrer_coordinator, a definer check — unaffected by lockdown).
+      supabase
+        .from("profile_contacts")
+        .select("email")
+        .eq("profile_id", memberId)
+        .maybeSingle(),
+    ]);
+  const memberEmail =
+    (contact as { email: string | null } | null)?.email ?? "";
 
   const stepLabels: Record<string, string> = t.inquiry.steps;
   const backTo = `/dashboard/coordinator/${memberId}`;
@@ -60,7 +68,7 @@ export default async function CoordinatorMemberPage(props: {
     <div className="space-y-6">
       <PageHeader
         title={memberRow.display_name ?? `UID ${memberRow.uid}`}
-        subtitle={`UID ${memberRow.uid} · ${memberRow.profile_contacts?.email ?? ""}${
+        subtitle={`UID ${memberRow.uid} · ${memberEmail}${
           memberRow.company_name ? ` · ${memberRow.company_name}` : ""
         }`}
       />
