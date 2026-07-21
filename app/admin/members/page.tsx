@@ -130,6 +130,7 @@ export default async function MembersPage(props: {
           <input
             name="q"
             defaultValue={q ?? ""}
+            aria-label={`${t.admin.uid} / ${t.nav.profile} / ${t.admin.email}`}
             placeholder={`${t.admin.uid} / ${t.nav.profile} / ${t.admin.email}`}
             className="field col-span-2 min-w-0 px-3 py-2 text-xs"
           />

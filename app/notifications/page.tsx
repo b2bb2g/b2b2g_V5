@@ -144,6 +144,15 @@ export default async function NotificationsPage(props: {
       : params.view === "trash"
         ? NOTIFICATION_STATE.TRASHED
         : "inbox";
+  // The stored state value differs from the tab/route key (TRASHED = "trashed"
+  // but the tab is "trash"), so pagination links must carry the route key or
+  // they silently fall back to the inbox.
+  const viewKey =
+    view === NOTIFICATION_STATE.ARCHIVED
+      ? "archived"
+      : view === NOTIFICATION_STATE.TRASHED
+        ? "trash"
+        : "";
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const from = (page - 1) * PAGE_SIZE;
 
@@ -432,7 +441,7 @@ export default async function NotificationsPage(props: {
         page={page}
         totalPages={Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))}
         basePath="/notifications"
-        extraQuery={view === "inbox" ? {} : { view }}
+        extraQuery={viewKey ? { view: viewKey } : {}}
         prevLabel={t.home.prev}
         nextLabel={t.home.next}
       />

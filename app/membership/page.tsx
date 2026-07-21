@@ -144,7 +144,7 @@ export default async function MembershipPage() {
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t.membership.freeDescription}</p>
             <div className="my-6 h-px bg-line" />
             <ul className="space-y-3 text-sm text-ink-soft">
-              {[t.membership.freeFeature1, t.membership.freeFeature2].map((feature) => <li key={feature} className="flex gap-2"><span className="text-positive">✓</span>{feature}</li>)}
+              {[t.membership.freeFeature1, t.membership.freeFeature2].map((feature) => <li key={feature} className="flex gap-2"><span aria-hidden="true" className="text-positive">✓</span>{feature}</li>)}
             </ul>
           </article>
           <article className="relative rounded-[1.5rem] border-2 border-primary bg-primary-soft/35 p-6 shadow-[0_24px_60px_rgba(49,130,246,0.13)] sm:p-8">
@@ -153,7 +153,7 @@ export default async function MembershipPage() {
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-soft">{t.membership.certifiedDescription}</p>
             <div className="my-6 h-px bg-primary/15" />
             <ul className="space-y-3 text-sm font-semibold text-ink-soft">
-              {benefits.map((benefit) => <li key={benefit.title} className="flex gap-2"><span className="text-primary">✓</span>{benefit.title}</li>)}
+              {benefits.map((benefit) => <li key={benefit.title} className="flex gap-2"><span aria-hidden="true" className="text-primary">✓</span>{benefit.title}</li>)}
             </ul>
             <Link href={applyHref} className="btn-primary btn-lg mt-7 w-full">{t.membership.apply}</Link>
           </article>

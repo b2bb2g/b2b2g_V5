@@ -349,7 +349,10 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <div className="flex items-center gap-3 rounded-[1.15rem] border border-positive/15 bg-positive-soft/55 px-4 py-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-positive text-sm font-extrabold text-white">
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-positive text-sm font-extrabold text-white"
+            >
               ✓
             </span>
             <div>

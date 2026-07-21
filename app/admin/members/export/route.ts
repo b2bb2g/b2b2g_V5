@@ -26,9 +26,12 @@ export async function GET(request: Request) {
     new URL(request.url).searchParams.get("marketing") === "opted";
 
   // Marketing consent lives in the owner/admin-only profile_private table.
+  // Match the profiles cap below (10000) so consent + the opted send list stay
+  // correct past Supabase's default 1000-row ceiling.
   const { data: mkt } = await supabase
     .from("profile_private")
-    .select("profile_id, marketing_consent, marketing_consent_at");
+    .select("profile_id, marketing_consent, marketing_consent_at")
+    .limit(10000);
   const consentById = new Map(
     (mkt ?? []).map((r) => [
       r.profile_id as string,
