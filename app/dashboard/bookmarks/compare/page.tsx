@@ -92,7 +92,7 @@ export default async function CompareBookmarksPage(props: {
                           <MediaPlaceholder />
                         )}
                       </span>
-                      <span className="mt-2.5 line-clamp-2 block text-sm font-extrabold leading-snug transition-colors group-hover:text-primary">
+                      <span className="mt-2.5 line-clamp-2 text-sm font-extrabold leading-snug transition-colors group-hover:text-primary">
                         {title}
                       </span>
                       {menu && (

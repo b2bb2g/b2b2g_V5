@@ -273,7 +273,7 @@ export default async function NotificationsPage(props: {
                   />
                   <span className="min-w-0 flex-1">
                     <span
-                      className={`line-clamp-2 block text-sm leading-5 ${unread ? "font-bold text-ink" : "font-semibold text-ink-soft"}`}
+                      className={`line-clamp-2 text-sm leading-5 ${unread ? "font-bold text-ink" : "font-semibold text-ink-soft"}`}
                     >
                       {renderNotification(t, n)}
                       {groupedSuffix && (

@@ -352,7 +352,7 @@ export default async function PostDetailPage(props: {
                 <span className="text-xs font-bold text-ink-faint">
                   ← {t.board.previousNotice}
                 </span>
-                <strong className="mt-1.5 block line-clamp-1 text-sm font-extrabold group-hover:text-primary">
+                <strong className="mt-1.5 line-clamp-1 text-sm font-extrabold group-hover:text-primary">
                   {locale === "ko" && previousNotice.title_ko
                     ? previousNotice.title_ko
                     : previousNotice.title_en}
@@ -369,7 +369,7 @@ export default async function PostDetailPage(props: {
                 <span className="text-xs font-bold text-ink-faint">
                   {t.board.nextNotice} →
                 </span>
-                <strong className="mt-1.5 block line-clamp-1 text-sm font-extrabold group-hover:text-primary">
+                <strong className="mt-1.5 line-clamp-1 text-sm font-extrabold group-hover:text-primary">
                   {locale === "ko" && nextNotice.title_ko
                     ? nextNotice.title_ko
                     : nextNotice.title_en}

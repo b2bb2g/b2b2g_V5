@@ -198,7 +198,7 @@ export function EditorialFeatureCard({
               {title}
             </strong>
             {teaser && (
-              <span className="mt-5 block line-clamp-3 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
+              <span className="mt-5 line-clamp-3 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
                 {teaser}
               </span>
             )}
@@ -229,7 +229,7 @@ export function EditorialFeatureCard({
           <strong className="mt-5 block max-w-xl text-3xl font-semibold leading-[1.05] tracking-[-.04em] sm:text-5xl">
             {title}
           </strong>
-          <span className="mt-5 block line-clamp-4 max-w-xl text-sm leading-7 text-white/68 sm:text-base">
+          <span className="mt-5 line-clamp-4 max-w-xl text-sm leading-7 text-white/68 sm:text-base">
             {teaser}
           </span>
         </span>

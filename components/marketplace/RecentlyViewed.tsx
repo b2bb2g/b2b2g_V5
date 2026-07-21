@@ -100,7 +100,7 @@ export function RecentlyViewedSection({
                   <MediaPlaceholder />
                 )}
               </span>
-              <span className="mt-2 line-clamp-2 block text-xs font-bold leading-snug text-ink transition-colors group-hover:text-primary">
+              <span className="mt-2 line-clamp-2 text-xs font-bold leading-snug text-ink transition-colors group-hover:text-primary">
                 {locale === "ko" && item.titleKo ? item.titleKo : item.titleEn}
               </span>
             </Link>
