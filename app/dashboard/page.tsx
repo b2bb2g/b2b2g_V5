@@ -505,6 +505,7 @@ export default async function DashboardPage() {
               status: string;
               token: string | null;
               expires_at: string;
+              expires_in_days: number;
               created_at: string;
               used_at: string | null;
               used_uid: number | null;
@@ -519,6 +520,9 @@ export default async function DashboardPage() {
               ? `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/i/${row.token}`
               : null,
             expiresAt: row.expires_at,
+            // Computed in the RPC (SQL now()) so the relative "expires in N days"
+            // needs no client clock and can't drift on hydration.
+            expiresInDays: row.expires_in_days,
             createdAt: row.created_at,
             usedAt: row.used_at,
             usedUid: row.used_uid,
@@ -533,12 +537,20 @@ export default async function DashboardPage() {
             infoRecopy: t.dashboard.referralInfoRecopy,
             recipient: t.dashboard.invitationRecipient,
             recipientPlaceholder: t.dashboard.invitationRecipientPlaceholder,
+            recipientHint: t.dashboard.invitationRecipientHint,
             create: t.dashboard.createInvitation,
             generated: t.dashboard.invitationGenerated,
             copy: t.common.copy,
             copied: t.common.copied,
+            share: t.dashboard.invitationShare,
+            shareTitle: t.dashboard.invitationShareTitle,
             qr: t.dashboard.qr,
-            expires: t.dashboard.invitationExpires,
+            edit: t.common.edit,
+            save: t.common.save,
+            cancel: t.common.cancel,
+            expiresInDays: t.dashboard.invitationExpiresInDays,
+            expiresToday: t.dashboard.invitationExpiresToday,
+            expiresTomorrow: t.dashboard.invitationExpiresTomorrow,
             noLabel: t.dashboard.invitationNoLabel,
             statusWaiting: t.dashboard.invitationStatusWaiting,
             statusSigningUp: t.dashboard.invitationStatusSigningUp,
@@ -546,6 +558,9 @@ export default async function DashboardPage() {
             statusExpired: t.dashboard.invitationStatusExpired,
             statusRevoked: t.dashboard.invitationStatusRevoked,
             revoke: t.dashboard.revokeInvitation,
+            revokeConfirmTitle: t.dashboard.invitationRevokeConfirmTitle,
+            revokeConfirmBody: t.dashboard.invitationRevokeConfirmBody,
+            revokeConfirmYes: t.dashboard.invitationRevokeConfirmYes,
             empty: t.dashboard.noActiveInvitations,
             tabActive: t.dashboard.invitationTabActive,
             tabHistory: t.dashboard.invitationTabHistory,

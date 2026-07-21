@@ -63,3 +63,16 @@ export async function revokeReferralInvitation(formData: FormData) {
   revalidatePath("/dashboard");
   revalidatePath("/admin/invitations");
 }
+
+export async function updateReferralInvitationLabel(formData: FormData) {
+  const invitationId = String(formData.get("invitationId") ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(invitationId)) return;
+  const label = String(formData.get("label") ?? "").trim().slice(0, 80);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_referral_invitation_label", {
+    p_invitation_id: invitationId,
+    p_label: label || null,
+  });
+  if (error) console.error("update invitation label failed", error.message);
+  revalidatePath("/dashboard");
+}

@@ -5,15 +5,18 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type MouseEvent as ReactMouseEvent,
 } from "react";
+import { useFormStatus } from "react-dom";
 import {
   createReferralInvitation,
   revokeReferralInvitation,
+  updateReferralInvitationLabel,
   type InvitationActionState,
 } from "@/app/actions/invitations";
-import { PendingButton } from "@/components/ui/PendingButton";
 import { LocalDateTime } from "@/components/ui/LocalDateTime";
+import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import type { Locale } from "@/lib/constants";
 import { ReferralQr } from "@/components/ui/ReferralQr";
 
@@ -25,12 +28,54 @@ function LinkIcon() {
     </svg>
   );
 }
-
 function CheckIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M20 6 9 17l-5-5" />
     </svg>
+  );
+}
+function ShareIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
+    </svg>
+  );
+}
+function PencilIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  );
+}
+function XIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+      <path d="m6 6 12 12M18 6 6 18" />
+    </svg>
+  );
+}
+function TrashIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    </svg>
+  );
+}
+
+const emptySubscribe = () => () => {};
+// False on the server and the first client render, true after mount — used to
+// gate client-only affordances (native share) without a hydration mismatch.
+function useMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
   );
 }
 
@@ -40,6 +85,7 @@ type Invitation = {
   status: string;
   link: string | null;
   expiresAt: string;
+  expiresInDays: number;
   createdAt: string;
   usedAt: string | null;
   usedUid: number | null;
@@ -55,12 +101,20 @@ type Labels = {
   infoRecopy: string;
   recipient: string;
   recipientPlaceholder: string;
+  recipientHint: string;
   create: string;
   generated: string;
   copy: string;
   copied: string;
+  share: string;
+  shareTitle: string;
   qr: string;
-  expires: string;
+  edit: string;
+  save: string;
+  cancel: string;
+  expiresInDays: string;
+  expiresToday: string;
+  expiresTomorrow: string;
   noLabel: string;
   statusWaiting: string;
   statusSigningUp: string;
@@ -68,6 +122,9 @@ type Labels = {
   statusExpired: string;
   statusRevoked: string;
   revoke: string;
+  revokeConfirmTitle: string;
+  revokeConfirmBody: string;
+  revokeConfirmYes: string;
   empty: string;
   tabActive: string;
   tabHistory: string;
@@ -76,8 +133,7 @@ type Labels = {
   error: string;
 };
 
-// Tap-anywhere-to-copy row. w-full + truncate keep it from ever overflowing;
-// the long address collapses into a clear confirmation once copied.
+// Tap-anywhere-to-copy row; w-full + truncate keep it from ever overflowing.
 function CopyLink({
   link,
   copyLabel,
@@ -120,11 +176,129 @@ function CopyLink({
         {copied ? copiedLabel : link.replace(/^https?:\/\//, "")}
       </span>
       {!copied && (
-        <span className="shrink-0 text-xs font-bold text-primary">
-          {copyLabel}
-        </span>
+        <span className="shrink-0 text-xs font-bold text-primary">{copyLabel}</span>
       )}
     </button>
+  );
+}
+
+// Native share (KakaoTalk / Messages / …). Only rendered where the Web Share
+// API exists (mobile); on desktop the Copy affordance is enough.
+function ShareLink({
+  link,
+  title,
+  label,
+}: {
+  link: string;
+  title: string;
+  label: string;
+}) {
+  const mounted = useMounted();
+  const canShare =
+    mounted &&
+    typeof navigator !== "undefined" &&
+    typeof navigator.share === "function";
+  if (!canShare) return null;
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={() => {
+        navigator.share({ title, url: link }).catch(() => {});
+      }}
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white transition hover:bg-primary-strong"
+    >
+      <ShareIcon />
+    </button>
+  );
+}
+
+// Save button that closes the editor once the server action settles.
+function LabelSaveButton({
+  onSettled,
+  label,
+}: {
+  onSettled: () => void;
+  label: string;
+}) {
+  const { pending } = useFormStatus();
+  const was = useRef(false);
+  useEffect(() => {
+    if (was.current && !pending) onSettled();
+    was.current = pending;
+  }, [pending, onSettled]);
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      aria-label={label}
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white disabled:opacity-60"
+    >
+      {pending ? (
+        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+      ) : (
+        <CheckIcon />
+      )}
+    </button>
+  );
+}
+
+// Inline view -> edit of the recipient memo (active/reserved rows only).
+function LabelEditor({
+  invitation,
+  labels,
+}: {
+  invitation: Invitation;
+  labels: Labels;
+}) {
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <div className="flex min-w-0 items-center gap-1">
+        <p
+          className={`truncate text-sm font-bold ${
+            invitation.label ? "text-ink" : "text-ink-faint"
+          }`}
+        >
+          {invitation.label || labels.noLabel}
+        </p>
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          aria-label={labels.edit}
+          className="shrink-0 rounded-md p-1 text-ink-faint transition hover:text-primary"
+        >
+          <PencilIcon />
+        </button>
+      </div>
+    );
+  }
+  return (
+    <form
+      action={updateReferralInvitationLabel}
+      className="flex min-w-0 items-center gap-1.5"
+    >
+      <input type="hidden" name="invitationId" value={invitation.id} />
+      <input
+        name="label"
+        defaultValue={invitation.label ?? ""}
+        maxLength={80}
+        autoFocus
+        autoComplete="off"
+        placeholder={labels.recipientPlaceholder}
+        className="min-w-0 flex-1 rounded-lg border border-primary/45 px-2.5 py-1.5 text-sm outline-none focus:border-primary"
+      />
+      <LabelSaveButton onSettled={() => setEditing(false)} label={labels.save} />
+      <button
+        type="button"
+        onClick={() => setEditing(false)}
+        aria-label={labels.cancel}
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition hover:bg-surface-sub hover:text-ink"
+      >
+        <XIcon />
+      </button>
+    </form>
   );
 }
 
@@ -143,6 +317,12 @@ function statusMeta(status: string, labels: Labels) {
   }
 }
 
+function expiryText(days: number, labels: Labels) {
+  if (days <= 0) return labels.expiresToday;
+  if (days === 1) return labels.expiresTomorrow;
+  return labels.expiresInDays.replace("{n}", String(days));
+}
+
 function InvitationRow({
   invitation,
   labels,
@@ -155,7 +335,9 @@ function InvitationRow({
   highlight: boolean;
 }) {
   const meta = statusMeta(invitation.status, labels);
-  const actionable = invitation.status === "active" || invitation.status === "reserved";
+  const actionable =
+    invitation.status === "active" || invitation.status === "reserved";
+  const urgent = actionable && invitation.expiresInDays <= 2;
   return (
     <li
       className={`rounded-xl border p-3 transition ${
@@ -166,13 +348,17 @@ function InvitationRow({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p
-            className={`truncate text-sm font-bold ${
-              invitation.label ? "text-ink" : "text-ink-faint"
-            }`}
-          >
-            {invitation.label || labels.noLabel}
-          </p>
+          {actionable ? (
+            <LabelEditor invitation={invitation} labels={labels} />
+          ) : (
+            <p
+              className={`truncate text-sm font-bold ${
+                invitation.label ? "text-ink" : "text-ink-faint"
+              }`}
+            >
+              {invitation.label || labels.noLabel}
+            </p>
+          )}
           <p className="mt-0.5 truncate text-[11px] text-ink-faint">
             {invitation.status === "used" ? (
               <>
@@ -182,11 +368,12 @@ function InvitationRow({
                   locale={locale}
                 />
               </>
+            ) : actionable ? (
+              <span className={urgent ? "font-semibold text-caution" : undefined}>
+                {expiryText(invitation.expiresInDays, labels)}
+              </span>
             ) : (
-              <>
-                {labels.expires}:{" "}
-                <LocalDateTime value={invitation.expiresAt} locale={locale} />
-              </>
+              <LocalDateTime value={invitation.expiresAt} locale={locale} />
             )}
           </p>
         </div>
@@ -207,16 +394,27 @@ function InvitationRow({
                 copiedLabel={labels.copied}
               />
             </div>
+            <ShareLink
+              link={invitation.link}
+              title={labels.shareTitle}
+              label={labels.share}
+            />
             <form action={revokeReferralInvitation}>
               <input type="hidden" name="invitationId" value={invitation.id} />
-              <PendingButton
-                aria-label={labels.revoke}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-ink-faint transition hover:bg-negative-soft hover:text-negative"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                </svg>
-              </PendingButton>
+              <ConfirmSubmit
+                label={
+                  <>
+                    <TrashIcon />
+                    <span className="sr-only">{labels.revoke}</span>
+                  </>
+                }
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-faint transition hover:bg-negative-soft hover:text-negative"
+                confirmTitle={labels.revokeConfirmTitle}
+                confirmBody={labels.revokeConfirmBody}
+                confirmLabel={labels.revokeConfirmYes}
+                cancelLabel={labels.cancel}
+                destructive
+              />
             </form>
           </div>
           <ReferralQr value={invitation.link} label={labels.qr} />
@@ -241,18 +439,12 @@ export function InvitationManager({
   );
   const [infoOpen, setInfoOpen] = useState(false);
   const infoRef = useRef<HTMLDivElement>(null);
-  // Popover placement, computed from the "!" button's on-screen position when
-  // it opens: horizontally clamped to keep a margin from both viewport edges
-  // (so it never hugs the left edge on phones), and flipped above the button
-  // when there isn't room below.
   const [pop, setPop] = useState<{
     left: number;
     width: number;
     placement: "top" | "bottom";
   }>({ left: 0, width: 272, placement: "bottom" });
 
-  // Split the list so live links you still manage stay separate from the
-  // pile of finished ones (joined / expired / cancelled).
   const [tab, setTab] = useState<"active" | "history">("active");
   const activeList = invitations.filter(
     (i) => i.status === "active" || i.status === "reserved",
@@ -283,7 +475,6 @@ export function InvitationManager({
     setInfoOpen(true);
   }
 
-  // Close the info popover on Escape or a click outside it.
   useEffect(() => {
     if (!infoOpen) return;
     const onKey = (event: KeyboardEvent) => {
@@ -349,26 +540,30 @@ export function InvitationManager({
       </div>
       <p className="mt-1 text-xs leading-5 text-ink-faint">{labels.description}</p>
 
-      <form action={action} className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="min-w-0 flex-1">
-          <span className="text-xs font-bold text-ink-soft">{labels.recipient}</span>
-          <input
-            type="text"
-            name="label"
-            maxLength={80}
-            autoComplete="off"
-            placeholder={labels.recipientPlaceholder}
-            className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
-          />
-        </label>
-        <button
-          type="submit"
-          disabled={pending}
-          aria-busy={pending}
-          className="btn-primary btn-md shrink-0 disabled:opacity-60"
-        >
-          {pending ? <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : labels.create}
-        </button>
+      <form action={action} className="mt-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <label className="min-w-0 flex-1">
+            <span className="text-xs font-bold text-ink-soft">{labels.recipient}</span>
+            <input
+              key={state.link ?? "new"}
+              type="text"
+              name="label"
+              maxLength={80}
+              autoComplete="off"
+              placeholder={labels.recipientPlaceholder}
+              className="mt-1 w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={pending}
+            aria-busy={pending}
+            className="btn-primary btn-md shrink-0 disabled:opacity-60"
+          >
+            {pending ? <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : labels.create}
+          </button>
+        </div>
+        <p className="mt-2 text-[11px] text-ink-faint">{labels.recipientHint}</p>
       </form>
 
       {state.error && (

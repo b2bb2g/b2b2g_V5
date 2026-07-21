@@ -43,7 +43,7 @@ export function ConfirmSubmit({
   className = "rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-strong",
   destructive = false,
 }: {
-  label: string;
+  label: ReactNode;
   confirmTitle: string;
   confirmBody: string;
   confirmLabel: string;
