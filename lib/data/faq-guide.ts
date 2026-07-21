@@ -115,15 +115,19 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ]
       },
       {
-        "q_ko": "화면 언어를 바꾸고 싶습니다.",
-        "q_en": "I want to change the screen language.",
+        "q_ko": "화면 언어를 바꾸고 싶습니다. (한국어로 보기)",
+        "q_en": "I want to change the screen language. (Viewing in Korean)",
         "a_ko": [
-          "1) 헤더(화면 맨 위 가로 줄) 오른쪽의 지구본 아이콘을 누릅니다.",
-          "2) 원하는 언어를 선택합니다."
+          "브라우저(인터넷 프로그램) 언어가 한국어이면 처음부터 자동으로 한국어로 표시됩니다. 따로 바꾸지 않아도 됩니다.",
+          "직접 바꾸려면 지구본 아이콘을 누르고 언어를 고릅니다. [PC] 헤더 오른쪽의 지구본. [휴대폰] 오른쪽 위 메뉴 버튼(≡)을 누른 뒤 서랍 안의 언어.",
+          "로그인·회원가입 화면에서도 오른쪽 위 지구본으로 바꿀 수 있습니다. 그래서 가입할 때 비밀번호 조건 같은 안내도 한국어로 볼 수 있습니다.",
+          "한 번 고르면 그 선택이 계속 유지됩니다."
         ],
         "a_en": [
-          "1) Press the globe icon on the right side of the header (the horizontal bar at the very top of the screen).",
-          "2) Choose the language you want."
+          "If your browser's language is Korean, the site shows Korean automatically from the first visit — no change needed.",
+          "To change it yourself, press the globe icon and pick a language. [PC] the globe on the right of the header. [Phone] press the menu button (≡) at the top right, then Language inside the drawer.",
+          "The globe is also on the login and sign-up screens (top right), so you can read the sign-up guidance (such as the password rules) in Korean too.",
+          "Once you pick a language, that choice is kept."
         ]
       }
     ]
@@ -134,30 +138,32 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
     "title_en": "Finding Your Way",
     "items": [
       {
-        "q_ko": "헤더(화면 맨 위 줄)에는 무엇이 있습니까?",
-        "q_en": "What is on the header (the bar at the very top)?",
+        "q_ko": "헤더(화면 맨 위 줄)에는 무엇이 있습니까? (PC와 휴대폰이 다릅니다)",
+        "q_en": "What is on the header (the top bar)? (PC and phone differ)",
         "a_ko": [
-          "헤더(화면 맨 위 가로 줄) 왼쪽에는 로고(B2BB2G)가 있습니다. 이것을 누르면 첫 화면으로 돌아갑니다.",
-          "가운데에는 게시판 메뉴가 있습니다: Commercial, Industrial, EPF+C(Local), RFQ & ITB, Events, Services, Notices, FAQ.",
-          "오른쪽에는 돋보기(검색), 지구본(언어 전환), 종(알림)이 있고, 로그인하면 동그란 프로필 사진이 보입니다."
+          "왼쪽 로고(B2BB2G)는 PC·휴대폰 공통입니다. 누르면 첫 화면으로 돌아갑니다.",
+          "[넓은 화면(PC)] 가운데에 게시판 메뉴가 나란히 펼쳐집니다: Commercial, Industrial, EPF+C(Local), RFQ & ITB, Events, Services, Notices, FAQ. 오른쪽에는 돋보기(검색), 지구본(언어), 종(알림)이 있고, 로그인하면 동그란 프로필 사진(= '내 메뉴')이 보입니다.",
+          "[좁은 화면(휴대폰)] 맨 위 줄에는 로고, 종(알림), 그리고 줄 세 개 모양의 메뉴 버튼(≡)만 보입니다. 게시판 메뉴·검색·언어·내 메뉴·로그인은 모두 메뉴 버튼(≡)을 눌러 열리는 서랍(아래로 펼쳐지는 목록) 안에 들어 있습니다.",
+          "즉 PC에서 위쪽에 흩어져 있는 것들이, 휴대폰에서는 메뉴 버튼(≡) 하나에 모여 있다고 생각하면 됩니다."
         ],
         "a_en": [
-          "On the left of the header (the horizontal bar at the very top) is the logo (B2BB2G). Pressing it returns you to the first page.",
-          "In the middle are the board menus: Commercial, Industrial, EPF+C(Local), RFQ & ITB, Events, Services, Notices, FAQ.",
-          "On the right are a magnifying glass (search), a globe (language), and a bell (notifications). After you log in, a round profile photo appears."
+          "The left logo (B2BB2G) is the same on PC and phone. Pressing it returns you to the first page.",
+          "[Wide screen (PC)] The board menus spread across the middle: Commercial, Industrial, EPF+C(Local), RFQ & ITB, Events, Services, Notices, FAQ. On the right are a magnifying glass (search), a globe (language), and a bell (notifications); after you log in, a round profile photo (= 'My Menu') appears.",
+          "[Narrow screen (phone)] The top bar shows only the logo, the bell (notifications), and a three-line menu button (≡). The board menus, search, language, My Menu and login all live inside the drawer that opens when you press the menu button (≡).",
+          "In short: what is spread across the top on PC is gathered into the one menu button (≡) on a phone."
         ]
       },
       {
         "q_ko": "'내 메뉴'는 어디에 있고 안에 무엇이 있습니까?",
         "q_en": "Where is 'My Menu' and what is inside?",
         "a_ko": [
-          "1) 로그인한 뒤 헤더 오른쪽 위의 동그란 프로필 사진을 누릅니다.",
-          "2) '내 메뉴'가 열립니다.",
+          "[PC] 로그인한 뒤 헤더 오른쪽 위의 동그란 프로필 사진을 누르면 '내 메뉴'가 열립니다.",
+          "[휴대폰] 오른쪽 위 메뉴 버튼(≡)을 누르면 서랍이 열리고, 그 안 위쪽에 프로필 사진과 함께 같은 '내 메뉴' 항목들이 있습니다.",
           "안에는 대시보드, 활동(내 게시글·문의 내역·저장한 상품), 만들기(상품 등록·구매요청 등록), 커뮤니티(피드), 계정(프로필·보안)이 있습니다."
         ],
         "a_en": [
-          "1) After logging in, press the round profile photo at the top right of the header.",
-          "2) 'My Menu' opens.",
+          "[PC] After logging in, press the round profile photo at the top right of the header — 'My Menu' opens.",
+          "[Phone] Press the menu button (≡) at the top right to open the drawer; the same 'My Menu' items are near the top of it, next to your profile photo.",
           "Inside are Dashboard, Activity (My posts, Inquiries, Saved products), Create (Add a product, Post a sourcing request), Community (Feed), and Account (Profile, Security)."
         ]
       },
@@ -168,25 +174,26 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
           "대시보드는 내 활동을 한곳에서 관리하는 화면입니다(주소 /dashboard).",
           "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
           "2) '대시보드'를 누릅니다.",
-          "대시보드에 들어가면 왼쪽에 세로 메뉴 목록이 있습니다: 대시보드, 내 게시글, 상품 등록, 배지 신청, 문의, 알림, 프로필, 보안, 미니 홈페이지, 코디네이터."
+          "대시보드에 들어가면 왼쪽에 세로 메뉴 목록이 있습니다(휴대폰에서는 위쪽에 가로로 넘겨보는 탭으로 보입니다): 대시보드, 내 게시글, 상품 등록, 배지 신청, 내 초대 링크, 문의, 알림, 프로필, 보안, 미니 홈페이지, 코디네이터."
         ],
         "a_en": [
           "The dashboard is the screen where you manage your activity in one place (address /dashboard).",
-          "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Dashboard'.",
-          "Inside the dashboard, a vertical menu list is on the left: Dashboard, My posts, Add a product, Apply for a badge, Inquiries, Notifications, Profile, Security, Mini homepage, Coordinator."
+          "1) Open 'My Menu' (PC: the header profile photo; phone: the menu button ≡), then press 'Dashboard'.",
+          "Inside the dashboard a vertical menu list sits on the left (on a phone it appears as a row of swipeable tabs at the top): Dashboard, My posts, Add a product, Apply for a badge, My referral link, Inquiries, Notifications, Profile, Security, Mini homepage, Coordinator."
         ]
       },
       {
         "q_ko": "검색은 어떻게 합니까?",
         "q_en": "How do I search?",
         "a_ko": [
-          "1) 헤더 오른쪽의 돋보기 아이콘을 누릅니다.",
-          "2) 찾을 낱말을 적고 검색합니다."
+          "[PC] 헤더 오른쪽의 돋보기 아이콘을 누릅니다.",
+          "[휴대폰] 오른쪽 위 메뉴 버튼(≡)을 누른 뒤, 서랍 안의 검색을 누릅니다.",
+          "찾을 낱말을 적으면 결과가 바로 나옵니다(주소 /search)."
         ],
         "a_en": [
-          "1) Press the magnifying glass icon on the right of the header.",
-          "2) Type the word you want to find and search."
+          "[PC] Press the magnifying glass icon on the right of the header.",
+          "[Phone] Press the menu button (≡) at the top right, then press Search inside the drawer.",
+          "Type the word you want to find and results appear right away (address /search)."
         ]
       },
       {
@@ -467,18 +474,18 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "초대 링크는 어디에서 만듭니까?",
         "q_en": "Where do I create an invite link?",
         "a_ko": [
-          "1) 대시보드(주소 /dashboard)에 들어갑니다.",
-          "2) 화면 안의 'GROWTH TOOLS(성장 도구)' 칸을 찾습니다.",
-          "3) '내 초대 링크'에서 '받는 사람 메모'(선택)에 이름이나 회사를 적습니다. 나중에 목록에서 누구에게 보낸 링크인지 바로 알 수 있습니다.",
-          "4) '초대 링크 만들기'를 누르면 링크가 아래 목록에 나타납니다.",
-          "5) 그 줄의 '복사'를 눌러 받는 사람에게 보냅니다."
+          "초대 링크는 '내 초대 링크' 화면에서 만듭니다(주소 /dashboard/invitations). 들어가는 방법은 두 가지입니다.",
+          "1) 대시보드 왼쪽 메뉴(휴대폰에서는 위쪽 탭)에서 '내 초대 링크'를 누릅니다. 또는 대시보드 본문의 '내 초대 링크' 카드에서 '관리하기'를 누릅니다.",
+          "2) '받는 사람 메모'(선택)에 이름이나 회사를 적습니다. 나중에 목록에서 누구에게 보낸 링크인지 바로 알 수 있습니다.",
+          "3) '초대 링크 만들기'를 누르면 링크가 아래 목록에 나타납니다.",
+          "4) 그 줄의 '복사'를 눌러 받는 사람에게 보냅니다."
         ],
         "a_en": [
-          "1) Go to the dashboard (address /dashboard).",
-          "2) Find the 'GROWTH TOOLS' box on the screen.",
-          "3) At 'My referral link', add a name or company in 'Recipient note' (optional) so you can later tell which link went to whom.",
-          "4) Press 'Create invitation' and the link appears in the list below.",
-          "5) Press 'Copy' on that row and send it to the recipient."
+          "You create invite links on the 'My referral link' screen (address /dashboard/invitations). There are two ways in.",
+          "1) In the dashboard's left menu (top tabs on a phone) press 'My referral link'. Or, on the dashboard, press 'Manage' on the 'My referral link' card.",
+          "2) Add a name or company in 'Recipient note' (optional) so you can later tell which link went to whom.",
+          "3) Press 'Create invitation' and the link appears in the list below.",
+          "4) Press 'Copy' on that row and send it to the recipient."
         ]
       },
       {
@@ -826,15 +833,19 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ]
       },
       {
-        "q_ko": "OTP 앱을 잃어버렸습니다.",
-        "q_en": "I lost my OTP app.",
+        "q_ko": "OTP(인증) 앱을 잃어버렸거나 열 수 없습니다.",
+        "q_en": "I lost my OTP (authenticator) app or cannot open it.",
         "a_ko": [
-          "이메일로 받은 재설정 코드로 복구합니다.",
-          "안내에 따라 재설정 코드를 넣으면 다시 2단계 인증을 설정할 수 있습니다."
+          "1) '내 메뉴 > 계정 > 보안'(주소 /dashboard/security)의 2단계 인증 칸에서 '인증 앱을 사용할 수 없나요?'를 누릅니다.",
+          "2) '가입 이메일로 재설정 코드를 보냅니다. 계속할까요?' 확인이 나오면 '코드 보내기'를 누릅니다. (실수로 보내지 않도록 한 번 더 확인하는 단계입니다. 그만하려면 '취소'.)",
+          "3) 가입한 이메일로 온 여섯 자리 재설정 코드를 입력합니다. 코드는 10분간만 유효합니다.",
+          "4) 기존 인증기가 해제되면, 새 기기에서 2단계 인증을 다시 설정합니다."
         ],
         "a_en": [
-          "You recover using the reset code sent to your email.",
-          "Enter the reset code as guided, and you can set up two-step verification again."
+          "1) In the two-step verification box of 'My Menu > Account > Security' (address /dashboard/security), press \"Can't use your authenticator app?\".",
+          "2) A confirmation appears (\"We will email a reset code. Continue?\") — press 'Send code'. This extra step prevents sending it by accident; press 'Cancel' to stop.",
+          "3) Enter the six-digit reset code emailed to your sign-up address. The code is valid for 10 minutes only.",
+          "4) Once the old authenticator is removed, set up two-step verification again on your new device."
         ]
       },
       {
@@ -852,15 +863,19 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ]
       },
       {
-        "q_ko": "어떤 기기로 로그인했는지 볼 수 있습니까?",
-        "q_en": "Can I see which devices logged in?",
+        "q_ko": "어떤 기기로 로그인했는지 보고, 특정 기기만 로그아웃할 수 있습니까?",
+        "q_en": "Can I see which devices logged in, and sign out just some of them?",
         "a_ko": [
-          "네. 보안 화면에서 신뢰 기기와 로그인 기록을 확인할 수 있습니다.",
-          "모르는 기기가 있으면 비밀번호를 바꾸십시오."
+          "네. '내 메뉴 > 계정 > 보안'(주소 /dashboard/security)에 들어가면 화면 위쪽에 로그인한 기기 목록이 있고, 그 아래에 로그인 기록이 있습니다.",
+          "특정 기기만 로그아웃하려면: 기기 목록에서 원하는 기기의 네모칸(체크박스)을 눌러 표시한 뒤 '선택한 기기 로그아웃'을 누릅니다. 지금 쓰는 기기에는 체크박스가 없어, 실수로 자기 자신을 로그아웃하지 않습니다.",
+          "화면 오른쪽 위 버튼도 있습니다: '다른 기기 모두 로그아웃'은 지금 이 기기는 그대로 두고 나머지만 로그아웃하고, '모든 기기에서 로그아웃'은 이 기기까지 포함해 전부 로그아웃합니다.",
+          "모르는 기기가 보이면 그 기기를 로그아웃하고 비밀번호도 바꾸십시오."
         ],
         "a_en": [
-          "Yes. On the security screen you can check trusted devices and login history.",
-          "If you see a device you do not know, change your password."
+          "Yes. Go to 'My Menu > Account > Security' (address /dashboard/security): the list of logged-in devices is near the top, with your login history below it.",
+          "To sign out only certain devices: tick the checkbox next to each device you want, then press 'Sign out selected devices'. Your current device has no checkbox, so you cannot accidentally sign yourself out.",
+          "There are also two buttons at the top right: 'Sign out other devices' keeps this device and signs out the rest, while 'Sign out everywhere' signs out every device including this one.",
+          "If you see a device you do not know, sign it out and change your password too."
         ]
       },
       {
@@ -881,12 +896,14 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "알림을 종류별로 끄고 켤 수 있습니까?",
         "q_en": "Can I turn notifications on and off by type?",
         "a_ko": [
-          "1) 헤더의 종 아이콘을 누르거나, 대시보드 왼쪽 메뉴에서 '알림'을 누릅니다(주소 /notifications).",
-          "2) 알림 설정에서 종류별로 켜고 끕니다."
+          "1) 종 아이콘(PC·휴대폰 모두 화면 위쪽)을 누르거나, 대시보드 메뉴에서 '알림'을 누릅니다(주소 /notifications).",
+          "2) '푸시 알림' 카드의 스위치를 켭니다. (브라우저가 알림 허용을 물으면 '허용'을 누릅니다.)",
+          "3) 켜면 아래에 '카테고리별 알림' 줄이 생깁니다. 처음에는 접혀 있으니 그 줄을 눌러 펼친 뒤, 게시글·메시지·배지·소셜·멤버십을 종류별로 스위치로 끄고 켭니다."
         ],
         "a_en": [
-          "1) Press the bell icon in the header, or press 'Notifications' in the dashboard's left menu (address /notifications).",
-          "2) In notification settings, turn each type on or off."
+          "1) Press the bell icon (top of the screen on both PC and phone), or press 'Notifications' in the dashboard menu (address /notifications).",
+          "2) Turn on the switch on the 'Push notifications' card. (If the browser asks to allow notifications, press 'Allow'.)",
+          "3) Once on, a 'By category' line appears below. It starts collapsed — press it to expand, then switch Posts, Messages, Badges, Social and Membership on or off individually."
         ]
       },
       {
