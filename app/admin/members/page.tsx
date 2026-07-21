@@ -39,7 +39,7 @@ export default async function MembersPage(props: {
   let query = supabase
     .from("profiles")
     .select(
-      "id, uid, display_name, company_name, status, tier_id, is_admin, is_coordinator, marketing_consent, created_at, profile_contacts(email, phone), member_tiers(name_en), member_badges!member_badges_profile_id_fkey(badge_types(code))",
+      "id, uid, display_name, company_name, status, tier_id, is_admin, is_coordinator, created_at, profile_contacts(email, phone), member_tiers(name_en), member_badges!member_badges_profile_id_fkey(badge_types(code))",
       { count: "exact" }
     )
     .order("created_at", { ascending: false })
@@ -90,12 +90,24 @@ export default async function MembersPage(props: {
     status: string;
     is_coordinator: boolean;
     is_admin: boolean;
-    marketing_consent: boolean;
     created_at: string;
     member_tiers: { name_en: string } | null;
     profile_contacts: { email: string | null; phone: string | null } | null;
     member_badges: { badge_types: { code: string } | null }[];
   }[];
+
+  // Marketing consent lives in the owner/admin-only profile_private table.
+  const { data: marketingRows } = await supabase
+    .from("profile_private")
+    .select("profile_id")
+    .eq("marketing_consent", true)
+    .in(
+      "profile_id",
+      members.map((m) => m.id),
+    );
+  const marketingOptedIds = new Set(
+    (marketingRows ?? []).map((r) => r.profile_id as string),
+  );
 
   const statusLabels: Record<string, string> = t.admin.memberStatus;
 
@@ -218,7 +230,7 @@ export default async function MembersPage(props: {
                   {member.member_badges.map((badge) => badge.badge_types?.code).filter(Boolean).join(", ") || "-"}
                 </td>
                 <td className="px-3 py-2.5">
-                  {member.marketing_consent ? (
+                  {marketingOptedIds.has(member.id) ? (
                     <span className="rounded-full bg-positive-soft px-2 py-0.5 text-[11px] font-bold text-positive">
                       {t.admin.marketingYes}
                     </span>
@@ -249,7 +261,7 @@ export default async function MembersPage(props: {
                 <div className="flex items-start justify-between gap-2"><div><p className="text-xs font-bold text-ink-faint">UID {member.uid}</p><Link href={`/admin/members/${member.id}`} className="mt-1 block truncate text-sm font-extrabold text-primary-strong">{member.display_name}</Link></div><StatusLabel status={member.status} label={statusLabels[member.status] ?? member.status} /></div>
                 {member.company_name && <p className="mt-1 truncate text-xs text-ink-soft">{member.company_name}</p>}
                 <p className="mt-2 truncate text-xs text-ink-soft">{member.profile_contacts?.email ?? "-"}</p>
-                <dl className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-surface-sub p-3 text-xs"><div><dt className="font-semibold text-ink-faint">{t.admin.role}</dt><dd className="mt-0.5 text-ink-soft">{member.is_admin ? t.common.admin : member.is_coordinator ? t.badges.coordinator : t.admin.memberRole}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.tiers}</dt><dd className="mt-0.5 text-ink-soft">{member.member_tiers?.name_en ?? "-"}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.badgeAdmin}</dt><dd className="mt-0.5 text-ink-soft">{member.member_badges.map((badge) => badge.badge_types?.code).filter(Boolean).join(", ") || "-"}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.joined}</dt><dd className="mt-0.5 text-ink-soft">{new Date(member.created_at).toISOString().slice(0,10)}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.marketing}</dt><dd className={`mt-0.5 font-semibold ${member.marketing_consent ? "text-positive" : "text-ink-faint"}`}>{member.marketing_consent ? t.admin.marketingYes : "—"}</dd></div></dl>
+                <dl className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-surface-sub p-3 text-xs"><div><dt className="font-semibold text-ink-faint">{t.admin.role}</dt><dd className="mt-0.5 text-ink-soft">{member.is_admin ? t.common.admin : member.is_coordinator ? t.badges.coordinator : t.admin.memberRole}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.tiers}</dt><dd className="mt-0.5 text-ink-soft">{member.member_tiers?.name_en ?? "-"}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.badgeAdmin}</dt><dd className="mt-0.5 text-ink-soft">{member.member_badges.map((badge) => badge.badge_types?.code).filter(Boolean).join(", ") || "-"}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.joined}</dt><dd className="mt-0.5 text-ink-soft">{new Date(member.created_at).toISOString().slice(0,10)}</dd></div><div><dt className="font-semibold text-ink-faint">{t.admin.marketing}</dt><dd className={`mt-0.5 font-semibold ${marketingOptedIds.has(member.id) ? "text-positive" : "text-ink-faint"}`}>{marketingOptedIds.has(member.id) ? t.admin.marketingYes : "—"}</dd></div></dl>
               </div>
             </div>
           </article>

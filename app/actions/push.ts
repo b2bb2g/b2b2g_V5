@@ -76,13 +76,14 @@ export async function savePushPreferences(muted: string[]) {
     ? muted.filter((item) => PUSH_CATEGORIES.includes(String(item)))
     : [];
   const { error } = await supabase
-    .from("profiles")
+    .from("profile_private")
     .update({ push_muted_types: cleaned })
-    .eq("id", user.id);
+    .eq("profile_id", user.id);
   return { ok: !error };
 }
 
-// Member opt-in / opt-out for marketing messages (email / SMS). Self-row only.
+// Member opt-in / opt-out for marketing messages (email / SMS). The RPC updates
+// the owner's profile_private row and appends an audit event.
 export async function saveMarketingConsent(consent: boolean) {
   const supabase = await createClient();
   const {
@@ -90,13 +91,8 @@ export async function saveMarketingConsent(consent: boolean) {
   } = await supabase.auth.getUser();
   if (!user) return { ok: false };
 
-  const on = consent === true;
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      marketing_consent: on,
-      marketing_consent_at: on ? new Date().toISOString() : null,
-    })
-    .eq("id", user.id);
+  const { error } = await supabase.rpc("set_marketing_consent", {
+    p_consent: consent === true,
+  });
   return { ok: !error };
 }

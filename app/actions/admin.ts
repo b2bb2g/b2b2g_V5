@@ -32,13 +32,11 @@ export async function setMemberStatus(formData: FormData) {
     redirect(`/admin/members/${profileId}?error=suspend_reason_required`);
   }
 
+  await supabase.from("profiles").update({ status }).eq("id", profileId);
   await supabase
-    .from("profiles")
-    .update({
-      status,
-      suspend_reason: status === "suspended" ? reason || null : null,
-    })
-    .eq("id", profileId);
+    .from("profile_private")
+    .update({ suspend_reason: status === "suspended" ? reason || null : null })
+    .eq("profile_id", profileId);
   await audit(supabase, `member_${status}`, "profile", profileId, { reason });
   revalidatePath(`/admin/members/${profileId}`);
   revalidatePath("/admin/members");
@@ -265,11 +263,18 @@ export async function setCoordinatorMessageOverride(formData: FormData) {
   if (!profileId || !["inherit", "allow", "deny"].includes(override)) return;
 
   const value = override === "inherit" ? null : override;
-  await supabase
+  // Only coordinators carry an override; verify on profiles, then set on the
+  // owner/admin-only profile_private row.
+  const { data: prof } = await supabase
     .from("profiles")
-    .update({ coordinator_msg_override: value })
+    .select("is_coordinator")
     .eq("id", profileId)
-    .eq("is_coordinator", true);
+    .maybeSingle();
+  if (!prof?.is_coordinator) return;
+  await supabase
+    .from("profile_private")
+    .update({ coordinator_msg_override: value })
+    .eq("profile_id", profileId);
   await audit(supabase, "coordinator_message_override", "profile", profileId, {
     override,
   });

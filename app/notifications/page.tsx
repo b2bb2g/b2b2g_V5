@@ -161,9 +161,9 @@ export default async function NotificationsPage(props: {
   const [{ data, count }, { data: prefs }] = await Promise.all([
     query,
     supabase
-      .from("profiles")
+      .from("profile_private")
       .select("push_muted_types, marketing_consent")
-      .eq("id", session.userId)
+      .eq("profile_id", session.userId)
       .maybeSingle(),
   ]);
   const mutedCategories: string[] = prefs?.push_muted_types ?? [];

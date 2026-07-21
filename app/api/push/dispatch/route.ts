@@ -123,9 +123,9 @@ export async function POST(request: NextRequest) {
   const category = pushCategory(notification.type);
   if (category) {
     const { data: profile } = await supabase
-      .from("profiles")
+      .from("profile_private")
       .select("push_muted_types")
-      .eq("id", notification.profile_id)
+      .eq("profile_id", notification.profile_id)
       .maybeSingle();
     if ((profile?.push_muted_types ?? []).includes(category)) {
       return NextResponse.json({ ok: true, muted: true });

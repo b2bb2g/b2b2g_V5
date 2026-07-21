@@ -40,6 +40,15 @@ export default async function AdminMemberDetailPage(props: {
     .eq("id", id)
     .maybeSingle();
   if (!profileRow) notFound();
+  // Sensitive columns live in the owner/admin-only profile_private table.
+  const { data: memberPrivate } = await supabase
+    .from("profile_private")
+    .select("suspend_reason, coordinator_msg_override")
+    .eq("profile_id", id)
+    .maybeSingle<{
+      suspend_reason: string | null;
+      coordinator_msg_override: "allow" | "deny" | null;
+    }>();
   const member = profileRow as unknown as {
     id: string;
     uid: number;
@@ -47,9 +56,7 @@ export default async function AdminMemberDetailPage(props: {
     company_name: string | null;
     bio: string | null;
     status: string;
-    suspend_reason: string | null;
     is_coordinator: boolean;
-    coordinator_msg_override: "allow" | "deny" | null;
     referred_by: string | null;
     last_seen_at: string | null;
     created_at: string;
@@ -266,12 +273,12 @@ export default async function AdminMemberDetailPage(props: {
             )}
           </dd>
         </div>
-        {member.suspend_reason && (
+        {memberPrivate?.suspend_reason && (
           <div className="px-4 py-3">
             <dt className="text-xs font-semibold text-ink-faint">
               {t.admin.suspendReason}
             </dt>
-            <dd className="mt-0.5 text-sm text-negative">{member.suspend_reason}</dd>
+            <dd className="mt-0.5 text-sm text-negative">{memberPrivate.suspend_reason}</dd>
           </div>
         )}
       </dl>
@@ -490,7 +497,7 @@ export default async function AdminMemberDetailPage(props: {
           <div className="flex flex-col gap-2 sm:flex-row">
             <select
               name="override"
-              defaultValue={member.coordinator_msg_override ?? "inherit"}
+              defaultValue={memberPrivate?.coordinator_msg_override ?? "inherit"}
               className="field flex-1"
             >
               <option value="inherit">{t.admin.policyInherit}</option>

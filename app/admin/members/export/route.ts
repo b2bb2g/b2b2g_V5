@@ -25,24 +25,45 @@ export async function GET(request: Request) {
   const optedOnly =
     new URL(request.url).searchParams.get("marketing") === "opted";
 
+  // Marketing consent lives in the owner/admin-only profile_private table.
+  const { data: mkt } = await supabase
+    .from("profile_private")
+    .select("profile_id, marketing_consent, marketing_consent_at");
+  const consentById = new Map(
+    (mkt ?? []).map((r) => [
+      r.profile_id as string,
+      {
+        on: r.marketing_consent as boolean,
+        at: r.marketing_consent_at as string | null,
+      },
+    ]),
+  );
+
   let query = supabase
     .from("profiles")
     .select(
-      "uid, display_name, company_name, status, is_coordinator, marketing_consent, marketing_consent_at, created_at, profile_contacts(email, phone)"
+      "id, uid, display_name, company_name, status, is_coordinator, created_at, profile_contacts(email, phone)"
     )
     .order("uid")
     .limit(10000);
-  if (optedOnly) query = query.eq("marketing_consent", true);
+  if (optedOnly) {
+    const optedIds = (mkt ?? [])
+      .filter((r) => r.marketing_consent)
+      .map((r) => r.profile_id as string);
+    query = query.in(
+      "id",
+      optedIds.length ? optedIds : ["00000000-0000-0000-0000-000000000000"],
+    );
+  }
   const { data } = await query;
 
   const rows = (data ?? []) as unknown as {
+    id: string;
     uid: number;
     display_name: string | null;
     company_name: string | null;
     status: string;
     is_coordinator: boolean;
-    marketing_consent: boolean;
-    marketing_consent_at: string | null;
     created_at: string;
     profile_contacts: { email: string | null; phone: string | null } | null;
   }[];
@@ -54,8 +75,9 @@ export async function GET(request: Request) {
   const header =
     "uid,name,company,email,phone,status,coordinator,marketing_consent,marketing_consent_at,joined";
   const body = rows
-    .map((r) =>
-      [
+    .map((r) => {
+      const c = consentById.get(r.id);
+      return [
         r.uid,
         r.display_name,
         r.company_name,
@@ -63,13 +85,13 @@ export async function GET(request: Request) {
         r.profile_contacts?.phone,
         r.status,
         r.is_coordinator,
-        r.marketing_consent,
-        r.marketing_consent_at?.slice(0, 10) ?? "",
+        c?.on ?? false,
+        c?.at?.slice(0, 10) ?? "",
         r.created_at.slice(0, 10),
       ]
         .map(escape)
-        .join(",")
-    )
+        .join(",");
+    })
     .join("\n");
 
   await supabase.rpc("log_audit", {
