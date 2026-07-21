@@ -83,7 +83,9 @@ export default async function SignUpPage(props: {
                   ? t.auth.invitationInvalid
                   : params.error === "rate"
                     ? t.auth.emailRateLimited
-                    : t.common.error}
+                    : params.error === "consent"
+                      ? t.auth.consentNeeded
+                      : t.common.error}
         </p>
       )}
 
@@ -111,11 +113,15 @@ export default async function SignUpPage(props: {
           show: t.auth.showPassword,
           hide: t.auth.hidePassword,
           submit: t.common.signUp,
-          termsPrefix: t.auth.termsPrefix,
-          termsJoin: t.auth.termsJoin,
-          termsSuffix: t.auth.termsSuffix,
-          termsLabel: t.footer.terms,
-          privacyLabel: t.footer.privacy,
+          consentAll: t.auth.consentAll,
+          consentRequired: t.auth.consentRequired,
+          consentOptional: t.auth.consentOptional,
+          consentTerms: t.auth.consentTerms,
+          consentPrivacy: t.auth.consentPrivacy,
+          consentCookies: t.auth.consentCookies,
+          consentMarketing: t.auth.consentMarketing,
+          consentView: t.auth.consentView,
+          consentNeeded: t.auth.consentNeeded,
           finishEmail: t.auth.signupFinishEmail,
           finishPassword: t.auth.signupFinishPassword,
           ready: t.auth.signupReady,

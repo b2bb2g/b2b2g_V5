@@ -19,6 +19,17 @@ export async function signUp(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const invite = String(formData.get("invite") ?? "").trim();
   const captchaToken = String(formData.get("captchaToken") ?? "") || undefined;
+  const inviteQuery = invite ? `&invite=${encodeURIComponent(invite)}` : "";
+
+  // Required legal consents must be given; the marketing opt-in is optional and
+  // recorded on the account. The UI gates these too, but re-check server-side.
+  const requiredConsent = ["agree_terms", "agree_privacy", "agree_cookies"].every(
+    (key) => String(formData.get(key) ?? "") === "1",
+  );
+  if (!requiredConsent) {
+    redirect(`/signup?error=consent${inviteQuery}`);
+  }
+  const marketingConsent = String(formData.get("marketing_consent") ?? "") === "1";
 
   if (!passwordMeetsPolicy(password, email)) {
     redirect(`/signup?error=weak${invite ? `&invite=${encodeURIComponent(invite)}` : ""}`);
@@ -46,7 +57,10 @@ export async function signUp(formData: FormData) {
     password,
     options: {
       emailRedirectTo: `${siteUrl()}/auth/confirm`,
-      data: invite ? { invite_token: invite } : undefined,
+      data: {
+        ...(invite ? { invite_token: invite } : {}),
+        marketing_consent: marketingConsent,
+      },
       captchaToken,
     },
   });

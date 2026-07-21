@@ -29,11 +29,15 @@ type Labels = {
   show: string;
   hide: string;
   submit: string;
-  termsPrefix: string;
-  termsJoin: string;
-  termsSuffix: string;
-  termsLabel: string;
-  privacyLabel: string;
+  consentAll: string;
+  consentRequired: string;
+  consentOptional: string;
+  consentTerms: string;
+  consentPrivacy: string;
+  consentCookies: string;
+  consentMarketing: string;
+  consentView: string;
+  consentNeeded: string;
   finishEmail: string;
   finishPassword: string;
   ready: string;
@@ -42,12 +46,54 @@ type Labels = {
   resetPassword: string;
 };
 
-type EmailState = "idle" | "checking" | "available" | "duplicate" | "invalid" | "invite_required" | "email_mismatch" | "rate_limited" | "unavailable";
+type EmailState = "idle" | "checking" | "available" | "invalid" | "duplicate" | "invite_required" | "email_mismatch" | "rate_limited" | "unavailable";
+
+function ConsentCheck({ checked }: { checked: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
+        checked
+          ? "border-primary bg-primary text-white"
+          : "border-line bg-white text-transparent"
+      }`}
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+    </span>
+  );
+}
 
 export function SignupForm({ invite, labels }: { invite?: string; labels: Labels }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailState, setEmailState] = useState<EmailState>("idle");
+  const [consent, setConsent] = useState({
+    terms: false,
+    privacy: false,
+    cookies: false,
+    marketing: false,
+  });
+  const requiredConsent = consent.terms && consent.privacy && consent.cookies;
+  const allConsent = requiredConsent && consent.marketing;
+  const toggleAll = () => {
+    const next = !allConsent;
+    setConsent({
+      terms: next,
+      privacy: next,
+      cookies: next,
+      marketing: next,
+    });
+  };
+  const toggleConsent = (key: keyof typeof consent) =>
+    setConsent((current) => ({ ...current, [key]: !current[key] }));
+  const consentItems = [
+    { key: "terms", required: true, label: labels.consentTerms, href: "/legal/terms" },
+    { key: "privacy", required: true, label: labels.consentPrivacy, href: "/legal/privacy" },
+    { key: "cookies", required: true, label: labels.consentCookies, href: "/legal/cookies" },
+    { key: "marketing", required: false, label: labels.consentMarketing, href: null },
+  ] as const;
   const checks = useMemo(() => passwordPolicyChecks(password, email), [password, email]);
   const passwordValid = Object.values(checks).every(Boolean);
   const emailFormatValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -94,13 +140,15 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
     rate_limited: labels.rate,
     unavailable: labels.rate,
   };
-  const ready = emailState === "available" && passwordValid;
+  const ready = emailState === "available" && passwordValid && requiredConsent;
   const readinessMessage =
     emailState !== "available"
       ? labels.finishEmail
-      : passwordValid
-        ? labels.ready
-        : labels.finishPassword;
+      : !passwordValid
+        ? labels.finishPassword
+        : !requiredConsent
+          ? labels.consentNeeded
+          : labels.ready;
 
   return (
     <form action={signUp} className="mt-8 space-y-4">
@@ -181,6 +229,58 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
         <p className="mt-2 text-xs leading-5 text-ink-faint">{labels.symbolHint}</p>
       </fieldset>
 
+      <div className="overflow-hidden rounded-xl border border-line">
+        <input type="hidden" name="agree_terms" value={consent.terms ? "1" : "0"} />
+        <input type="hidden" name="agree_privacy" value={consent.privacy ? "1" : "0"} />
+        <input type="hidden" name="agree_cookies" value={consent.cookies ? "1" : "0"} />
+        <input type="hidden" name="marketing_consent" value={consent.marketing ? "1" : "0"} />
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={allConsent}
+          onClick={toggleAll}
+          className="flex w-full items-center gap-2.5 px-4 py-3 text-left transition-colors hover:bg-surface-sub"
+        >
+          <ConsentCheck checked={allConsent} />
+          <span className="text-sm font-bold text-ink">{labels.consentAll}</span>
+        </button>
+        <div className="space-y-1 border-t border-line px-2 py-2">
+          {consentItems.map((item) => (
+            <div
+              key={item.key}
+              className="flex items-center gap-1 rounded-lg pr-1 hover:bg-surface-sub"
+            >
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={consent[item.key]}
+                onClick={() => toggleConsent(item.key)}
+                className="flex min-w-0 flex-1 items-center gap-2.5 px-2 py-1.5 text-left"
+              >
+                <ConsentCheck checked={consent[item.key]} />
+                <span className="min-w-0 text-xs text-ink-soft">
+                  <span
+                    className={`font-bold ${item.required ? "text-primary" : "text-ink-faint"}`}
+                  >
+                    [{item.required ? labels.consentRequired : labels.consentOptional}]
+                  </span>{" "}
+                  {item.label}
+                </span>
+              </button>
+              {item.href && (
+                <Link
+                  href={item.href}
+                  target="_blank"
+                  className="shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold text-ink-faint underline underline-offset-2 transition-colors hover:text-primary"
+                >
+                  {labels.consentView}
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <p
         id="signup-readiness"
         aria-live="polite"
@@ -190,17 +290,6 @@ export function SignupForm({ invite, labels }: { invite?: string; labels: Labels
         {readinessMessage}
       </p>
       <CaptchaSubmit label={labels.submit} disabled={!ready} describedBy="signup-readiness" />
-      <p className="text-center text-xs leading-relaxed text-ink-faint">
-        {labels.termsPrefix}{" "}
-        <Link href="/legal/terms" className="font-semibold text-ink-soft underline decoration-line underline-offset-2 hover:text-primary">
-          {labels.termsLabel}
-        </Link>{" "}
-        {labels.termsJoin}{" "}
-        <Link href="/legal/privacy" className="font-semibold text-ink-soft underline decoration-line underline-offset-2 hover:text-primary">
-          {labels.privacyLabel}
-        </Link>
-        {labels.termsSuffix}
-      </p>
       <p className="border-t border-line pt-6 text-center text-sm text-ink-soft">
         {labels.already} <Link href="/login" className="font-semibold text-primary">{labels.signIn}</Link>
       </p>
