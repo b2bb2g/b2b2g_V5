@@ -451,12 +451,16 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "a_ko": [
           "1) 대시보드(주소 /dashboard)에 들어갑니다.",
           "2) 화면 안의 'GROWTH TOOLS(성장 도구)' 칸을 찾습니다.",
-          "3) 그 안의 '내 초대 링크'에서 초대 링크를 만듭니다."
+          "3) '내 초대 링크'에서 '받는 사람 메모'(선택)에 이름이나 회사를 적습니다. 나중에 목록에서 누구에게 보낸 링크인지 바로 알 수 있습니다.",
+          "4) '초대 링크 만들기'를 누르면 링크가 아래 목록에 나타납니다.",
+          "5) 그 줄의 '복사'를 눌러 받는 사람에게 보냅니다."
         ],
         "a_en": [
           "1) Go to the dashboard (address /dashboard).",
           "2) Find the 'GROWTH TOOLS' box on the screen.",
-          "3) Create the invite link at 'My referral link' inside it."
+          "3) At 'My referral link', add a name or company in 'Recipient note' (optional) so you can later tell which link went to whom.",
+          "4) Press 'Create invitation' and the link appears in the list below.",
+          "5) Press 'Copy' on that row and send it to the recipient."
         ]
       },
       {
@@ -472,29 +476,45 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ]
       },
       {
-        "q_ko": "초대 링크를 놓쳤습니다. 다시 볼 수 있습니까?",
-        "q_en": "I missed the invite link. Can I see it again?",
+        "q_ko": "초대 링크를 다시 복사할 수 있습니까?",
+        "q_en": "Can I copy an invite link again?",
         "a_ko": [
-          "보안을 위해 링크는 만든 직후 한 번만 보입니다.",
-          "그러므로 만든 즉시 바로 복사해 두십시오.",
-          "놓쳤다면 새 초대를 다시 만드십시오."
+          "네. 아직 쓰이지 않은 초대 링크는 '내 초대 링크' 목록에서 언제든 다시 복사할 수 있습니다.",
+          "1) 목록에서 해당 초대 줄을 찾습니다.",
+          "2) 그 줄의 '복사'를 다시 누르면 링크가 복사됩니다. 아래의 'QR 코드'를 눌러 QR로 보낼 수도 있습니다."
         ],
         "a_en": [
-          "For security, the link is shown only once, right after you create it.",
-          "So copy it immediately after creating it.",
-          "If you missed it, create a new invite."
+          "Yes. As long as it has not been used, you can re-copy an invite link anytime from the 'My referral link' list.",
+          "1) Find the invite row in the list.",
+          "2) Press 'Copy' on that row again to copy the link. You can also press 'QR code' below it to share it as a QR."
         ]
       },
       {
-        "q_ko": "특정 사람에게만 초대를 쓰게 할 수 있습니까?",
-        "q_en": "Can I limit an invite to a specific person?",
+        "q_ko": "링크가 여러 개일 때 누구에게 보낸 것인지 어떻게 구분합니까?",
+        "q_en": "With several links, how do I tell which one I sent to whom?",
         "a_ko": [
-          "네. 초대를 만들 때 특정 이메일로 제한할 수 있습니다.",
-          "그러면 그 이메일을 가진 사람만 그 초대로 가입합니다."
+          "초대를 만들 때 '받는 사람 메모'에 이름이나 회사를 적어 두면 됩니다.",
+          "그러면 목록의 각 줄에 그 메모가 제목처럼 표시되어, 어느 링크가 누구 것인지 한눈에 구분됩니다."
         ],
         "a_en": [
-          "Yes. When you create an invite, you can limit it to a specific email.",
-          "Then only the person with that email can join with that invite."
+          "When you create the invite, write a name or company in 'Recipient note'.",
+          "That note then shows as the title of each row in the list, so you can tell at a glance which link belongs to whom."
+        ]
+      },
+      {
+        "q_ko": "초대한 사람이 가입했는지 어떻게 압니까?",
+        "q_en": "How do I know whether an invited person joined?",
+        "a_ko": [
+          "'내 초대 링크' 목록에서 각 초대 줄의 상태 표시를 보면 됩니다.",
+          "1) '대기중'은 아직 아무도 가입하지 않은 상태입니다.",
+          "2) '가입 진행중'은 상대가 가입을 진행하고 있는 상태입니다.",
+          "3) '가입완료'가 되면 가입한 회원의 UID(회원 번호)가 함께 표시됩니다."
+        ],
+        "a_en": [
+          "Check the status shown on each invite row in the 'My referral link' list.",
+          "1) 'Waiting' means nobody has joined yet.",
+          "2) 'Signing up' means the person is in the middle of joining.",
+          "3) When it becomes 'Joined', the new member's UID (member number) is shown next to it."
         ]
       },
       {
