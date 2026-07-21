@@ -616,6 +616,8 @@ const ko: Dict = {
     invitationTabActive: "진행 중",
     invitationTabHistory: "지난 내역",
     invitationHistoryEmpty: "지난 초대 내역이 없습니다.",
+    invitationHistoryPrev: "이전",
+    invitationHistoryNext: "다음",
     invitationRecipientHint: "나만 볼 수 있는 메모입니다.",
     invitationShare: "공유",
     invitationShareTitle: "B2BB2G 초대 링크",

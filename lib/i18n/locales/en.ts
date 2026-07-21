@@ -627,6 +627,8 @@ const en = {
     invitationTabActive: "Active",
     invitationTabHistory: "History",
     invitationHistoryEmpty: "No past invitations yet.",
+    invitationHistoryPrev: "Previous",
+    invitationHistoryNext: "Next",
     invitationRecipientHint: "Only you can see this note.",
     invitationShare: "Share",
     invitationShareTitle: "B2BB2G invitation link",

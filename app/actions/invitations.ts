@@ -64,6 +64,56 @@ export async function revokeReferralInvitation(formData: FormData) {
   revalidatePath("/admin/invitations");
 }
 
+export type InvitationHistoryRow = {
+  id: string;
+  label: string | null;
+  status: string;
+  expiresAt: string;
+  createdAt: string;
+  usedAt: string | null;
+  usedUid: number | null;
+};
+
+// Owner-scoped, paginated history (joined / expired / revoked). Read-only, no
+// token — safe to call imperatively from the client for page navigation.
+export async function loadInvitationHistory(
+  page: number,
+): Promise<{ rows: InvitationHistoryRow[]; total: number }> {
+  const pageSize = 6;
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 0;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc(
+    "get_my_referral_invitation_history",
+    { p_limit: pageSize, p_offset: safePage * pageSize },
+  );
+  if (error) {
+    console.error("load invitation history failed", error.message);
+    return { rows: [], total: 0 };
+  }
+  const list = (data ?? []) as Array<{
+    id: string;
+    label: string | null;
+    status: string;
+    expires_at: string;
+    created_at: string;
+    used_at: string | null;
+    used_uid: number | null;
+    total_count: number;
+  }>;
+  return {
+    rows: list.map((r) => ({
+      id: r.id,
+      label: r.label,
+      status: r.status,
+      expiresAt: r.expires_at,
+      createdAt: r.created_at,
+      usedAt: r.used_at,
+      usedUid: r.used_uid,
+    })),
+    total: Number(list[0]?.total_count ?? 0),
+  };
+}
+
 export async function updateReferralInvitationLabel(formData: FormData) {
   const invitationId = String(formData.get("invitationId") ?? "");
   if (!/^[0-9a-f-]{36}$/i.test(invitationId)) return;

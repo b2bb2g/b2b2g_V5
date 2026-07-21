@@ -36,6 +36,7 @@ export default async function DashboardPage() {
     recentPosts,
     recentInquiries,
     activeInvitations,
+    invitationHistory,
     bookmarkCount,
     pushDeviceCount,
   ] = await Promise.all([
@@ -68,6 +69,11 @@ export default async function DashboardPage() {
     // Owner-scoped reader returns the raw token (active/reserved only, for
     // re-copy), the recipient memo and the accepted member's UID.
     supabase.rpc("get_my_referral_invitations"),
+    // First page of the paginated history (joined / expired / revoked).
+    supabase.rpc("get_my_referral_invitation_history", {
+      p_limit: 6,
+      p_offset: 0,
+    }),
     supabase
       .from("post_bookmarks")
       .select("post_id", { count: "exact", head: true })
@@ -510,23 +516,51 @@ export default async function DashboardPage() {
               used_at: string | null;
               used_uid: number | null;
             }>
+          )
+            .filter((row) => row.status === "active" || row.status === "reserved")
+            .map((row) => ({
+              id: row.id,
+              label: row.label,
+              status: row.status,
+              // The token is present only for active/reserved links; build the
+              // shareable short link so the raw token stays server-derived.
+              link: row.token
+                ? `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/i/${row.token}`
+                : null,
+              expiresAt: row.expires_at,
+              // Computed in the RPC (SQL now()) so the relative "expires in N
+              // days" needs no client clock and can't drift on hydration.
+              expiresInDays: row.expires_in_days,
+              createdAt: row.created_at,
+              usedAt: row.used_at,
+              usedUid: row.used_uid,
+            }))}
+          historyInitial={(
+            (invitationHistory.data ?? []) as Array<{
+              id: string;
+              label: string | null;
+              status: string;
+              expires_at: string;
+              created_at: string;
+              used_at: string | null;
+              used_uid: number | null;
+            }>
           ).map((row) => ({
             id: row.id,
             label: row.label,
             status: row.status,
-            // The token is present only for active/reserved links; build the
-            // shareable short link so the raw token stays server-derived.
-            link: row.token
-              ? `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/i/${row.token}`
-              : null,
+            link: null,
             expiresAt: row.expires_at,
-            // Computed in the RPC (SQL now()) so the relative "expires in N days"
-            // needs no client clock and can't drift on hydration.
-            expiresInDays: row.expires_in_days,
+            expiresInDays: 0,
             createdAt: row.created_at,
             usedAt: row.used_at,
             usedUid: row.used_uid,
           }))}
+          historyTotal={Number(
+            (
+              invitationHistory.data?.[0] as { total_count?: number } | undefined
+            )?.total_count ?? 0,
+          )}
           labels={{
             eyebrow: t.dashboard.growthTools,
             title: t.dashboard.referralLink,
@@ -565,6 +599,8 @@ export default async function DashboardPage() {
             tabActive: t.dashboard.invitationTabActive,
             tabHistory: t.dashboard.invitationTabHistory,
             historyEmpty: t.dashboard.invitationHistoryEmpty,
+            historyPrev: t.dashboard.invitationHistoryPrev,
+            historyNext: t.dashboard.invitationHistoryNext,
             activeLimit: t.dashboard.invitationLimitReached,
             error: t.dashboard.invitationCreateFailed,
           }}

@@ -11,6 +11,7 @@ import {
 import { useFormStatus } from "react-dom";
 import {
   createReferralInvitation,
+  loadInvitationHistory,
   revokeReferralInvitation,
   updateReferralInvitationLabel,
   type InvitationActionState,
@@ -129,9 +130,13 @@ type Labels = {
   tabActive: string;
   tabHistory: string;
   historyEmpty: string;
+  historyPrev: string;
+  historyNext: string;
   activeLimit: string;
   error: string;
 };
+
+const HISTORY_PAGE_SIZE = 6;
 
 // Tap-anywhere-to-copy row; w-full + truncate keep it from ever overflowing.
 function CopyLink({
@@ -426,10 +431,14 @@ function InvitationRow({
 
 export function InvitationManager({
   invitations,
+  historyInitial,
+  historyTotal,
   labels,
   locale,
 }: {
   invitations: Invitation[];
+  historyInitial: Invitation[];
+  historyTotal: number;
   labels: Labels;
   locale: Locale;
 }) {
@@ -449,10 +458,35 @@ export function InvitationManager({
   const activeList = invitations.filter(
     (i) => i.status === "active" || i.status === "reserved",
   );
-  const historyList = invitations.filter(
-    (i) => i.status !== "active" && i.status !== "reserved",
-  );
-  const shown = tab === "active" ? activeList : historyList;
+
+  // History is paginated server-side. Page 0 always shows the fresh prop (so a
+  // just-revoked invite appears without a refetch); later pages are fetched.
+  const [historyPage, setHistoryPage] = useState(0);
+  const [historyFetched, setHistoryFetched] = useState<Invitation[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const historyRows = historyPage === 0 ? historyInitial : historyFetched;
+  const historyPages = Math.max(1, Math.ceil(historyTotal / HISTORY_PAGE_SIZE));
+
+  async function gotoHistoryPage(next: number) {
+    if (next < 0 || next > historyPages - 1 || historyLoading) return;
+    if (next === 0) {
+      setHistoryPage(0);
+      return;
+    }
+    setHistoryLoading(true);
+    const res = await loadInvitationHistory(next);
+    setHistoryFetched(
+      res.rows.map((r) => ({
+        ...r,
+        link: null,
+        expiresInDays: 0,
+      })),
+    );
+    setHistoryPage(next);
+    setHistoryLoading(false);
+  }
+
+  const shown = tab === "active" ? activeList : historyRows;
 
   function openInfo(event: ReactMouseEvent<HTMLButtonElement>) {
     if (infoOpen) {
@@ -584,7 +618,7 @@ export function InvitationManager({
           {(
             [
               ["active", labels.tabActive, activeList.length],
-              ["history", labels.tabHistory, historyList.length],
+              ["history", labels.tabHistory, historyTotal],
             ] as const
           ).map(([key, label, count]) => (
             <button
@@ -619,17 +653,48 @@ export function InvitationManager({
             {tab === "active" ? labels.empty : labels.historyEmpty}
           </p>
         ) : (
-          <ul className="mt-3 space-y-2.5">
-            {shown.map((invitation) => (
-              <InvitationRow
-                key={invitation.id}
-                invitation={invitation}
-                labels={labels}
-                locale={locale}
-                highlight={Boolean(state.link) && invitation.link === state.link}
-              />
-            ))}
-          </ul>
+          <>
+            <ul
+              className={`mt-3 space-y-2.5 transition-opacity ${
+                tab === "history" && historyLoading ? "opacity-50" : ""
+              }`}
+            >
+              {shown.map((invitation) => (
+                <InvitationRow
+                  key={invitation.id}
+                  invitation={invitation}
+                  labels={labels}
+                  locale={locale}
+                  highlight={
+                    Boolean(state.link) && invitation.link === state.link
+                  }
+                />
+              ))}
+            </ul>
+            {tab === "history" && historyPages > 1 && (
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => gotoHistoryPage(historyPage - 1)}
+                  disabled={historyPage === 0 || historyLoading}
+                  className="rounded-lg border border-line px-3 py-1.5 text-xs font-bold text-ink-soft transition hover:border-primary/40 hover:text-primary disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink-soft"
+                >
+                  {labels.historyPrev}
+                </button>
+                <span className="text-xs font-semibold tabular-nums text-ink-faint">
+                  {historyPage + 1} / {historyPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => gotoHistoryPage(historyPage + 1)}
+                  disabled={historyPage >= historyPages - 1 || historyLoading}
+                  className="rounded-lg border border-line px-3 py-1.5 text-xs font-bold text-ink-soft transition hover:border-primary/40 hover:text-primary disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink-soft"
+                >
+                  {labels.historyNext}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
