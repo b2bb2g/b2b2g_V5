@@ -2,6 +2,7 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { updateSetting } from "@/app/actions/admin";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { SubmitSwitch } from "@/components/ui/SubmitSwitch";
 
 // Global switchboard (PRD 17.11): every policy value is editable here.
 export default async function SettingsAdminPage() {
@@ -61,15 +62,10 @@ export default async function SettingsAdminPage() {
                     name="value"
                     value={(!(setting.value as boolean)).toString()}
                   />
-                  <PendingButton
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
-                      setting.value
-                        ? "bg-positive-soft text-positive"
-                        : "bg-surface-sub text-ink-faint"
-                    }`}
-                  >
-                    {setting.value ? t.common.on : t.common.off}
-                  </PendingButton>
+                  <SubmitSwitch
+                    checked={setting.value as boolean}
+                    label={labels[setting.key] ?? setting.key}
+                  />
                 </>
               ) : setting.key === "signup_mode" || setting.key === "login_session_policy" ? (
                 <span className="flex items-center gap-2">

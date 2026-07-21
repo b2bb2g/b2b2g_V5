@@ -5,6 +5,7 @@ import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { BOARD_TYPES } from "@/lib/constants";
 import type { Menu } from "@/lib/types";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { SubmitSwitch } from "@/components/ui/SubmitSwitch";
 
 function MoveButton({
   menuId,
@@ -49,15 +50,7 @@ function FlagToggle({
       <input type="hidden" name="menuId" value={menuId} />
       <input type="hidden" name="flag" value={flag} />
       <input type="hidden" name="value" value={(!value).toString()} />
-      <PendingButton
-        className={`rounded-lg px-2.5 py-1.5 text-[11px] font-semibold ${
-          value
-            ? "bg-positive-soft text-positive"
-            : "bg-surface-sub text-ink-faint"
-        }`}
-      >
-        {value ? onLabel : offLabel}
-      </PendingButton>
+      <SubmitSwitch checked={value} label={value ? onLabel : offLabel} size="sm" />
     </form>
   );
 }

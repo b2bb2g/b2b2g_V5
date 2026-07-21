@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { COOKIE_CONSENT_KEY } from "@/lib/constants";
+import { Switch } from "@/components/ui/Switch";
 
 // Consent can be changed any time from the cookie policy page (PRD 18.4).
 export function CookiePreferences({
@@ -29,19 +30,18 @@ export function CookiePreferences({
     <section className="rounded-card border border-line p-4">
       <h2 className="text-sm font-bold">{labels.title}</h2>
       <div className="mt-3 space-y-2.5">
-        <label className="flex items-center justify-between gap-3 text-sm text-ink-soft">
-          {labels.essential}
-          <input type="checkbox" checked disabled className="h-4 w-4 rounded accent-primary" />
-        </label>
-        <label className="flex items-center justify-between gap-3 text-sm text-ink-soft">
-          {labels.analytics}
-          <input
-            type="checkbox"
+        <div className="flex items-center justify-between gap-3 text-sm text-ink-soft">
+          <span>{labels.essential}</span>
+          <Switch checked disabled label={labels.essential} />
+        </div>
+        <div className="flex items-center justify-between gap-3 text-sm text-ink-soft">
+          <span>{labels.analytics}</span>
+          <Switch
             checked={analytics}
-            onChange={(e) => setAnalytics(e.target.checked)}
-            className="h-4 w-4 rounded accent-primary"
+            onClick={() => setAnalytics((value) => !value)}
+            label={labels.analytics}
           />
-        </label>
+        </div>
       </div>
       <button
         type="button"

@@ -45,6 +45,9 @@ type Labels = {
   resetThrottled: string;
   confirmReset: string;
   resetDone: string;
+  resetConfirmBody: string;
+  resetConfirmSend: string;
+  cancel: string;
 };
 
 export function MfaPanel({
@@ -68,8 +71,10 @@ export function MfaPanel({
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  // Lost-authenticator recovery: idle -> email code sent -> factor removed.
-  const [reset, setReset] = useState<"idle" | "sent" | "done">("idle");
+  // Lost-authenticator recovery: idle -> confirm -> email code sent -> removed.
+  const [reset, setReset] = useState<"idle" | "confirm" | "sent" | "done">(
+    "idle",
+  );
   const [resetCode, setResetCode] = useState("");
   const [resetNotice, setResetNotice] = useState("");
 
@@ -260,7 +265,10 @@ export function MfaPanel({
             <>
               <button
                 type="button"
-                onClick={startReset}
+                onClick={() => {
+                  setResetNotice("");
+                  setReset("confirm");
+                }}
                 disabled={busy}
                 className="text-sm font-bold text-primary hover:text-primary-strong disabled:opacity-60"
               >
@@ -270,6 +278,39 @@ export function MfaPanel({
                 {labels.resetHint}
               </p>
             </>
+          ) : reset === "confirm" ? (
+            <div className="rounded-xl border border-line bg-surface-sub/50 p-3.5">
+              <p className="text-sm font-bold">{labels.lostDevice}</p>
+              <p className="mt-1 text-xs leading-5 text-ink-soft">
+                {labels.resetConfirmBody}
+              </p>
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setReset("idle")}
+                  disabled={busy}
+                  className="btn-secondary btn-sm disabled:opacity-60"
+                >
+                  {labels.cancel}
+                </button>
+                <button
+                  type="button"
+                  onClick={startReset}
+                  disabled={busy}
+                  aria-busy={busy}
+                  className="btn-primary btn-sm disabled:opacity-60"
+                >
+                  {busy ? (
+                    <span
+                      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent align-middle"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    labels.resetConfirmSend
+                  )}
+                </button>
+              </div>
+            </div>
           ) : (
             <form
               className="flex flex-col gap-2 sm:flex-row"

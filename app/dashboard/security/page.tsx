@@ -90,6 +90,9 @@ export default async function SecurityPage(props: {
         resetThrottled: t.security.mfaResetThrottled,
         confirmReset: t.security.mfaConfirmReset,
         resetDone: t.security.mfaResetDone,
+        resetConfirmBody: t.security.mfaResetConfirmBody,
+        resetConfirmSend: t.security.mfaResetConfirmSend,
+        cancel: t.common.cancel,
       }}
     />
   );

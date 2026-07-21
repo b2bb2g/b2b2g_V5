@@ -120,6 +120,9 @@ const ko: Dict = {
     mfaResetThrottled: "코드를 최근에 보냈습니다. 받은편지함을 확인하거나 잠시 후 다시 시도해 주세요.",
     mfaConfirmReset: "인증기 재설정",
     mfaResetDone: "인증기가 재설정되었습니다. 아래에서 새 기기를 등록해 주세요.",
+    mfaResetConfirmBody:
+      "가입하신 이메일로 인증 재설정 코드를 보냅니다. 계속하시겠어요?",
+    mfaResetConfirmSend: "코드 보내기",
     lockPanelTitle: "앱 잠금 (생체인증)",
     lockPanelDescription:
       "지문·얼굴 인증으로 이 기기의 화면을 잠급니다. 6자리 PIN이 항상 대체 수단으로 동작하며, 잠금은 이 기기에만 적용됩니다.",

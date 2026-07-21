@@ -119,6 +119,9 @@ const en = {
     mfaConfirmReset: "Reset authenticator",
     mfaResetDone:
       "Your authenticator was reset. Set up a new device below.",
+    mfaResetConfirmBody:
+      "We will email a verification-reset code to your account address. Continue?",
+    mfaResetConfirmSend: "Send code",
     lockPanelTitle: "App lock (biometric)",
     lockPanelDescription:
       "Lock this device's screen behind your fingerprint or face. A 6-digit PIN always works as the alternative, and the lock applies only to this device.",

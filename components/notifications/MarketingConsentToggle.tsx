@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { saveMarketingConsent } from "@/app/actions/push";
+import { Switch } from "@/components/ui/Switch";
 
 // Post-signup opt-in / opt-out for marketing messages. The choice is stored on
 // the member's profile (marketing_consent); admins can see it.
@@ -42,19 +43,12 @@ export function MarketingConsentToggle({
             <p className="mt-0.5 text-xs leading-5 text-ink-faint">{labels.body}</p>
           </div>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={on}
-          aria-label={`${labels.title}: ${on ? labels.on : labels.off}`}
+        <Switch
+          checked={on}
           disabled={busy}
           onClick={toggle}
-          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60 ${on ? "bg-primary" : "bg-line"}`}
-        >
-          <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? "left-[1.375rem]" : "left-0.5"}`}
-          />
-        </button>
+          label={`${labels.title}: ${on ? labels.on : labels.off}`}
+        />
       </div>
     </section>
   );

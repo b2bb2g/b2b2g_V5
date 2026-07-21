@@ -13,6 +13,7 @@ import {
 import type { SpecFieldDef } from "@/lib/types";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
+import { SubmitSwitch } from "@/components/ui/SubmitSwitch";
 
 function MoveControl({ id, direction, label, action }: { id: string; direction: -1 | 1; label: string; action: (formData: FormData) => Promise<void> }) {
   return <form action={action}><input type="hidden" name="id" value={id} /><input type="hidden" name="direction" value={direction} /><PendingButton aria-label={label} className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-sub text-xs font-bold text-ink-soft">{direction === -1 ? "↑" : "↓"}</PendingButton></form>;
@@ -71,15 +72,7 @@ export default async function CatalogAdminPage(props: { searchParams: Promise<{ 
               <form action={toggleCategoryActive}>
                 <input type="hidden" name="id" value={category.id} />
                 <input type="hidden" name="active" value={(!category.is_active).toString()} />
-                <PendingButton
-                  className={`btn-sm rounded-lg font-semibold ${
-                    category.is_active
-                      ? "bg-positive-soft text-positive"
-                      : "bg-surface-sub text-ink-faint"
-                  }`}
-                >
-                  {category.is_active ? t.common.on : t.common.off}
-                </PendingButton>
+                <SubmitSwitch checked={category.is_active} label={category.name_en} size="sm" />
               </form>
             </div>
           ))}
@@ -141,15 +134,7 @@ export default async function CatalogAdminPage(props: { searchParams: Promise<{ 
               <form action={toggleSpecFieldActive}>
                 <input type="hidden" name="id" value={field.id} />
                 <input type="hidden" name="active" value={(!field.is_active).toString()} />
-                <PendingButton
-                  className={`btn-sm rounded-lg font-semibold ${
-                    field.is_active
-                      ? "bg-positive-soft text-positive"
-                      : "bg-surface-sub text-ink-faint"
-                  }`}
-                >
-                  {field.is_active ? t.common.on : t.common.off}
-                </PendingButton>
+                <SubmitSwitch checked={field.is_active} label={field.name_en} size="sm" />
               </form>
             </div>
           ))}

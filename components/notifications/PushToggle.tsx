@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { savePushPreferences } from "@/app/actions/push";
+import { Switch } from "@/components/ui/Switch";
 import {
   pushSupported,
   subscribeCurrentDevice,
@@ -110,25 +111,13 @@ export function PushToggle({
           </div>
         </div>
         {state !== "denied" && (
-          <button
-            type="button"
+          <Switch
+            checked={state === "on"}
             disabled={busy}
             aria-busy={busy}
             onClick={state === "on" ? disable : enable}
-            className={
-              state === "on"
-                ? "btn-secondary btn-sm shrink-0 disabled:opacity-60"
-                : "btn-primary btn-sm shrink-0 disabled:opacity-60"
-            }
-          >
-            {busy ? (
-              <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent align-middle" aria-hidden="true" />
-            ) : state === "on" ? (
-              labels.disable
-            ) : (
-              labels.enable
-            )}
-          </button>
+            label={`${labels.title}: ${state === "on" ? labels.disable : labels.enable}`}
+          />
         )}
       </div>
 
@@ -137,20 +126,22 @@ export function PushToggle({
           <p className="text-[11px] font-bold uppercase tracking-[.14em] text-ink-faint">
             {labels.categories}
           </p>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+          <div className="mt-2 space-y-2">
             {CATEGORY_KEYS.map((key) => (
-              <label
+              <div
                 key={key}
-                className="flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-ink-soft"
+                className="flex items-center justify-between gap-3"
               >
-                <input
-                  type="checkbox"
+                <span className="text-sm font-semibold text-ink-soft">
+                  {labels.categoryLabels[key]}
+                </span>
+                <Switch
+                  size="sm"
                   checked={!muted.includes(key)}
-                  onChange={() => toggleCategory(key)}
-                  className="h-4 w-4 rounded accent-primary"
+                  onClick={() => toggleCategory(key)}
+                  label={labels.categoryLabels[key]}
                 />
-                {labels.categoryLabels[key]}
-              </label>
+              </div>
             ))}
           </div>
         </div>
