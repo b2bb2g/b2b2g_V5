@@ -28,6 +28,14 @@ const nextConfig: NextConfig = {
   compress: true,
   // Local dev via a hosts-file alias (hCaptcha does not support localhost).
   allowedDevOrigins: ["dev.b2bb2g.com"],
+  // Server Actions cap request bodies at 1MB by default, which rejected image
+  // uploads (site OG image, landing hero image) that our uploaders allow up to
+  // 10MB. Raise it to fit a 10MB file plus multipart overhead.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "12mb",
+    },
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: supabaseHost },

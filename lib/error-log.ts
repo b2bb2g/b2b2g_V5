@@ -9,6 +9,11 @@ export async function persistErrorLog(entry: {
   url?: string | null;
   userAgent?: string | null;
 }) {
+  // Only record + alert for real (production) errors. Local dev points at the
+  // same Supabase, so without this a developer's transient hot-reload errors
+  // would pollute the shared error log and push false "app error" alerts to
+  // real admins.
+  if (process.env.NODE_ENV !== "production") return;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!serviceKey || !supabaseUrl) return;
