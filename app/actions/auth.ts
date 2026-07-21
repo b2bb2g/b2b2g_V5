@@ -217,9 +217,9 @@ export async function signIn(formData: FormData) {
         { onConflict: "profile_id,device_hash" },
       ),
       supabase
-        .from("profiles")
+        .from("profile_private")
         .update({ last_seen_at: new Date().toISOString() })
-        .eq("id", data.user.id),
+        .eq("profile_id", data.user.id),
     ]);
 
     if (settingMap.login_session_policy === "single") {

@@ -43,11 +43,12 @@ export default async function AdminMemberDetailPage(props: {
   // Sensitive columns live in the owner/admin-only profile_private table.
   const { data: memberPrivate } = await supabase
     .from("profile_private")
-    .select("suspend_reason, coordinator_msg_override")
+    .select("suspend_reason, coordinator_msg_override, last_seen_at")
     .eq("profile_id", id)
     .maybeSingle<{
       suspend_reason: string | null;
       coordinator_msg_override: "allow" | "deny" | null;
+      last_seen_at: string | null;
     }>();
   const member = profileRow as unknown as {
     id: string;
@@ -58,7 +59,6 @@ export default async function AdminMemberDetailPage(props: {
     status: string;
     is_coordinator: boolean;
     referred_by: string | null;
-    last_seen_at: string | null;
     created_at: string;
     profile_contacts: { email: string | null; phone: string | null; contact_person: string | null } | null;
     member_admin_memos: { memo: string } | null;
@@ -253,8 +253,8 @@ export default async function AdminMemberDetailPage(props: {
         <div className="px-4 py-3">
           <dt className="text-xs font-semibold text-ink-faint">{t.admin.lastSeen}</dt>
           <dd className="mt-0.5 text-sm">
-            {member.last_seen_at
-              ? new Date(member.last_seen_at).toISOString().slice(0, 16).replace("T", " ")
+            {memberPrivate?.last_seen_at
+              ? new Date(memberPrivate.last_seen_at).toISOString().slice(0, 16).replace("T", " ")
               : "-"}
           </dd>
         </div>
