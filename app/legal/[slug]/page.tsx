@@ -12,8 +12,8 @@ import {
   type LegalSlug,
 } from "@/lib/legal-documents";
 
-const DEFAULT_EFFECTIVE_DATE = "2026-07-17";
-const DEFAULT_VERSION = "1.0";
+const DEFAULT_EFFECTIVE_DATE = "2026-07-21";
+const DEFAULT_VERSION = "1.1";
 
 function isLegalSlug(slug: string): slug is LegalSlug {
   return (LEGAL_SLUGS as readonly string[]).includes(slug);

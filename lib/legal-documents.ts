@@ -74,6 +74,7 @@ const ko: Record<LegalSlug, LegalDocument> = {
         title: "제4조 가입과 계정 관리",
         items: [
           "가입은 회사가 정한 방식에 따라 이메일 인증, 초대 또는 추천 링크 확인, 필수 정보 입력 및 약관 동의를 완료하여 신청합니다.",
+          "가입 시 이용약관, 개인정보 수집·이용, 쿠키 정책에 대한 동의는 필수이며, 광고성 정보 수신 동의는 선택입니다. 선택 동의는 가입 후 '알림' 화면에서 언제든 변경할 수 있습니다.",
           "회원은 본인 또는 소속 조직을 대표하여 가입하고 서비스를 이용할 적법한 권한이 있어야 하며, 등록 정보가 변경되면 지체 없이 수정해야 합니다.",
           "계정과 인증 수단은 회원 본인만 사용할 수 있습니다. 도용 또는 무단 사용을 알게 된 경우 즉시 비밀번호를 변경하고 운영팀에 알려야 합니다.",
           "허위 정보, 타인 명의, 중복·자동화 가입, 제재 회피 목적의 가입 또는 법령상 이용이 제한되는 경우 승인이 거절되거나 계정이 제한될 수 있습니다.",
@@ -196,10 +197,12 @@ const ko: Record<LegalSlug, LegalDocument> = {
         table: {
           headers: ["구분", "처리 항목", "수집 방법"],
           rows: [
-            ["가입·인증", "이메일 주소, 인증정보, 가입 경로, 초대·추천 정보", "회원이 가입 화면에 입력하거나 인증 과정에서 자동 생성"],
+            ["가입·인증", "이메일 주소, 인증정보, 가입 경로, 초대·추천 정보, 필수 약관 동의 여부", "회원이 가입 화면에 입력하거나 인증 과정에서 자동 생성"],
             ["회원 프로필", "UID, 회사명, 담당자명, 소개, 프로필 사진, 연락처", "회원이 프로필 및 연락처 화면에 입력"],
             ["서비스 이용", "게시물, 이미지·파일·영상 링크, 문의·답변·댓글, 배지 신청 및 증빙자료", "회원이 기능 이용 과정에서 제출"],
-            ["보안·접속", "IP 주소 또는 마스킹 값, 접속 시각, 브라우저·기기 정보, 로그인·보안 이벤트, 쿠키", "서비스 이용 과정에서 자동 생성"],
+            ["마케팅 (선택)", "광고성 정보 수신 동의 여부, 동의·철회 일시", "회원이 가입 화면 또는 알림 설정에서 선택"],
+            ["푸시 알림 (선택)", "브라우저 푸시 구독 정보(엔드포인트·키), 기기·언어", "회원이 푸시 알림을 켤 때 자동 생성"],
+            ["보안·접속", "IP 주소 또는 마스킹 값, 접속 시각, 브라우저·기기 정보, 로그인·보안 이벤트, 2단계 인증·앱 잠금 설정, 쿠키", "서비스 이용 과정에서 자동 생성"],
             ["유료 서비스", "신청 내역, 결제 확인에 필요한 정보와 처리 기록", "회원 제출 또는 결제·운영 확인 과정"],
           ],
         },
@@ -211,6 +214,7 @@ const ko: Record<LegalSlug, LegalDocument> = {
           "회원 식별, 이메일 인증, 초대 기반 가입, 로그인과 계정 보안",
           "프로필·상품·프로젝트·구매요청·행사·네트워크 피드 제공",
           "회원 간 문의 전달, 메시지 검토, 알림 및 고객 지원",
+          "수신에 동의한 회원에 대한 광고성 정보(혜택·소식) 이메일·문자 발송 (동의하지 않은 회원에게는 발송하지 않음)",
           "신뢰 배지·멤버십 신청 확인, 부정 이용 방지 및 운영 정책 집행",
           "서비스 안정성 확보, 접속 기록 분석, 장애·보안 사고 대응",
           "법적 의무 이행, 민원·분쟁 처리 및 권리 침해 대응",
@@ -228,6 +232,7 @@ const ko: Record<LegalSlug, LegalDocument> = {
             ["계정·프로필·연락처", "회원 탈퇴 또는 이용계약 종료 시까지. 탈퇴 후 공개 정보는 비식별 처리하며 인증·분쟁 대응에 필요한 최소 정보는 최대 3년"],
             ["게시물·문의·메시지", "서비스 제공 기간. 탈퇴 후에는 작성자 식별정보를 제거하고 서비스 연속성·분쟁 대응에 필요한 범위에서 보관"],
             ["초대·추천 기록", "초대 만료·철회·사용 후 부정 이용 및 분쟁 대응을 위해 최대 3년"],
+            ["광고성 정보 수신 동의 기록", "수신 동의 철회 또는 회원 탈퇴 시까지. 발송 사실·분쟁 대응을 위해 필요한 최소 기간 보관"],
             ["배지·멤버십 신청 및 증빙", "자격 확인 기간과 종료 후 분쟁 대응을 위해 최대 3년. 법령상 별도 의무가 있으면 해당 기간"],
             ["로그인·보안 기록", "운영 설정에 따른 기간. 현재 기본 90일, 보안 사고 조사 중인 기록은 조사 종료 시까지"],
             ["표시·광고 기록", "전자상거래 관련 법령이 적용되는 경우 6개월"],
@@ -289,6 +294,7 @@ const ko: Record<LegalSlug, LegalDocument> = {
         title: "9. 정보주체의 권리와 행사 방법",
         paragraphs: [
           "정보주체는 자신의 개인정보에 대해 열람, 정정·삭제, 처리정지, 동의 철회 및 회원 탈퇴를 요청할 수 있습니다. 프로필·보안 설정에서 직접 처리하거나 서비스 내 문의함을 통해 운영팀에 요청할 수 있습니다.",
+          "광고성 정보 수신 동의는 언제든 철회할 수 있습니다. '알림' 화면(주소 /notifications)의 '광고성 정보 수신' 설정을 끄면 즉시 반영되어 이후 광고성 정보 전송이 중단되며, 가입 시 동의하지 않았더라도 같은 화면에서 동의할 수 있습니다. 수신 동의 여부와 무관하게 인증·보안·거래 등 서비스 운영에 필요한 안내는 계속 발송됩니다.",
           "대리인이 요청하는 경우 위임장 등 정당한 대리 권한을 확인할 수 있습니다. 다른 사람의 권리 또는 법령상 의무에 영향을 주는 경우에는 요청이 제한될 수 있으며 그 사유를 안내합니다.",
         ],
       },
@@ -374,6 +380,7 @@ const ko: Record<LegalSlug, LegalDocument> = {
         title: "3. 필수 쿠키",
         paragraphs: [
           "필수 쿠키는 계정 인증, 보안, 언어, 쿠키 선택 저장과 같이 서비스가 정상적으로 작동하는 데 필요합니다. 이 쿠키는 서비스 제공을 위해 항상 활성화되며, 브라우저에서 차단하면 로그인이나 일부 기능이 동작하지 않을 수 있습니다.",
+          "일부 이용 편의 정보는 브라우저의 로컬 스토리지에 저장됩니다. 예를 들어 쿠키 동의 여부, 최근 검색어, 공지 확인 상태, 보안 안내·인앱 브라우저 안내를 다시 표시하지 않기 위한 값 등이 있으며, 이 값은 서버로 전송되지 않고 브라우저에서 직접 삭제할 수 있습니다.",
         ],
       },
       {
@@ -451,6 +458,7 @@ const en: Record<LegalSlug, LegalDocument> = {
         title: "4. Registration and Accounts",
         items: [
           "Registration requires email verification, a valid invitation or referral where applicable, required information and acceptance of applicable policies.",
+          "Agreement to the Terms of Service, Privacy and Cookie policies is required to sign up; consent to marketing messages is optional and can be changed anytime after sign-up on the Notifications screen.",
           "Members must have authority to act for themselves or their organization and must keep their information accurate.",
           "Credentials are personal to the member. Suspected misuse must be reported promptly after securing the account.",
           "False identities, automated or duplicate registrations, sanction evasion and unlawful use may be rejected or restricted.",
@@ -573,10 +581,12 @@ const en: Record<LegalSlug, LegalDocument> = {
         table: {
           headers: ["Context", "Data", "Collection method"],
           rows: [
-            ["Registration", "Email, authentication data, registration path, invitation and referral data", "Entered by the member or generated during verification"],
+            ["Registration", "Email, authentication data, registration path, invitation and referral data, agreement to the required terms", "Entered by the member or generated during verification"],
             ["Profile", "UID, company, contact person, introduction, photo and contact details", "Entered in profile and contact settings"],
             ["Service use", "Content, media, files, video links, inquiries, replies, comments, badge applications and evidence", "Submitted while using features"],
-            ["Security", "IP or masked IP, timestamps, browser and device information, login events and cookies", "Generated automatically during use"],
+            ["Marketing (optional)", "Marketing-consent state and the consent / withdrawal timestamp", "Chosen at sign-up or in notification settings"],
+            ["Push (optional)", "Browser push subscription (endpoint and keys), device and language", "Generated when the member enables push notifications"],
+            ["Security", "IP or masked IP, timestamps, browser and device information, login and security events, two-factor / app-lock settings, cookies", "Generated automatically during use"],
             ["Paid services", "Application, payment confirmation and processing records", "Submitted by the member or generated operationally"],
           ],
         },
@@ -588,6 +598,7 @@ const en: Record<LegalSlug, LegalDocument> = {
           "Identity, email verification, invitation registration, login and account security",
           "Profiles, listings, projects, sourcing requests, events and network feeds",
           "Inquiry delivery, message review, notifications and member support",
+          "Sending marketing messages (offers and news) by email / SMS to members who opted in (never sent to members who did not opt in)",
           "Badge and membership verification, abuse prevention and policy enforcement",
           "Reliability, access analysis, incident response and legal compliance",
           "Complaints, disputes, rights requests and infringement response",
@@ -605,6 +616,7 @@ const en: Record<LegalSlug, LegalDocument> = {
             ["Account, profile and contacts", "Until withdrawal; minimum authentication and dispute records may be restricted for up to 3 years"],
             ["Content, inquiries and messages", "During service; author identifiers are removed after withdrawal and records may remain for continuity and disputes"],
             ["Invitation and referral records", "Up to 3 years after expiry, revocation or use for abuse and dispute response"],
+            ["Marketing-consent records", "Until consent is withdrawn or the account closes; kept for the minimum period needed to evidence delivery and handle disputes"],
             ["Badge and membership evidence", "During verification and up to 3 years after the relationship ends, unless law requires longer"],
             ["Login and security events", "Configured operating period, currently 90 days by default; incident records until investigation closes"],
             ["Advertising records", "6 months where Korean e-commerce retention rules apply"],
@@ -662,6 +674,7 @@ const en: Record<LegalSlug, LegalDocument> = {
         title: "9. Your Rights",
         paragraphs: [
           "You may request access, correction, deletion, restriction, withdrawal of consent or account closure through profile and security settings or the in-service inquiry channel.",
+          "You can withdraw marketing consent at any time. Turning off the 'Marketing messages' setting on the Notifications screen (/notifications) takes effect immediately and stops further marketing messages; you can also opt in there even if you did not agree at sign-up. Service messages needed for authentication, security and transactions are sent regardless of marketing consent.",
           "B2BB2G may verify authority for representative requests. A request may be limited where necessary to protect another person's rights or comply with law, and the reason will be explained.",
         ],
       },
@@ -746,6 +759,7 @@ const en: Record<LegalSlug, LegalDocument> = {
         title: "3. Essential Cookies",
         paragraphs: [
           "Essential cookies are required for account authentication, security, language and saving your cookie choices. Blocking them in the browser may prevent login or other core functions.",
+          "Some convenience data is kept in your browser's local storage — for example your cookie choice, recent searches, which notices you have seen, and flags to avoid re-showing the security or in-app-browser prompts. These values are not sent to the server and can be cleared from your browser.",
         ],
       },
       {
