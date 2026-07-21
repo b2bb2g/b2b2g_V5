@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
+import { LocaleMenu } from "@/components/layout/LocaleMenu";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -11,7 +12,7 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { t } = await getT();
+  const { t, locale } = await getT();
   return (
     <div className="auth-shell full-bleed grid min-h-screen-safe bg-surface lg:grid-cols-[minmax(0,1fr)_minmax(32rem,0.8fr)]">
       <aside className="relative hidden overflow-hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-between">
@@ -38,7 +39,10 @@ export default async function AuthLayout({
           <Link href="/" className="flex items-center gap-2 lg:hidden">
             <span className="font-extrabold">{t.common.siteName}</span>
           </Link>
-          <Link href="/" className="text-sm font-semibold text-ink-soft hover:text-ink">{t.auth.backHome}</Link>
+          <div className="flex items-center gap-1">
+            <LocaleMenu locale={locale} label={t.common.language} />
+            <Link href="/" className="text-sm font-semibold text-ink-soft hover:text-ink">{t.auth.backHome}</Link>
+          </div>
         </div>
         <div className="mx-auto flex w-full max-w-md flex-1 items-center py-8">{children}</div>
       </section>
