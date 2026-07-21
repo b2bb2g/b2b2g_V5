@@ -11,7 +11,7 @@ import { getT } from "@/lib/i18n/server";
 import { getVisibleMenus, menuTitle } from "@/lib/data/menus";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
-import { getPublicSettings, settingNumber } from "@/lib/data/settings";
+import { getPublicSettings, settingNumber, settingString } from "@/lib/data/settings";
 import { postMediaUrl } from "@/lib/media";
 import { BOARD_TYPES, SETTING_KEYS } from "@/lib/constants";
 import type { Menu, PostTeaser } from "@/lib/types";
@@ -204,15 +204,21 @@ async function LandingContent() {
   // rails below so the same listing never appears twice on the landing page.
   const featuredProductIds = new Set(products.map((post) => post.id));
   const container = "store-shell";
+  // Admin overrides fall back to the i18n default when unset or blank.
+  const L = (field: keyof typeof t.home): string =>
+    settingString(settings, `landing_${String(field)}_${locale}`) || t.home[field];
+  const heroImage =
+    settingString(settings, "landing_hero_image") ||
+    "/landing-v2/hero-trade-network-v3.jpg";
   const steps = [
-    { n: "01", title: t.home.step1Title, body: t.home.step1Body },
-    { n: "02", title: t.home.step2Title, body: t.home.step2Body },
-    { n: "03", title: t.home.step3Title, body: t.home.step3Body },
+    { n: "01", title: L("step1Title"), body: L("step1Body") },
+    { n: "02", title: L("step2Title"), body: L("step2Body") },
+    { n: "03", title: L("step3Title"), body: L("step3Body") },
   ];
   const values = [
-    { title: t.home.value1Title, body: t.home.value1Body },
-    { title: t.home.value2Title, body: t.home.value2Body },
-    { title: t.home.value3Title, body: t.home.value3Body },
+    { title: L("value1Title"), body: L("value1Body") },
+    { title: L("value2Title"), body: L("value2Body") },
+    { title: L("value3Title"), body: L("value3Body") },
   ];
   const eventCardLabels = {
     ongoing: t.board.eventNowOn,
@@ -225,21 +231,21 @@ async function LandingContent() {
     { tagline: string; title: string; body: string; image: string }
   > = {
     commercial: {
-      tagline: t.home.commercialRailTagline,
-      title: t.home.commercialRailTitle,
-      body: t.home.commercialRailBody,
+      tagline: L("commercialRailTagline"),
+      title: L("commercialRailTitle"),
+      body: L("commercialRailBody"),
       image: MARKET_IMAGES[0],
     },
     industrial: {
-      tagline: t.home.industrialRailTagline,
-      title: t.home.industrialRailTitle,
-      body: t.home.industrialRailBody,
+      tagline: L("industrialRailTagline"),
+      title: L("industrialRailTitle"),
+      body: L("industrialRailBody"),
       image: MARKET_IMAGES[1],
     },
     epc: {
-      tagline: t.home.epcRailTagline,
-      title: t.home.epcRailTitle,
-      body: t.home.epcRailBody,
+      tagline: L("epcRailTagline"),
+      title: L("epcRailTitle"),
+      body: L("epcRailBody"),
       image: MARKET_IMAGES[2],
     },
   };
@@ -254,7 +260,7 @@ async function LandingContent() {
               "@type": "Organization",
               name: t.common.siteName,
               url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-              description: t.home.heroSubtitle,
+              description: L("heroSubtitle"),
             },
             {
               "@context": "https://schema.org",
@@ -274,7 +280,7 @@ async function LandingContent() {
           <Reveal className="h-full">
             <div className="relative isolate min-h-[42rem] overflow-hidden bg-[#edf6ff] text-[#1d1d1f] sm:min-h-[48rem] lg:min-h-[min(54rem,calc(100svh-4.5rem))]">
               <Image
-                src="/landing-v2/hero-trade-network-v3.jpg"
+                src={heroImage}
                 alt=""
                 fill
                 priority
@@ -290,20 +296,20 @@ async function LandingContent() {
               <div className="relative z-10 flex min-h-[42rem] flex-col items-center px-5 pt-14 text-center sm:min-h-[48rem] sm:px-8 sm:pt-16 lg:min-h-[min(54rem,calc(100svh-4.5rem))] lg:pt-16">
                 <div className="flex max-w-[62rem] flex-col items-center">
                   <p className="text-xs font-bold uppercase tracking-[.17em] text-[#1769e0]">
-                    {t.home.eyebrow}
+                    {L("eyebrow")}
                   </p>
                   <h1 className="mt-4 max-w-[15ch] text-balance text-[3rem] font-semibold leading-[.98] tracking-[-.052em] text-[#1d1d1f] sm:max-w-[18ch] sm:text-[4rem] lg:max-w-none lg:whitespace-nowrap lg:text-[clamp(4rem,5.2vw,4.75rem)]">
-                    {t.home.heroTitle}
+                    {L("heroTitle")}
                   </h1>
                   <p className="mt-5 max-w-[48rem] text-balance text-base leading-7 text-[#3f4650] sm:text-xl sm:leading-8 lg:max-w-none lg:whitespace-nowrap">
-                    {t.home.heroSubtitle}
+                    {L("heroSubtitle")}
                   </p>
                   <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                     <Link
                       href={`/${firstProductBoard}`}
                       className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-strong"
                     >
-                      {t.home.browseBoards}
+                      {L("browseBoards")}
                       <Arrow />
                     </Link>
                     {requestsMenu && (
@@ -311,7 +317,7 @@ async function LandingContent() {
                         href={`/${requestsMenu.slug}`}
                         className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[#1769e0] bg-white/72 px-6 py-3 text-sm font-semibold text-[#1769e0] backdrop-blur-md transition-colors hover:bg-white"
                       >
-                        {t.home.browseRequests}
+                        {L("browseRequests")}
                         <Arrow />
                       </Link>
                     )}
@@ -327,9 +333,9 @@ async function LandingContent() {
             <div className={container}>
               <Reveal>
                 <SectionHeading
-                  eyebrow={t.home.eyebrowBrowse}
-                  title={t.home.newProducts}
-                  body={t.home.newProductsBody}
+                  eyebrow={L("eyebrowBrowse")}
+                  title={L("newProducts")}
+                  body={L("newProductsBody")}
                   action={
                     <TextLink href={`/${firstProductBoard}`}>
                       {t.dashboard.viewAll}
@@ -443,8 +449,8 @@ async function LandingContent() {
           <div className={container}>
             <Reveal>
               <SectionHeading
-                eyebrow={t.home.howItWorksTitle}
-                title={t.home.valueTitle}
+                eyebrow={L("howItWorksTitle")}
+                title={L("valueTitle")}
               />
             </Reveal>
             <div className="mt-7 sm:mt-12">
@@ -500,9 +506,9 @@ async function LandingContent() {
             <div className={container}>
               <Reveal>
                 <SectionHeading
-                  eyebrow={t.home.eyebrowRequests}
-                  title={t.home.latestRequests}
-                  body={t.home.step2Body}
+                  eyebrow={L("eyebrowRequests")}
+                  title={L("latestRequests")}
+                  body={L("step2Body")}
                   action={
                     <TextLink href={`/${requestsMenu.slug}`}>
                       {t.dashboard.viewAll}
@@ -521,7 +527,7 @@ async function LandingContent() {
                       href={`/${requestsMenu.slug}`}
                       image="/landing-v2/precision-manufacturing.jpg"
                       title={menuTitle(requestsMenu, locale)}
-                      body={t.home.value2Body}
+                      body={L("value2Body")}
                       actionLabel={t.dashboard.viewAll}
                     />
                   </div>
@@ -561,9 +567,9 @@ async function LandingContent() {
             <div className={container}>
               <Reveal>
                 <SectionHeading
-                  eyebrow={t.home.eyebrowShowcase}
-                  title={t.home.featured}
-                  body={t.home.promoBody}
+                  eyebrow={L("eyebrowShowcase")}
+                  title={L("featured")}
+                  body={L("promoBody")}
                 />
               </Reveal>
 
@@ -608,7 +614,7 @@ async function LandingContent() {
                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/12 to-black/72" />
                             <div className="relative flex h-full flex-col p-7">
                               <p className="text-xs font-bold uppercase tracking-[.14em] text-white/68">
-                                {t.home.eyebrowShowcase}
+                                {L("eyebrowShowcase")}
                               </p>
                               <h3 className="mt-4 line-clamp-2 max-w-xs text-3xl font-semibold leading-[1.08] tracking-[-.035em] text-white">
                                 {name}
@@ -632,7 +638,7 @@ async function LandingContent() {
                   <Reveal>
                     <SectionHeading
                       eyebrow={t.board.eventsEyebrow}
-                      title={t.home.eventsTitle}
+                      title={L("eventsTitle")}
                       body={t.board.eventsHint}
                       action={
                         <TextLink href={`/${eventsMenu.slug}`}>
@@ -677,8 +683,8 @@ async function LandingContent() {
               <Reveal>
                 <SectionHeading
                   eyebrow={t.feed.title}
-                  title={t.home.feedTitle}
-                  body={t.home.feedBody}
+                  title={L("feedTitle")}
+                  body={L("feedBody")}
                   action={
                     <TextLink href="/feed">{t.dashboard.viewAll}</TextLink>
                   }
@@ -720,20 +726,20 @@ async function LandingContent() {
                   <div className="absolute -bottom-44 -left-20 h-96 w-96 rounded-full border-[4rem] border-white/6" />
                   <div className="relative mx-auto max-w-4xl">
                     <p className="text-sm font-semibold text-white/72">
-                      {t.home.eyebrow}
+                      {L("eyebrow")}
                     </p>
                     <h2 className="mt-4 text-4xl font-semibold leading-[1.04] tracking-[-.045em] sm:text-6xl lg:text-7xl">
-                      {t.home.finalCtaTitle}
+                      {L("finalCtaTitle")}
                     </h2>
                     <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/76 sm:text-lg sm:leading-8">
-                      {t.home.finalCtaBody}
+                      {L("finalCtaBody")}
                     </p>
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                       <Link
                         href={`/${firstProductBoard}`}
                         className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-primary transition hover:bg-white/92"
                       >
-                        {t.home.browseBoards}
+                        {L("browseBoards")}
                         <Arrow />
                       </Link>
                       <Link

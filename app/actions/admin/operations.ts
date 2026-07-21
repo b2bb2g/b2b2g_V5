@@ -111,11 +111,16 @@ export async function uploadSiteAsset(formData: FormData) {
   const { supabase, userId } = await requireAdmin("content");
   const key = String(formData.get("key") ?? "");
   const file = formData.get("file");
-  if (key !== "site_og_image" || !(file instanceof File) || file.size === 0) {
-    redirect("/admin/content?error=invalid_asset");
+  const back = key === "landing_hero_image" ? "/admin/landing" : "/admin/content";
+  if (
+    !["site_og_image", "landing_hero_image"].includes(key) ||
+    !(file instanceof File) ||
+    file.size === 0
+  ) {
+    redirect(`${back}?error=invalid_asset`);
   }
   if (file.size > 10 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type)) {
-    redirect("/admin/content?error=invalid_asset");
+    redirect(`${back}?error=invalid_asset`);
   }
   const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "webp";
   const path = `branding/${userId}/${crypto.randomUUID()}.${extension}`;
@@ -132,8 +137,32 @@ export async function uploadSiteAsset(formData: FormData) {
     }
   }
   await audit(supabase, "site_asset_uploaded", "site_setting", key, { path });
-  revalidatePath("/admin/content");
+  revalidatePath(back);
   revalidatePath("/", "layout");
   revalidateTag("site-settings", "max");
-  redirect("/admin/content?toast=saved");
+  redirect(`${back}?toast=saved`);
+}
+
+// Bulk save for the landing-page editor: every `landing_*` text override is a
+// seeded site_settings row, so update each present one. An empty value is kept
+// as "" (the landing then falls back to the i18n default for that field).
+export async function updateLandingContent(formData: FormData) {
+  const { supabase, userId } = await requireAdmin("content");
+  const updated: string[] = [];
+  for (const [name, raw] of formData.entries()) {
+    if (!name.startsWith("landing_") || typeof raw !== "string") continue;
+    await supabase
+      .from("site_settings")
+      .update({ value: raw, updated_by: userId, updated_at: new Date().toISOString() })
+      .eq("key", name)
+      .throwOnError();
+    updated.push(name);
+  }
+  await audit(supabase, "landing_content_change", "site_setting", "landing", {
+    keys: updated,
+  });
+  revalidatePath("/admin/landing");
+  revalidatePath("/", "layout");
+  revalidateTag("site-settings", "max");
+  redirect("/admin/landing?toast=saved");
 }

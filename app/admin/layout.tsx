@@ -186,7 +186,12 @@ export default async function AdminLayout({
       description: t.admin.groupOperationsDesc,
       icon: NAV_ICONS.content,
       items: [
-        ...(can("content") ? [{ href: "/admin/content", label: t.admin.contentOps }] : []),
+        ...(can("content")
+          ? [
+              { href: "/admin/content", label: t.admin.contentOps },
+              { href: "/admin/landing", label: t.admin.landingEditor },
+            ]
+          : []),
         ...(can("notifications") ? [{ href: "/admin/notifications", label: t.admin.notificationPolicy }] : []),
       ],
     },
@@ -218,6 +223,7 @@ export default async function AdminLayout({
     "/admin/catalog": t.admin.intro.catalog,
     "/admin/tiers": t.admin.intro.tiers,
     "/admin/content": t.admin.intro.content,
+    "/admin/landing": t.admin.intro.landing,
     "/admin/notifications": t.admin.intro.notifications,
     "/admin/security": t.admin.intro.security,
     "/admin/settings": t.admin.intro.settings,

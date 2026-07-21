@@ -15,7 +15,10 @@ export default async function SettingsAdminPage() {
   const settings = ((data ?? []) as { key: string; value: unknown }[]).filter(
     (setting) =>
       !/^email_notify_/.test(setting.key) &&
-      !/^(login_session_|new_device_|suspicious_login_|failed_login_|security_log_)/.test(setting.key),
+      !/^(login_session_|new_device_|suspicious_login_|failed_login_|security_log_)/.test(setting.key) &&
+      // Landing content + featured-slots are managed in the Landing editor.
+      !/^landing_/.test(setting.key) &&
+      setting.key !== "featured_slots",
   );
   // Human-readable names; the raw key stays visible as a small reference.
   const labels: Record<string, string> = t.admin.settingLabels;
