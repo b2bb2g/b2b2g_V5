@@ -40,6 +40,8 @@ export function PushToggle({
   const [state, setState] = useState<PushState>("loading");
   const [busy, setBusy] = useState(false);
   const [muted, setMuted] = useState<string[]>(initialMuted);
+  // Per-category detail stays collapsed until asked for, to keep the card tidy.
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -123,27 +125,48 @@ export function PushToggle({
 
       {state === "on" && (
         <div className="mt-3 border-t border-line pt-3">
-          <p className="text-[11px] font-bold uppercase tracking-[.14em] text-ink-faint">
-            {labels.categories}
-          </p>
-          <div className="mt-2 space-y-2">
-            {CATEGORY_KEYS.map((key) => (
-              <div
-                key={key}
-                className="flex items-center justify-between gap-3"
-              >
-                <span className="text-sm font-semibold text-ink-soft">
-                  {labels.categoryLabels[key]}
-                </span>
-                <Switch
-                  size="sm"
-                  checked={!muted.includes(key)}
-                  onClick={() => toggleCategory(key)}
-                  label={labels.categoryLabels[key]}
-                />
-              </div>
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            aria-expanded={expanded}
+            className="flex w-full items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[.14em] text-ink-faint transition hover:text-ink-soft"
+          >
+            <span>{labels.categories}</span>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className={`shrink-0 transition-transform ${expanded ? "rotate-180" : ""}`}
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          {expanded && (
+            <div className="mt-3 space-y-2">
+              {CATEGORY_KEYS.map((key) => (
+                <div
+                  key={key}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <span className="text-sm font-semibold text-ink-soft">
+                    {labels.categoryLabels[key]}
+                  </span>
+                  <Switch
+                    size="sm"
+                    checked={!muted.includes(key)}
+                    onClick={() => toggleCategory(key)}
+                    label={labels.categoryLabels[key]}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>
