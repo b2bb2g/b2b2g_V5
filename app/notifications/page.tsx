@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { WorkspacePageHeader as PageHeader } from "@/components/dashboard/WorkspacePageHeader";
 import { PushToggle } from "@/components/notifications/PushToggle";
+import { MarketingConsentToggle } from "@/components/notifications/MarketingConsentToggle";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { createClient } from "@/lib/supabase/server";
@@ -161,11 +162,12 @@ export default async function NotificationsPage(props: {
     query,
     supabase
       .from("profiles")
-      .select("push_muted_types")
+      .select("push_muted_types, marketing_consent")
       .eq("id", session.userId)
       .maybeSingle(),
   ]);
   const mutedCategories: string[] = prefs?.push_muted_types ?? [];
+  const marketingConsent: boolean = prefs?.marketing_consent ?? false;
   const notifications = (data ?? []) as AppNotification[];
 
   const tabs = [
@@ -213,6 +215,16 @@ export default async function NotificationsPage(props: {
             social: t.notifications.pushCatSocial,
             membership: t.notifications.pushCatMembership,
           },
+        }}
+      />
+
+      <MarketingConsentToggle
+        initialConsent={marketingConsent}
+        labels={{
+          title: t.notifications.marketingTitle,
+          body: t.notifications.marketingBody,
+          on: t.notifications.marketingOn,
+          off: t.notifications.marketingOff,
         }}
       />
 

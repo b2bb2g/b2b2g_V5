@@ -81,3 +81,22 @@ export async function savePushPreferences(muted: string[]) {
     .eq("id", user.id);
   return { ok: !error };
 }
+
+// Member opt-in / opt-out for marketing messages (email / SMS). Self-row only.
+export async function saveMarketingConsent(consent: boolean) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+
+  const on = consent === true;
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      marketing_consent: on,
+      marketing_consent_at: on ? new Date().toISOString() : null,
+    })
+    .eq("id", user.id);
+  return { ok: !error };
+}
