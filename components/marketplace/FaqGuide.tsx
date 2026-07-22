@@ -1,6 +1,32 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useMemo, useState, type ReactNode } from "react";
+
+// Turn [label](/path) markers inside an answer line into in-app links so a
+// mentioned menu location is clickable; plain text is left untouched.
+function renderInline(text: string): ReactNode {
+  const parts: ReactNode[] = [];
+  const re = /\[([^\]]+)\]\((\/[^)]+)\)/g;
+  let last = 0;
+  let key = 0;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(text)) !== null) {
+    if (match.index > last) parts.push(text.slice(last, match.index));
+    parts.push(
+      <Link
+        key={key++}
+        href={match[2]}
+        className="font-semibold text-primary underline decoration-primary/40 underline-offset-2 transition-colors hover:text-primary-strong"
+      >
+        {match[1]}
+      </Link>,
+    );
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts.length ? parts : text;
+}
 
 export type FaqGuideItem = { q: string; a: string[] };
 export type FaqGuideCategory = {
@@ -45,12 +71,12 @@ function AnswerBody({ lines }: { lines: string[] }) {
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-soft text-[11px] font-extrabold text-primary">
                   {stepIndex + 1}
                 </span>
-                <span className="min-w-0">{step}</span>
+                <span className="min-w-0">{renderInline(step)}</span>
               </li>
             ))}
           </ol>
         ) : (
-          <p key={index}>{block.text}</p>
+          <p key={index}>{renderInline(block.text)}</p>
         ),
       )}
     </div>

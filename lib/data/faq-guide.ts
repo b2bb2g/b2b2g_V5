@@ -240,7 +240,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "How do I post a product?",
         "a_ko": [
           "1) '내 메뉴'를 엽니다. PC는 헤더의 프로필 사진, 휴대폰은 오른쪽 위 메뉴 버튼(≡)입니다.",
-          "2) '만들기 > 상품 등록'을 누릅니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '상품 등록'으로도 들어갈 수 있습니다.",
+          "2) '[만들기 > 상품 등록](/write/select)'을 누릅니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '상품 등록'으로도 들어갈 수 있습니다.",
           "3) 게시판 선택 화면에서 상품 성격에 맞는 게시판을 고릅니다.",
           "4) 제목·내용·사진·사양(제품 규격)을 입력합니다.",
           "5) '등록'을 누릅니다.",
@@ -248,7 +248,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Create > Add a product'. (Or press 'Add a product' in the dashboard's left menu.)",
+          "2) Press '[Create > Add a product](/write/select)'. (Or press 'Add a product' in the dashboard's left menu.)",
           "3) A screen to choose a board appears first. Choose the board that fits your product.",
           "4) Fill in the title, content, photos, and specs (the detailed specifications of the product).",
           "5) Press 'Register'.",
@@ -312,13 +312,13 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "올린 상품을 고치거나 지우고 싶습니다.",
         "q_en": "I want to edit or delete a product I posted.",
         "a_ko": [
-          "1) '내 메뉴 > 활동 > 내 게시글'로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '내 게시글'로도 들어갈 수 있습니다.",
+          "1) '[내 메뉴 > 활동 > 내 게시글](/dashboard/posts)'로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '내 게시글'로도 들어갈 수 있습니다.",
           "2) 목록에서 원하는 글을 선택합니다.",
           "3) 수정하거나 삭제합니다. 내용을 수정한 글은 다시 검토를 거칠 수 있습니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Activity > My posts'. (Or press 'My posts' in the dashboard's left menu.)",
+          "2) Press '[Activity > My posts](/dashboard/posts)'. (Or press 'My posts' in the dashboard's left menu.)",
           "3) Choose the post and edit or delete it."
         ]
       }
@@ -347,7 +347,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "요청을 어떻게 올립니까?",
         "q_en": "How do I post a request?",
         "a_ko": [
-          "1) '내 메뉴 > 만들기 > 구매요청 등록'을 누릅니다. PC는 헤더 프로필 사진, 휴대폰은 메뉴 버튼(≡)에서 '내 메뉴'를 엽니다.",
+          "1) '[내 메뉴 > 만들기 > 구매요청 등록](/write?menu=requests)'을 누릅니다. PC는 헤더 프로필 사진, 휴대폰은 메뉴 버튼(≡)에서 '내 메뉴'를 엽니다.",
           "2) 제목과 필요한 내용을 구체적으로 입력합니다.",
           "3) 마감 기한을 정하거나, 기한 없이 열어 둡니다.",
           "4) '등록'을 눌러 구매요청을 올립니다.",
@@ -355,7 +355,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Create > Post a sourcing request'. (Or write it from the 'RFQ & ITB' board in the middle of the header.)",
+          "2) Press '[Create > Post a sourcing request](/write?menu=requests)'. (Or write it from the 'RFQ & ITB' board in the middle of the header.)",
           "3) Enter the title and the details of what you need.",
           "4) Set a deadline, or leave it open with no deadline.",
           "5) Register to post the request."
@@ -434,12 +434,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "받은 문의와 보낸 문의는 어디에서 봅니까?",
         "q_en": "Where do I see received and sent inquiries?",
         "a_ko": [
-          "1) '내 메뉴 > 활동 > 문의 내역'으로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '문의'로도 들어갈 수 있습니다.",
+          "1) '[내 메뉴 > 활동 > 문의 내역](/inquiries)'으로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '문의'로도 들어갈 수 있습니다.",
           "2) 받은 문의와 보낸 문의를 한 화면에서 확인합니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Activity > Inquiries'.",
+          "2) Press '[Activity > Inquiries](/inquiries)'.",
           "Here you see both received and sent inquiries."
         ]
       },
@@ -477,15 +477,15 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "초대 링크는 어디에서 만듭니까?",
         "q_en": "Where do I create an invite link?",
         "a_ko": [
-          "초대 링크는 '내 초대 링크' 화면에서 만듭니다. 들어가는 방법은 두 가지입니다.",
-          "1) 대시보드 왼쪽 메뉴(휴대폰에서는 위쪽 탭)에서 '내 초대 링크'를 누릅니다. 또는 대시보드 본문의 '내 초대 링크' 카드에서 '관리하기'를 누릅니다.",
+          "초대 링크는 '[내 초대 링크](/dashboard/invitations)' 화면에서 만듭니다. 들어가는 방법은 두 가지입니다.",
+          "1) 대시보드 왼쪽 메뉴(휴대폰에서는 위쪽 탭)에서 '[내 초대 링크](/dashboard/invitations)'를 누릅니다. 또는 대시보드 본문의 '[내 초대 링크](/dashboard/invitations)' 카드에서 '관리하기'를 누릅니다.",
           "2) '받는 사람 메모'(선택)에 이름이나 회사를 적습니다. 나중에 목록에서 누구에게 보낸 링크인지 바로 알 수 있습니다.",
           "3) '초대 링크 만들기'를 누르면 링크가 아래 목록에 나타납니다.",
           "4) 그 줄의 '복사'를 눌러 받는 사람에게 보냅니다."
         ],
         "a_en": [
-          "You create invite links on the 'My referral link' screen. There are two ways in.",
-          "1) In the dashboard's left menu (top tabs on a phone) press 'My referral link'. Or, on the dashboard, press 'Manage' on the 'My referral link' card.",
+          "You create invite links on the '[My referral link](/dashboard/invitations)' screen. There are two ways in.",
+          "1) In the dashboard's left menu (top tabs on a phone) press '[My referral link](/dashboard/invitations)'. Or, on the dashboard, press 'Manage' on the '[My referral link](/dashboard/invitations)' card.",
           "2) Add a name or company in 'Recipient note' (optional) so you can later tell which link went to whom.",
           "3) Press 'Create invitation' and the link appears in the list below.",
           "4) Press 'Copy' on that row and send it to the recipient."
@@ -507,12 +507,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "초대 링크를 다시 복사할 수 있습니까?",
         "q_en": "Can I copy an invite link again?",
         "a_ko": [
-          "네. 아직 쓰이지 않은 초대 링크는 '내 초대 링크' 목록에서 언제든 다시 복사할 수 있습니다.",
+          "네. 아직 쓰이지 않은 초대 링크는 '[내 초대 링크](/dashboard/invitations)' 목록에서 언제든 다시 복사할 수 있습니다.",
           "1) 목록에서 해당 초대 줄을 찾습니다.",
           "2) 그 줄의 '복사'를 다시 누르면 링크가 복사됩니다. 아래의 'QR 코드'를 눌러 QR로 보낼 수도 있습니다."
         ],
         "a_en": [
-          "Yes. As long as it has not been used, you can re-copy an invite link anytime from the 'My referral link' list.",
+          "Yes. As long as it has not been used, you can re-copy an invite link anytime from the '[My referral link](/dashboard/invitations)' list.",
           "1) Find the invite row in the list.",
           "2) Press 'Copy' on that row again to copy the link. You can also press 'QR code' below it to share it as a QR."
         ]
@@ -549,13 +549,13 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "초대한 사람이 가입했는지 어떻게 압니까?",
         "q_en": "How do I know whether an invited person joined?",
         "a_ko": [
-          "'내 초대 링크' 목록에서 각 초대 줄의 상태 표시를 보면 됩니다.",
+          "'[내 초대 링크](/dashboard/invitations)' 목록에서 각 초대 줄의 상태 표시를 보면 됩니다.",
           "1) '대기중'은 아직 아무도 가입하지 않은 상태입니다.",
           "2) '가입 진행중'은 상대가 가입을 진행하고 있는 상태입니다.",
           "3) '가입완료'가 되면 가입한 회원의 UID(회원 번호)가 함께 표시됩니다."
         ],
         "a_en": [
-          "Check the status shown on each invite row in the 'My referral link' list.",
+          "Check the status shown on each invite row in the '[My referral link](/dashboard/invitations)' list.",
           "1) 'Waiting' means nobody has joined yet.",
           "2) 'Signing up' means the person is in the middle of joining.",
           "3) When it becomes 'Joined', the new member's UID (member number) is shown next to it."
@@ -566,22 +566,22 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "Can I cancel an invite I made?",
         "a_ko": [
           "네. 아직 사용되지 않은 초대는 취소할 수 있습니다.",
-          "'내 초대 링크' 화면에서 해당 초대 줄의 취소를 누르면 됩니다. 취소는 한 번 더 확인한 뒤 처리됩니다."
+          "'[내 초대 링크](/dashboard/invitations)' 화면에서 해당 초대 줄의 취소를 누르면 됩니다. 취소는 한 번 더 확인한 뒤 처리됩니다."
         ],
         "a_en": [
           "Yes. You can cancel an invite that has not been used yet.",
-          "Cancel that invite in the 'My referral link' box."
+          "Cancel that invite in the '[My referral link](/dashboard/invitations)' box."
         ]
       },
       {
         "q_ko": "초대에 대해 더 알고 싶습니다.",
         "q_en": "I want to know more about invites.",
         "a_ko": [
-          "1) '내 초대 링크' 화면에서 제목 옆의 느낌표(!) 아이콘을 찾습니다.",
+          "1) '[내 초대 링크](/dashboard/invitations)' 화면에서 제목 옆의 느낌표(!) 아이콘을 찾습니다.",
           "2) 느낌표 아이콘을 누르면 초대 링크에 대한 안내가 나옵니다."
         ],
         "a_en": [
-          "1) Find the exclamation-mark (!) icon next to the title in the 'My referral link' box.",
+          "1) Find the exclamation-mark (!) icon next to the title in the '[My referral link](/dashboard/invitations)' box.",
           "2) Press the exclamation-mark icon to see guidance about invites."
         ]
       }
@@ -624,14 +624,14 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
           "1) 대시보드에 들어갑니다.",
           "2) 왼쪽 메뉴(휴대폰은 위쪽 탭)에서 '코디네이터'를 누릅니다. 이 메뉴는 코디네이터 권한을 받은 회원에게만 표시됩니다.",
           "3) 내가 초대해 가입한 회원 목록을 확인하고 관리(다이렉트 메시지 등)합니다.",
-          "※ 코디네이터 권한이 없는 일반 회원은 이 목록을 볼 수 없습니다. 대신 '내 초대 링크'에서 내가 보낸 초대별로 가입 여부(가입완료·가입자 UID)를 확인할 수 있습니다."
+          "※ 코디네이터 권한이 없는 일반 회원은 이 목록을 볼 수 없습니다. 대신 '[내 초대 링크](/dashboard/invitations)'에서 내가 보낸 초대별로 가입 여부(가입완료·가입자 UID)를 확인할 수 있습니다."
         ],
         "a_en": [
           "Only members with coordinator authority can see the list of members they invited.",
           "1) Go to the dashboard.",
           "2) Press 'Coordinator' in the left menu (top tabs on a phone). This menu appears only for members granted coordinator authority.",
           "3) View and manage the members you invited (direct messages, and so on).",
-          "※ Regular members without coordinator authority cannot see this list. Instead, they can check each invite's status (Joined, and the new member's UID) in 'My referral link'."
+          "※ Regular members without coordinator authority cannot see this list. Instead, they can check each invite's status (Joined, and the new member's UID) in '[My referral link](/dashboard/invitations)'."
         ]
       },
       {
@@ -650,13 +650,13 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "일반 회원도 다른 사람을 추천(초대)할 수 있습니까?",
         "q_en": "Can regular members refer (invite) others too?",
         "a_ko": [
-          "네. 코디네이터가 아니어도 모든 회원은 '내 초대 링크'에서 초대 링크를 만들어 다른 사람을 추천(초대)할 수 있습니다.",
-          "내가 보낸 초대별로 가입 여부와 가입자 UID는 '내 초대 링크' 목록에서 확인할 수 있습니다.",
+          "네. 코디네이터가 아니어도 모든 회원은 '[내 초대 링크](/dashboard/invitations)'에서 초대 링크를 만들어 다른 사람을 추천(초대)할 수 있습니다.",
+          "내가 보낸 초대별로 가입 여부와 가입자 UID는 '[내 초대 링크](/dashboard/invitations)' 목록에서 확인할 수 있습니다.",
           "다만 초대해 가입한 회원들을 하나의 목록으로 모아 보고 관리하는 '코디네이터' 화면은, 운영팀이 코디네이터 권한을 부여한 회원에게만 제공됩니다."
         ],
         "a_en": [
-          "Yes. Even without coordinator authority, every member can create invite links in 'My referral link' to refer (invite) others.",
-          "You can check each invite's status and the new member's UID in the 'My referral link' list.",
+          "Yes. Even without coordinator authority, every member can create invite links in '[My referral link](/dashboard/invitations)' to refer (invite) others.",
+          "You can check each invite's status and the new member's UID in the '[My referral link](/dashboard/invitations)' list.",
           "However, the 'Coordinator' screen that gathers and manages all your referred members in one list is available only to members granted coordinator authority by the operations team."
         ]
       }
@@ -673,12 +673,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "a_ko": [
           "피드(B2BB2G Network)는 회원들이 짧은 소식을 나누는 소셜 공간입니다.",
           "1) '내 메뉴'를 엽니다. PC는 헤더 프로필 사진, 휴대폰은 메뉴 버튼(≡)입니다.",
-          "2) '커뮤니티 > 피드'를 누릅니다."
+          "2) '[커뮤니티 > 피드](/feed)'를 누릅니다."
         ],
         "a_en": [
           "The feed (B2BB2G Network) is a social space for sharing short updates.",
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Community > Feed'."
+          "2) Press '[Community > Feed](/feed)'."
         ]
       },
       {
@@ -763,13 +763,13 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "프로필은 어디에서 고칩니까?",
         "q_en": "Where do I edit my profile?",
         "a_ko": [
-          "1) '내 메뉴 > 계정 > 프로필'로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '프로필'로도 들어갈 수 있습니다.",
+          "1) '[내 메뉴 > 계정 > 프로필](/dashboard/profile)'로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '프로필'로도 들어갈 수 있습니다.",
           "2) '편집' 버튼을 누릅니다.",
           "3) 소개·회사 이름·프로필 사진을 수정한 뒤 '저장'을 누릅니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Account > Profile'. (Or press 'Profile' in the dashboard's left menu.)",
+          "2) Press '[Account > Profile](/dashboard/profile)'. (Or press 'Profile' in the dashboard's left menu.)",
           "3) Press the 'Edit' button.",
           "4) Change your bio, company name, and profile photo, then save."
         ]
@@ -837,7 +837,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "2단계 인증을 켜고 싶습니다.",
         "q_en": "I want to turn on two-step verification.",
         "a_ko": [
-          "1) '내 메뉴 > 계정 > 보안'으로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '보안'으로도 들어갈 수 있습니다.",
+          "1) '[내 메뉴 > 계정 > 보안](/dashboard/security)'으로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '보안'으로도 들어갈 수 있습니다.",
           "2) '2단계 인증'을 켭니다.",
           "3) 인증 앱(Google OTP, Authy 등 여섯 자리 코드를 생성하는 앱)으로 화면의 QR 코드를 스캔합니다.",
           "4) 인증 앱에 표시된 여섯 자리 코드를 입력해 등록을 완료합니다.",
@@ -845,7 +845,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
-          "2) Press 'Account > Security'. (Or press 'Security' in the dashboard's left menu.)",
+          "2) Press '[Account > Security](/dashboard/security)'. (Or press 'Security' in the dashboard's left menu.)",
           "3) Turn on 'Two-step verification'.",
           "4) Enter the six-digit number (OTP) from an authenticator app (a phone app that creates OTP codes).",
           "Two-step verification protects your account by checking once more beyond your password."
@@ -855,13 +855,13 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "OTP(인증) 앱을 잃어버렸거나 열 수 없습니다.",
         "q_en": "I lost my OTP (authenticator) app or cannot open it.",
         "a_ko": [
-          "1) '내 메뉴 > 계정 > 보안'의 2단계 인증 칸에서 '인증 앱을 사용할 수 없나요?'를 누릅니다.",
+          "1) '[내 메뉴 > 계정 > 보안](/dashboard/security)'의 2단계 인증 칸에서 '인증 앱을 사용할 수 없나요?'를 누릅니다.",
           "2) '가입 이메일로 재설정 코드를 보냅니다. 계속할까요?' 확인이 나오면 '코드 보내기'를 누릅니다. (실수로 보내지 않도록 한 번 더 확인하는 단계입니다. 그만하려면 '취소'.)",
           "3) 가입한 이메일로 온 여섯 자리 재설정 코드를 입력합니다. 코드는 10분간만 유효합니다.",
           "4) 기존 인증기가 해제되면, 새 기기에서 2단계 인증을 다시 설정합니다."
         ],
         "a_en": [
-          "1) In the two-step verification box of 'My Menu > Account > Security', press \"Can't use your authenticator app?\".",
+          "1) In the two-step verification box of '[My Menu > Account > Security](/dashboard/security)', press \"Can't use your authenticator app?\".",
           "2) A confirmation appears (\"We will email a reset code. Continue?\") — press 'Send code'. This extra step prevents sending it by accident; press 'Cancel' to stop.",
           "3) Enter the six-digit reset code emailed to your sign-up address. The code is valid for 10 minutes only.",
           "4) Once the old authenticator is removed, set up two-step verification again on your new device."
@@ -873,25 +873,25 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "a_ko": [
           "앱 잠금은 사이트를 열 때 이 기기에서 한 번 더 잠그는 보안 기능입니다.",
           "여섯 자리 PIN 또는 지문·Face ID로 잠금을 해제합니다. PIN은 항상 대체 수단으로 함께 동작합니다.",
-          "'내 메뉴 > 계정 > 보안' 화면에서 켤 수 있으며, 설정한 이 기기에만 적용됩니다."
+          "'[내 메뉴 > 계정 > 보안](/dashboard/security)' 화면에서 켤 수 있으며, 설정한 이 기기에만 적용됩니다."
         ],
         "a_en": [
           "App lock is a feature that locks the site once more when you open it.",
           "You unlock it with a six-digit PIN (a numeric passcode) or with fingerprint or Face ID.",
-          "Turn it on in the 'My Menu > Account > Security' screen."
+          "Turn it on in the '[My Menu > Account > Security](/dashboard/security)' screen."
         ]
       },
       {
         "q_ko": "어떤 기기로 로그인했는지 보고, 특정 기기만 로그아웃할 수 있습니까?",
         "q_en": "Can I see which devices logged in, and sign out just some of them?",
         "a_ko": [
-          "네. '내 메뉴 > 계정 > 보안'에 들어가면 화면 위쪽에 로그인한 기기 목록이 있고, 그 아래에 로그인 기록이 있습니다.",
+          "네. '[내 메뉴 > 계정 > 보안](/dashboard/security)'에 들어가면 화면 위쪽에 로그인한 기기 목록이 있고, 그 아래에 로그인 기록이 있습니다.",
           "특정 기기만 로그아웃하려면: 기기 목록에서 원하는 기기의 네모칸(체크박스)을 눌러 표시한 뒤 '선택한 기기 로그아웃'을 누릅니다. 지금 쓰는 기기에는 체크박스가 없어, 실수로 자기 자신을 로그아웃하지 않습니다.",
           "화면 오른쪽 위 버튼도 있습니다: '다른 기기 모두 로그아웃'은 지금 이 기기는 그대로 두고 나머지만 로그아웃하고, '모든 기기에서 로그아웃'은 이 기기까지 포함해 전부 로그아웃합니다.",
           "모르는 기기가 보이면 그 기기를 로그아웃하고 비밀번호도 바꾸십시오."
         ],
         "a_en": [
-          "Yes. Go to 'My Menu > Account > Security': the list of logged-in devices is near the top, with your login history below it.",
+          "Yes. Go to '[My Menu > Account > Security](/dashboard/security)': the list of logged-in devices is near the top, with your login history below it.",
           "To sign out only certain devices: tick the checkbox next to each device you want, then press 'Sign out selected devices'. Your current device has no checkbox, so you cannot accidentally sign yourself out.",
           "There are also two buttons at the top right: 'Sign out other devices' keeps this device and signs out the rest, while 'Sign out everywhere' signs out every device including this one.",
           "If you see a device you do not know, sign it out and change your password too."
@@ -901,12 +901,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "비밀번호를 바꾸고 싶습니다.",
         "q_en": "I want to change my password.",
         "a_ko": [
-          "1) '내 메뉴 > 계정 > 보안'으로 들어갑니다.",
+          "1) '[내 메뉴 > 계정 > 보안](/dashboard/security)'으로 들어갑니다.",
           "2) '비밀번호 변경'을 누릅니다.",
           "3) 새 비밀번호를 입력하고 저장합니다. 조건은 10자 이상, 영문 대문자·소문자·숫자·특수문자 각 1개 이상입니다."
         ],
         "a_en": [
-          "1) Go to 'My Menu > Account > Security'.",
+          "1) Go to '[My Menu > Account > Security](/dashboard/security)'.",
           "2) Press 'Change password'.",
           "3) Enter a new password and save."
         ]
@@ -944,12 +944,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "Can I save products I like and compare them?",
         "a_ko": [
           "1) 상품에서 저장(하트) 아이콘을 누릅니다.",
-          "2) 저장한 상품은 '내 메뉴 > 활동 > 저장한 상품'에 모입니다.",
+          "2) 저장한 상품은 '[내 메뉴 > 활동 > 저장한 상품](/dashboard/bookmarks)'에 모입니다.",
           "3) 이 화면에서 여러 상품을 선택해 사양을 나란히 비교할 수 있습니다."
         ],
         "a_en": [
           "1) Press the save (heart) icon on a product.",
-          "2) Saved products go to 'My Menu > Activity > Saved products'.",
+          "2) Saved products go to '[My Menu > Activity > Saved products](/dashboard/bookmarks)'.",
           "3) Compare several products side by side here."
         ]
       },
@@ -958,12 +958,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "What are the mini homepage and membership, and where do I get help?",
         "a_ko": [
           "인증(Verified) 회원은 대시보드 메뉴의 '미니 홈페이지'에서 간단한 소개 페이지를 운영할 수 있습니다.",
-          "인증 멤버십 정보는 멤버십 페이지에서 확인합니다.",
+          "인증 멤버십 정보는 [멤버십 페이지](/membership)에서 확인합니다.",
           "궁금한 점은 나를 초대해 준 코디네이터에게 다이렉트 메시지로 문의하거나, 'FAQ'와 'Notices'(공지사항)에서 안내를 확인하세요."
         ],
         "a_en": [
           "Verified members can run a simple introduction page at 'Dashboard left menu > Mini homepage'.",
-          "See verified membership information on the membership page.",
+          "See verified membership information on the [membership page](/membership).",
           "For questions, message your coordinator (the person who invited you) with a direct message, or check 'FAQ' and 'Notices' in the middle of the header."
         ]
       }
