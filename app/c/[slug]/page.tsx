@@ -16,10 +16,15 @@ import type { PostTeaser } from "@/lib/types";
 // contact funnels through the platform inquiry gate. No contact data here.
 async function getHomepage(slug: string) {
   const supabase = await createClient();
+  // Public surface: only published pages are ever served here. The explicit
+  // is_published filter (matching /u/[uid]) means we never lean on RLS alone to
+  // hide drafts — an admin's RLS bypass must not surface a draft at a public URL.
+  // Owners preview unpublished drafts from the dashboard editor, not this route.
   const { data: homepage } = await supabase
     .from("mini_homepages")
     .select("*")
     .eq("slug", slug)
+    .eq("is_published", true)
     .maybeSingle();
   if (!homepage) return null;
 
