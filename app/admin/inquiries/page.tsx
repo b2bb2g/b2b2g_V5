@@ -1,5 +1,5 @@
 import { getT } from "@/lib/i18n/server";
-import { postMediaUrl } from "@/lib/media";
+import { signInquiryMedia } from "@/lib/inquiry-media";
 import { AttachmentThumbs } from "@/components/ui/AttachmentThumbs";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -33,6 +33,20 @@ export default async function InquiryModerationPage(props: {
     inquiries: { subject: string } | null;
     profiles: { uid: number; display_name: string | null } | null;
   })[];
+
+  // Inquiry images are in a private bucket; sign per message (admin RLS lets the
+  // reviewer see them). Never emit a public URL for private correspondence.
+  const signedByMessage = new Map<string, string[]>();
+  await Promise.all(
+    messages.map(async (message) => {
+      if (message.media_paths?.length) {
+        signedByMessage.set(
+          message.id,
+          await signInquiryMedia(supabase, message.media_paths),
+        );
+      }
+    }),
+  );
 
   return (
     <div className="space-y-4">
@@ -68,10 +82,10 @@ export default async function InquiryModerationPage(props: {
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
                 {message.body}
               </p>
-              {(message.media_paths?.length ?? 0) > 0 && (
+              {(signedByMessage.get(message.id)?.length ?? 0) > 0 && (
                 <div className="mt-3">
                   <AttachmentThumbs
-                    images={(message.media_paths ?? []).map(postMediaUrl)}
+                    images={signedByMessage.get(message.id) ?? []}
                     size="sm"
                     closeLabel={t.common.close}
                     previousLabel={t.home.prev}

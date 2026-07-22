@@ -1,11 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { replyInquiry } from "@/app/actions/inquiries";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/imageCompress";
-import { postMediaUrl } from "@/lib/media";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { randomId } from "@/lib/random-id";
@@ -50,7 +48,9 @@ export function InquiryComposer({
     removeTemplate: string;
   };
 }) {
-  const [mediaPaths, setMediaPaths] = useState<string[]>([]);
+  // Track a local object-URL per upload so the preview never has to read the
+  // private bucket back; only the paths are submitted with the form.
+  const [items, setItems] = useState<{ path: string; url: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [templates, setTemplates] = useState<string[]>([]);
@@ -103,10 +103,13 @@ export function InquiryComposer({
     const safeName = file.name.replace(/[^\w.-]+/g, "_");
     const path = `${userId}/inquiry-${randomId()}-${safeName}`;
     const { error: uploadError } = await supabase.storage
-      .from(STORAGE_BUCKETS.POST_MEDIA)
+      .from(STORAGE_BUCKETS.INQUIRY_MEDIA)
       .upload(path, file, { cacheControl: "31536000" });
     if (uploadError) setError(labels.uploadError);
-    else setMediaPaths((current) => [...current, path].slice(0, 2));
+    else
+      setItems((current) =>
+        [...current, { path, url: URL.createObjectURL(file) }].slice(0, 2),
+      );
     setUploading(false);
     if (fileInput.current) fileInput.current.value = "";
   }
@@ -115,7 +118,11 @@ export function InquiryComposer({
     <div>
       <form action={replyInquiry} className="flex items-end gap-2">
         <input type="hidden" name="inquiryId" value={inquiryId} />
-        <input type="hidden" name="media" value={JSON.stringify(mediaPaths)} />
+        <input
+          type="hidden"
+          name="media"
+          value={JSON.stringify(items.map((item) => item.path))}
+        />
         <div className="min-w-0 flex-1 rounded-2xl border border-line bg-surface-sub transition focus-within:border-primary/50">
           <textarea
             ref={textarea}
@@ -125,12 +132,13 @@ export function InquiryComposer({
             placeholder={labels.placeholder}
             className="plain-input min-h-11 w-full resize-y bg-transparent px-4 pt-2.5 text-sm leading-6"
           />
-          {mediaPaths.length > 0 && (
+          {items.length > 0 && (
             <div className="flex gap-2 px-3 pb-2">
-              {mediaPaths.map((path) => (
+              {items.map(({ path, url }) => (
                 <span key={path} className="relative inline-block">
-                  <Image
-                    src={postMediaUrl(path)}
+                  {/* eslint-disable-next-line @next/next/no-img-element -- ephemeral local blob preview, never a remote asset */}
+                  <img
+                    src={url}
                     alt=""
                     width={72}
                     height={72}
@@ -139,9 +147,10 @@ export function InquiryComposer({
                   <button
                     type="button"
                     onClick={() =>
-                      setMediaPaths((current) =>
-                        current.filter((item) => item !== path),
-                      )
+                      setItems((current) => {
+                        URL.revokeObjectURL(url);
+                        return current.filter((item) => item.path !== path);
+                      })
                     }
                     aria-label={labels.removeImage}
                     className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-white shadow"
@@ -167,7 +176,7 @@ export function InquiryComposer({
             />
             <button
               type="button"
-              disabled={uploading || mediaPaths.length >= 2}
+              disabled={uploading || items.length >= 2}
               onClick={() => fileInput.current?.click()}
               aria-label={labels.addImage}
               className="flex h-8 w-8 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-line/60 hover:text-ink-soft disabled:opacity-40"

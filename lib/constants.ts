@@ -163,6 +163,9 @@ export const STORAGE_BUCKETS = {
   ATTACHMENTS: "attachments",
   BADGE_DOCS: "badge-docs",
   SITE_ASSETS: "site-assets",
+  // Private: 1:1 inquiry message images. Never public-URL addressable — served
+  // only through short-lived signed URLs gated by the inquiry-media read policy.
+  INQUIRY_MEDIA: "inquiry-media",
 } as const;
 
 // Number of characters of the body exposed to non-members (teaser).

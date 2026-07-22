@@ -12,7 +12,7 @@ import { InquiryReadMarker } from "@/components/inquiries/InquiryReadMarker";
 import { InquiryLive } from "@/components/inquiries/InquiryLive";
 import { InquiryComposer } from "@/components/inquiries/InquiryComposer";
 import { AttachmentThumbs } from "@/components/ui/AttachmentThumbs";
-import { postMediaUrl } from "@/lib/media";
+import { signInquiryMedia } from "@/lib/inquiry-media";
 import { formatDateTime } from "@/lib/format";
 
 const TIMELINE: string[] = [
@@ -51,6 +51,21 @@ export default async function InquiryDetailPage(props: {
     .eq("inquiry_id", id)
     .order("created_at");
   const messages = (messageRows ?? []) as InquiryMessage[];
+
+  // Inquiry images live in a private bucket. Sign each message's paths through
+  // the caller's client so the storage read policy (own / forwarded / admin /
+  // coordinator) decides visibility, exactly matching the message read scope.
+  const signedByMessage = new Map<string, string[]>();
+  await Promise.all(
+    messages.map(async (message) => {
+      if (message.media_paths?.length) {
+        signedByMessage.set(
+          message.id,
+          await signInquiryMedia(supabase, message.media_paths),
+        );
+      }
+    }),
+  );
 
   const stepLabels: Record<string, string> = t.inquiry.steps;
   const currentStep = TIMELINE.indexOf(inquiry.status);
@@ -169,10 +184,10 @@ export default async function InquiryDetailPage(props: {
                   <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
                     {message.body}
                   </p>
-                  {(message.media_paths?.length ?? 0) > 0 && (
+                  {(signedByMessage.get(message.id)?.length ?? 0) > 0 && (
                     <span className="mt-2.5 block">
                       <AttachmentThumbs
-                        images={(message.media_paths ?? []).map(postMediaUrl)}
+                        images={signedByMessage.get(message.id) ?? []}
                         closeLabel={t.common.close}
                         previousLabel={t.home.prev}
                         nextLabel={t.home.next}
