@@ -26,9 +26,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "B2BB2G는 무엇입니까?",
         "q_en": "What is B2BB2G?",
         "a_ko": [
-          "B2BB2G는 회사와 기관이 상품과 요청을 올리고 서로 연결되는 온라인 장터(인터넷 시장)입니다.",
-          "팔 상품을 게시판에 올리거나, 필요한 물건·서비스를 요청으로 올려 상대를 찾습니다.",
-          "모든 회원은 실명 대신 숫자로 된 UID(회원 고유 번호)로 표시됩니다."
+          "B2BB2G는 기업과 기관이 상품과 구매요청을 등록하고 서로 연결되는 온라인 마켓플레이스입니다.",
+          "판매할 상품은 상품 게시판에 등록하고, 필요한 물품·서비스는 구매요청(RFQ & ITB)으로 등록하여 거래 상대를 찾습니다.",
+          "모든 회원은 실명 대신 고유 번호인 UID로 표시됩니다."
         ],
         "a_en": [
           "B2BB2G is an online marketplace where companies and public organizations post products and requests and connect with each other.",
@@ -40,11 +40,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "어떻게 가입합니까?",
         "q_en": "How do I join?",
         "a_ko": [
-          "가입은 초대 링크(다른 회원이 보내 주는 가입용 인터넷 주소)로 합니다. 사이트 설정에 따라 초대받은 사람만 가입할 수 있습니다.",
+          "가입은 다른 회원이 보내 준 초대 링크로만 진행합니다. 사이트 설정에 따라 초대받은 사람만 가입할 수 있습니다.",
           "1) 받은 초대 링크를 눌러 가입 화면을 엽니다.",
-          "2) 이메일과 사용할 비밀번호를 적습니다.",
-          "3) 필수 항목(이용약관·개인정보·쿠키)에 동의합니다. 광고성 정보 수신은 선택이며, 원하면 함께 체크합니다.",
-          "4) 가입 버튼을 눌러 마칩니다."
+          "2) 이메일과 사용할 비밀번호를 입력합니다.",
+          "3) 필수 항목(이용약관·개인정보 수집·이용·쿠키 정책)에 동의합니다. 광고성 정보 수신은 선택이며, 원할 경우 함께 체크합니다.",
+          "4) '가입' 버튼을 눌러 완료합니다.",
+          "※ 화면이 영어로 표시되면 오른쪽 위 지구본에서 한국어로 바꾼 뒤 진행하세요. 비밀번호 조건 등을 한국어로 확인할 수 있습니다."
         ],
         "a_en": [
           "You join with an invite link (a sign-up web address that another member sends you). Depending on site settings, only invited people can join.",
@@ -58,10 +59,10 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "가입할 때 동의 항목은 무엇입니까?",
         "q_en": "What am I agreeing to when I sign up?",
         "a_ko": [
-          "필수 3가지와 선택 1가지가 있습니다.",
-          "1) (필수) 이용약관 · 개인정보 수집·이용 · 쿠키 정책 — 이 세 가지에 동의해야 가입 버튼이 켜집니다. 각 항목의 '보기'를 눌러 전문을 확인할 수 있습니다.",
-          "2) (선택) 광고성 정보 수신 — 이메일·문자로 혜택과 소식을 받는 것에 대한 동의입니다. 체크하지 않아도 가입할 수 있고, 나중에 언제든 켜고 끌 수 있습니다.",
-          "위쪽의 '전체 동의'를 누르면 한 번에 모두 체크됩니다."
+          "동의 항목은 필수 3가지와 선택 1가지입니다.",
+          "1) (필수) 이용약관 · 개인정보 수집·이용 · 쿠키 정책 — 세 가지에 모두 동의해야 '가입' 버튼이 활성화됩니다. 각 항목의 '보기'를 눌러 전문을 확인할 수 있습니다.",
+          "2) (선택) 광고성 정보 수신 — 이메일·문자로 혜택과 소식을 받는 데 동의하는 항목입니다. 체크하지 않아도 가입할 수 있으며, 가입 후 알림 화면에서 언제든 켜고 끌 수 있습니다.",
+          "※ 맨 위의 '전체 동의'를 누르면 네 항목이 한 번에 체크됩니다."
         ],
         "a_en": [
           "Three required items and one optional item.",
@@ -74,8 +75,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "UID가 무엇입니까?",
         "q_en": "What is a UID?",
         "a_ko": [
-          "UID는 회원마다 하나씩 주어지는 숫자 번호입니다. 사이트에서 회원을 구분하는 대표 표시입니다.",
-          "다른 회원에게는 실명 대신 이 UID가 보입니다."
+          "UID는 회원마다 하나씩 부여되는 숫자 번호로, 사이트에서 회원을 구분하는 대표 식별자입니다.",
+          "다른 회원에게는 실명 대신 이 UID가 표시되므로, 회사 정보와 UID만으로 안전하게 거래할 수 있습니다."
         ],
         "a_en": [
           "A UID is a numeric number given to each member. It is the main way members are identified on the site.",
@@ -86,10 +87,11 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "어떻게 로그인합니까?",
         "q_en": "How do I log in?",
         "a_ko": [
-          "1) 사이트 첫 화면에서 로그인 화면을 엽니다.",
-          "2) 가입할 때 쓴 이메일을 적습니다.",
-          "3) 비밀번호를 적습니다.",
-          "4) 로그인 버튼을 누릅니다."
+          "1) 첫 화면에서 로그인 화면을 엽니다. 헤더의 '로그인' 또는 주소 /login으로 들어갑니다.",
+          "2) 가입할 때 사용한 이메일을 입력합니다.",
+          "3) 비밀번호를 입력합니다.",
+          "4) '로그인' 버튼을 누릅니다.",
+          "※ 2단계 인증을 켜 두었다면, 로그인 후 인증 앱의 여섯 자리 코드를 한 번 더 입력합니다."
         ],
         "a_en": [
           "1) Open the login screen from the site's first page.",
@@ -102,10 +104,11 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "비밀번호를 잊었습니다. 어떻게 합니까?",
         "q_en": "I forgot my password. What do I do?",
         "a_ko": [
-          "1) 로그인 화면을 엽니다.",
-          "2) 비밀번호 입력칸 아래의 재설정 링크(비밀번호를 새로 정하는 링크)를 누릅니다.",
-          "3) 이메일을 적고 안내 메일을 받습니다.",
-          "4) 메일 안의 링크를 눌러 새 비밀번호를 정합니다."
+          "1) 로그인 화면을 엽니다(주소 /login).",
+          "2) 비밀번호 입력칸 아래의 '비밀번호 재설정' 링크를 누릅니다.",
+          "3) 가입한 이메일을 입력하면 재설정 안내 메일이 발송됩니다.",
+          "4) 메일 속 링크를 눌러 새 비밀번호를 설정합니다.",
+          "※ 새 비밀번호도 가입 때와 같은 조건(10자 이상, 영문 대문자·소문자·숫자·특수문자 각 1개 이상)을 충족해야 합니다."
         ],
         "a_en": [
           "1) Open the login screen.",
@@ -200,8 +203,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "알림은 어디에서 봅니까?",
         "q_en": "Where do I see notifications?",
         "a_ko": [
-          "헤더 오른쪽의 종 아이콘에서 봅니다. 새 알림이 있으면 종에 점이 표시됩니다.",
-          "대시보드 왼쪽 메뉴의 '알림'(주소 /notifications)에서도 볼 수 있습니다."
+          "알림은 화면 위쪽의 종 아이콘에서 확인합니다. 새 알림이 있으면 종에 빨간 점이 표시됩니다. 종 아이콘은 PC·휴대폰 모두 상단에 있습니다.",
+          "대시보드 메뉴의 '알림'(주소 /notifications)에서도 전체 알림을 모아 볼 수 있습니다."
         ],
         "a_en": [
           "You see them at the bell icon on the right of the header. When there is a new notification, a dot appears on the bell.",
@@ -212,10 +215,11 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "게시판은 어떻게 나뉘어 있습니까?",
         "q_en": "How are the boards divided?",
         "a_ko": [
-          "Commercial은 바로 쓰는 소비재입니다.",
-          "Industrial은 장비·부품·제조 관련입니다.",
-          "EPF+C(Local)은 에너지·인프라 프로젝트입니다.",
-          "RFQ & ITB는 요청(견적·입찰)을 올리는 게시판입니다."
+          "Commercial은 바로 사용하는 소비재 상품 게시판입니다.",
+          "Industrial은 장비·부품·제조 관련 상품 게시판입니다.",
+          "EPF+C(Local)은 에너지·인프라 프로젝트 게시판입니다.",
+          "RFQ & ITB는 견적·입찰 등 구매요청을 등록하는 게시판입니다.",
+          "※ 게시판 구성은 운영 설정에 따라 달라질 수 있으니, 실제 메뉴는 헤더(휴대폰은 메뉴 버튼 ≡ 안)에서 확인하세요."
         ],
         "a_en": [
           "Commercial is for ready-to-use consumer goods.",
@@ -235,12 +239,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "상품을 어떻게 올립니까?",
         "q_en": "How do I post a product?",
         "a_ko": [
-          "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
-          "2) '만들기 > 상품 등록'을 누릅니다. (또는 대시보드 왼쪽 메뉴에서 '상품 등록'을 누릅니다.)",
-          "3) 먼저 게시판 선택 화면이 나옵니다. 상품에 맞는 게시판을 선택합니다.",
-          "4) 제목, 내용, 사진, 사양(제품의 자세한 규격)을 채웁니다.",
+          "1) '내 메뉴'를 엽니다. PC는 헤더의 프로필 사진, 휴대폰은 오른쪽 위 메뉴 버튼(≡)입니다.",
+          "2) '만들기 > 상품 등록'을 누릅니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '상품 등록'으로도 들어갈 수 있습니다.",
+          "3) 게시판 선택 화면에서 상품 성격에 맞는 게시판을 고릅니다.",
+          "4) 제목·내용·사진·사양(제품 규격)을 입력합니다.",
           "5) '등록'을 누릅니다.",
-          "6) 글은 '검토 대기' 상태가 되고, 운영팀 확인 후 공개됩니다."
+          "6) 등록한 글은 '검토 대기' 상태가 되며, 운영팀 확인 후 공개됩니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
@@ -255,9 +259,10 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "어느 게시판에 올려야 합니까?",
         "q_en": "Which board should I post on?",
         "a_ko": [
-          "바로 쓰는 소비재는 Commercial에 올립니다.",
-          "장비·부품·제조 관련 상품은 Industrial에 올립니다.",
-          "에너지·인프라 프로젝트는 EPF+C(Local)에 올립니다."
+          "바로 사용하는 소비재는 Commercial에 등록합니다.",
+          "장비·부품·제조 관련 상품은 Industrial에 등록합니다.",
+          "에너지·인프라 프로젝트는 EPF+C(Local)에 등록합니다.",
+          "※ 상품 등록을 시작하면 게시판 선택 화면이 먼저 나오므로, 성격에 맞는 게시판을 그때 고르면 됩니다."
         ],
         "a_en": [
           "Post ready-to-use consumer goods on Commercial.",
@@ -269,9 +274,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "사진과 사양은 어떻게 넣습니까?",
         "q_en": "How do I add photos and specs?",
         "a_ko": [
-          "상품 등록 화면에서 사진 넣는 칸에 상품 사진을 올립니다. 여러 장을 올릴 수 있습니다.",
-          "사양 칸에는 크기, 재질, 수량 같은 제품의 자세한 정보를 적습니다.",
-          "사진과 사양이 자세할수록 상대가 상품을 더 잘 이해합니다."
+          "상품 등록 화면의 사진 영역에 상품 사진을 올립니다. 여러 장을 등록할 수 있습니다.",
+          "사양 영역에는 크기·재질·수량 등 제품의 상세 정보를 입력합니다.",
+          "※ 사진과 사양이 구체적일수록 상대가 상품을 정확히 이해하고 문의로 이어질 가능성이 높습니다."
         ],
         "a_en": [
           "On the product form, upload product photos in the photo box. You can upload several.",
@@ -283,8 +288,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "지금 다 못 채웠습니다. 나중에 이어서 쓸 수 있습니까?",
         "q_en": "I can't finish now. Can I continue later?",
         "a_ko": [
-          "네. 상품 등록 화면에서 '임시저장'을 누르면 초안(아직 올리지 않은 작성 중인 글)으로 저장됩니다.",
-          "나중에 다시 열어 이어서 채운 뒤 '등록'을 누릅니다."
+          "네. 상품 등록 화면에서 '임시저장'을 누르면 작성 중인 글이 초안으로 저장됩니다.",
+          "나중에 '내 게시글'에서 초안을 다시 열어 마저 작성한 뒤 '등록'을 누르면 됩니다."
         ],
         "a_en": [
           "Yes. On the product form, press 'Save draft' to save it as a draft (a post you are still writing and have not posted yet).",
@@ -295,8 +300,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "'검토 대기'는 무엇이고 언제 공개됩니까?",
         "q_en": "What is 'Pending review' and when does it go public?",
         "a_ko": [
-          "'등록'을 누르면 글이 바로 공개되지 않고 먼저 '검토 대기' 상태가 됩니다.",
-          "운영팀이 확인한 뒤 승인하면 글이 공개됩니다."
+          "'등록'을 누른 글은 바로 공개되지 않고 먼저 '검토 대기' 상태가 됩니다.",
+          "운영팀이 확인하여 승인하면 그때 공개됩니다. 검토 상황은 '내 게시글'에서 확인할 수 있습니다."
         ],
         "a_en": [
           "When you press 'Register', the post does not go public right away; it first enters a 'Pending review' state.",
@@ -307,9 +312,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "올린 상품을 고치거나 지우고 싶습니다.",
         "q_en": "I want to edit or delete a product I posted.",
         "a_ko": [
-          "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
-          "2) '활동 > 내 게시글'을 누릅니다. (또는 대시보드 왼쪽 메뉴에서 '내 게시글'을 누릅니다.)",
-          "3) 원하는 글을 선택해 수정하거나 삭제합니다."
+          "1) '내 메뉴 > 활동 > 내 게시글'로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '내 게시글'로도 들어갈 수 있습니다.",
+          "2) 목록에서 원하는 글을 선택합니다.",
+          "3) 수정하거나 삭제합니다. 내용을 수정한 글은 다시 검토를 거칠 수 있습니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
@@ -328,9 +333,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "요청은 상품과 어떻게 다릅니까?",
         "q_en": "How is a request different from a product?",
         "a_ko": [
-          "상품은 내가 파는 물건을 보여 주는 글입니다.",
-          "요청은 내가 필요한 물건이나 서비스를 알리고 상대를 찾는 글입니다. 견적이나 입찰을 받을 때 씁니다.",
-          "요청은 RFQ & ITB 게시판에서 다룹니다."
+          "상품은 내가 판매하는 물품을 소개하는 글입니다.",
+          "구매요청은 내게 필요한 물품·서비스를 알리고 공급할 상대를 찾는 글로, 견적이나 입찰을 받을 때 사용합니다.",
+          "구매요청은 RFQ & ITB 게시판에서 다룹니다."
         ],
         "a_en": [
           "A product is a post that shows an item you are selling.",
@@ -342,11 +347,11 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "요청을 어떻게 올립니까?",
         "q_en": "How do I post a request?",
         "a_ko": [
-          "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
-          "2) '만들기 > 구매요청 등록'을 누릅니다. (또는 헤더 가운데의 'RFQ & ITB' 게시판에서 작성합니다.)",
-          "3) 제목과 필요한 내용을 적습니다.",
-          "4) 마감 기한을 정하거나, 기한 없이 열어 둡니다.",
-          "5) 등록해 요청을 올립니다."
+          "1) '내 메뉴 > 만들기 > 구매요청 등록'을 누릅니다. PC는 헤더 프로필 사진, 휴대폰은 메뉴 버튼(≡)에서 '내 메뉴'를 엽니다.",
+          "2) 제목과 필요한 내용을 구체적으로 입력합니다.",
+          "3) 마감 기한을 정하거나, 기한 없이 열어 둡니다.",
+          "4) '등록'을 눌러 구매요청을 올립니다.",
+          "※ 헤더의 RFQ & ITB 게시판에서 바로 작성을 시작할 수도 있습니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
@@ -360,8 +365,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "마감 기한은 꼭 정해야 합니까?",
         "q_en": "Must I set a deadline?",
         "a_ko": [
-          "아니요. 마감 기한을 정할 수도 있고, 기한 없이 열어 둘 수도 있습니다.",
-          "기한을 정하면 그때까지만 답을 받습니다."
+          "아니요. 마감 기한은 선택 사항입니다. 정해도 되고, 기한 없이 열어 두어도 됩니다.",
+          "기한을 정하면 그 시점까지만 답변을 받고, 이후에는 마감된 요청으로 표시됩니다."
         ],
         "a_en": [
           "No. You can set a deadline, or leave it open with no deadline.",
@@ -372,8 +377,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "요청은 어느 게시판에서 볼 수 있습니까?",
         "q_en": "Which board shows requests?",
         "a_ko": [
-          "헤더 가운데의 'RFQ & ITB' 게시판에서 봅니다.",
-          "여기에는 견적이나 입찰을 찾는 요청들이 모입니다."
+          "RFQ & ITB 게시판에서 확인합니다. PC는 헤더 가운데, 휴대폰은 메뉴 버튼(≡) 안에 있습니다.",
+          "이 게시판에는 견적·입찰을 찾는 구매요청이 모입니다."
         ],
         "a_en": [
           "You see them on the 'RFQ & ITB' board in the middle of the header.",
@@ -384,8 +389,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "올린 요청도 운영팀 확인을 받습니까?",
         "q_en": "Does my request also get an operations-team check?",
         "a_ko": [
-          "네. 요청도 올리면 운영팀 확인을 거친 뒤 공개됩니다.",
-          "공개된 뒤에는 상대가 요청 상세 페이지에서 문의를 보낼 수 있습니다."
+          "네. 구매요청도 등록하면 운영팀 확인을 거친 뒤 공개됩니다.",
+          "공개된 뒤에는 상대가 요청 상세 페이지의 '문의하기'로 연락할 수 있습니다."
         ],
         "a_en": [
           "Yes. When posted, a request also goes public after the operations team checks it.",
@@ -403,9 +408,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "문의는 어떻게 보냅니까?",
         "q_en": "How do I send an inquiry?",
         "a_ko": [
-          "1) 문의하려는 상품 또는 요청의 상세 페이지(그 글을 눌러 자세히 보는 화면)를 엽니다.",
+          "1) 문의하려는 상품 또는 구매요청의 상세 페이지를 엽니다. 목록에서 해당 글을 누르면 됩니다.",
           "2) 화면의 '문의하기' 버튼을 누릅니다.",
-          "3) 보낼 내용을 적고 보냅니다."
+          "3) 보낼 내용을 입력하고 전송합니다."
         ],
         "a_en": [
           "1) Open the detail page of the product or request you want to ask about (the screen you see when you tap that post).",
@@ -418,7 +423,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "Does my inquiry go straight to the other person?",
         "a_ko": [
           "아니요. 보낸 문의는 운영팀이 먼저 확인합니다.",
-          "확인 후 상대에게 전달하거나, 전달하기 어려우면 이유와 함께 돌려줍니다."
+          "확인 후 상대에게 전달하며, 전달이 어려운 경우에는 사유와 함께 반려됩니다."
         ],
         "a_en": [
           "No. The operations team checks your inquiry first.",
@@ -429,9 +434,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "받은 문의와 보낸 문의는 어디에서 봅니까?",
         "q_en": "Where do I see received and sent inquiries?",
         "a_ko": [
-          "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
-          "2) '활동 > 문의 내역'을 누릅니다(주소 /inquiries).",
-          "여기에서 받은 문의와 보낸 문의를 모두 봅니다."
+          "1) '내 메뉴 > 활동 > 문의 내역'으로 들어갑니다(주소 /inquiries). 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '문의'로도 들어갈 수 있습니다.",
+          "2) 받은 문의와 보낸 문의를 한 화면에서 확인합니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
@@ -443,8 +447,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "상대가 내 문의를 읽었는지 알 수 있습니까?",
         "q_en": "Can I tell if the other person read my inquiry?",
         "a_ko": [
-          "네. 문의 내역에는 읽음 표시가 있습니다.",
-          "상대가 읽으면 읽음 표시로 확인할 수 있습니다."
+          "네. 문의 내역에는 읽음 표시가 있어, 상대가 문의를 확인했는지 알 수 있습니다."
         ],
         "a_en": [
           "Yes. The inquiry list has a read receipt.",
@@ -455,8 +458,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "보낸 문의가 돌아왔습니다. 왜 그렇습니까?",
         "q_en": "My inquiry came back. Why?",
         "a_ko": [
-          "운영팀이 문의를 확인했을 때 전달하기 어렵다고 판단하면, 이유와 함께 문의를 돌려줍니다.",
-          "돌려받은 이유를 보고 내용을 고쳐 다시 보낼 수 있습니다."
+          "운영팀이 확인한 결과 전달이 어렵다고 판단하면, 사유와 함께 문의가 반려됩니다.",
+          "반려 사유를 확인하고 내용을 수정하여 다시 보낼 수 있습니다."
         ],
         "a_en": [
           "When the operations team checks an inquiry and finds it cannot be forwarded, they return it with a reason.",
@@ -493,7 +496,7 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "Can several people use one invite?",
         "a_ko": [
           "아니요. 초대는 한 사람만 가입할 수 있는 1회용입니다.",
-          "한 번 가입에 쓰이면 다시 쓰거나 공유할 수 없습니다. 또한 자동으로 만료됩니다."
+          "한 번 가입에 사용되면 재사용하거나 공유할 수 없으며, 사용되지 않아도 일정 기간이 지나면 자동으로 만료됩니다."
         ],
         "a_en": [
           "No. An invite is single-use and only one person can join with it.",
@@ -562,8 +565,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "만든 초대를 취소할 수 있습니까?",
         "q_en": "Can I cancel an invite I made?",
         "a_ko": [
-          "네. 아직 쓰이지 않은 초대는 취소할 수 있습니다.",
-          "'내 초대 링크' 칸에서 해당 초대를 취소하십시오."
+          "네. 아직 사용되지 않은 초대는 취소할 수 있습니다.",
+          "'내 초대 링크' 화면(주소 /dashboard/invitations)에서 해당 초대 줄의 취소를 누르면 됩니다. 취소는 한 번 더 확인한 뒤 처리됩니다."
         ],
         "a_en": [
           "Yes. You can cancel an invite that has not been used yet.",
@@ -574,8 +577,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "초대에 대해 더 알고 싶습니다.",
         "q_en": "I want to know more about invites.",
         "a_ko": [
-          "1) '내 초대 링크' 칸에서 제목 옆의 느낌표(!) 아이콘을 찾습니다.",
-          "2) 느낌표 아이콘을 누르면 초대에 대한 안내가 나옵니다."
+          "1) '내 초대 링크' 화면에서 제목 옆의 느낌표(!) 아이콘을 찾습니다.",
+          "2) 느낌표 아이콘을 누르면 초대 링크에 대한 안내가 나옵니다."
         ],
         "a_en": [
           "1) Find the exclamation-mark (!) icon next to the title in the 'My referral link' box.",
@@ -593,8 +596,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "코디네이터가 누구입니까?",
         "q_en": "Who is my coordinator?",
         "a_ko": [
-          "나를 초대해 준 사람이 내 코디네이터입니다.",
-          "코디네이터는 처음 사이트에 들어올 때 도움을 준 사람입니다."
+          "나를 초대해 준 회원이 내 코디네이터입니다.",
+          "코디네이터는 가입 초기 이용을 돕는 안내자 역할을 합니다."
         ],
         "a_en": [
           "The person who invited you is your coordinator.",
@@ -605,8 +608,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "코디네이터에게 연락할 수 있습니까?",
         "q_en": "Can I contact my coordinator?",
         "a_ko": [
-          "네. 코디네이터에게는 다이렉트 메시지(1:1로 직접 보내는 쪽지)를 보낼 수 있습니다.",
-          "궁금한 점을 코디네이터에게 물어보십시오."
+          "네. 코디네이터에게는 다이렉트 메시지(1:1 쪽지)를 보낼 수 있습니다.",
+          "대시보드 메뉴의 코디네이터 메시지(다이렉트 메시지) 화면에서 궁금한 점을 직접 물어볼 수 있습니다."
         ],
         "a_en": [
           "Yes. You can send your coordinator a direct message (a one-to-one private message).",
@@ -617,9 +620,10 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "내가 초대한 사람은 어디에서 봅니까?",
         "q_en": "Where do I see people I invited?",
         "a_ko": [
-          "1) 대시보드에 들어갑니다.",
-          "2) 왼쪽 세로 메뉴에서 '코디네이터'를 누릅니다.",
-          "3) 내가 초대한 사람들을 여기에서 관리합니다."
+          "1) 대시보드에 들어갑니다(주소 /dashboard).",
+          "2) 왼쪽 메뉴(휴대폰은 위쪽 탭)에서 '코디네이터'를 누릅니다.",
+          "3) 내가 초대해 가입한 회원 목록을 확인하고 관리합니다.",
+          "※ '코디네이터' 메뉴는 회원을 초대한 코디네이터에게만 표시됩니다."
         ],
         "a_en": [
           "1) Go to the dashboard.",
@@ -631,8 +635,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "나는 누구의 코디네이터가 됩니까?",
         "q_en": "Whose coordinator do I become?",
         "a_ko": [
-          "내 초대 링크로 가입한 사람에게는 내가 코디네이터가 됩니다.",
-          "그 사람이 나에게 다이렉트 메시지를 보낼 수 있으므로 잘 도와주십시오."
+          "내 초대 링크로 가입한 회원에게는 자동으로 내가 코디네이터가 됩니다.",
+          "그 회원이 다이렉트 메시지로 도움을 요청할 수 있으니 초기 이용을 잘 안내해 주세요."
         ],
         "a_en": [
           "You become the coordinator for anyone who joins with your invite link.",
@@ -650,8 +654,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "피드는 무엇이고 어디에 있습니까?",
         "q_en": "What is the feed and where is it?",
         "a_ko": [
-          "피드(B2BB2G Network)는 짧은 소식을 나누는 소셜 공간입니다.",
-          "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
+          "피드(B2BB2G Network)는 회원들이 짧은 소식을 나누는 소셜 공간입니다.",
+          "1) '내 메뉴'를 엽니다. PC는 헤더 프로필 사진, 휴대폰은 메뉴 버튼(≡)입니다.",
           "2) '커뮤니티 > 피드'를 누릅니다(주소 /feed)."
         ],
         "a_en": [
@@ -664,9 +668,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "소식을 어떻게 올립니까?",
         "q_en": "How do I post an update?",
         "a_ko": [
-          "1) 피드(주소 /feed)로 들어갑니다.",
-          "2) 글 쓰는 칸에 짧은 소식을 적습니다.",
-          "3) 올리기를 눌러 게시합니다."
+          "1) 피드로 들어갑니다(주소 /feed).",
+          "2) 상단의 입력창에 짧은 소식을 작성합니다. 사진이나 해시태그(#)를 함께 넣을 수 있습니다.",
+          "3) '올리기'를 눌러 게시합니다."
         ],
         "a_en": [
           "1) Go to the feed (address /feed).",
@@ -678,11 +682,10 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "좋아요·댓글·리포스트·팔로우는 무엇입니까?",
         "q_en": "What are like, comment, repost, and follow?",
         "a_ko": [
-          "좋아요는 그 글이 마음에 든다는 표시입니다.",
-          "댓글은 그 글 아래에 남기는 짧은 답글입니다.",
-          "리포스트는 남의 글을 내 피드로 다시 올려 알리는 것입니다.",
-          "팔로우는 어떤 회원의 새 소식을 계속 받아 보도록 등록하는 것입니다.",
-          "해시태그는 낱말 앞에 '#'을 붙여 씁니다."
+          "좋아요는 해당 글이 마음에 든다는 표시입니다.",
+          "댓글은 글 아래에 남기는 짧은 답글입니다.",
+          "리포스트는 다른 회원의 글을 내 피드로 다시 공유해 널리 알리는 기능입니다.",
+          "팔로우는 특정 회원의 새 소식을 계속 받아 보도록 등록하는 기능입니다."
         ],
         "a_en": [
           "Like shows that you enjoyed a post.",
@@ -696,8 +699,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "해시태그는 어떻게 씁니까?",
         "q_en": "How do I use hashtags?",
         "a_ko": [
-          "해시태그는 낱말 앞에 '#'을 붙여 씁니다. 예: #신제품.",
-          "같은 해시태그를 붙인 글끼리 쉽게 모아 볼 수 있습니다."
+          "낱말 앞에 '#'을 붙여 작성합니다. 예: #신제품.",
+          "같은 해시태그가 달린 글끼리 모아 볼 수 있어, 주제별로 소식을 찾기 편합니다."
         ],
         "a_en": [
           "Write a hashtag by putting '#' in front of a word. Example: #newproduct.",
@@ -708,9 +711,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "불편한 회원을 차단할 수 있습니까?",
         "q_en": "Can I block a member who bothers me?",
         "a_ko": [
-          "1) 차단할 회원의 글이나 프로필을 엽니다.",
+          "1) 차단할 회원의 글 또는 프로필을 엽니다.",
           "2) 더보기 메뉴에서 '차단'을 누릅니다.",
-          "차단하면 그 회원의 소식이 내 피드에 보이지 않습니다."
+          "차단하면 그 회원의 소식이 내 피드에 표시되지 않습니다. 차단은 나중에 해제할 수 있습니다."
         ],
         "a_en": [
           "1) Open the post or profile of the member you want to block.",
@@ -722,9 +725,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "나쁜 글을 신고할 수 있습니까?",
         "q_en": "Can I report a bad post?",
         "a_ko": [
-          "1) 신고할 글이나 회원을 엽니다.",
+          "1) 신고할 글 또는 회원을 엽니다.",
           "2) 더보기 메뉴에서 '신고'를 누릅니다.",
-          "3) 신고 이유를 선택해 보냅니다. 운영팀이 확인합니다."
+          "3) 신고 사유를 선택해 접수합니다. 접수된 신고는 운영팀이 확인해 조치합니다."
         ],
         "a_en": [
           "1) Open the post or member you want to report.",
@@ -743,10 +746,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "프로필은 어디에서 고칩니까?",
         "q_en": "Where do I edit my profile?",
         "a_ko": [
-          "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
-          "2) '계정 > 프로필'을 누릅니다. (또는 대시보드 왼쪽 메뉴에서 '프로필'을 누릅니다.)",
-          "3) '편집' 버튼을 누릅니다.",
-          "4) 소개, 회사 이름, 프로필 사진을 바꾼 뒤 저장합니다."
+          "1) '내 메뉴 > 계정 > 프로필'로 들어갑니다. 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '프로필'로도 들어갈 수 있습니다.",
+          "2) '편집' 버튼을 누릅니다.",
+          "3) 소개·회사 이름·프로필 사진을 수정한 뒤 '저장'을 누릅니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
@@ -759,8 +761,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "프로필에는 내 실명이 보입니까?",
         "q_en": "Does my profile show my real name?",
         "a_ko": [
-          "다른 회원에게는 실명 대신 UID(회원 고유 번호)가 대표로 보입니다.",
-          "소개와 회사 이름은 내가 편집 화면에서 정한 내용이 보입니다."
+          "다른 회원에게는 실명 대신 UID(회원 고유 번호)가 대표로 표시됩니다.",
+          "소개와 회사 이름은 편집 화면에서 직접 입력한 내용만 공개됩니다."
         ],
         "a_en": [
           "Other members see your UID (unique member number) as the main identifier, not your real name.",
@@ -771,8 +773,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "배지는 무엇입니까?",
         "q_en": "What is a badge?",
         "a_ko": [
-          "배지는 회원의 신뢰를 보여 주는 표시입니다. 예를 들어 Verified 배지가 있습니다.",
-          "배지가 있으면 상대가 더 믿고 연결할 수 있습니다."
+          "배지는 회원의 신뢰도를 보여 주는 표시입니다. 예를 들어 Verified(인증) 배지가 있습니다.",
+          "배지가 있으면 상대가 더 신뢰하고 연결할 수 있습니다."
         ],
         "a_en": [
           "A badge is a mark that shows a member's trustworthiness. For example, there is a Verified badge.",
@@ -783,9 +785,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "배지는 어떻게 신청합니까?",
         "q_en": "How do I apply for a badge?",
         "a_ko": [
-          "1) 대시보드에 들어갑니다.",
-          "2) 왼쪽 세로 메뉴에서 '배지 신청'을 누릅니다.",
-          "3) 안내에 따라 신청합니다.",
+          "1) 대시보드에 들어갑니다(주소 /dashboard).",
+          "2) 왼쪽 메뉴(휴대폰은 위쪽 탭)에서 '배지 신청'을 누릅니다.",
+          "3) 안내에 따라 필요한 정보를 입력해 신청합니다.",
           "4) 운영팀 검토 후 배지가 부여됩니다."
         ],
         "a_en": [
@@ -799,8 +801,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "배지는 신청하면 바로 받습니까?",
         "q_en": "Do I get the badge right after applying?",
         "a_ko": [
-          "아니요. 신청한 뒤 운영팀 검토를 거칩니다.",
-          "검토가 끝나 승인되면 배지가 부여됩니다."
+          "아니요. 신청 후 운영팀 검토를 거칩니다.",
+          "검토가 완료되어 승인되면 배지가 부여되며, 프로필에 표시됩니다."
         ],
         "a_en": [
           "No. After you apply, it goes through an operations-team review.",
@@ -818,11 +820,11 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "2단계 인증을 켜고 싶습니다.",
         "q_en": "I want to turn on two-step verification.",
         "a_ko": [
-          "1) 헤더 오른쪽 위 프로필 사진을 눌러 '내 메뉴'를 엽니다.",
-          "2) '계정 > 보안'을 누릅니다. (또는 대시보드 왼쪽 메뉴에서 '보안'을 누릅니다.)",
-          "3) '2단계 인증'을 켭니다.",
-          "4) 인증 앱(OTP를 만들어 주는 휴대폰 앱)에서 나온 여섯 자리 숫자(OTP)를 입력합니다.",
-          "2단계 인증은 비밀번호 외에 한 번 더 확인해 계정을 지킵니다."
+          "1) '내 메뉴 > 계정 > 보안'으로 들어갑니다(주소 /dashboard/security). 대시보드 왼쪽 메뉴(휴대폰은 위쪽 탭)의 '보안'으로도 들어갈 수 있습니다.",
+          "2) '2단계 인증'을 켭니다.",
+          "3) 인증 앱(Google OTP, Authy 등 여섯 자리 코드를 생성하는 앱)으로 화면의 QR 코드를 스캔합니다.",
+          "4) 인증 앱에 표시된 여섯 자리 코드를 입력해 등록을 완료합니다.",
+          "※ 2단계 인증은 비밀번호 외에 한 번 더 확인하여 계정을 안전하게 보호합니다."
         ],
         "a_en": [
           "1) Press the profile photo at the top right of the header to open 'My Menu'.",
@@ -852,9 +854,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "앱 잠금은 무엇입니까?",
         "q_en": "What is app lock?",
         "a_ko": [
-          "앱 잠금은 사이트를 열 때 한 번 더 잠그는 기능입니다.",
-          "여섯 자리 PIN(숫자 비밀번호)이나 지문·Face ID로 잠금을 풉니다.",
-          "'내 메뉴 > 계정 > 보안' 화면에서 켭니다."
+          "앱 잠금은 사이트를 열 때 이 기기에서 한 번 더 잠그는 보안 기능입니다.",
+          "여섯 자리 PIN 또는 지문·Face ID로 잠금을 해제합니다. PIN은 항상 대체 수단으로 함께 동작합니다.",
+          "'내 메뉴 > 계정 > 보안'(주소 /dashboard/security) 화면에서 켤 수 있으며, 설정한 이 기기에만 적용됩니다."
         ],
         "a_en": [
           "App lock is a feature that locks the site once more when you open it.",
@@ -882,9 +884,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "비밀번호를 바꾸고 싶습니다.",
         "q_en": "I want to change my password.",
         "a_ko": [
-          "1) '내 메뉴 > 계정 > 보안'으로 들어갑니다.",
+          "1) '내 메뉴 > 계정 > 보안'으로 들어갑니다(주소 /dashboard/security).",
           "2) '비밀번호 변경'을 누릅니다.",
-          "3) 새 비밀번호를 넣고 저장합니다."
+          "3) 새 비밀번호를 입력하고 저장합니다. 조건은 10자 이상, 영문 대문자·소문자·숫자·특수문자 각 1개 이상입니다."
         ],
         "a_en": [
           "1) Go to 'My Menu > Account > Security'.",
@@ -910,9 +912,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "광고성 정보 수신을 끄거나 켜고 싶습니다.",
         "q_en": "I want to turn marketing messages off or on.",
         "a_ko": [
-          "1) 헤더의 종 아이콘을 누르거나, 대시보드 왼쪽 메뉴에서 '알림'을 누릅니다(주소 /notifications).",
+          "1) 종 아이콘을 누르거나 대시보드 메뉴에서 '알림'을 누릅니다(주소 /notifications).",
           "2) '광고성 정보 수신' 카드의 스위치를 끄거나 켭니다.",
-          "가입할 때 동의하지 않았더라도 여기에서 켤 수 있고, 언제든 다시 끌 수 있습니다."
+          "※ 가입할 때 동의하지 않았더라도 여기에서 켤 수 있고, 언제든 다시 끌 수 있습니다."
         ],
         "a_en": [
           "1) Press the bell icon in the header, or press 'Notifications' in the dashboard's left menu (address /notifications).",
@@ -925,8 +927,8 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "Can I save products I like and compare them?",
         "a_ko": [
           "1) 상품에서 저장(하트) 아이콘을 누릅니다.",
-          "2) 저장한 상품은 '내 메뉴 > 활동 > 저장한 상품'(주소 /dashboard/bookmarks)에 담깁니다.",
-          "3) 여기에서 여러 상품을 나란히 비교합니다."
+          "2) 저장한 상품은 '내 메뉴 > 활동 > 저장한 상품'(주소 /dashboard/bookmarks)에 모입니다.",
+          "3) 이 화면에서 여러 상품을 선택해 사양을 나란히 비교할 수 있습니다."
         ],
         "a_en": [
           "1) Press the save (heart) icon on a product.",
@@ -938,9 +940,9 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "미니 홈페이지와 멤버십은 무엇이고, 도움은 어디에서 받습니까?",
         "q_en": "What are the mini homepage and membership, and where do I get help?",
         "a_ko": [
-          "인증 회원은 '대시보드 왼쪽 메뉴 > 미니 홈페이지'에서 간단한 소개 페이지를 운영할 수 있습니다.",
-          "인증 멤버십 정보는 멤버십 페이지(주소 /membership)에서 봅니다.",
-          "궁금한 점은 나를 초대해 준 코디네이터에게 다이렉트 메시지로 물어보거나, 헤더 가운데의 'FAQ'와 'Notices'에서 안내를 확인하십시오."
+          "인증(Verified) 회원은 대시보드 메뉴의 '미니 홈페이지'에서 간단한 소개 페이지를 운영할 수 있습니다.",
+          "인증 멤버십 정보는 멤버십 페이지(주소 /membership)에서 확인합니다.",
+          "궁금한 점은 나를 초대해 준 코디네이터에게 다이렉트 메시지로 문의하거나, 'FAQ'와 'Notices'(공지사항)에서 안내를 확인하세요."
         ],
         "a_en": [
           "Verified members can run a simple introduction page at 'Dashboard left menu > Mini homepage'.",
