@@ -596,12 +596,12 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "코디네이터가 누구입니까?",
         "q_en": "Who is my coordinator?",
         "a_ko": [
-          "나를 초대해 준 회원이 내 코디네이터입니다.",
-          "코디네이터는 가입 초기 이용을 돕는 안내자 역할을 합니다."
+          "코디네이터는 운영팀(관리자)이 직접 권한을 부여한 회원입니다. 자신이 초대해 가입한 회원을 관리하고 초기 이용을 돕는 역할을 합니다.",
+          "나를 초대한 회원이 코디네이터 권한을 가지고 있다면, 그 회원이 내 코디네이터가 됩니다."
         ],
         "a_en": [
-          "The person who invited you is your coordinator.",
-          "Your coordinator is the person who helped you enter the site at the start."
+          "A coordinator is a member granted coordinator authority directly by the operations team. They manage and help the members they invited get started.",
+          "If the member who invited you holds coordinator authority, that member is your coordinator."
         ]
       },
       {
@@ -613,34 +613,51 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         ],
         "a_en": [
           "Yes. You can send your coordinator a direct message (a one-to-one private message).",
-          "Ask your coordinator anything you are curious about."
+          "Open the coordinator messages (direct message) screen from the dashboard menu and ask anything you are curious about."
         ]
       },
       {
         "q_ko": "내가 초대한 사람은 어디에서 봅니까?",
         "q_en": "Where do I see people I invited?",
         "a_ko": [
+          "코디네이터 권한이 있는 회원만 자신이 초대해 가입한 회원 목록을 볼 수 있습니다.",
           "1) 대시보드에 들어갑니다(주소 /dashboard).",
-          "2) 왼쪽 메뉴(휴대폰은 위쪽 탭)에서 '코디네이터'를 누릅니다.",
-          "3) 내가 초대해 가입한 회원 목록을 확인하고 관리합니다.",
-          "※ '코디네이터' 메뉴는 회원을 초대한 코디네이터에게만 표시됩니다."
+          "2) 왼쪽 메뉴(휴대폰은 위쪽 탭)에서 '코디네이터'를 누릅니다. 이 메뉴는 코디네이터 권한을 받은 회원에게만 표시됩니다.",
+          "3) 내가 초대해 가입한 회원 목록을 확인하고 관리(다이렉트 메시지 등)합니다.",
+          "※ 코디네이터 권한이 없는 일반 회원은 이 목록을 볼 수 없습니다. 대신 '내 초대 링크'에서 내가 보낸 초대별로 가입 여부(가입완료·가입자 UID)를 확인할 수 있습니다."
         ],
         "a_en": [
-          "1) Go to the dashboard.",
-          "2) Press 'Coordinator' in the left vertical menu.",
-          "3) Manage the people you invited here."
+          "Only members with coordinator authority can see the list of members they invited.",
+          "1) Go to the dashboard (address /dashboard).",
+          "2) Press 'Coordinator' in the left menu (top tabs on a phone). This menu appears only for members granted coordinator authority.",
+          "3) View and manage the members you invited (direct messages, and so on).",
+          "※ Regular members without coordinator authority cannot see this list. Instead, they can check each invite's status (Joined, and the new member's UID) in 'My referral link'."
         ]
       },
       {
-        "q_ko": "나는 누구의 코디네이터가 됩니까?",
-        "q_en": "Whose coordinator do I become?",
+        "q_ko": "나도 코디네이터가 될 수 있습니까?",
+        "q_en": "Can I become a coordinator?",
         "a_ko": [
-          "내 초대 링크로 가입한 회원에게는 자동으로 내가 코디네이터가 됩니다.",
-          "그 회원이 다이렉트 메시지로 도움을 요청할 수 있으니 초기 이용을 잘 안내해 주세요."
+          "코디네이터 권한은 운영팀(관리자)이 직접 부여합니다. 다른 회원을 초대했다고 해서 자동으로 코디네이터가 되지는 않습니다.",
+          "권한을 받은 코디네이터는 자신이 초대해 가입한 회원 목록을 '코디네이터' 메뉴에서 보고 관리할 수 있으며, 그 회원들의 다이렉트 메시지를 받을 수 있습니다."
         ],
         "a_en": [
-          "You become the coordinator for anyone who joins with your invite link.",
-          "That person can send you a direct message, so please help them well."
+          "Coordinator authority is granted directly by the operations team. Inviting other members does not automatically make you a coordinator.",
+          "A member granted the role can view and manage the members they invited in the 'Coordinator' menu, and can receive those members' direct messages."
+        ]
+      },
+      {
+        "q_ko": "일반 회원도 다른 사람을 추천(초대)할 수 있습니까?",
+        "q_en": "Can regular members refer (invite) others too?",
+        "a_ko": [
+          "네. 코디네이터가 아니어도 모든 회원은 '내 초대 링크'에서 초대 링크를 만들어 다른 사람을 추천(초대)할 수 있습니다.",
+          "내가 보낸 초대별로 가입 여부와 가입자 UID는 '내 초대 링크' 목록에서 확인할 수 있습니다.",
+          "다만 초대해 가입한 회원들을 하나의 목록으로 모아 보고 관리하는 '코디네이터' 화면은, 운영팀이 코디네이터 권한을 부여한 회원에게만 제공됩니다."
+        ],
+        "a_en": [
+          "Yes. Even without coordinator authority, every member can create invite links in 'My referral link' to refer (invite) others.",
+          "You can check each invite's status and the new member's UID in the 'My referral link' list.",
+          "However, the 'Coordinator' screen that gathers and manages all your referred members in one list is available only to members granted coordinator authority by the operations team."
         ]
       }
     ]
