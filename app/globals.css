@@ -736,6 +736,26 @@ main > :where(*) {
   display: none;
 }
 
+/* Slim scrollbar for dark panels (admin sidebar): present enough to signal
+   that the list scrolls on its own, quiet enough not to compete with the nav. */
+.scrollbar-dark {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.24) transparent;
+}
+.scrollbar-dark::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.24);
+}
+.scrollbar-dark:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.36);
+}
+
 /* Native search-cancel button off: ClearableInput's circular clear icon is
    the single clear affordance across every form (consistency rule). */
 input[type="search"]::-webkit-search-cancel-button,

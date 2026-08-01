@@ -24,6 +24,7 @@ export function AdminNav({
 }) {
   const pathname = usePathname();
   const chipRow = useRef<HTMLElement>(null);
+  const sidebar = useRef<HTMLElement>(null);
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
   const describe = (label: string, badge?: number) =>
@@ -35,6 +36,20 @@ export function AdminNav({
     chipRow.current
       ?.querySelector<HTMLElement>('[data-active="true"]')
       ?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [pathname]);
+
+  // Same problem on desktop now that the sidebar scrolls inside itself: a
+  // section in the last group starts out below the fold. Adjust the sidebar's
+  // own scrollTop rather than scrollIntoView, which would also move the page.
+  useEffect(() => {
+    const nav = sidebar.current;
+    const active = nav?.querySelector<HTMLElement>('[data-active="true"]');
+    if (!nav || !active) return;
+    const navBox = nav.getBoundingClientRect();
+    const itemBox = active.getBoundingClientRect();
+    if (itemBox.top >= navBox.top && itemBox.bottom <= navBox.bottom) return;
+    nav.scrollTop +=
+      itemBox.top - navBox.top - navBox.height / 2 + itemBox.height / 2;
   }, [pathname]);
 
   return (
@@ -64,8 +79,14 @@ export function AdminNav({
           ))}
       </nav>
 
-      {/* Desktop: grouped sidebar */}
-      <nav className="sticky top-24 hidden self-start overflow-hidden rounded-[1.5rem] bg-[#101923] p-3 text-white shadow-[0_20px_55px_rgba(16,25,35,.15)] lg:block">
+      {/* Desktop: grouped sidebar. Capped to the viewport with its own scroll —
+          a sticky column taller than the screen can never reveal its lower
+          sections, since sticky pins it in place while the page scrolls.
+          `overscroll-contain` stops the page from taking over at either end. */}
+      <nav
+        ref={sidebar}
+        className="scrollbar-dark sticky top-24 hidden max-h-[calc(100dvh-7rem)] self-start overflow-y-auto overflow-x-hidden overscroll-contain rounded-[1.5rem] bg-[#101923] p-3 text-white shadow-[0_20px_55px_rgba(16,25,35,.15)] lg:block"
+      >
         {groups.map((group) => (
           <div key={group.label} className="mb-4 last:mb-0">
             <p className="flex items-center gap-1.5 px-3 text-xs font-bold uppercase tracking-wider text-white/50">
@@ -86,6 +107,7 @@ export function AdminNav({
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    data-active={isActive(item.href) || undefined}
                     aria-label={describe(item.label, item.badge)}
                     className={`relative block rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
                       isActive(item.href)
