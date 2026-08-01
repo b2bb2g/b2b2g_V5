@@ -17,6 +17,7 @@ import { StatusLabel } from "@/components/ui/StatusLabel";
 import { SectionTabs } from "@/components/marketplace/SectionTabs";
 import { BookmarkButton } from "@/components/marketplace/BookmarkButton";
 import { MediaGallery } from "@/components/post/MediaGallery";
+import { AdminPostControls } from "@/components/post/AdminPostControls";
 import { RichContentViewer } from "@/components/post/RichContentViewer";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
@@ -110,6 +111,28 @@ export default async function PostDetailPage(props: {
   const heroIndex = repImage ? Math.max(0, galleryPaths.indexOf(repImage)) : 0;
 
   const isOwn = !!post && post.author_id === session.userId;
+
+  // Console staff toolbar (approve/hold/edit/delete in place). Permission
+  // RPCs are only defined for authenticated sessions; anon renders nothing.
+  let adminBar: React.ReactNode = null;
+  if (session.userId && post) {
+    const permissionClient = await createClient();
+    const [{ data: canReview }, { data: canContent }] = await Promise.all([
+      permissionClient.rpc("has_admin_permission", { requested: "review" }),
+      permissionClient.rpc("has_admin_permission", { requested: "content" }),
+    ]);
+    if (canReview || canContent) {
+      adminBar = (
+        <AdminPostControls
+          postId={postId}
+          menuSlug={menu.slug}
+          status={post.status}
+          canReview={Boolean(canReview)}
+          canContent={Boolean(canContent)}
+        />
+      );
+    }
+  }
   const isClosed =
     (post?.status ?? teaser?.status) === POST_STATUS.CLOSED ||
     (!!(post?.deadline ?? teaser?.deadline) &&
@@ -212,6 +235,7 @@ export default async function PostDetailPage(props: {
     return (
       <>
         <JsonLd data={schemaData} />
+        {adminBar && <div className="wide pt-4">{adminBar}</div>}
         <RequestDetail
           menuSlug={menu.slug}
           sectionTitle={sectionTitle}
@@ -264,6 +288,7 @@ export default async function PostDetailPage(props: {
     return (
       <article className="wide space-y-5">
         <JsonLd data={schemaData} />
+        {adminBar}
         <nav aria-label={t.board.backToNotices}>
           <Link
             href="/notices"
@@ -460,6 +485,7 @@ export default async function PostDetailPage(props: {
       <>
         <article className="wide space-y-4 pb-16 sm:space-y-6">
         <JsonLd data={schemaData} />
+        {adminBar}
         <RecentProductRecorder
           product={{
             id: postId,
@@ -820,6 +846,7 @@ export default async function PostDetailPage(props: {
   return (
     <article className="wide space-y-5 pb-16 sm:space-y-6">
       <JsonLd data={schemaData} />
+      {adminBar}
       {/* Own-post review status banner (PRD 14: waiting made transparent) */}
       {isOwn && post && post.status !== POST_STATUS.APPROVED && (
         <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">

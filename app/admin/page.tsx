@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/format";
 import { TrendSparkline, type TrendBin } from "@/components/admin/TrendSparkline";
 import {
   MESSAGE_REVIEW_STATUS,
@@ -44,7 +45,7 @@ function lastDaysTotal(bins: TrendBin[], days: number): number {
 export default async function AdminOverviewPage(props: {
   searchParams: Promise<{ range?: string }>;
 }) {
-  const [{ t }, access, { range }] = await Promise.all([
+  const [{ t, locale }, access, { range }] = await Promise.all([
     getT(),
     requireAdmin("overview"),
     props.searchParams,
@@ -118,6 +119,164 @@ export default async function AdminOverviewPage(props: {
     ...(canReview ? [{ title: t.admin.trendInquiries, bins: binDaily(inquiryRows.data ?? [], trendDays) }] : []),
   ];
 
+  // Operations work-list: the actual oldest items behind each queue number,
+  // so routine handling starts (and often finishes) on this screen. System
+  // areas (settings/security/audit/team) intentionally stay in their own
+  // consoles. Pending posts link to their public detail page, where the
+  // inline moderation toolbar acts on them directly.
+  type JoinedRow<T> = T | T[] | null;
+  const one = <T,>(value: JoinedRow<T>): T | null =>
+    Array.isArray(value) ? (value[0] ?? null) : value;
+  const [queuePosts, queueMessages, queueBadges, latestMembers, expiringSoon] =
+    await Promise.all([
+      canReview
+        ? supabase
+            .from("posts")
+            .select("id, title_en, title_ko, created_at, menus(slug), profiles!posts_author_id_fkey(uid)")
+            .eq("status", POST_STATUS.PENDING)
+            .order("created_at")
+            .limit(5)
+        : Promise.resolve({ data: [] }),
+      canReview
+        ? supabase
+            .from("inquiry_messages")
+            .select("id, created_at, inquiries(subject), profiles!inquiry_messages_sender_id_fkey(uid)")
+            .eq("review_status", MESSAGE_REVIEW_STATUS.PENDING)
+            .order("created_at")
+            .limit(5)
+        : Promise.resolve({ data: [] }),
+      canReview
+        ? supabase
+            .from("badge_applications")
+            .select("id, created_at, badge_types(name_en, name_ko), profiles!badge_applications_profile_id_fkey(uid)")
+            .eq("status", "pending")
+            .order("created_at")
+            .limit(5)
+        : Promise.resolve({ data: [] }),
+      canMembers
+        ? supabase
+            .from("profiles")
+            .select("id, uid, display_name, company_name, created_at")
+            .order("created_at", { ascending: false })
+            .limit(5)
+        : Promise.resolve({ data: [] }),
+      canSubscriptions
+        ? supabase
+            .from("subscriptions")
+            .select("id, expires_at, profiles!subscriptions_profile_id_fkey(uid, display_name, company_name)")
+            .eq("status", SUBSCRIPTION_STATUS.ACTIVE)
+            .lte("expires_at", soon)
+            .order("expires_at")
+            .limit(5)
+        : Promise.resolve({ data: [] }),
+    ]);
+
+  type OpsItem = { key: string; href: string; primary: string; meta: string };
+  const hoursLabel = (value: string) =>
+    `${hoursSince(value)}${t.admin.hours}`;
+  const opsPanels: { title: string; href: string; items: OpsItem[] }[] = [
+    ...(canReview
+      ? [
+          {
+            title: t.admin.pendingPosts,
+            href: "/admin/moderation",
+            items: ((queuePosts.data ?? []) as {
+              id: string;
+              title_en: string;
+              title_ko: string | null;
+              created_at: string;
+              menus: JoinedRow<{ slug: string }>;
+              profiles: JoinedRow<{ uid: number }>;
+            }[]).map((row) => ({
+              key: row.id,
+              href: `/${one(row.menus)?.slug}/${row.id}`,
+              primary:
+                (locale === "ko" ? row.title_ko : null) ?? row.title_en,
+              meta: `UID:${one(row.profiles)?.uid ?? "-"} · ${hoursLabel(row.created_at)}`,
+            })),
+          },
+          {
+            title: t.admin.pendingInquiries,
+            href: "/admin/inquiries",
+            items: ((queueMessages.data ?? []) as {
+              id: string;
+              created_at: string;
+              inquiries: JoinedRow<{ subject: string }>;
+              profiles: JoinedRow<{ uid: number }>;
+            }[]).map((row) => ({
+              key: row.id,
+              href: "/admin/inquiries",
+              primary: one(row.inquiries)?.subject ?? "-",
+              meta: `UID:${one(row.profiles)?.uid ?? "-"} · ${hoursLabel(row.created_at)}`,
+            })),
+          },
+          {
+            title: t.admin.pendingBadges,
+            href: "/admin/badges",
+            items: ((queueBadges.data ?? []) as {
+              id: string;
+              created_at: string;
+              badge_types: JoinedRow<{ name_en: string; name_ko: string }>;
+              profiles: JoinedRow<{ uid: number }>;
+            }[]).map((row) => ({
+              key: row.id,
+              href: "/admin/badges",
+              primary:
+                (locale === "ko"
+                  ? one(row.badge_types)?.name_ko
+                  : one(row.badge_types)?.name_en) ?? "-",
+              meta: `UID:${one(row.profiles)?.uid ?? "-"} · ${hoursLabel(row.created_at)}`,
+            })),
+          },
+        ]
+      : []),
+    ...(canMembers
+      ? [
+          {
+            title: t.admin.newMembers,
+            href: "/admin/members",
+            items: ((latestMembers.data ?? []) as {
+              id: string;
+              uid: number;
+              display_name: string | null;
+              company_name: string | null;
+              created_at: string;
+            }[]).map((row) => ({
+              key: row.id,
+              href: `/admin/members/${row.id}`,
+              primary: row.company_name ?? row.display_name ?? `UID:${row.uid}`,
+              meta: `UID:${row.uid} · ${formatDate(row.created_at, locale)}`,
+            })),
+          },
+        ]
+      : []),
+    ...(canSubscriptions
+      ? [
+          {
+            title: t.admin.expiringSubs,
+            href: "/admin/subscriptions",
+            items: ((expiringSoon.data ?? []) as {
+              id: string;
+              expires_at: string;
+              profiles: JoinedRow<{
+                uid: number;
+                display_name: string | null;
+                company_name: string | null;
+              }>;
+            }[]).map((row) => ({
+              key: row.id,
+              href: "/admin/subscriptions",
+              primary:
+                one(row.profiles)?.company_name ??
+                one(row.profiles)?.display_name ??
+                `UID:${one(row.profiles)?.uid ?? "-"}`,
+              meta: `UID:${one(row.profiles)?.uid ?? "-"} · ${formatDate(row.expires_at, locale)}`,
+            })),
+          },
+        ]
+      : []),
+  ];
+
   const slaHours = typeof slaSetting.data?.value === "number" ? Math.max(1, slaSetting.data.value) : 24;
 
   const progressed = (recentInquiries.data ?? []).filter((item) => item.status !== "sent" && item.status !== "admin_review");
@@ -175,6 +334,53 @@ export default async function AdminOverviewPage(props: {
         </Link>
       ))}
       </div>
+      {opsPanels.length > 0 && (
+        <section className="rounded-[1.5rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
+          <h2 className="text-base font-extrabold">{t.admin.opsQueueTitle}</h2>
+          <p className="mt-1 text-xs text-ink-faint">{t.admin.opsQueueHint}</p>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
+            {opsPanels.map((panel) => (
+              <article
+                key={panel.title}
+                className="flex flex-col rounded-2xl border border-line"
+              >
+                <header className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
+                  <h3 className="text-sm font-bold">{panel.title}</h3>
+                  <Link
+                    href={panel.href}
+                    className="whitespace-nowrap text-xs font-semibold text-primary hover:text-primary-strong"
+                  >
+                    {t.admin.opsViewAll}
+                  </Link>
+                </header>
+                {panel.items.length ? (
+                  <ul className="divide-y divide-line">
+                    {panel.items.map((item) => (
+                      <li key={item.key}>
+                        <Link
+                          href={item.href}
+                          className="block px-4 py-2.5 transition hover:bg-primary-soft/40"
+                        >
+                          <p className="truncate text-sm font-semibold">
+                            {item.primary}
+                          </p>
+                          <p className="mt-0.5 text-xs text-ink-faint">
+                            {item.meta}
+                          </p>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="px-4 py-6 text-center text-xs text-ink-faint">
+                    {t.admin.opsQueueEmpty}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
       {shortcuts.length > 0 && (
         <section className="rounded-[1.5rem] border border-line bg-surface p-5 shadow-(--shadow-card)">
           <h2 className="text-base font-extrabold">{t.admin.quickAccess}</h2>
