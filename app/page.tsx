@@ -347,7 +347,6 @@ async function LandingContent() {
                 <Carousel
                   prevLabel={t.home.prev}
                   nextLabel={t.home.next}
-                  marquee
                   edgeToEdge
                 >
                   {products.map((post, index) => (
@@ -404,7 +403,6 @@ async function LandingContent() {
                         <Carousel
                           prevLabel={t.home.prev}
                           nextLabel={t.home.next}
-                          marquee
                           edgeToEdge
                         >
                           <div className={LANDING_CARD_FAMILY.collectionLead}>
@@ -578,7 +576,6 @@ async function LandingContent() {
                   <Carousel
                     prevLabel={t.home.prev}
                     nextLabel={t.home.next}
-                    marquee
                     edgeToEdge
                   >
                     {featured.slice(0, 6).map((company, index) => {
