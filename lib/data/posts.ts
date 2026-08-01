@@ -1,3 +1,4 @@
+import { UUID_PATTERN } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
 import type { Post, PostSpec, PostTeaser } from "@/lib/types";
 
@@ -87,6 +88,9 @@ export async function listPostHighlights(
 export async function getPostTeaser(
   postId: string,
 ): Promise<PostTeaser | null> {
+  // Post ids are uuids; a path segment that is not one is a miss by definition
+  // (see UUID_PATTERN on why it must not reach PostgREST).
+  if (!UUID_PATTERN.test(postId)) return null;
   const supabase = await createClient();
   const { data } = await supabase
     .from("public_posts")
@@ -132,6 +136,7 @@ export type FullPost = {
 // Member path: RLS lets authenticated users read approved posts in full,
 // plus their own posts in any status.
 export async function getFullPost(postId: string): Promise<FullPost | null> {
+  if (!UUID_PATTERN.test(postId)) return null;
   const supabase = await createClient();
   const { data: post } = await supabase
     .from("posts")

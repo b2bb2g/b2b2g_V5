@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
+import { MENU_SLUG_PATTERN } from "@/lib/constants";
 import { createAnonClient } from "@/lib/supabase/anon";
 import type { Menu } from "@/lib/types";
 
@@ -33,21 +34,32 @@ export function menuTitle(
   return locale === "ko" && menu.title_ko ? menu.title_ko : menu.title_en;
 }
 
+const fetchMenuBySlug = unstable_cache(
+  async (slug: string): Promise<Menu | null> => {
+    const supabase = createAnonClient();
+    const { data, error } = await supabase
+      .from("menus")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+    // A genuine miss returns data:null/error:null (-> notFound upstream); only
+    // a real DB error throws, so a transient hiccup never masquerades as a 404.
+    if (error) throw error;
+    return (data as Menu) ?? null;
+  },
+  ["menu-by-slug"],
+  { revalidate: 60, tags: ["menus"] },
+);
+
 export const getMenuBySlug = cache(
-  unstable_cache(
-    async (slug: string): Promise<Menu | null> => {
-      const supabase = createAnonClient();
-      const { data, error } = await supabase
-        .from("menus")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
-      // A genuine miss returns data:null/error:null (-> notFound upstream); only
-      // a real DB error throws, so a transient hiccup never masquerades as a 404.
-      if (error) throw error;
-      return (data as Menu) ?? null;
-    },
-    ["menu-by-slug"],
-    { revalidate: 60, tags: ["menus"] },
-  ),
+  async (slug: string): Promise<Menu | null> => {
+    // Vulnerability scanners hammer /wp-config.php, /.env and friends, all of
+    // which land on the [menuSlug] route. Such a slug can never match a stored
+    // menu, and forwarding it to PostgREST makes Supabase's WAF answer with a
+    // 403 HTML page — an error, not an empty result, so `throw error` above
+    // turned routine bot noise into logged application errors. Shape-check
+    // first: unknown slugs 404 without touching the database or the cache.
+    if (!MENU_SLUG_PATTERN.test(slug)) return null;
+    return fetchMenuBySlug(slug);
+  },
 );

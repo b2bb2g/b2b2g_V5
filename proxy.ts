@@ -2,6 +2,18 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { PW_RESET_COOKIE, SESSION_ONLY_COOKIE } from "@/lib/constants";
 
+// Vulnerability-scanner path signatures: server/config file extensions
+// (`/wp-config.php`, `/backup.sql`, editor leftovers ending in `~`) and
+// dotfile segments (`/.env`, `/.git/config`). No real route matches either
+// form — every asset this app serves through the proxy uses extensions this
+// list avoids (.txt/.xml/.webmanifest/.js/.woff2/.html/.json). Answering at
+// the edge with a hard 404 keeps the status code honest (streamed pages are
+// locked to 200 once their loading.tsx shell flushes) and skips rendering an
+// entire page per probe. `.well-known/` is carved out (app links, ACME).
+const SCANNER_EXTENSION =
+  /(?:\.(?:php\d?|phps|asp|aspx|jsp|jspx|cgi|pl|env|bak\d*|old|orig|save|swp|sql|ini|conf|config|cfg|yml|yaml|log|sh|bat|cmd|dll|exe|htaccess|htpasswd|git|svn)|~)$/i;
+const DOTFILE_SEGMENT = /\/\.(?!well-known(?:\/|$))/;
+
 // "Keep me signed in" unchecked: token refreshes must not re-persist cookies.
 function asSessionCookie(options: CookieOptions | undefined): CookieOptions {
   const finalOptions = { ...(options ?? {}) };
@@ -11,6 +23,11 @@ function asSessionCookie(options: CookieOptions | undefined): CookieOptions {
 }
 
 export async function proxy(request: NextRequest) {
+  const probePath = request.nextUrl.pathname;
+  if (SCANNER_EXTENSION.test(probePath) || DOTFILE_SEGMENT.test(probePath)) {
+    return new NextResponse(null, { status: 404 });
+  }
+
   let response = NextResponse.next({ request });
 
   // Anonymous fast path: without a Supabase auth cookie there is no session

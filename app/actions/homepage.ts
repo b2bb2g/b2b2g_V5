@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { BADGE_CODES } from "@/lib/constants";
+import { BADGE_CODES, HOMEPAGE_SLUG_PATTERN } from "@/lib/constants";
 
 export type HomepageInput = {
   slug: string;
@@ -35,7 +35,7 @@ export async function saveHomepage(
   if (!certified?.length) return { error: "certified" };
 
   const slug = input.slug.trim().toLowerCase();
-  if (!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) return { error: "slug" };
+  if (!HOMEPAGE_SLUG_PATTERN.test(slug)) return { error: "slug" };
 
   const { error } = await supabase.from("mini_homepages").upsert({
     profile_id: user.id,

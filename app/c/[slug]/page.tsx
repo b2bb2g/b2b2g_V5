@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getT } from "@/lib/i18n/server";
 import { getSession } from "@/lib/data/session";
 import { getVisibleMenus } from "@/lib/data/menus";
+import { HOMEPAGE_SLUG_PATTERN } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
 import { postMediaUrl } from "@/lib/media";
 import { BadgePill } from "@/components/ui/Badge";
@@ -15,6 +16,9 @@ import type { PostTeaser } from "@/lib/types";
 // Public mini homepage (PRD 5.2 / DESIGN A9): fully public promotion, all
 // contact funnels through the platform inquiry gate. No contact data here.
 async function getHomepage(slug: string) {
+  // Stored slugs satisfy this shape (saveHomepage + a DB check constraint), so
+  // anything else is a miss and must not reach PostgREST (see HOMEPAGE_SLUG_PATTERN).
+  if (!HOMEPAGE_SLUG_PATTERN.test(slug)) return null;
   const supabase = await createClient();
   // Public surface: only published pages are ever served here. The explicit
   // is_published filter (matching /u/[uid]) means we never lean on RLS alone to

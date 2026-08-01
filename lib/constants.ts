@@ -171,3 +171,15 @@ export const STORAGE_BUCKETS = {
 // Number of characters of the body exposed to non-members (teaser).
 // Mirrored in the DB view public_posts; keep in sync with the migration.
 export const TEASER_LENGTH = 600;
+
+// URL parameter shapes for public dynamic routes. Every stored value is
+// normalised on write (menu slugs in createMenu, homepage slugs in
+// saveHomepage + a DB check constraint, ids by gen_random_uuid), so a lookup
+// value that fails these can only be scanner traffic and must be answered with
+// a 404 *without* a database round trip: Supabase sits behind a WAF that
+// answers strings like `wp-config.php` with a 403 HTML challenge page, which
+// PostgREST surfaces as a query error rather than an empty result.
+export const MENU_SLUG_PATTERN = /^[a-z0-9-]{1,64}$/;
+export const HOMEPAGE_SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
+export const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

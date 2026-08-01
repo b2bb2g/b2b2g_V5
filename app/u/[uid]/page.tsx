@@ -86,7 +86,11 @@ export async function generateMetadata(props: {
   params: Promise<{ uid: string }>;
 }): Promise<Metadata> {
   const { uid } = await props.params;
-  const data = await getPublicProfile(Number(uid));
+  const parsedUid = Number(uid);
+  // Matches the page's own guard: a non-numeric segment would otherwise send
+  // `uid=eq.NaN` to PostgREST on every scanner hit.
+  if (!Number.isInteger(parsedUid) || parsedUid <= 0) return {};
+  const data = await getPublicProfile(parsedUid);
   if (!data) return {};
   const title = `UID:${uid}`;
   return {
