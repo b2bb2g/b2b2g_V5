@@ -54,11 +54,14 @@ export function FeedMediaGrid({
   const [summaryOverflows, setSummaryOverflows] = useState(false);
   const visible = paths.slice(0, 4);
   const extra = Math.max(0, paths.length - visible.length);
+  // One media viewport for every count (16:10): cards in a rail or stream
+  // keep the same height whether a post carries 1, 2 or 10 images, so the
+  // action rows line up instead of drifting per card.
   const layout =
     visible.length === 1
       ? "grid-cols-1 aspect-[16/10]"
       : visible.length === 2
-        ? "grid-cols-2 aspect-[16/9]"
+        ? "grid-cols-2 aspect-[16/10]"
         : visible.length === 3
           ? "grid-cols-[2fr_1fr] grid-rows-2 aspect-[16/10]"
           : "grid-cols-[2fr_1fr] grid-rows-3 aspect-[16/10]";

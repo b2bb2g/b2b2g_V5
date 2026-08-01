@@ -33,6 +33,11 @@ export function ExpandableFeedText({
   // instead of clamping to two lines above a large void.
   const clampLines = variant === "compact" && !hasMedia ? 10 : 2;
   const clampClass = clampLines === 10 ? "line-clamp-[10]" : "line-clamp-2";
+  // Rail cards collapse paragraph gaps: inside a two-line clamp a blank line
+  // spends half the budget on whitespace, so sibling cards look uneven. The
+  // focus dialog and detail view keep the author's original line breaks.
+  const displayBody =
+    variant === "compact" ? body.replace(/\n{2,}/g, "\n") : body;
 
   useEffect(() => {
     const element = measureRef.current;
@@ -53,7 +58,7 @@ export function ExpandableFeedText({
     const observer = new ResizeObserver(measure);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [body, clampLines]);
+  }, [displayBody, clampLines]);
 
   const openFocus = (trigger: HTMLButtonElement) => {
     const selection = window.getSelection();
@@ -75,7 +80,7 @@ export function ExpandableFeedText({
           aria-hidden="true"
           className="pointer-events-none invisible absolute inset-x-0 top-0 whitespace-pre-wrap"
         >
-          {body}
+          {displayBody}
         </span>
 
         {fullText ? (
@@ -101,7 +106,7 @@ export function ExpandableFeedText({
             className="relative block w-full cursor-pointer select-text rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <span id={bodyId} className={`${clampClass} whitespace-pre-wrap`}>
-              {renderFeedBody(body, false)}
+              {renderFeedBody(displayBody, false)}
             </span>
             <span className="absolute bottom-0 right-0 bg-gradient-to-r from-white/0 via-white via-25% to-white pl-8 font-semibold text-ink-soft hover:text-ink">
               {moreLabel}
@@ -117,7 +122,7 @@ export function ExpandableFeedText({
             className="block w-full cursor-pointer select-text rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <span id={bodyId} className={`${clampClass} whitespace-pre-wrap`}>
-              {renderFeedBody(body, false)}
+              {renderFeedBody(displayBody, false)}
             </span>
           </button>
         ) : (

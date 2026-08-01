@@ -123,14 +123,17 @@ export function ProductCard({
           <MediaPlaceholder />
         )}
       </div>
-      <div className="flex flex-1 flex-col px-1 pt-3">
-        <p className="line-clamp-2 min-h-[2.4rem] text-sm font-bold leading-snug text-ink transition-colors group-hover:text-primary">
+      <div className="px-1 pt-3">
+        {/* Badges hug the title (no reserved second line, no bottom-anchor):
+            a one-line title used to leave an awkward void before the trust
+            row whenever a sibling card wrapped to two lines. */}
+        <p className="line-clamp-2 text-sm font-bold leading-snug text-ink transition-colors group-hover:text-primary">
           {title}
         </p>
         {/* No author identity on list cards; trust badges alone signal
             credibility when the author has earned them. */}
         {showAuthor && post.author_badges.length > 0 && (
-          <span className="mt-auto flex flex-wrap gap-1 pt-2.5">
+          <span className="mt-1.5 flex flex-wrap gap-1">
             {post.author_badges.map((badge) => (
               <BadgePill
                 key={badge.code}
