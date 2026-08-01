@@ -332,14 +332,17 @@ test("feed text and focused posts keep each surface stable", async ({
   const collapsedCount = await photos.count();
   expect(collapsedCount).toBe(4);
 
-  await postWithHiddenPhotos.locator("[data-feed-text-expand]").click();
-  const showLess = postWithHiddenPhotos.getByRole("button", {
-    name: "Show less",
-  });
-  await expect(showLess).toBeVisible();
-  await expect(photos).toHaveCount(4);
+  // Tapping the body opens the full post rather than expanding in place, and
+  // it behaves the same for every card (media or not, long body or short).
+  await postWithHiddenPhotos.locator("[data-feed-body-focus]").click();
+  const mobileFocus = page.getByRole("dialog", { name: "Full post" });
+  await expect(mobileFocus).toBeVisible();
+  await expect(
+    mobileFocus.locator("[data-feed-media-thumbnails] button"),
+  ).toHaveCount(7);
 
-  await showLess.click();
+  await mobileFocus.getByRole("button", { name: "Close full post" }).click();
+  await expect(mobileFocus).toHaveCount(0);
   await expect(photos).toHaveCount(4);
   await expect(postWithHiddenPhotos.getByText("+3", { exact: true })).toBeVisible();
 });

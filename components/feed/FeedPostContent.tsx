@@ -38,7 +38,6 @@ export function FeedPostContent({
   labels: FeedMediaLabels &
     FeedFocusLabels & { less: string; follow: string; following: string };
 }) {
-  const [textExpanded, setTextExpanded] = useState(false);
   const [focusOpen, setFocusOpen] = useState(false);
   const [focusIndex, setFocusIndex] = useState(0);
   const openerRef = useRef<HTMLButtonElement | null>(null);
@@ -69,12 +68,9 @@ export function FeedPostContent({
       <ExpandableFeedText
         body={body}
         moreLabel={labels.more}
-        lessLabel={labels.less}
         fullPostLabel={labels.fullPost}
         variant={variant}
         hasMedia={paths.length > 0}
-        textExpanded={textExpanded}
-        onTextExpandedChange={setTextExpanded}
         onOpenFocus={(trigger) => {
           if (detail) return;
           openerRef.current = trigger;

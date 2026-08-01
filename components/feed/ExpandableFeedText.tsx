@@ -8,22 +8,16 @@ export type FeedTextVariant = "compact" | "stream" | "detail";
 export function ExpandableFeedText({
   body,
   moreLabel,
-  lessLabel,
   fullPostLabel,
   variant,
   hasMedia,
-  textExpanded,
-  onTextExpandedChange,
   onOpenFocus,
 }: {
   body: string;
   moreLabel: string;
-  lessLabel: string;
   fullPostLabel: string;
   variant: FeedTextVariant;
   hasMedia: boolean;
-  textExpanded: boolean;
-  onTextExpandedChange: (expanded: boolean) => void;
   onOpenFocus: (trigger: HTMLButtonElement) => void;
 }) {
   const [canCollapse, setCanCollapse] = useState(false);
@@ -36,8 +30,10 @@ export function ExpandableFeedText({
   // Rail cards collapse paragraph gaps: inside a two-line clamp a blank line
   // spends half the budget on whitespace, so sibling cards look uneven. The
   // focus dialog and detail view keep the author's original line breaks.
+  // Bodies saved from the composer use CRLF, so the blank-line match has to
+  // allow the carriage returns.
   const displayBody =
-    variant === "compact" ? body.replace(/\n{2,}/g, "\n") : body;
+    variant === "compact" ? body.replace(/(?:\r?\n){2,}/g, "\n") : body;
 
   useEffect(() => {
     const element = measureRef.current;
@@ -66,8 +62,13 @@ export function ExpandableFeedText({
     onOpenFocus(trigger);
   };
 
-  const fullText = variant === "detail" || textExpanded;
-  const focusAction = variant === "compact" || (!canCollapse && hasMedia);
+  const fullText = variant === "detail";
+  // Tapping the body always opens the full-post view (the dialog is where the
+  // whole text and the comments live). This used to depend on whether the post
+  // carried media and on whether the text overflowed, so an image post with a
+  // short caption opened the dialog while a text-only post did nothing or only
+  // expanded in place — the same gesture behaved four different ways.
+  const focusAction = variant !== "detail";
 
   return (
     <div
@@ -90,19 +91,11 @@ export function ExpandableFeedText({
         ) : canCollapse ? (
           <button
             type="button"
-            data-feed-text-expand={variant === "stream" ? "" : undefined}
-            data-feed-body-focus={variant === "compact" ? "" : undefined}
-            aria-expanded="false"
+            data-feed-body-focus=""
             aria-controls={bodyId}
-            aria-label={variant === "stream" ? moreLabel : fullPostLabel}
+            aria-label={fullPostLabel}
             aria-describedby={bodyId}
-            onClick={(event) => {
-              if (variant === "stream") {
-                onTextExpandedChange(true);
-              } else {
-                openFocus(event.currentTarget);
-              }
-            }}
+            onClick={(event) => openFocus(event.currentTarget)}
             className="relative block w-full cursor-pointer select-text rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <span id={bodyId} className={`${clampClass} whitespace-pre-wrap`}>
@@ -132,18 +125,6 @@ export function ExpandableFeedText({
         )}
       </div>
 
-      {variant === "stream" && canCollapse && textExpanded && (
-        <button
-          type="button"
-          data-feed-text-collapse
-          aria-expanded="true"
-          aria-controls={bodyId}
-          onClick={() => onTextExpandedChange(false)}
-          className="mt-1 font-semibold text-ink-soft hover:text-ink focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          {lessLabel}
-        </button>
-      )}
     </div>
   );
 }
