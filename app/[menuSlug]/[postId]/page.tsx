@@ -18,6 +18,7 @@ import { SectionTabs } from "@/components/marketplace/SectionTabs";
 import { BookmarkButton } from "@/components/marketplace/BookmarkButton";
 import { MediaGallery } from "@/components/post/MediaGallery";
 import { AdminPostControls } from "@/components/post/AdminPostControls";
+import { OwnerPostControls } from "@/components/post/OwnerPostControls";
 import { RichContentViewer } from "@/components/post/RichContentViewer";
 import { MediaPlaceholder } from "@/components/ui/MediaPlaceholder";
 import { BOARD_TYPES, POST_STATUS, SETTING_KEYS } from "@/lib/constants";
@@ -133,6 +134,20 @@ export default async function PostDetailPage(props: {
       );
     }
   }
+  // Authors manage their own post in place (edit / close / delete), exactly
+  // like the "my posts" workspace. Console staff keep the admin toolbar; the
+  // owner bar covers everyone else, at every status the author can reach.
+  const controlsBar =
+    adminBar ??
+    (isOwn && post ? (
+      <OwnerPostControls
+        postId={postId}
+        menuSlug={menu.slug}
+        status={post.status}
+        type={post.type}
+        rejectReason={post.reject_reason}
+      />
+    ) : null);
   const isClosed =
     (post?.status ?? teaser?.status) === POST_STATUS.CLOSED ||
     (!!(post?.deadline ?? teaser?.deadline) &&
@@ -235,7 +250,7 @@ export default async function PostDetailPage(props: {
     return (
       <>
         <JsonLd data={schemaData} />
-        {adminBar && <div className="wide pt-4">{adminBar}</div>}
+        {controlsBar && <div className="wide pt-4">{controlsBar}</div>}
         <RequestDetail
           menuSlug={menu.slug}
           sectionTitle={sectionTitle}
@@ -288,7 +303,7 @@ export default async function PostDetailPage(props: {
     return (
       <article className="wide space-y-5">
         <JsonLd data={schemaData} />
-        {adminBar}
+        {controlsBar}
         <nav aria-label={t.board.backToNotices}>
           <Link
             href="/notices"
@@ -485,7 +500,7 @@ export default async function PostDetailPage(props: {
       <>
         <article className="wide space-y-4 pb-16 sm:space-y-6">
         <JsonLd data={schemaData} />
-        {adminBar}
+        {controlsBar}
         <RecentProductRecorder
           product={{
             id: postId,
@@ -495,20 +510,6 @@ export default async function PostDetailPage(props: {
             image: repImage ? postMediaUrl(repImage) : null,
           }}
         />
-        {isOwn && post && post.status !== POST_STATUS.APPROVED && (
-          <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">
-            <StatusLabel
-              status={post.status}
-              label={statusLabels[post.status] ?? post.status}
-            />
-            {post.status === POST_STATUS.REJECTED && post.reject_reason && (
-              <p className="text-xs text-ink-soft">
-                {t.post.rejectionReason}: {post.reject_reason}
-              </p>
-            )}
-          </div>
-        )}
-
         <nav aria-label={t.post.backToList}>
           <Link
             href={`/${menu.slug}`}
@@ -846,22 +847,7 @@ export default async function PostDetailPage(props: {
   return (
     <article className="wide space-y-5 pb-16 sm:space-y-6">
       <JsonLd data={schemaData} />
-      {adminBar}
-      {/* Own-post review status banner (PRD 14: waiting made transparent) */}
-      {isOwn && post && post.status !== POST_STATUS.APPROVED && (
-        <div className="flex items-center justify-between rounded-card border border-line bg-surface-sub/60 px-4 py-3">
-          <StatusLabel
-            status={post.status}
-            label={statusLabels[post.status] ?? post.status}
-          />
-          {post.status === POST_STATUS.REJECTED && post.reject_reason && (
-            <p className="text-xs text-ink-soft">
-              {t.post.rejectionReason}: {post.reject_reason}
-            </p>
-          )}
-        </div>
-      )}
-
+      {controlsBar}
       <nav aria-label={t.post.backToList}>
         <Link
           href={`/${menu.slug}`}

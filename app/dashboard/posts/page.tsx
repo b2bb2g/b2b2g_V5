@@ -207,11 +207,28 @@ export default async function MyPostsPage(props: {
               const publicHref = post.menus
                 ? `/${post.menus.slug}/${post.id}`
                 : null;
+              // The whole row opens the post: drafts resume in the editor,
+              // everything else opens the public detail page (the author
+              // reads their own pending/rejected post through RLS and gets
+              // the owner toolbar there).
+              const rowHref =
+                post.status === POST_STATUS.DRAFT
+                  ? post.menus
+                    ? `/write?menu=${post.menus.slug}&post=${post.id}`
+                    : null
+                  : publicHref;
               return (
                 <article
                   key={post.id}
-                  className="flex items-start gap-3 p-4 transition hover:bg-surface-sub/45 sm:items-center sm:px-5"
+                  className="relative flex items-start gap-3 p-4 transition hover:bg-surface-sub/45 sm:items-center sm:px-5"
                 >
+                  {rowHref && (
+                    <Link
+                      href={rowHref}
+                      className="absolute inset-0 z-0"
+                      aria-label={title}
+                    />
+                  )}
                   {/* Fixed small thumbnail so a row never turns into a big
                       full-width tile on phones; no image shows a subtle mark,
                       not an empty gallery card. */}
@@ -284,7 +301,7 @@ export default async function MyPostsPage(props: {
                         </p>
                       )}
                   </div>
-                  <div className="flex shrink-0 items-center justify-end gap-2 sm:self-center">
+                  <div className="relative z-10 flex shrink-0 items-center justify-end gap-2 sm:self-center">
                     {post.menus && (
                       <Link
                         href={`/write?menu=${post.menus.slug}&post=${post.id}`}
@@ -301,14 +318,6 @@ export default async function MyPostsPage(props: {
                         ⋯
                       </summary>
                       <div className="absolute right-0 top-11 z-20 w-36 space-y-1 rounded-xl border border-line bg-white p-2 shadow-lg">
-                        {post.status === POST_STATUS.APPROVED && publicHref && (
-                          <Link
-                            href={publicHref}
-                            className="block rounded-lg px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-surface-sub"
-                          >
-                            {t.common.seeMore}
-                          </Link>
-                        )}
                         {post.type === BOARD_TYPES.REQUEST &&
                           post.status === POST_STATUS.APPROVED && (
                             <form action={closeOwnPost}>

@@ -527,6 +527,7 @@ const ko: Dict = {
       closed: "마감",
     },
     rejectionReason: "사유",
+    ownerBarTitle: "내 글 관리",
     writePost: "글쓰기",
     editPost: "글 수정",
     chooseBoard: "게시판을 선택해 주세요",

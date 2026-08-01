@@ -536,6 +536,7 @@ const en = {
       closed: "Closed",
     },
     rejectionReason: "Reason",
+    ownerBarTitle: "Manage my post",
     writePost: "Write a post",
     editPost: "Edit post",
     chooseBoard: "Where do you want to post?",
