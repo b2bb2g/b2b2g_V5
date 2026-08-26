@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings, settingNumber } from "@/lib/data/settings";
 import {
   BADGE_CODES,
+  BOARD_TYPES,
   POST_STATUS,
   SETTING_KEYS,
   STORAGE_BUCKETS,
@@ -28,6 +29,9 @@ export type PostInput = {
   bodyKo: string;
   categoryId: string | null;
   deadline: string | null;
+  eventStart: string | null;
+  eventEnd: string | null;
+  eventVenue: string | null;
   repVideoUrl: string;
   repIsVideo: boolean;
   imagePaths: string[];
@@ -37,6 +41,17 @@ export type PostInput = {
   asDraft: boolean;
   postId?: string;
 };
+
+function isValidDateOnly(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
+  );
+}
 
 async function isPaidMember(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -63,6 +78,26 @@ export async function savePost(input: PostInput): Promise<{ error?: string; post
     .eq("slug", input.menuSlug)
     .maybeSingle();
   if (!menu) return { error: "menu" };
+
+  const isEvent = menu.board_type === BOARD_TYPES.FLEXIBLE;
+  const eventStart = isEvent ? input.eventStart?.trim() || null : null;
+  const eventEnd = isEvent ? input.eventEnd?.trim() || null : null;
+  const eventVenue = isEvent ? input.eventVenue?.trim() || null : null;
+  if (
+    (eventStart && !isValidDateOnly(eventStart)) ||
+    (eventEnd && !isValidDateOnly(eventEnd))
+  ) {
+    return { error: "event_date_invalid" };
+  }
+  if (!input.asDraft && isEvent && !eventStart) {
+    return { error: "event_start_required" };
+  }
+  if (eventStart && eventEnd && eventEnd < eventStart) {
+    return { error: "event_end_before_start" };
+  }
+  if (eventVenue && eventVenue.length > 200) {
+    return { error: "event_venue_too_long" };
+  }
 
   // Free-member post quota (admin-set value; certified members unlimited).
   // Applies to brand-new posts AND drafts being submitted for review --
@@ -113,6 +148,9 @@ export async function savePost(input: PostInput): Promise<{ error?: string; post
       p_body_ko: input.bodyKo,
       p_category_id: input.categoryId,
       p_deadline: input.deadline || null,
+      p_event_start: eventStart,
+      p_event_end: eventEnd,
+      p_event_venue: eventVenue,
       p_rep_video_url: input.repVideoUrl,
       p_rep_is_video: input.repIsVideo,
       p_rep_image_path: input.repImagePath,

@@ -43,6 +43,9 @@ type Props = {
     bodyKo: string;
     categoryId: string | null;
     deadline: string;
+    eventStart: string;
+    eventEnd: string;
+    eventVenue: string;
     repVideoUrl: string;
     repIsVideo: boolean;
     repImagePath: string | null;
@@ -168,6 +171,9 @@ export function PostComposer({
     initial?.categoryId ?? null,
   );
   const [deadline, setDeadline] = useState(initial?.deadline ?? "");
+  const [eventStart, setEventStart] = useState(initial?.eventStart ?? "");
+  const [eventEnd, setEventEnd] = useState(initial?.eventEnd ?? "");
+  const [eventVenue, setEventVenue] = useState(initial?.eventVenue ?? "");
   const [videoUrl, setVideoUrl] = useState(initial?.repVideoUrl ?? "");
   const [repIsVideo, setRepIsVideo] = useState(initial?.repIsVideo ?? false);
   const [images, setImages] = useState<string[]>(initial?.imagePaths ?? []);
@@ -183,7 +189,20 @@ export function PostComposer({
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const bodyText = stripHtml(bodyEn);
-  const valid = titleEn.trim().length > 0 && bodyText.length > 0;
+  const isEvent = boardType === BOARD_TYPES.FLEXIBLE;
+  const eventDatesValid =
+    !isEvent || !eventEnd || (!!eventStart && eventEnd >= eventStart);
+  const valid =
+    titleEn.trim().length > 0 &&
+    bodyText.length > 0 &&
+    (!isEvent || eventStart.length > 0) &&
+    eventDatesValid;
+  const validationHint =
+    isEvent && !eventStart
+      ? t.post.eventStartRequired
+      : isEvent && !eventDatesValid
+        ? t.post.eventEndBeforeStart
+        : t.post.submitHint;
   const quotaBlocked = !!quota && !initial?.postId && quota.used >= quota.limit;
 
   useEffect(() => {
@@ -242,6 +261,9 @@ export function PostComposer({
       bodyKo,
       categoryId,
       deadline: boardType === BOARD_TYPES.REQUEST ? deadline || null : null,
+      eventStart: isEvent ? eventStart || null : null,
+      eventEnd: isEvent ? eventEnd || null : null,
+      eventVenue: isEvent ? eventVenue.trim() || null : null,
       repVideoUrl: videoUrl,
       repIsVideo,
       imagePaths: images,
@@ -266,10 +288,18 @@ export function PostComposer({
     }, 30_000);
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- interval reads latest state via closure re-created on each render cycle of deps below
-  }, [autosave, pending, uploading, titleEn, titleKo, bodyEn, bodyKo, categoryId, deadline, videoUrl, repIsVideo, images, repImage, attachments, specs]);
+  }, [autosave, pending, uploading, titleEn, titleKo, bodyEn, bodyKo, categoryId, deadline, eventStart, eventEnd, eventVenue, videoUrl, repIsVideo, images, repImage, attachments, specs]);
 
   function submit(asDraft: boolean) {
     setError(null);
+    if (!asDraft && isEvent && !eventStart) {
+      setError(t.post.eventStartRequired);
+      return;
+    }
+    if (isEvent && eventStart && eventEnd && eventEnd < eventStart) {
+      setError(t.post.eventEndBeforeStart);
+      return;
+    }
     if (!asDraft && !valid) {
       setError(t.post.submitHint);
       return;
@@ -279,6 +309,14 @@ export function PostComposer({
       const result = await savePost(input);
       if (result.error === "limit") {
         setError(t.post.postLimitReached);
+        return;
+      }
+      if (result.error === "event_start_required") {
+        setError(t.post.eventStartRequired);
+        return;
+      }
+      if (result.error === "event_end_before_start") {
+        setError(t.post.eventEndBeforeStart);
         return;
       }
       if (result.error) {
@@ -423,6 +461,61 @@ export function PostComposer({
             </div>
           )}
         </Section>
+
+        {isEvent && (
+          <Section title={t.post.sectionEvent}>
+            <p className="text-xs leading-5 text-ink-faint">
+              {t.post.eventScheduleHint}
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <FieldLabel>
+                  {t.post.eventStart} ({t.common.required})
+                </FieldLabel>
+                <input
+                  type="date"
+                  value={eventStart}
+                  onChange={(e) => {
+                    setEventStart(e.target.value);
+                    markDirty();
+                  }}
+                  required
+                  className={inputCls}
+                />
+              </label>
+              <label className="block">
+                <FieldLabel>
+                  {t.post.eventEnd} ({t.common.optional})
+                </FieldLabel>
+                <input
+                  type="date"
+                  value={eventEnd}
+                  min={eventStart || undefined}
+                  onChange={(e) => {
+                    setEventEnd(e.target.value);
+                    markDirty();
+                  }}
+                  className={inputCls}
+                />
+              </label>
+            </div>
+            <label className="block">
+              <FieldLabel>
+                {t.post.eventVenue} ({t.common.optional})
+              </FieldLabel>
+              <input
+                value={eventVenue}
+                maxLength={200}
+                onChange={(e) => {
+                  setEventVenue(e.target.value);
+                  markDirty();
+                }}
+                placeholder={t.post.eventVenuePlaceholder}
+                className={inputCls}
+              />
+            </label>
+          </Section>
+        )}
 
         {boardType === BOARD_TYPES.REQUEST && (
           <Section title={t.post.sectionRequest}>
@@ -680,7 +773,7 @@ export function PostComposer({
                 {autoSavedAt ? `${t.post.autoSaved} · ${autoSavedAt}` : ""}
               </span>
               {!valid && !quotaBlocked && (
-                <span className="shrink-0">{t.post.submitHint}</span>
+                <span className="shrink-0">{validationHint}</span>
               )}
             </p>
           )}
