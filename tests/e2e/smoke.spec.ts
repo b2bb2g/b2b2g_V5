@@ -25,6 +25,40 @@ test("landing renders the storefront sections", async ({ page }) => {
   ).toHaveCount(0);
 });
 
+test.describe("iOS home-screen installation", () => {
+  test.use({
+    userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 Version/18.6 Mobile/15E148 Safari/604.1",
+  });
+
+  test("publishes Apple metadata and shows the manual Safari steps", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("cookie-consent", "accepted");
+    });
+    await page.goto("/");
+
+    await expect(
+      page.locator('meta[name="apple-mobile-web-app-capable"]'),
+    ).toHaveAttribute("content", "yes");
+    await expect(
+      page.locator('meta[name="apple-mobile-web-app-title"]'),
+    ).toHaveAttribute("content", "B2BB2G");
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
+
+    const steps = page.getByRole("list", {
+      name: "How to add B2BB2G to an iPhone Home Screen",
+    });
+    await expect(steps).toBeVisible();
+    const items = steps.getByRole("listitem");
+    await expect(items).toHaveCount(3);
+    await expect(items.nth(0)).toContainText("Share");
+    await expect(items.nth(1)).toContainText("Add to Home Screen");
+    await expect(items.nth(2)).toContainText("Add");
+  });
+});
+
 test("product board separates recommendations, new items and the full directory", async ({
   page,
 }) => {

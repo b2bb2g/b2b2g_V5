@@ -1449,7 +1449,12 @@ const ko: Dict = {
     installTitle: "앱으로 편하게 이용하세요",
     installBody: "B2BB2G를 홈 화면에 추가하면 앱처럼 빠르게 이용할 수 있습니다.",
     install: "설치",
-    iosHint: "Safari에서 공유 버튼을 누른 뒤 '홈 화면에 추가'를 선택해 주세요.",
+    iosHint: "Safari 하단의 공유 버튼을 누르면 홈 화면에 바로가기를 추가할 수 있습니다.",
+    iosOpenSafari: "Safari로 이 페이지를 연 뒤 아래 순서대로 추가해 주세요.",
+    iosStepsLabel: "아이폰 홈 화면 추가 방법",
+    iosStepShare: "공유",
+    iosStepAddHome: "홈 화면에 추가",
+    iosStepConfirm: "추가",
     dismiss: "다음에 하기",
   },
   editor: {

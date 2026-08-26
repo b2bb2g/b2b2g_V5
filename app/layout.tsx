@@ -6,6 +6,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#1b64da",
 };
 import { Suspense } from "react";
 import { Noto_Sans_KR } from "next/font/google";
@@ -66,6 +67,16 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: title, template: `%s | ${title}` },
     description,
     applicationName: title,
+    appleWebApp: {
+      capable: true,
+      title,
+      statusBarStyle: "default",
+    },
+    other: {
+      // Keep the Apple-specific tag for older iOS releases. Modern iOS also
+      // reads the manifest's standalone display mode.
+      "apple-mobile-web-app-capable": "yes",
+    },
     openGraph: {
       type: "website",
       siteName: title,

@@ -20,7 +20,9 @@ import {
 // appears only after consent has been handled. Bottom banners only, no
 // full-screen interrupts.
 const CONSENT_KEY = COOKIE_CONSENT_KEY;
-const PWA_DISMISS_KEY = "pwa-banner-dismissed-at";
+// Version the key so people who dismissed the older one-line iOS notice get
+// one chance to see the actionable installation steps.
+const PWA_DISMISS_KEY = "pwa-banner-dismissed-at-v2";
 const PUSH_DISMISS_KEY = "push-banner-dismissed-at";
 
 type BeforeInstallPromptEvent = Event & {
@@ -49,6 +51,7 @@ export function GlobalBanners({
   const [pwaDismissed, setPwaDismissed] = useState(true);
   const [isStandalone, setIsStandalone] = useState(true);
   const [isIos, setIsIos] = useState(false);
+  const [isIosSafari, setIsIosSafari] = useState(false);
   const [isInApp, setIsInApp] = useState(false);
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
@@ -70,9 +73,19 @@ export function GlobalBanners({
         ("standalone" in navigator &&
           (navigator as { standalone?: boolean }).standalone === true),
     );
-    setIsIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
+    const ua = navigator.userAgent;
+    const appleMobile =
+      /iphone|ipad|ipod/i.test(ua) ||
+      // iPadOS may identify itself as macOS when desktop websites are enabled.
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    setIsIos(appleMobile);
+    setIsIosSafari(
+      appleMobile &&
+        /Safari/i.test(ua) &&
+        !/CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua),
+    );
     setIsInApp(
-      /KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent),
+      /KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(ua),
     );
 
     const handler = (e: Event) => {
@@ -271,9 +284,56 @@ export function GlobalBanners({
     >
       <div className="mx-auto max-w-3xl rounded-card border border-line bg-surface p-4 shadow-lg">
         <p className="text-sm font-bold">{pwa.installTitle}</p>
-        <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">
-          {isIos ? pwa.iosHint : pwa.installBody}
-        </p>
+        {isIos ? (
+          <>
+            <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+              {isIosSafari ? pwa.iosHint : pwa.iosOpenSafari}
+            </p>
+            <ol
+              className="mt-3 grid grid-cols-3 gap-2"
+              aria-label={pwa.iosStepsLabel}
+            >
+              <li className="rounded-xl bg-surface-sub px-2 py-2.5 text-center text-[11px] font-semibold leading-4 text-ink-soft">
+                <span className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                  1
+                </span>
+                <span className="inline-flex items-center justify-center gap-1">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 16V3m0 0L8 7m4-4 4 4" />
+                    <path d="M5 11v8h14v-8" />
+                  </svg>
+                  {pwa.iosStepShare}
+                </span>
+              </li>
+              <li className="rounded-xl bg-surface-sub px-2 py-2.5 text-center text-[11px] font-semibold leading-4 text-ink-soft">
+                <span className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                  2
+                </span>
+                {pwa.iosStepAddHome}
+              </li>
+              <li className="rounded-xl bg-surface-sub px-2 py-2.5 text-center text-[11px] font-semibold leading-4 text-ink-soft">
+                <span className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                  3
+                </span>
+                {pwa.iosStepConfirm}
+              </li>
+            </ol>
+          </>
+        ) : (
+          <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">
+            {pwa.installBody}
+          </p>
+        )}
         <div className="mt-3 flex gap-2">
           <button
             type="button"

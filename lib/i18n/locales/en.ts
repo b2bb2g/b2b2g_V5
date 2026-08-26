@@ -1477,7 +1477,12 @@ const en = {
     installTitle: "Use it like an app",
     installBody: "Add B2BB2G to your home screen for quick access.",
     install: "Install",
-    iosHint: "In Safari, tap the Share button and choose Add to Home Screen.",
+    iosHint: "Use Safari's Share button to add B2BB2G to your Home Screen.",
+    iosOpenSafari: "Open this page in Safari, then follow the steps below.",
+    iosStepsLabel: "How to add B2BB2G to an iPhone Home Screen",
+    iosStepShare: "Share",
+    iosStepAddHome: "Add to Home Screen",
+    iosStepConfirm: "Add",
     dismiss: "Not now",
   },
   editor: {
