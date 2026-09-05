@@ -994,6 +994,7 @@ const ko: Dict = {
       signup_mode: "회원가입 모드 (open, invite_only, paused)",
       referral_invite_expiry_days: "초대 링크 만료 기간 (일)",
       referral_invite_max_active: "회원별 활성 초대 한도",
+      auth_captcha_enabled: "로그인·회원가입 퍼즐 인증 (비밀번호 재설정·인증 메일 재발송 포함)",
       login_session_policy: "동시 로그인 정책",
       new_device_email_alert: "새 기기 로그인 이메일 알림",
       suspicious_login_email_alert: "의심 로그인 시도 이메일 알림",

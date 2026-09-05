@@ -1,16 +1,19 @@
 import { expect, test } from "@playwright/test";
 
-test("sign-in and reset surfaces remain usable without submitting captcha", async ({
+test("auth forms default to no CAPTCHA", async ({
   page,
 }) => {
   await page.goto("/login");
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
   await expect(page.locator('input[name="email"]')).toBeEditable();
   await expect(page.locator('input[name="password"]')).toBeEditable();
+  await expect(page.locator('input[name="captchaToken"], iframe[src*="hcaptcha.com"]')).toHaveCount(0);
   await page.goto("/reset");
   await expect(page.getByRole("button", { name: "Send reset link" })).toBeVisible();
+  await expect(page.locator('input[name="captchaToken"], iframe[src*="hcaptcha.com"]')).toHaveCount(0);
   await page.goto("/verify");
   await expect(page.getByRole("button", { name: "Resend email" })).toBeVisible();
+  await expect(page.locator('input[name="captchaToken"], iframe[src*="hcaptcha.com"]')).toHaveCount(0);
 });
 
 test("public signup is closed unless a valid invitation is present", async ({ page }) => {

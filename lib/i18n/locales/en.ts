@@ -1020,6 +1020,7 @@ const en = {
       signup_mode: "Signup mode (open, invite_only, paused)",
       referral_invite_expiry_days: "Invitation expiry (days)",
       referral_invite_max_active: "Active invitations per member",
+      auth_captcha_enabled: "Login / signup CAPTCHA (including password reset and email resend)",
       login_session_policy: "Concurrent login policy",
       new_device_email_alert: "Email alert for a new device",
       suspicious_login_email_alert: "Email alert for suspicious sign-in attempts",

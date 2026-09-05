@@ -11,7 +11,7 @@ function asSessionCookie(options: CookieOptions | undefined): CookieOptions {
   return finalOptions;
 }
 
-export async function createClient(opts?: { sessionOnly?: boolean }) {
+export async function createClient(opts?: { sessionOnly?: boolean; authFetch?: typeof fetch }) {
   const cookieStore = await cookies();
   const sessionOnly =
     opts?.sessionOnly ??
@@ -21,6 +21,7 @@ export async function createClient(opts?: { sessionOnly?: boolean }) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
+      ...(opts?.authFetch ? { global: { fetch: opts.authFetch } } : {}),
       cookies: {
         getAll() {
           return cookieStore.getAll();

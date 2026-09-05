@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { audit, requireAdmin, type AdminPermission } from "@/app/actions/admin/core";
 import { STORAGE_BUCKETS } from "@/lib/constants";
@@ -86,7 +86,7 @@ export async function updateOperationsSetting(formData: FormData) {
   const raw = String(formData.get("value") ?? "");
   const allowedPrefixes: Record<string, string[]> = {
     notifications: ["email_notify_", "subscription_expiry_notice_days", "admin_digest_hour"],
-    security: ["login_session_policy", "new_device_email_alert", "suspicious_login_email_alert", "failed_login_threshold", "security_log_retention_days"],
+    security: ["auth_captcha_enabled", "login_session_policy", "new_device_email_alert", "suspicious_login_email_alert", "failed_login_threshold", "security_log_retention_days"],
     content: ["site_", "seo_", "robots_", "google_", "naver_", "cookie_banner_"],
     settings: ["pwa_", "inapp_", "upload_", "translation_", "video_", "category_", "featured_", "free_post_", "referral_", "signup_", "coordinator_", "admin_queue_"],
   };
@@ -97,14 +97,34 @@ export async function updateOperationsSetting(formData: FormData) {
   if (kind === "boolean") value = raw === "true";
   if (kind === "number") value = Number(raw) || 0;
 
-  await supabase
-    .from("site_settings")
-    .update({ value, updated_by: userId, updated_at: new Date().toISOString() })
-    .eq("key", key)
-    .throwOnError();
+  if (key === "auth_captcha_enabled") {
+    if (permission !== "security" || kind !== "boolean" || !["true", "false"].includes(raw)) {
+      redirect("/admin/security?error=invalid");
+    }
+    if (value === true && !process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY) {
+      throw new Error("NEXT_PUBLIC_HCAPTCHA_SITE_KEY is required to enable CAPTCHA");
+    }
+    if (value === false && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error("SUPABASE_SERVICE_ROLE_KEY is required to disable CAPTCHA");
+    }
+    await supabase.from("site_settings").upsert({
+      key, value, is_public: true, updated_by: userId, updated_at: new Date().toISOString(),
+    }).throwOnError();
+  } else {
+    await supabase
+      .from("site_settings")
+      .update({ value, updated_by: userId, updated_at: new Date().toISOString() })
+      .eq("key", key)
+      .throwOnError();
+  }
   await audit(supabase, "operations_setting_change", "site_setting", key, { value, permission });
   revalidatePath("/admin", "layout");
-  revalidateTag("site-settings", "max");
+  if (key === "auth_captcha_enabled") {
+    updateTag("site-settings");
+    revalidatePath("/", "layout");
+  } else {
+    revalidateTag("site-settings", "max");
+  }
 }
 
 export async function uploadSiteAsset(formData: FormData) {

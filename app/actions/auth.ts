@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAuthClient } from "@/lib/supabase/auth-client";
 import { PENDING_VERIFY_EMAIL_COOKIE, PW_RESET_COOKIE, SESSION_ONLY_COOKIE } from "@/lib/constants";
 import { safeInternalPath } from "@/lib/navigation";
 import { ensureDeviceIdentity, requestSecurityContext, sessionIdFromJwt } from "@/lib/security";
@@ -35,7 +36,8 @@ export async function signUp(formData: FormData) {
     redirect(`/signup?error=weak${invite ? `&invite=${encodeURIComponent(invite)}` : ""}`);
   }
 
-  const supabase = await createClient();
+  const { supabase, captchaEnabled } = await createAuthClient();
+  if (captchaEnabled && !captchaToken) redirect(`/signup?error=captcha${inviteQuery}`);
   const { data: availability, error: availabilityError } = await supabase.rpc(
     "check_signup_email",
     { p_email: email, p_invite_token: invite || null },
@@ -61,7 +63,7 @@ export async function signUp(formData: FormData) {
         ...(invite ? { invite_token: invite } : {}),
         marketing_consent: marketingConsent,
       },
-      captchaToken,
+      captchaToken: captchaEnabled ? captchaToken : undefined,
     },
   });
 
@@ -111,11 +113,12 @@ export async function signIn(formData: FormData) {
     });
   }
 
-  const supabase = await createClient({ sessionOnly: !remember });
+  const { supabase, captchaEnabled } = await createAuthClient(!remember);
+  if (captchaEnabled && !captchaToken) redirect(`/login?error=captcha&next=${encodeURIComponent(next)}`);
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
-    options: { captchaToken },
+    options: { captchaToken: captchaEnabled ? captchaToken : undefined },
   });
 
   if (error) {
@@ -262,10 +265,11 @@ export async function signOut() {
 export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const captchaToken = String(formData.get("captchaToken") ?? "") || undefined;
-  const supabase = await createClient();
+  const { supabase, captchaEnabled } = await createAuthClient();
+  if (captchaEnabled && !captchaToken) redirect("/reset?error=captcha");
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${siteUrl()}/auth/confirm?next=/reset/update`,
-    captchaToken,
+    captchaToken: captchaEnabled ? captchaToken : undefined,
   });
   if (error) {
     const message = error.message.toLowerCase();
@@ -280,13 +284,14 @@ export async function resendVerification(formData: FormData) {
   const email = store.get(PENDING_VERIFY_EMAIL_COOKIE)?.value;
   if (!email) redirect("/signup");
   const captchaToken = String(formData.get("captchaToken") ?? "") || undefined;
-  const supabase = await createClient();
+  const { supabase, captchaEnabled } = await createAuthClient();
+  if (captchaEnabled && !captchaToken) redirect("/verify?error=captcha");
   const { error } = await supabase.auth.resend({
     type: "signup",
     email,
     options: {
       emailRedirectTo: `${siteUrl()}/auth/confirm`,
-      captchaToken,
+      captchaToken: captchaEnabled ? captchaToken : undefined,
     },
   });
   if (error) {

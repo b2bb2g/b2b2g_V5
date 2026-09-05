@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getT } from "@/lib/i18n/server";
 import { LocaleMenu } from "@/components/layout/LocaleMenu";
 import type { Metadata } from "next";
+import { getPublicSettings, settingBool } from "@/lib/data/settings";
+import { CaptchaProvider } from "@/components/auth/CaptchaField";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -13,7 +15,9 @@ export default async function AuthLayout({
   children: React.ReactNode;
 }) {
   const { t, locale } = await getT();
+  const settings = await getPublicSettings();
   return (
+    <CaptchaProvider enabled={settingBool(settings, "auth_captcha_enabled", false)}>
     <div className="auth-shell full-bleed grid min-h-screen-safe bg-surface lg:grid-cols-[minmax(0,1fr)_minmax(32rem,0.8fr)]">
       <aside className="relative hidden overflow-hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="absolute inset-0 opacity-70 [background:radial-gradient(circle_at_20%_15%,rgba(49,130,246,.55),transparent_32%),radial-gradient(circle_at_80%_80%,rgba(49,130,246,.2),transparent_34%)]" />
@@ -47,5 +51,6 @@ export default async function AuthLayout({
         <div className="mx-auto flex w-full max-w-md flex-1 items-center py-8">{children}</div>
       </section>
     </div>
+    </CaptchaProvider>
   );
 }

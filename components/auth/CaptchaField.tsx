@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { flushSync, useFormStatus } from "react-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+
+const CaptchaEnabledContext = createContext(false);
+
+export function CaptchaProvider({ enabled, children }: { enabled: boolean; children: React.ReactNode }) {
+  return <CaptchaEnabledContext value={enabled}>{children}</CaptchaEnabledContext>;
+}
 
 // Invisible-captcha submit button: pressing it runs hCaptcha in the
 // background (a challenge pops only for suspicious traffic), then submits
 // the surrounding form with the token attached. Falls back to a plain
-// submit button when no site key is configured.
+// submit button when CAPTCHA is disabled or no site key is configured.
 export function CaptchaSubmit({
   label,
   disabled = false,
@@ -17,7 +23,8 @@ export function CaptchaSubmit({
   disabled?: boolean;
   describedBy?: string;
 }) {
-  const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
+  const enabled = useContext(CaptchaEnabledContext);
+  const siteKey = enabled ? process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY : undefined;
   const captchaRef = useRef<HCaptcha>(null);
   const [token, setToken] = useState("");
   const [verifying, setVerifying] = useState(false);

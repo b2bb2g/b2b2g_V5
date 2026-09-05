@@ -137,7 +137,17 @@
 - 일괄 작업: 회원 목록 체크박스 선택 → 알림 발송(운영팀 알림) 또는 등급 변경, 감사 기록
 - 접속 이력: 로그인 이벤트 기록(UA 포함) + last_seen 하트비트(시간당 1회), 회원 상세 표시
 
-## hCaptcha (2026-07-11 구현 완료)
+## hCaptcha (2026-09-05 관리자 사용 여부 설정 추가)
+
+- 관리자 → 보안 운영(`/admin/security`)의 `auth_captcha_enabled`로 사용 여부 선택.
+  기본값은 OFF이며 설정 행이 없는 기존 DB에서도 OFF로 동작하고 최초 저장 시 행을 생성.
+  로그인·회원가입·비밀번호 재설정·인증 메일 재발송에 공통 적용.
+- OFF는 서버 전용 `SUPABASE_SERVICE_ROLE_KEY`가 필요하며, 네 가지 Auth POST 요청에만
+  적용해 Supabase CAPTCHA 검증을 생략. 비밀번호 검증·이메일 확인 절차는 유지하며
+  DB·스토리지·세션 갱신 요청에는 기존 사용자 권한을 사용.
+- ON은 아래 hCaptcha 검증을 사용. 제출마다 DB 설정을 다시 읽고, 관리자 저장 시
+  설정 캐시를 즉시 만료시킴. 신규 DB 초기값 마이그레이션:
+  `supabase/migrations/20260905090000_auth_captcha_setting.sql`.
 
 - **인비저블 모드**: 체크박스 없음. 제출 버튼(`CaptchaSubmit`, components/auth/CaptchaField.tsx)이
   클릭 시 백그라운드 검증(의심 트래픽만 퍼즐 팝업) 후 토큰을 붙여 폼 제출.

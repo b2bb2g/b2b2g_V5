@@ -30,10 +30,14 @@ export default async function AdminSecurityPage() {
     supabase.from("trusted_devices").select("id", { count: "exact", head: true }),
     supabase.from("login_events").select("id, profile_id, device_label, ip_masked, country, city, risk_level, is_new_device, created_at, profiles(uid)").neq("risk_level", "normal").order("created_at", { ascending: false }).limit(20),
     supabase.from("login_failure_events").select("id, profile_id, ip_masked, country, user_agent, created_at, profiles(uid)").order("created_at", { ascending: false }).limit(20),
-    supabase.from("site_settings").select("key, value").in("key", ["login_session_policy", "new_device_email_alert", "suspicious_login_email_alert", "failed_login_threshold", "security_log_retention_days"]).order("key"),
+    supabase.from("site_settings").select("key, value").in("key", ["auth_captcha_enabled", "login_session_policy", "new_device_email_alert", "suspicious_login_email_alert", "failed_login_threshold", "security_log_retention_days"]).order("key"),
     supabase.from("trusted_devices").select("id, profile_id, label, last_ip_masked, last_country, last_seen_at, profiles(uid)").order("last_seen_at", { ascending: false }).limit(20),
     supabase.from("app_error_logs").select("id, source, message, url, created_at").order("created_at", { ascending: false }).limit(20),
   ]);
+  const securitySettings = (settings ?? []) as Setting[];
+  if (!securitySettings.some((setting) => setting.key === "auth_captcha_enabled")) {
+    securitySettings.unshift({ key: "auth_captcha_enabled", value: false });
+  }
   const labels: Record<string, string> = t.admin.settingLabels;
   const format = (value: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 
@@ -57,7 +61,7 @@ export default async function AdminSecurityPage() {
       <section className="card overflow-hidden">
         <div className="border-b border-line px-5 py-4"><h3 className="font-extrabold">{t.admin.securityOps}</h3></div>
         <div className="divide-y divide-line">
-          {((settings ?? []) as Setting[]).map((setting) => {
+          {securitySettings.map((setting) => {
             const isBool = typeof setting.value === "boolean";
             const isNumber = typeof setting.value === "number";
             return <form key={setting.key} action={updateOperationsSetting} className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
