@@ -173,7 +173,7 @@ export default async function DashboardPage() {
     {
       key: "save",
       label: t.dashboard.onboardSave,
-      href: "/commercial",
+      href: "/ict-hse",
       done: (bookmarkCount.count ?? 0) > 0,
     },
     {

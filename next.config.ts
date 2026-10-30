@@ -44,6 +44,15 @@ const nextConfig: NextConfig = {
     // Optimized images rarely change per URL; keep them in the CDN cache.
     minimumCacheTTL: 2678400,
   },
+  async redirects() {
+    return [
+      {
+        source: "/commercial/:path*",
+        destination: "/ict-hse/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

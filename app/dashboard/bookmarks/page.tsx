@@ -50,7 +50,7 @@ export default async function BookmarksPage() {
             <div key={post.id} className="relative">
               <ProductCard
                 post={post}
-                href={`/${menuSlugById.get(post.menu_id) ?? "commercial"}/${post.id}`}
+                href={`/${menuSlugById.get(post.menu_id) ?? "ict-hse"}/${post.id}`}
                 locale={locale}
                 priority={index < 4}
                 bookmark={{

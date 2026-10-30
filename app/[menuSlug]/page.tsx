@@ -43,7 +43,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Menu, PostTeaser } from "@/lib/types";
 
 const RECOMMENDED_COLLECTION_IMAGES: Record<string, string> = {
-  commercial: "/landing-v2/market-rail-commercial.jpg",
+  "ict-hse": "/landing-v2/market-rail-commercial.jpg",
   industrial: "/landing-v2/market-rail-industrial.jpg",
   epc: "/landing-v2/market-rail-epc.jpg",
 };

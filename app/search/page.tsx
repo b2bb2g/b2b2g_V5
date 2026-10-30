@@ -107,7 +107,7 @@ export default async function SearchPage(props: {
   );
   const firstProductBoard =
     menus.find((menu) => menu.board_type === BOARD_TYPES.PRODUCT)?.slug ??
-    "commercial";
+    "ict-hse";
   const requestsSlug =
     menus.find((menu) => menu.board_type === BOARD_TYPES.REQUEST)?.slug ??
     "requests";

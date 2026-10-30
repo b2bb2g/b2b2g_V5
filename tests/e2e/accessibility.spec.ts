@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 
 const publicRoutes = [
   "/",
-  "/commercial",
+  "/ict-hse",
   "/industrial",
   "/epc",
   "/requests",

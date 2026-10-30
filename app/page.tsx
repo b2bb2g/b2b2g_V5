@@ -184,7 +184,7 @@ async function LandingContent() {
   const firstProductBoard =
     menus.find((menu) => menu.board_type === BOARD_TYPES.PRODUCT)?.slug ??
     "industrial";
-  const marketRailMenus = ["commercial", "industrial", "epc"]
+  const marketRailMenus = ["ict-hse", "industrial", "epc"]
     .map((slug) => menus.find((menu) => menu.slug === slug))
     .filter((menu): menu is Menu => Boolean(menu));
   const [storefront, feedItems] = await Promise.all([
@@ -230,7 +230,7 @@ async function LandingContent() {
     string,
     { tagline: string; title: string; body: string; image: string }
   > = {
-    commercial: {
+    "ict-hse": {
       tagline: L("commercialRailTagline"),
       title: L("commercialRailTitle"),
       body: L("commercialRailBody"),

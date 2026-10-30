@@ -145,13 +145,13 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_en": "What is on the header (the top bar)? (PC and phone differ)",
         "a_ko": [
           "왼쪽 로고(B2BB2G)는 PC·휴대폰 공통입니다. 누르면 첫 화면으로 돌아갑니다.",
-          "[넓은 화면(PC)] 가운데에 게시판 메뉴가 나란히 펼쳐집니다: Commercial, Industrial, EPF+C(Local), RFQ & ITB, Events, Services, Notices, FAQ. 오른쪽에는 돋보기(검색), 지구본(언어), 종(알림)이 있고, 로그인하면 동그란 프로필 사진(= '내 메뉴')이 보입니다.",
+          "[넓은 화면(PC)] 가운데에 게시판 메뉴가 나란히 펼쳐집니다: ICT & HSE, Industrial, EPF+C(Local), RFQ & ITB, Events, Services, Notices, FAQ. 오른쪽에는 돋보기(검색), 지구본(언어), 종(알림)이 있고, 로그인하면 동그란 프로필 사진(= '내 메뉴')이 보입니다.",
           "[좁은 화면(휴대폰)] 맨 위 줄에는 로고, 종(알림), 그리고 줄 세 개 모양의 메뉴 버튼(≡)만 보입니다. 게시판 메뉴·검색·언어·내 메뉴·로그인은 모두 메뉴 버튼(≡)을 눌러 열리는 서랍(아래로 펼쳐지는 목록) 안에 들어 있습니다.",
           "즉 PC에서 위쪽에 흩어져 있는 것들이, 휴대폰에서는 메뉴 버튼(≡) 하나에 모여 있다고 생각하면 됩니다."
         ],
         "a_en": [
           "The left logo (B2BB2G) is the same on PC and phone. Pressing it returns you to the first page.",
-          "[Wide screen (PC)] The board menus spread across the middle: Commercial, Industrial, EPF+C(Local), RFQ & ITB, Events, Services, Notices, FAQ. On the right are a magnifying glass (search), a globe (language), and a bell (notifications); after you log in, a round profile photo (= 'My Menu') appears.",
+          "[Wide screen (PC)] The board menus spread across the middle: ICT & HSE, Industrial, EPF+C(Local), RFQ & ITB, Events, Services, Notices, FAQ. On the right are a magnifying glass (search), a globe (language), and a bell (notifications); after you log in, a round profile photo (= 'My Menu') appears.",
           "[Narrow screen (phone)] The top bar shows only the logo, the bell (notifications), and a three-line menu button (≡). The board menus, search, language, My Menu and login all live inside the drawer that opens when you press the menu button (≡).",
           "In short: what is spread across the top on PC is gathered into the one menu button (≡) on a phone."
         ]
@@ -215,14 +215,14 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "게시판은 어떻게 나뉘어 있습니까?",
         "q_en": "How are the boards divided?",
         "a_ko": [
-          "Commercial은 바로 사용하는 소비재 상품 게시판입니다.",
+          "ICT & HSE은 바로 사용하는 소비재 상품 게시판입니다.",
           "Industrial은 장비·부품·제조 관련 상품 게시판입니다.",
           "EPF+C(Local)은 에너지·인프라 프로젝트 게시판입니다.",
           "RFQ & ITB는 견적·입찰 등 구매요청을 등록하는 게시판입니다.",
           "※ 게시판 구성은 운영 설정에 따라 달라질 수 있으니, 실제 메뉴는 헤더(휴대폰은 메뉴 버튼 ≡ 안)에서 확인하세요."
         ],
         "a_en": [
-          "Commercial is for ready-to-use consumer goods.",
+          "ICT & HSE is for ready-to-use consumer goods.",
           "Industrial is for equipment, parts, and manufacturing.",
           "EPF+C(Local) is for energy and infrastructure projects.",
           "RFQ & ITB is the board for posting requests (quotes and bids)."
@@ -259,13 +259,13 @@ export const FAQ_GUIDE: FaqGuideCategoryData[] = [
         "q_ko": "어느 게시판에 올려야 합니까?",
         "q_en": "Which board should I post on?",
         "a_ko": [
-          "바로 사용하는 소비재는 Commercial에 등록합니다.",
+          "바로 사용하는 소비재는 ICT & HSE에 등록합니다.",
           "장비·부품·제조 관련 상품은 Industrial에 등록합니다.",
           "에너지·인프라 프로젝트는 EPF+C(Local)에 등록합니다.",
           "※ 상품 등록을 시작하면 게시판 선택 화면이 먼저 나오므로, 성격에 맞는 게시판을 그때 고르면 됩니다."
         ],
         "a_en": [
-          "Post ready-to-use consumer goods on Commercial.",
+          "Post ready-to-use consumer goods on ICT & HSE.",
           "Post equipment, parts, and manufacturing items on Industrial.",
           "Post energy and infrastructure projects on EPF+C(Local)."
         ]
